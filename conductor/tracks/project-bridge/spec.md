@@ -1,3 +1,2 @@
-# Spec: Project Bridge (Networking)
-**Objective**: Establish secure Site-to-Site VPN and VPC topology.
-**Success Criteria**: Verified connectivity between AWS VPC and On-Prem simulated network.
+# Technical Specification: Project Bridge (Protocol Engine)
+High-frequency cross-region synchronization and event orchestration.

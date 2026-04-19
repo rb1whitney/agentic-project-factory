@@ -1,3 +1,2 @@
-# Spec: Project Fin-Sentinel (Financial Audit)
-**Objective**: Real-time cloud spend monitoring and compliance audit.
-**Success Criteria**: Daily cost reports generated; PCI-DSS compliance scan automation active.
+# Technical Specification: Project Fin-Sentinel (Financial Auditor)
+Policy-driven spend-guard and regional compliance monitor.
