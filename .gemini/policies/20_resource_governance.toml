@@ -1,0 +1,23 @@
+# RESOURCE GOVERNANCE: Preventing Destruction
+
+[[rules]]
+name = "Deny Destructive Shell Commands"
+description = "Strictly block irreversible destructive shell primitives."
+action = "deny"
+toolName = "run_command"
+commandRegex = "^(rm -rf /|mkfs|dd if|shred|wipe|parted)"
+
+[[rules]]
+name = "Restrict Terraform Destroy"
+description = "Grant terraform-expert authority to plan destruction, but ask user for execution."
+subagent = "terraform-expert"
+action = "ask_user"
+toolName = "run_command"
+commandPrefix = "terraform destroy"
+
+[[rules]]
+name = "Global Block Terraform Destroy"
+description = "Block accidental infrastructure destruction by non-experts."
+action = "deny"
+toolName = "run_command"
+commandPrefix = "terraform destroy"

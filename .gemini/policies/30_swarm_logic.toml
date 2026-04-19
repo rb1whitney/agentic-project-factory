@@ -1,0 +1,9 @@
+# SWARM LOGIC: Procedural Enforcement
+
+[[rules]]
+name = "Restrict Commit to Verified Agents"
+description = "Only the Supervisor can commit, and only if other agents are present in context."
+subagent = "swarm-supervisor"
+action = "allow"
+toolName = "run_command"
+commandPrefix = "git commit"

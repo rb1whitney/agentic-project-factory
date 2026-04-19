@@ -1,0 +1,55 @@
+{
+  "mcpServers": {
+    "terraform": {
+      "command": "./tools/mcp-servers/mcp-terraform/terraform-mcp-server",
+      "args": ["stdio"]
+    },
+    "github": {
+      "command": "./tools/mcp-servers/mcp-github/github-mcp-server",
+      "args": ["stdio"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "kubernetes": {
+      "command": "./tools/mcp-servers/mcp-kubernetes/kubernetes-mcp-server",
+      "args": []
+    },
+    "marketplace": {
+      "command": "./tools/mcp-servers/mcp-marketplace/marketplace-mcp-server",
+      "args": []
+    },
+    "gcloud": {
+      "command": "npx",
+      "args": ["-y", "@google-cloud/gcloud-mcp"]
+    },
+    "gcloud-observability": {
+      "command": "npx",
+      "args": ["-y", "@google-cloud/observability-mcp"]
+    },
+    "gcloud-storage": {
+      "command": "npx",
+      "args": ["-y", "@google-cloud/storage-mcp"]
+    },
+    "aws-docs": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": { "FASTMCP_LOG_LEVEL": "ERROR", "AWS_DOCUMENTATION_PARTITION": "aws" }
+    },
+    "aws-iac": {
+      "command": "uvx",
+      "args": ["awslabs.aws-iac-mcp-server@latest"],
+      "env": { "FASTMCP_LOG_LEVEL": "ERROR" }
+    },
+    "aws-eks": {
+      "command": "uvx",
+      "args": ["awslabs.eks-mcp-server@latest"],
+      "env": { "FASTMCP_LOG_LEVEL": "ERROR" }
+    },
+    "aws-iam": {
+      "command": "uvx",
+      "args": ["awslabs.iam-mcp-server@latest"],
+      "env": { "FASTMCP_LOG_LEVEL": "ERROR" }
+    }
+  }
+}

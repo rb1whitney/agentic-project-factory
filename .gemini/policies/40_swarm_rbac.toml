@@ -1,0 +1,37 @@
+# Swarm Role-Based Access Control (RBAC) Policy
+
+[[rules]]
+name = "Restrict Git Commit to Supervisor"
+subagent = "swarm-supervisor"
+description = "Only the Supervisor can commit verified and approved code."
+action = "allow"
+toolName = "run_command"
+commandPrefix = "git commit"
+
+[[rules]]
+name = "Deny Git Commit for others"
+description = "Prevent non-supervisor agents from committing code."
+action = "deny"
+toolName = "run_command"
+commandPrefix = "git commit"
+
+[[rules]]
+name = "Allow Engineer to Write files"
+subagent = "swarm-engineer"
+description = "The Engineer is authorized to implement code changes."
+action = "allow"
+toolName = "write_to_file"
+
+[[rules]]
+name = "Allow Infra Experts to Write files"
+subagent = "*-expert"
+description = "Infrastructure experts can write IaC manifests."
+action = "allow"
+toolName = "write_to_file"
+
+[[rules]]
+name = "Deny Write to Auditor/Architect"
+subagent = "swarm-architect"
+description = "Prevent Architects from making accidental code changes."
+action = "deny"
+toolName = "write_to_file"

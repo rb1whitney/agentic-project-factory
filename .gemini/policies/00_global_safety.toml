@@ -1,0 +1,36 @@
+# Gemini CLI Security Policy
+# Goal: Allow read-only operations without confirmation, require confirmation for mutations.
+
+# 1. Automatically allow all read-only built-in tools
+[[rule]]
+toolName = "*"
+toolAnnotations = { readOnlyHint = true }
+decision = "allow"
+priority = 100
+
+# 2. Allow common read-only/informational shell commands (no chaining/redirection)
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "^(ls|cat|grep|find|head|tail|wc|du|df|stat|file|which|type|man|info|whoami|pwd|date|uptime|id|groups|env|set|alias|history|ps|top|free|lscpu|lsblk|uname|hostname|whereis|readlink|realpath)(\\s+[^;&|`\\$\\s][^;&|`\\$]*)?$"
+decision = "allow"
+priority = 110
+
+# 3. Allow common read-only git commands
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "^git (status|log|diff|branch|remote|show|tag --list|rev-parse|ls-files|ls-tree|describe|name-rev|cat-file|config --list|config -l|blame|shortlog|count-objects|verify-tag|verify-commit|hash-object|check-ignore|check-attr)(\\s+[^;&|`\\$\\s][^;&|`\\$]*)?$"
+decision = "allow"
+priority = 110
+
+# 4. Allow common read-only cloud/cli commands (aws, gcloud, gh, kubectl, terraform, npm, pip, cargo)
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "^(aws|gcloud|gh|kubectl|terraform|npm|pip|cargo) ([-a-zA-Z0-9_-]+ )*(list|describe|get|view|status|info|show|plan|logs|output|check|metadata|outdated|v|version|freeze|tree|verify-project|pkgid|test --no-run|providers|test|cluster-info|config view|api-versions|api-resources|auth can-i|explain|l|ls)(\\s+[^;&|`\\$\\s][^;&|`\\$]*)?$"
+decision = "allow"
+priority = 110
+
+# 5. Require confirmation for everything else (mutating tools and unknown shell commands)
+[[rule]]
+toolName = "*"
+decision = "ask_user"
+priority = 10
