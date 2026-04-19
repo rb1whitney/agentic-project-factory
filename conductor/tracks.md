@@ -29,9 +29,20 @@ This ledger tracks the high-fidelity manufacturing of standalone products within
 - **Mission**: Modular connectivity and secure VPC automation.
 - **Project Hub**: [**projects/networking/**](file://../projects/networking/)
 - **Status**: [QUEUED]
-- **Manufacturing Goal**: Create a standalone VPC factory with zero root dependencies.
+- **Manufacturing Goal**: Hardening the factory floor and certifying Project Baker.
+- **Track Result**: [SHIPPED] - Hub is structuraly standalone and agenticly hardened.
+- **Anomaly Report**: Emergency Recovery Pass (64) successful. 
 
-### 🏭 Product: Modernization Track (Cloud App)
+### 🏭 Product: Project Baker (Globalizer Hub)
+- **Mission**: Modular regionalization and high-fidelity i18n automation.
+- **Project Hub**: [**projects/baker/**](file://../projects/baker/)
+- **Track: structural-autonomy-phase-4**
+  - Status: [SHIPPED]
+  - Goal: 100% Zero-Symlink physical cognitive store.
+- **Track: production-readiness-and-regional-expansion-phase-5**
+  - Status: [ACTIVE]
+  - Goal: High-fidelity template library and master panel certification.
+Track (Cloud App)
 - **Mission**: End-to-end modernization of the legacy `cloud-boot-app`.
 - **Project Hub**: [**projects/cloud-boot-app/**](file://../projects/cloud-boot-app/)
 - **Status**: [MODERNIZING]

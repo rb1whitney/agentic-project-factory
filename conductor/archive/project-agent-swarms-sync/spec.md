@@ -1,3 +1,5 @@
-# Spec: Agent Swarms Sync
-**Objective**: Transition from standalone experts to a centralized 12-agent Elite Swarm.
-**Success Criteria**: 12-agent manuals unified; SYSTEM.md security hardened; zero-trust enforced.
+# Spec: High-Fidelity Agent Reconstitution & Governance Hardening
+**Mission**: Restoring the factory's specialist workforce after a systemic asset displacement event.
+- Recover 100+ physical specialist assets (Agents & Skills).
+- Institutionalize the 'Zero-Delete Sanctity' and 'Physical Sovereignty' mandates.
+- Certify the integrity of the Specialist Vaults as physical sources of truth.
