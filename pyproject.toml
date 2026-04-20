@@ -1,0 +1,26 @@
+[tool.ruff]
+# Target version
+target-version = "py311"
+
+# Exclude patterns
+exclude = [
+    ".git",
+    ".ast_cache",
+    "projects",
+    "mcp-servers/mcp-*",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+]
+
+# Rule selection
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

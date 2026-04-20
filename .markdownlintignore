@@ -1,0 +1,4 @@
+projects/
+mcp-servers/mcp-*/
+.ast_cache/
+node_modules/
