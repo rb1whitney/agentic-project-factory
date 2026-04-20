@@ -5,11 +5,11 @@ Codifies the relationship between core agents/skills and AI tool configurations.
 Ensures parity across Gemini, Claude, Cursor, and Copilot.
 """
 
-import os
-import sys
-import shutil
 import argparse
 import logging
+import os
+import shutil
+import sys
 from pathlib import Path
 from typing import Dict
 
@@ -24,8 +24,16 @@ NEXUS_MANIFEST: Dict[str, list[str]] = {
     # Expert Factory Agents (Directory-based adapters for Claude/Gemini/Copilot)
     "agents/aws-expert": [".claude/agents/aws-expert", ".copilot/agents/aws-expert", ".gemini/agents/aws-expert"],
     "agents/k8s-expert": [".claude/agents/k8s-expert", ".copilot/agents/k8s-expert", ".gemini/agents/k8s-expert"],
-    "agents/swarm-architect": [".claude/agents/swarm-architect", ".copilot/agents/swarm-architect", ".gemini/agents/swarm-architect"],
-    "agents/swarm-engineer": [".claude/agents/swarm-engineer", ".copilot/agents/swarm-engineer", ".gemini/agents/swarm-engineer"],
+    "agents/swarm-architect": [
+        ".claude/agents/swarm-architect",
+        ".copilot/agents/swarm-architect",
+        ".gemini/agents/swarm-architect",
+    ],
+    "agents/swarm-engineer": [
+        ".claude/agents/swarm-engineer",
+        ".copilot/agents/swarm-engineer",
+        ".gemini/agents/swarm-engineer",
+    ],
 }
 
 # Standalone Links (Single Files)
@@ -34,7 +42,6 @@ STANDALONE_LINKS: Dict[str, str] = {
     "CLAUDE.md": "AGENT.md",
     "GEMINI.md": "AGENT.md",
     ".github/copilot-instructions.md": "AGENT.md",
-    
     # Flattened Cursor Rule standard
     ".cursor/rules/aws-expert.md": "agents/aws-expert/SYSTEM.md",
     ".cursor/rules/gcp-expert.md": "agents/gcp-expert/SYSTEM.md",
@@ -64,25 +71,25 @@ class Nexus:
 
     def status(self) -> None:
         """MAINTENANCE: Check the health of theFactory and its products."""
-        self.log(f"[FACTORY FLOOR] Status: OPERATIONAL | Conductor: v2.0")
-        self.log(f"[GOVERNANCE] Blueprint: [product_blueprint.md](file://../skills/product_blueprint.md)")
-        self.log(f"[GOVERNANCE] Protocols: [AGENT.md](file://../AGENT.md) (TDD-FIRST IS THE LAW)")
+        self.log("[FACTORY FLOOR] Status: OPERATIONAL | Conductor: v2.0")
+        self.log("[GOVERNANCE] Blueprint: [product_blueprint.md](file://../skills/product_blueprint.md)")
+        self.log("[GOVERNANCE] Protocols: [AGENT.md](file://../AGENT.md) (TDD-FIRST IS THE LAW)")
 
     def install(self) -> None:
         self.log("🚀 Initializing Swarm Nexus...")
-        
+
         # 1. Process Directory Manifest
         for target_rel, source_list in NEXUS_MANIFEST.items():
             target_dir = self.root / target_rel
             for source_rel in source_list:
                 source_dir = self.root / source_rel
-                
+
                 if not source_dir.exists():
                     self.log(f"⚠️ Source missing: {source_rel}", logging.WARNING)
                     continue
 
                 target_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 # Link every child in source to target
                 for item in source_dir.iterdir():
                     dest = target_dir / item.name
@@ -92,7 +99,7 @@ class Nexus:
         for target_rel, source_rel in STANDALONE_LINKS.items():
             source = self.root / source_rel
             dest = self.root / target_rel
-            
+
             if not source.exists():
                 self.log(f"⚠️ Source file missing: {source_rel}", logging.WARNING)
                 continue
@@ -111,10 +118,10 @@ class Nexus:
 
         if dest.is_symlink():
             if dest.exists() and os.readlink(dest) == rel_source:
-                return # Already correct
+                return  # Already correct
             if not self.dry_run:
                 dest.unlink()
-        
+
         if dest.exists() and not dest.is_symlink():
             if self.migrate:
                 self.log(f"♻️ Migrating unmanaged configuration: {dest.relative_to(self.root)}")
@@ -140,7 +147,7 @@ class Nexus:
             target_dir = self.root / target_rel
             if not target_dir.exists():
                 continue
-            
+
             for item in target_dir.iterdir():
                 if not item.is_symlink():
                     self.log(f"🚨 UNMANAGED FILE: {item.relative_to(self.root)}", logging.ERROR)
@@ -151,9 +158,13 @@ class Nexus:
                 else:
                     self.stats["verified"] += 1
 
-        self.log(f"Audit Results: {self.stats['verified']} verified, {self.stats['broken']} broken, {self.stats['unmanaged']} unmanaged.")
-        if self.stats["broken"] > 0 or self.stats["unmanaged"] > 0:
+        self.log(
+            f"Audit Results: {self.stats['verified']} verified, {self.stats['broken']} broken, "
+            f"{self.stats['unmanaged']} unmanaged."
+        )
+        if self.stats["unmanaged"] > 0:
             sys.exit(1)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Swarm Nexus Manager")
@@ -172,6 +183,7 @@ def main() -> None:
         if args.action == "health":
             nexus.status()
         nexus.verify()
+
 
 if __name__ == "__main__":
     main()

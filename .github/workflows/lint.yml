@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   lint:
     name: Factory Quality Gates

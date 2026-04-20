@@ -7,17 +7,18 @@ Usage:
     python3 tools/update_inventory.py --skills-dir /path/to/skills
 """
 
-import os
-import sys
-import re
-import yaml
 import argparse
 import logging
-from pathlib import Path
+import re
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
+
+import yaml
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("update_inventory")
+
 
 def extract_frontmatter(skill_md_path: Path) -> dict:
     """Extract YAML frontmatter from a SKILL.md file."""
@@ -29,6 +30,7 @@ def extract_frontmatter(skill_md_path: Path) -> dict:
         return yaml.safe_load(match.group(1)) or {}
     except yaml.YAMLError:
         return {}
+
 
 def build_inventory(skills_dir: Path) -> list[dict]:
     """Walk skills_dir and extract metadata from every SKILL.md."""
@@ -46,16 +48,19 @@ def build_inventory(skills_dir: Path) -> list[dict]:
         has_refs = (skill_path / "references").is_dir()
         ref_count = len(list((skill_path / "references").glob("*.md"))) if has_refs else 0
 
-        inventory.append({
-            "name": meta.get("name", skill_path.name),
-            "description": meta.get("description", ""),
-            "auto_triggers": meta.get("auto_triggers", []),
-            "related_skills": meta.get("related_skills", []),
-            "references": ref_count,
-            "path": str(skill_path.relative_to(skills_dir.parent)),
-        })
+        inventory.append(
+            {
+                "name": meta.get("name", skill_path.name),
+                "description": meta.get("description", ""),
+                "auto_triggers": meta.get("auto_triggers", []),
+                "related_skills": meta.get("related_skills", []),
+                "references": ref_count,
+                "path": str(skill_path.relative_to(skills_dir.parent)),
+            }
+        )
 
     return inventory
+
 
 def render_markdown(inventory: list[dict]) -> str:
     """Render the inventory as a structured Markdown file."""
@@ -93,6 +98,7 @@ def render_markdown(inventory: list[dict]) -> str:
 
     return "\n".join(lines)
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Regenerate skills/INVENTORY.md")
     parser.add_argument(
@@ -121,6 +127,7 @@ def main() -> None:
     except Exception as e:
         logger.error(f"Failed to write inventory to {output_path}: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

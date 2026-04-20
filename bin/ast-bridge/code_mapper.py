@@ -1,16 +1,17 @@
-import os
-import json
-import hashlib
 import argparse
+import hashlib
+import json
 import logging
+import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-from tree_sitter_languages import get_language
 from tree_sitter import Parser
+from tree_sitter_languages import get_language
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("code_mapper")
+
 
 class CodeMapper:
     def __init__(self, root_dir: str, cache_dir: str = ".ast_cache") -> None:
@@ -22,7 +23,7 @@ class CodeMapper:
             "java": self._setup_parser("java"),
             "hcl": self._setup_parser("hcl"),
             "rust": self._setup_parser("rust"),
-            "yaml": self._setup_parser("yaml")
+            "yaml": self._setup_parser("yaml"),
         }
         self._load_cache()
 
@@ -72,17 +73,17 @@ class CodeMapper:
                 rel_path = str(path.relative_to(self.root_dir))
                 if any(p in "/" + rel_path for p in skip_patterns):
                     continue
-                
+
                 ext = path.suffix.lower()
                 if ext in [".java", ".tf", ".hcl", ".rs", ".yaml", ".yml", ".py"]:
                     current_hash = self.get_hash(path)
                     if not current_hash:
                         continue
-                    
+
                     if rel_path not in self.os_cache or self.os_cache[rel_path].get("hash") != current_hash:
                         self._index_file(path, rel_path, current_hash)
                         updated_count += 1
-        
+
         self._save_cache()
         logger.info(f"Mapping complete. {updated_count} files re-indexed.")
         return self.os_cache
@@ -95,8 +96,16 @@ class CodeMapper:
             logger.error(f"Failed to read file content for {rel_path}: {e}")
             return
 
-        lang_key = "java" if ext == ".java" else "hcl" if ext in [".tf", ".hcl"] else "rust" if ext == ".rs" else "yaml"
-        
+        lang_key = (
+            "java"
+            if ext == ".java"
+            else "hcl"
+            if ext in [".tf", ".hcl"]
+            else "rust"
+            if ext == ".rs"
+            else "yaml"
+        )
+
         symbols: Dict[str, list[str]] = {"types": [], "functions": []}
         try:
             parser = self.parsers.get(lang_key)
@@ -106,12 +115,22 @@ class CodeMapper:
                     # Language-specific queries for public symbols
                     query_str = ""
                     if lang_key == "java":
-                        query_str = "(class_declaration name: (identifier) @name) (method_declaration name: (identifier) @name)"
+                        query_str = (
+                            "(class_declaration name: (identifier) @name) "
+                            "(method_declaration name: (identifier) @name)"
+                        )
                     elif lang_key == "rust":
-                        query_str = "(struct_item name: (type_identifier) @name) (function_item name: (identifier) @name) (trait_item name: (type_identifier) @name)"
+                        query_str = (
+                            "(struct_item name: (type_identifier) @name) "
+                            "(function_item name: (identifier) @name) "
+                            "(trait_item name: (type_identifier) @name)"
+                        )
                     elif lang_key == "hcl":
-                        query_str = "(block (identifier) @type (string_lit) @name) (variable_expr (identifier) @name)"
-                    
+                        query_str = (
+                            "(block (identifier) @type (string_lit) @name) "
+                            "(variable_expr (identifier) @name)"
+                        )
+
                     if query_str:
                         query = get_language(lang_key).query(query_str)
                         for node, tag in query.captures(tree.root_node):
@@ -129,9 +148,9 @@ class CodeMapper:
         self.os_cache[rel_path] = {
             "hash": file_hash,
             "summary": "AI Summary Pending...",  # Placeholder for Agentic Synthesis
-            "when_to_use": "Use Case Pending...", # Placeholder for Agentic Synthesis
+            "when_to_use": "Use Case Pending...",  # Placeholder for Agentic Synthesis
             "public_types": symbols["types"],
-            "public_functions": symbols["functions"]
+            "public_functions": symbols["functions"],
         }
 
     def serialize_markdown(self, output_file: str = "code_map.md") -> None:
@@ -142,20 +161,21 @@ class CodeMapper:
                     f.write(f"### {path}\n")
                     f.write(f"- **Summary**: {data['summary']}\n")
                     f.write(f"- **When to Use**: {data['when_to_use']}\n")
-                    if data.get("public_types"): 
+                    if data.get("public_types"):
                         f.write(f"- **Public Types**: {', '.join(data['public_types'])}\n")
-                    if data.get("public_functions"): 
+                    if data.get("public_functions"):
                         f.write(f"- **Public Functions**: {', '.join(data['public_functions'])}\n")
                     f.write("\n")
             logger.info(f"Serialized markdown map to {output_file}")
         except IOError as e:
             logger.error(f"Failed to serialize markdown map: {e}")
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Map a repository to AST representations.")
     parser.add_argument("dir", help="Directory to map")
     args = parser.parse_args()
-    
+
     if not os.path.isdir(args.dir):
         logger.error(f"Provided path is not a directory: {args.dir}")
         exit(1)
@@ -163,6 +183,7 @@ def main() -> None:
     mapper = CodeMapper(args.dir)
     mapper.map_repo()
     mapper.serialize_markdown(os.path.join(args.dir, "code_map.md"))
+
 
 if __name__ == "__main__":
     main()

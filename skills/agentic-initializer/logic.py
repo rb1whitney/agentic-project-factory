@@ -1,6 +1,6 @@
 import os
-import shutil
 from pathlib import Path
+
 
 def init_repo(target_path: str, project_name: str):
     """Bootstraps a directory into a 100% compliant Agentic Repository."""
@@ -18,7 +18,7 @@ def init_repo(target_path: str, project_name: str):
 
     # 2. Load and Apply Templates
     template_dir = Path(__file__).parent / "templates"
-    
+
     # AGENT.md
     agent_path = base_dir / "AGENT.md"
     agent_content = template_dir.joinpath("AGENT.md").read_text().replace("{{ project_name }}", project_name)
@@ -31,7 +31,7 @@ def init_repo(target_path: str, project_name: str):
 
     # 3. Establish AI Nexus (Symlinks)
     os.chdir(base_dir)
-    
+
     # .gemini Nexus
     os.system("ln -sf ../AGENT.md .gemini/GEMINI.md")
     os.system("ln -sf ../agents .gemini/agents")
@@ -52,8 +52,10 @@ def init_repo(target_path: str, project_name: str):
 
     print(f"Successfully institutionalized {project_name}. Hub is now AGENTIC.")
 
+
 if __name__ == "__main__":
     # Test stub
     import sys
+
     if len(sys.argv) > 2:
         init_repo(sys.argv[1], sys.argv[2])
