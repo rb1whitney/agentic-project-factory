@@ -212,6 +212,10 @@ The factory strictly relies on agentic orchestration for all code reviews and Pu
      - **Phase 3**: `@security-reviewer` (Vulnerabilities & Secrets)
    - The resulting Diagnostic Report must be posted to the PR before any merge is authorized.
 
+3. **NO AGENT MERGING (CRITICAL)**:
+   - Agents MUST NEVER merge a Pull Request.
+   - Merging is strictly reserved for human operators after verifying all tests, linters, and security scans.
+
 ### Self-Review Checklist
 Before triggering the `@review-suite`:
 

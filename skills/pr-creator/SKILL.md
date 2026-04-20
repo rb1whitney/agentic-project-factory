@@ -46,3 +46,4 @@ Follow these steps to create a Pull Request:
 2.  **Compliance**: Never ignore the PR template.
 3.  **Accuracy**: Do not check boxes for tasks not performed.
 4.  **No Emojis**: Emojis are prohibited in PR descriptions and titles to maintain technical professionalism.
+5.  **NEVER MERGE (CRITICAL)**: You MUST NEVER merge a Pull Request. Creating the PR is the absolute end of this workflow. Only a human may merge.

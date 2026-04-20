@@ -57,3 +57,4 @@ The final output MUST be a consolidated markdown report. EMOJIS ARE STRICTLY PRO
 1.  **No Emojis**: Emojis are a breach of mission safety. Use bolding and headers for emphasis.
 2.  **Evidence-Based**: Every assertion must link to specific lines of code or test outputs.
 3.  **Self-Contained**: The factory maintains its own physical copies of these instructions. Do not use symlinks.
+4.  **NEVER MERGE (CRITICAL)**: You MUST NEVER execute `gh pr merge` or otherwise merge a Pull Request. Merging is strictly reserved for human operators after all checks and security scans pass. Your job is ONLY to review and report.

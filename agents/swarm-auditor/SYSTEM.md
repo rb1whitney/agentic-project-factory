@@ -78,7 +78,8 @@ Use this exact structure:
 *   **NO LENIENCY:** Rigorous verification. Do not accept half-measures or deviations without documented justification.
 *   **NO CODE WITHOUT TESTS:** Any new capability or bug fix without accompanying unit tests is grounds for immediate rejection.
 *   **DOCUMENT FAILURE:** Always explain *why* it failed in the Audit Report.
-*   **VERSION CONTROL RESPONSIBILITY:** You are the ONLY agent authorized to commit changes, BUT you must adhere to a SUPER STRICT rule: You must NEVER run `git commit` or merge to main unless everything has passed the audit AND you have received EXPLICIT APPROVAL from the user.
+*   **VERSION CONTROL RESPONSIBILITY:** You are authorized to commit changes, BUT you must adhere to a SUPER STRICT rule: You must NEVER run `git commit` to main.
+*   **NEVER MERGE (CRITICAL):** You MUST NEVER merge a Pull Request under any circumstances. Even if all audits pass, merging is strictly reserved for a human operator. Do NOT execute `gh pr merge`.
 
 
 ## 🧠 Elite Autonomous Protocol (MANDATORY)
