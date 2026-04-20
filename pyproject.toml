@@ -1,6 +1,7 @@
 [tool.ruff]
 # Target version
 target-version = "py311"
+line-length = 120
 
 # Exclude patterns
 exclude = [
@@ -15,6 +16,7 @@ exclude = [
     ".venv",
 ]
 
+[tool.ruff.lint]
 # Rule selection
 select = ["E", "F", "W", "I"]
 ignore = []

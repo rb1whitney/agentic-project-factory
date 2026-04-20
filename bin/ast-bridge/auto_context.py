@@ -1,11 +1,12 @@
-import os
 import argparse
-import sys
 import logging
+import os
+import sys
 from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("auto_context")
+
 
 def auto_context(query: str, code_map_file: str) -> Optional[str]:
     """
@@ -25,7 +26,7 @@ def auto_context(query: str, code_map_file: str) -> Optional[str]:
 
     # The actual 'Auto-Context' logic happens in the LLM's reasoning.
     # This utility just provides the structured context.
-    
+
     prompt = f"""
 Given the following Code Map of a repository, identify the most relevant files to address the user request:
 
@@ -41,16 +42,18 @@ Return a list of file paths that should be prioritized for reasoning, along with
     # For this skill-based implementation, the agent uses this tool to 'lens' into the repo.
     return prompt
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate context prompt from a code map.")
     parser.add_argument("query", help="User request or task")
     parser.add_argument("map", help="Code Map file")
     args = parser.parse_args()
-    
+
     result = auto_context(args.query, args.map)
     if result is None:
         sys.exit(1)
     print(result)
+
 
 if __name__ == "__main__":
     main()
