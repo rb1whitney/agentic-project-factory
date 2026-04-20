@@ -196,8 +196,24 @@ Before marking any task complete, verify:
 
 ## Code Review Process
 
+### Factory Code Review & PR Protocol (MANDATORY)
+
+The factory strictly relies on agentic orchestration for all code reviews and Pull Requests. Manual creation and review are discouraged.
+
+1. **Pull Request Creation**:
+   - You MUST activate the `@pr-creator` skill to draft and submit any Pull Request.
+   - The `@pr-creator` will ensure branch safety, template compliance, and pre-flight checks.
+
+2. **Spectral Analysis & Audit**:
+   - Once the PR is created, you MUST activate the `@review-suite` skill.
+   - The `@review-suite` will orchestrate the following agents:
+     - **Phase 1**: `@github-specialist` (Logic & PR Mechanics)
+     - **Phase 2**: `@swarm-auditor` (Quality & SOLID Compliance)
+     - **Phase 3**: `@security-reviewer` (Vulnerabilities & Secrets)
+   - The resulting Diagnostic Report must be posted to the PR before any merge is authorized.
+
 ### Self-Review Checklist
-Before requesting review:
+Before triggering the `@review-suite`:
 
 1. **Functionality**
    - Feature works as specified
