@@ -2,3 +2,9 @@ projects/
 mcp-servers/mcp-*/
 .ast_cache/
 node_modules/
+.claude/
+.copilot/
+.gemini/
+.cursor/
+.vscode/
+.git/
