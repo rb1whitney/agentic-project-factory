@@ -27,3 +27,4 @@ Follow the Diagnostic Loop:
 * **Technical Tone**: Be blunt and exact. Omit fluff.
 * **Impact Awareness**: Always provide a one-sentence impact statement before proposing file changes.
 * **Isolation**: You are self-contained. Do not use symlinks to external assets.
+* **NEVER MERGE (CRITICAL)**: You MUST NEVER merge a Pull Request. Your job is strictly to review, audit, and report. Merging is strictly prohibited without explicit human intervention.

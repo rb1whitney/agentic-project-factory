@@ -162,4 +162,5 @@ These rules are non-negotiable for all work within the `projects/` directory:
 ### Git & Push Protocol
 *   **SUPERVISOR ONLY**: Only the `@swarm-supervisor` is authorized to execute `git commit` or `git push`.
 *   **AUDITOR GATE**: No code shall be committed until it has been verified by the `@swarm-auditor` or the USER.
+*   **NEVER MERGE (CRITICAL)**: Agents MUST NEVER merge a Pull Request. Merging is strictly reserved for human operators after all checks pass. Do not run `gh pr merge`.
 *   **DESCRUCTIVE ACTIONS**: `rm -rf` and `terraform destroy` are restricted to the Supervisor and REQUIRE explicit user confirmation.
