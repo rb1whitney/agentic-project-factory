@@ -14,9 +14,10 @@
 ### Mission: Project nit-fabric (nit-fabric Hub)
 - **Status**: [ACTIVE] | **Resolution**: [ADVANCED]
 - **Project Hub**: [**projects/nit-fabric/**](file://../projects/nit-fabric/)
+- **Remote**: [**https://github.com/rb1whitney/nit-fabric**](https://github.com/rb1whitney/nit-fabric)
 - **Architect's Verdict**: [CERTIFIED]
   - **Manufacturing Goal**: Implement the Deterministic Recon Engine with Live-Truth Sync.
-  - **Status**: Hub Initialized with High-resolution Technical Suite (v0.3.0).
+  - **Status**: Hub Initialized as Standalone Product (v0.3.0).
 
 ### Mission: Project Cloud-Boot (Legacy App)
 - **Status**: [MODERNIZING]
