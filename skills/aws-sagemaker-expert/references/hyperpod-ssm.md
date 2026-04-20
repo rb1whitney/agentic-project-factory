@@ -5,21 +5,21 @@
 Target: `sagemaker-cluster:<CLUSTER_ID>_<GROUP_NAME>-<INSTANCE_ID>`
 
 - `CLUSTER_ID`: Last segment of cluster ARN (NOT the cluster name). Extract via `get-cluster-info.sh`.
-- `GROUP_NAME`: Instance group name — retrieve via `list-nodes.sh`.
+- `GROUP_NAME`: Instance group name  retrieve via `list-nodes.sh`.
 - `INSTANCE_ID`: EC2 instance ID (e.g., `i-0123456789abcdef0`)
 
 ## Scripts
 
 Three scripts under `scripts/`. Resolve cluster info and nodes **once**, then execute per node.
 
-### get-cluster-info.sh — Resolve cluster name → ID (call once)
+### get-cluster-info.sh  Resolve cluster name  ID (call once)
 
 ```bash
 scripts/get-cluster-info.sh CLUSTER_NAME [--region REGION]
 # Output: {"cluster_id":"...","cluster_arn":"...","cluster_name":"...","region":"..."}
 ```
 
-### list-nodes.sh — List all nodes with pagination (call once)
+### list-nodes.sh  List all nodes with pagination (call once)
 
 ```bash
 scripts/list-nodes.sh CLUSTER_NAME [--region REGION] [--instance-group GROUP] [--instance-id ID]
@@ -28,13 +28,13 @@ scripts/list-nodes.sh CLUSTER_NAME [--region REGION] [--instance-group GROUP] [-
 
 `list-cluster-nodes` paginates at 100 nodes. This script handles pagination automatically.
 
-### ssm-exec.sh — Execute command on a node (call per node)
+### ssm-exec.sh  Execute command on a node (call per node)
 
 ```bash
-# Execute — with pre-built target
+# Execute  with pre-built target
 scripts/ssm-exec.sh --target "sagemaker-cluster:CLUSTERID_GROUP-INSTANCEID" 'command' [--region REGION]
 
-# Execute — with parts
+# Execute  with parts
 scripts/ssm-exec.sh --cluster-id ID --group GROUP --instance-id INSTANCE_ID 'command' [--region REGION]
 
 # Upload
@@ -48,7 +48,7 @@ scripts/ssm-exec.sh --target TARGET --read REMOTE_PATH [--region REGION]
 
 SSM `start-session` rate limit: **3 TPS** per account. Plan batch size and delay accordingly.
 
-`aws ssm send-command` does NOT support `sagemaker-cluster:` targets — only `start-session` works.
+`aws ssm send-command` does NOT support `sagemaker-cluster:` targets  only `start-session` works.
 
 ## Manual SSM Commands
 
@@ -66,7 +66,7 @@ aws ssm start-session \
   --parameters file:///tmp/cmd.json
 ```
 
-Always use a JSON file for `--parameters` — inline parameters break with special characters.
+Always use a JSON file for `--parameters`  inline parameters break with special characters.
 
 ## Common Diagnostic Commands
 

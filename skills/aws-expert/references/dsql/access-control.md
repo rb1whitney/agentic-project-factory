@@ -10,7 +10,7 @@ services MUST connect using scoped-down database roles with `dsql:DbConnect`.
 
 - **ALWAYS** use scoped database roles for application connections and routine operations
 - **MUST** create purpose-specific database roles for each application component
-- **MUST** place user-sensitive data (PII, credentials) in a dedicated schema — NOT `public`
+- **MUST** place user-sensitive data (PII, credentials) in a dedicated schema  NOT `public`
 - **MUST** grant only the minimum permissions each role requires
 - **MUST** create an IAM role with `dsql:DbConnect` for each database role
 - **SHOULD** audit role mappings regularly: `SELECT * FROM sys.iam_pg_role_mappings;`
@@ -116,7 +116,7 @@ CREATE TABLE public.products (
 Applications generate tokens with `generate-db-connect-auth-token` (NOT the admin variant):
 
 ```bash
-# Application connection — uses DbConnect
+# Application connection  uses DbConnect
 PGPASSWORD="$(aws dsql generate-db-connect-auth-token \
   --hostname ${CLUSTER_ENDPOINT} \
   --region ${REGION})" \

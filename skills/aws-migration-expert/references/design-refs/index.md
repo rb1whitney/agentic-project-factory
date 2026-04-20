@@ -1,4 +1,4 @@
-# GCP Service → Design Reference Mapping
+# GCP Service  Design Reference Mapping
 
 ## Compute Services
 

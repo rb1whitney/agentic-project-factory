@@ -66,7 +66,7 @@ export CLUSTER_ENDPOINT=$(aws ssm get-parameter \
   --output text)
 
 # Bad - Hardcoded in code
-const endpoint = "abc123.dsql.us-east-1.on.aws" // ❌ Use Parameter Store instead
+const endpoint = "abc123.dsql.us-east-1.on.aws" //  Use Parameter Store instead
 ```
 
 ### Connection Rules
@@ -139,9 +139,9 @@ For production applications:
 
 **ALWAYS prefer scoped database roles over the `admin` role.**
 
-- **ALWAYS** use scoped database roles for application connections — reserve `admin` for initial setup and role management
+- **ALWAYS** use scoped database roles for application connections  reserve `admin` for initial setup and role management
 - **MUST** create purpose-specific database roles and connect with `dsql:DbConnect`
-- **MUST** place sensitive data (PII, credentials) in dedicated schemas — not `public`
+- **MUST** place sensitive data (PII, credentials) in dedicated schemas  not `public`
 - **MUST** grant only the minimum privileges each role requires
 - **SHOULD** audit role mappings: `SELECT * FROM sys.iam_pg_role_mappings;`
 

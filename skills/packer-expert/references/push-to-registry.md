@@ -79,7 +79,7 @@ packer build .
 
 ### Create HCP Service Principal
 
-1. Navigate to HCP → Access Control (IAM)
+1. Navigate to HCP  Access Control (IAM)
 2. Create Service Principal
 3. Grant "Contributor" role on project
 4. Generate client secret

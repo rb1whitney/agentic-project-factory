@@ -25,7 +25,7 @@ For each cluster:
 For each PRIMARY resource in the cluster:
 
 1. Extract GCP type (e.g., `google_sql_database_instance`)
-2. Look up in `design-refs/fast-path.md` → Direct Mappings table
+2. Look up in `design-refs/fast-path.md`  Direct Mappings table
 3. If found (deterministic 1:1 match): assign AWS service with confidence = `deterministic`
 4. If not found: proceed to Pass 2
 
@@ -34,17 +34,17 @@ For each PRIMARY resource in the cluster:
 For resources not covered by fast-path:
 
 1. Determine service category (via `design-refs/index.md`):
-   - `google_compute_instance` → compute
-   - `google_cloudfunctions_function` → compute
-   - `google_sql_database_instance` → database
-   - `google_storage_bucket` → storage
-   - `google_compute_network` → networking
+   - `google_compute_instance`  compute
+   - `google_cloudfunctions_function`  compute
+   - `google_sql_database_instance`  database
+   - `google_storage_bucket`  storage
+   - `google_compute_network`  networking
    - etc.
 
    **Catch-all for unknown types**: If resource type not found in `index.md`:
-   - Check resource name pattern (e.g., "scheduler" → orchestration, "log" → monitoring, "metric" → monitoring)
+   - Check resource name pattern (e.g., "scheduler"  orchestration, "log"  monitoring, "metric"  monitoring)
    - If pattern match: use that category
-   - If no pattern match: Add to `warnings[]` with message: "Unknown GCP resource type: [type]. Not in fast-path.md or index.md. Skipped — file an issue to add support." Continue with remaining resources.
+   - If no pattern match: Add to `warnings[]` with message: "Unknown GCP resource type: [type]. Not in fast-path.md or index.md. Skipped  file an issue to add support." Continue with remaining resources.
 
 2. Load rubric from corresponding `design-refs/*.md` file (e.g., `compute.md`, `database.md`)
 
@@ -52,7 +52,7 @@ For resources not covered by fast-path:
    - **Eliminators**: Feature incompatibility (hard blocker)
    - **Operational Model**: Managed vs self-hosted fit
    - **User Preference**: From `clarified.json` answers
-   - **Feature Parity**: GCP feature → AWS feature availability
+   - **Feature Parity**: GCP feature  AWS feature availability
    - **Cluster Context**: Affinity with other resources in this cluster
    - **Simplicity**: Prefer fewer resources / less config
 
@@ -88,7 +88,7 @@ For each mapped AWS service, verify:
 **If awsknowledge unavailable:**
 
 - Set `validation_status: "skipped"` in output
-- **Display prominent warning to user**: "⚠️ WARNING: Architecture validation skipped (awsknowledge MCP unavailable). Regional availability, feature parity, and service constraints were NOT verified. Manually verify before proceeding."
+- **Display prominent warning to user**: " WARNING: Architecture validation skipped (awsknowledge MCP unavailable). Regional availability, feature parity, and service constraints were NOT verified. Manually verify before proceeding."
 - Add same warning to `aws-design-report.md` header
 - Continue with design (validation is informational, not blocking)
 
@@ -158,7 +158,7 @@ Mapped X GCP resources to Y AWS services across Z clusters.
 
 ## Cluster: compute_instance_us-central1_001
 ### Compute
-- google_compute_instance.web → Fargate (0.5 CPU, 1 GB memory)
+- google_compute_instance.web  Fargate (0.5 CPU, 1 GB memory)
   Confidence: deterministic
   Rationale: Direct compute mapping, Cold Start not applicable (always-on)
 

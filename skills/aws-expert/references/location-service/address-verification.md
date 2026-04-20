@@ -414,17 +414,17 @@ Amazon Location Places API has different pricing based on the `IntendedUse` para
 
 **Stored Pricing** (`IntendedUse: "Storage"`):
 
-- ✅ Can store results indefinitely
-- ✅ Supports all features (Label, Core, Advanced)
-- ✅ Price cap - maximum cost per API call
-- 💰 Higher per-request cost
+-  Can store results indefinitely
+-  Supports all features (Label, Core, Advanced)
+-  Price cap - maximum cost per API call
+-  Higher per-request cost
 - **Use when**: Building applications that cache results long-term or perform analysis on historical data
 
 **Other Pricing Tiers**:
 
-- ⚠️ Label & Core: Results cannot be stored permanently
-- ⚠️ Advanced: Results can be cached temporarily but not stored indefinitely
-- 💰 Lower per-request cost
+-  Label & Core: Results cannot be stored permanently
+-  Advanced: Results can be cached temporarily but not stored indefinitely
+-  Lower per-request cost
 - **Use when**: Real-time lookups without long-term storage needs
 
 ### Setting Stored Pricing
@@ -443,16 +443,16 @@ const command = new amazonLocationClient.places.GeocodeCommand({
 Ask yourself:
 
 1. **Do you need to store results indefinitely?**
-   - YES → Use `IntendedUse: "Storage"` and pay stored pricing
-   - NO → Use default pricing, don't store permanently
+   - YES  Use `IntendedUse: "Storage"` and pay stored pricing
+   - NO  Use default pricing, don't store permanently
 
 2. **Will you reuse results to reduce API calls?**
-   - YES → Consider stored pricing for cost-effectiveness over time
-   - NO → Use real-time lookups with default pricing
+   - YES  Consider stored pricing for cost-effectiveness over time
+   - NO  Use real-time lookups with default pricing
 
 3. **Are you building analytics on historical place data?**
-   - YES → Use `IntendedUse: "Storage"`
-   - NO → Use default pricing
+   - YES  Use `IntendedUse: "Storage"`
+   - NO  Use default pricing
 
 ## Error Handling
 

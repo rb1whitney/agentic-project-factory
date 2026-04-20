@@ -8,41 +8,41 @@ Standards for writing Ansible playbooks, roles, and tasks following Red Hat offi
 
 ```
 ansible/
-├── inventories/
-│   ├── production/
-│   │   ├── hosts.yml         # Inventory file
-│   │   └── group_vars/
-│   │       ├── all.yml       # Variables for all hosts
-│   │       └── web.yml       # Variables for web group
-│   └── staging/
-│       └── hosts.yml
-├── roles/
-│   └── nginx/
-│       ├── tasks/
-│       │   └── main.yml
-│       ├── handlers/
-│       │   └── main.yml
-│       ├── templates/
-│       │   └── nginx.conf.j2
-│       ├── files/
-│       ├── vars/
-│       │   └── main.yml
-│       ├── defaults/
-│       │   └── main.yml      # Low-priority defaults — always override-able
-│       ├── meta/
-│       │   └── main.yml      # Dependencies
-│       └── README.md
-├── playbooks/
-│   ├── site.yml              # Master playbook — include all roles
-│   ├── web.yml               # Web tier playbook
-│   └── database.yml
-├── group_vars/
-│   └── all/
-│       ├── vars.yml
-│       └── vault.yml         # Encrypted with ansible-vault
-├── host_vars/
-├── ansible.cfg
-└── requirements.yml          # Galaxy role dependencies
+ inventories/
+    production/
+       hosts.yml         # Inventory file
+       group_vars/
+           all.yml       # Variables for all hosts
+           web.yml       # Variables for web group
+    staging/
+        hosts.yml
+ roles/
+    nginx/
+        tasks/
+           main.yml
+        handlers/
+           main.yml
+        templates/
+           nginx.conf.j2
+        files/
+        vars/
+           main.yml
+        defaults/
+           main.yml      # Low-priority defaults  always override-able
+        meta/
+           main.yml      # Dependencies
+        README.md
+ playbooks/
+    site.yml              # Master playbook  include all roles
+    web.yml               # Web tier playbook
+    database.yml
+ group_vars/
+    all/
+        vars.yml
+        vault.yml         # Encrypted with ansible-vault
+ host_vars/
+ ansible.cfg
+ requirements.yml          # Galaxy role dependencies
 ```
 
 ## Playbook Conventions
@@ -67,21 +67,21 @@ ansible/
 - Every play must have `name`
 - Every task must have `name`
 - Use `become: true` at play level, not task level (unless a single task needs it)
-- Never use `hosts: all` in production playbooks — always name specific groups
+- Never use `hosts: all` in production playbooks  always name specific groups
 
 ## Task Naming Standards
 
 ```yaml
-# Bad — vague, no context
+# Bad  vague, no context
 - name: Run script
   shell: /opt/setup.sh
 
-# Bad — missing name entirely
+# Bad  missing name entirely
 - copy:
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
 
-# Good — imperative verb phrase describing the change
+# Good  imperative verb phrase describing the change
 - name: Deploy nginx configuration from template
   ansible.builtin.template:
     src: nginx.conf.j2
@@ -97,13 +97,13 @@ ansible/
 Always use **fully qualified collection names (FQCN)** for all modules:
 
 ```yaml
-# Bad — short names are deprecated and ambiguous
+# Bad  short names are deprecated and ambiguous
 - copy:
 - template:
 - service:
 - yum:
 
-# Good — FQCN
+# Good  FQCN
 - ansible.builtin.copy:
 - ansible.builtin.template:
 - ansible.builtin.service:
@@ -136,7 +136,7 @@ Always use **fully qualified collection names (FQCN)** for all modules:
   loop: "{{ nginx_vhosts }}"
   notify: Reload nginx
 
-# Fetch files from remote (avoid — prefer copy)
+# Fetch files from remote (avoid  prefer copy)
 - name: Retrieve application logs for inspection
   ansible.builtin.fetch:
     src: /var/log/myapp/app.log
@@ -157,7 +157,7 @@ Variables in order of increasing precedence (higher overrides lower):
 | Extra vars | `-e key=value` | CI/CD pipeline injection only |
 
 ```yaml
-# defaults/main.yml — always document defaults
+# defaults/main.yml  always document defaults
 nginx_user: www-data
 nginx_worker_processes: auto
 nginx_worker_connections: 1024
@@ -251,7 +251,7 @@ Never store unencrypted secrets in:
 - name: Check if application is already initialized
   ansible.builtin.command: /opt/myapp/bin/check-init
   register: init_check
-  changed_when: false           # Read-only — never changes state
+  changed_when: false           # Read-only  never changes state
   failed_when: init_check.rc > 1
 
 - name: Initialize application database
@@ -296,10 +296,10 @@ become_ask_pass    = False
 ## Code Review Checklist
 
 - [ ] Every play has `name`
-- [ ] Every task has `name` — present tense imperative verb phrase
+- [ ] Every task has `name`  present tense imperative verb phrase
 - [ ] All modules use FQCN
 - [ ] All file permissions quoted as strings (`"0644"` not `0644`)
-- [ ] No unencrypted secrets — all sensitive values in vault
+- [ ] No unencrypted secrets  all sensitive values in vault
 - [ ] `changed_when: false` on all read-only `command`/`shell` tasks
 - [ ] `ansible-lint --profile production` passes clean
 - [ ] Handlers use `listen` aliases

@@ -2,7 +2,7 @@
 
 Complete JSON schemas for all phase outputs and state files.
 
-**Convention**: Values shown as `X|Y` in examples indicate allowed alternatives — use exactly one value per field, not the literal pipe character. These pipe-separated values are documentation shorthand only and must NOT appear in actual output JSON. Always select one concrete value.
+**Convention**: Values shown as `X|Y` in examples indicate allowed alternatives  use exactly one value per field, not the literal pipe character. These pipe-separated values are documentation shorthand only and must NOT appear in actual output JSON. Always select one concrete value.
 
 ## .phase-status.json
 
@@ -250,12 +250,12 @@ Monthly operating costs, one-time migration costs, and ROI analysis.
 {
   "pricing_source": {
     "status": "live|fallback",
-    "message": "Using live AWS pricing API|Using cached rates from 2026-02-24 (±15-25% accuracy due to API unavailability)",
+    "message": "Using live AWS pricing API|Using cached rates from 2026-02-24 (15-25% accuracy due to API unavailability)",
     "fallback_staleness": {
       "last_updated": "2026-02-24",
       "days_old": 3,
       "is_stale": false,
-      "staleness_warning": "null|⚠️ Cached pricing data is >60 days old; accuracy may be significantly degraded"
+      "staleness_warning": "null| Cached pricing data is >60 days old; accuracy may be significantly degraded"
     },
     "services_by_source": {
       "live": ["Fargate", "RDS Aurora", "S3", "ALB"],
@@ -384,7 +384,7 @@ Template for individual resource mappings in aws-design.json.
     "region": "us-east-1"
   },
   "confidence": "deterministic|inferred",
-  "rationale": "1:1 Cloud SQL → RDS Aurora; Multi-AZ for production HA",
+  "rationale": "1:1 Cloud SQL  RDS Aurora; Multi-AZ for production HA",
   "rubric_applied": [
     "Eliminators: PASS",
     "Operational Model: Managed RDS Aurora",

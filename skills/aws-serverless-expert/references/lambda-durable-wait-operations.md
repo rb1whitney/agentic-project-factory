@@ -170,11 +170,11 @@ const finalState = await context.waitForCondition(
   {
     initialState: { jobId: 'job-123', status: 'pending' },
     waitStrategy: createWaitStrategy({
-      maxAttempts: 60,
-      initialDelaySeconds: 5,
-      maxDelaySeconds: 30,
-      backoffRate: 1.5,
-      shouldContinuePolling: (result) => result.status !== "completed"
+    maxAttempts: 60,
+    initialDelaySeconds: 5,
+    maxDelaySeconds: 30,
+    backoffRate: 1.5,
+    shouldContinuePolling: (result) => result.status !== "completed"
     }),
     timeout: { hours: 1 }
   }
@@ -324,11 +324,11 @@ export const handler = withDurableExecution(async (event, context: DurableContex
     {
       initialState: { jobId, status: 'running' },
       waitStrategy: createWaitStrategy({
-        maxAttempts: 60,
-        initialDelaySeconds: 5,
-        maxDelaySeconds: 30,
-        backoffRate: 1.5,
-        shouldContinuePolling: (result) => result.status === "running"
+      maxAttempts: 60,
+      initialDelaySeconds: 5,
+      maxDelaySeconds: 30,
+      backoffRate: 1.5,
+      shouldContinuePolling: (result) => result.status === "running"
       }),
       timeout: { hours: 2 }
     }

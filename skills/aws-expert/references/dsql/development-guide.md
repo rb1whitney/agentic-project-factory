@@ -28,9 +28,9 @@ effortless scaling, multi-region viability, among other advantages.
 
 ## Detailed References
 
-- **[authentication-guide.md](auth/authentication-guide.md)** — IAM auth, token management, secrets, SSL/TLS, connection pooling, audit logging, access control
-- **[connectivity-tools.md](auth/connectivity-tools.md)** — Database drivers, ORMs, adapters, and data loading tools
-- **[scaling-guide.md](auth/scaling-guide.md)** — Horizontal scaling strategy, batch optimization, hot key avoidance, identifier types
+- **[authentication-guide.md](auth/authentication-guide.md)**  IAM auth, token management, secrets, SSL/TLS, connection pooling, audit logging, access control
+- **[connectivity-tools.md](auth/connectivity-tools.md)**  Database drivers, ORMs, adapters, and data loading tools
+- **[scaling-guide.md](auth/scaling-guide.md)**  Horizontal scaling strategy, batch optimization, hot key avoidance, identifier types
 
 ---
 
@@ -116,10 +116,10 @@ instead implementation:
 ### Schema Operations
 
 ```sql
-CREATE INDEX ASYNC idx_name ON table(column);          ← ALWAYS ASYNC
-ALTER TABLE t ADD COLUMN c VARCHAR(50);                ← ONE AT A TIME
-ALTER TABLE t ADD COLUMN c2 INTEGER;                   ← SEPARATE STATEMENT
-UPDATE table SET c = 'default' WHERE c IS NULL;        ← AFTER ADD COLUMN
+CREATE INDEX ASYNC idx_name ON table(column);           ALWAYS ASYNC
+ALTER TABLE t ADD COLUMN c VARCHAR(50);                 ONE AT A TIME
+ALTER TABLE t ADD COLUMN c2 INTEGER;                    SEPARATE STATEMENT
+UPDATE table SET c = 'default' WHERE c IS NULL;         AFTER ADD COLUMN
 ```
 
 ### Supported Data Types

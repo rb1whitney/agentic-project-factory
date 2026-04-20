@@ -1,6 +1,6 @@
 # Feature Implementation Plan: Campaign 1 - CLI Foundation (baker-recon)
 
-## 🔍 Analysis & Context
+##  Analysis & Context
 *   **Objective**: Build the `baker-recon` CLI (Python/Typer) to audit and flag "i18n smells" (hardcoded locales, date formats, currencies) in target codebases.
 *   **Affected Files**:
     - `projects/project-baker/main.py` (New)
@@ -11,7 +11,7 @@
     - False positives in regex-based string detection (e.g., logging statements, internal IDs).
     - Handling various file encodings and large directory structures efficiently.
 
-## 📋 Micro-Step Checklist
+##  Micro-Step Checklist
 - [ ] Phase 1: Environment & Project Setup
   - [ ] Step 1.A: Define `requirements.txt` and project structure.
   - [ ] Step 1.B: Create a baseline `main.py` with Typer commands.
@@ -23,7 +23,7 @@
   - [ ] Step 3.A: Integrate `Rich` for colorized, tabular console output.
   - [ ] Step 3.B: Implement JSON export for integration with Phase 2.
 
-## 📝 Step-by-Step Implementation Details
+##  Step-by-Step Implementation Details
 
 ### Prerequisites
 - Python 3.11+ environment.
@@ -60,15 +60,14 @@
 2.  **Step 3.B (JSON Output):** Add export functionality.
     *   *Action:* Add a `--json` flag to the `scan` command to output a parseable report.
 
-### 🧪 Global Testing Strategy
+###  Global Testing Strategy
 *   **Unit Tests**: Focus on regex accuracy and file discovery logic.
 *   **Integration Tests**: Run `python projects/project-baker/main.py scan projects/cloud-boot-app/` and verify the report matches expectations.
 
-## 🎯 Success Criteria
+##  Success Criteria
 - [ ] `baker-recon scan` identifies hardcoded strings in a sample Java file.
 - [ ] Output is clearly formatted in a Rich table.
 - [ ] Tool passes all unit tests in the `tests/` directory.
 
----
-**🛑 STOP: HUMAN REVIEW GATE**
+./* STOP: HUMAN REVIEW GATE**
 Please review this plan. Type 'approve' to proceed to execution.

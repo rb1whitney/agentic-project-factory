@@ -86,32 +86,32 @@ Choose the right API for your use case:
 
 ### Address Input & Validation
 
-- **Autocomplete** → Type-ahead in address forms (partial input: "123 Main")
-- **GetPlace** → Get full details after user selects autocomplete result (by PlaceId)
-- **Geocode** → Validate complete user-typed address or convert address to coordinates
+- **Autocomplete**  Type-ahead in address forms (partial input: "123 Main")
+- **GetPlace**  Get full details after user selects autocomplete result (by PlaceId)
+- **Geocode**  Validate complete user-typed address or convert address to coordinates
 
 ### Finding Locations
 
-- **SearchText** → General text search ("pizza near Seattle")
-- **SearchNearby** → Find places near a coordinate (restaurants within 5km)
-- **Suggest** → Predict places/POIs from partial or misspelled input
-- **Autocomplete** → Address-specific predictions (not for general POI search)
+- **SearchText**  General text search ("pizza near Seattle")
+- **SearchNearby**  Find places near a coordinate (restaurants within 5km)
+- **Suggest**  Predict places/POIs from partial or misspelled input
+- **Autocomplete**  Address-specific predictions (not for general POI search)
 
 ### Geocoding
 
-- **Geocode (Forward)** → Address string → Coordinates
-- **ReverseGeocode** → Coordinates → Address
+- **Geocode (Forward)**  Address string  Coordinates
+- **ReverseGeocode**  Coordinates  Address
 
 ### Maps
 
-- **Dynamic Maps (tiles + MapLibre)** → Interactive maps requiring pan, zoom, markers
-- **Static Maps (image)** → Non-interactive map images for thumbnails or email
+- **Dynamic Maps (tiles + MapLibre)**  Interactive maps requiring pan, zoom, markers
+- **Static Maps (image)**  Non-interactive map images for thumbnails or email
 
 ### Routing
 
-- **CalculateRoutes** → Single route between origin and destination
-- **CalculateRouteMatrix** → Multiple origins/destinations travel times
-- **CalculateIsolines** → Service areas (all locations reachable within time/distance)
+- **CalculateRoutes**  Single route between origin and destination
+- **CalculateRouteMatrix**  Multiple origins/destinations travel times
+- **CalculateIsolines**  Service areas (all locations reachable within time/distance)
 
 ## LLM Context Files
 
@@ -181,7 +181,7 @@ When discussing permissions for Amazon Location Places, Maps and Routes services
 - Supports both resource-based and resourceless operations
 - Enables faster subsequent map loads through CDN caching
 
-**API Key Action Names** - API keys use their own action naming convention. Do NOT use SDK client names or IAM action names — they will be rejected.
+**API Key Action Names** - API keys use their own action naming convention. Do NOT use SDK client names or IAM action names  they will be rejected.
 
 Resourceless API key actions (recommended):
 
@@ -191,7 +191,7 @@ Resourceless API key actions (recommended):
 | Places  | `geo-places:Autocomplete`, `geo-places:Geocode`, `geo-places:ReverseGeocode`, `geo-places:SearchText`, `geo-places:SearchNearby`, `geo-places:Suggest`, `geo-places:GetPlace` | `arn:aws:geo-places:REGION::provider/default` |
 | Routes  | `geo-routes:CalculateRoutes`, `geo-routes:CalculateRouteMatrix`, `geo-routes:CalculateIsolines`, `geo-routes:OptimizeWaypoints`, `geo-routes:SnapToRoads`                     | `arn:aws:geo-routes:REGION::provider/default` |
 
-Do NOT use legacy `geo:` prefixed actions (e.g., `geo:GetMap*`, `geo:CalculateRoute`) — these are for pre-created resources only and will not work with resourceless APIs.
+Do NOT use legacy `geo:` prefixed actions (e.g., `geo:GetMap*`, `geo:CalculateRoute`)  these are for pre-created resources only and will not work with resourceless APIs.
 
 ## MCP Server Integration
 

@@ -5,7 +5,7 @@ category: expert
 # FinOps & Cloud Governance Expert
 Specialist in cloud cost-optimization, budget enforcement, and resource rightsizing.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 | Capability | Reference File |
 | :--- | :--- |
 | **Cost Optimization** | [cost-optimization.md](./references/cost-optimization.md) |

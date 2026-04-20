@@ -22,18 +22,18 @@ Lambda Powertools is the recommended library for implementing observability and 
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **Logger**                    | Structured JSON logging with Lambda context automatically injected                                             |
 | **Tracer**                    | X-Ray tracing with decorators; traces handler + downstream calls                                               |
-| **Metrics**                   | Custom CloudWatch metrics via Embedded Metric Format (EMF) — async, no API call overhead                       |
+| **Metrics**                   | Custom CloudWatch metrics via Embedded Metric Format (EMF)  async, no API call overhead                       |
 | **Idempotency**               | Prevent duplicate execution using DynamoDB as idempotency store                                                |
 | **Batch**                     | Partial batch failure handling for SQS, Kinesis, DynamoDB Streams                                              |
 | **Parameters**                | Cached retrieval from SSM Parameter Store, Secrets Manager, AppConfig                                          |
-| **Parser**                    | Event validation with typed models — Python uses Pydantic, TypeScript uses Zod                                 |
+| **Parser**                    | Event validation with typed models  Python uses Pydantic, TypeScript uses Zod                                 |
 | **Feature Flags**             | Rule-based feature toggles backed by AppConfig                                                                 |
 | **Event Handler**             | Route REST/HTTP API, GraphQL, and Bedrock Agent events with decorators (Python, TS, Java, .NET)                |
 | **Kafka Consumer**            | Deserialize Kafka events (Avro, Protobuf, JSON Schema) for MSK and self-managed Kafka (Python, TS, Java, .NET) |
 | **Data Masking**              | Redact or encrypt sensitive fields for compliance (Python, TS)                                                 |
 | **Event Source Data Classes** | Typed data classes for all Lambda event sources (Python)                                                       |
 
-**Use Embedded Metric Format (EMF) for custom metrics** — zero latency overhead and no extra API cost. See [observability.md](observability.md) for setup and code examples.
+**Use Embedded Metric Format (EMF) for custom metrics**  zero latency overhead and no extra API cost. See [observability.md](observability.md) for setup and code examples.
 
 **Parameters caching** reduces cold start impact from secrets retrieval. The Parameters utility caches values for a configurable TTL (default 5 seconds), avoiding an API call on every invocation.
 
@@ -55,7 +55,7 @@ For structured logging best practices, Logger setup (Python and TypeScript), log
 
 ### Feature Flags
 
-Use Feature Flags for runtime configuration changes without redeployment — percentage rollouts, user-targeted flags, and kill switches. The backend is AWS AppConfig, which supports deployment strategies (linear, canary, all-at-once) with automatic rollback.
+Use Feature Flags for runtime configuration changes without redeployment  percentage rollouts, user-targeted flags, and kill switches. The backend is AWS AppConfig, which supports deployment strategies (linear, canary, all-at-once) with automatic rollback.
 
 **Python:**
 
@@ -112,7 +112,7 @@ from aws_lambda_powertools.utilities.parameters import get_parameter, get_secret
 # Cached for 300 seconds
 db_host = get_parameter("/my-app/prod/db-host", max_age=300)
 
-# Secrets Manager — decrypted and cached
+# Secrets Manager  decrypted and cached
 db_password = get_secret("my-app/prod/db-password", max_age=300)
 ```
 
@@ -193,7 +193,7 @@ class Config(BaseModel):
     event_bus_arn: str
     log_level: str = "INFO"
 
-# Validated once at module load — fails fast if TABLE_NAME or EVENT_BUS_ARN is missing
+# Validated once at module load  fails fast if TABLE_NAME or EVENT_BUS_ARN is missing
 config = Config(
     table_name=os.environ["TABLE_NAME"],
     event_bus_arn=os.environ["EVENT_BUS_ARN"],

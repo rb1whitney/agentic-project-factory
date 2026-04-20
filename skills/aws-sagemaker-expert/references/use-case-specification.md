@@ -14,13 +14,13 @@ Multi-turn conversation to gather use case details and produce a use case specif
 
 Before starting discovery, check if a `*_use_case_spec.md` file already exists in the project. If it does, present it to the user and ask whether they want to reuse it, modify it, or start fresh.
 
-### Phase 1: Discovery (1–3 turns)
+### Phase 1: Discovery (13 turns)
 
 Review what is already known from the conversation so far, then identify what is still missing. You need these three things:
 
 - **What** is the problem the user is trying to solve with model customization
 - **Who** will use the finetuned model and in what context
-- **Which** success criteria can be used to evaluate how well the custom model performs compared to the base model on a test set. Success criteria must be measurable by an LLM-as-a-Judge (e.g., response accuracy, tone adherence) — not things like latency or throughput.
+- **Which** success criteria can be used to evaluate how well the custom model performs compared to the base model on a test set. Success criteria must be measurable by an LLM-as-a-Judge (e.g., response accuracy, tone adherence)  not things like latency or throughput.
 
 **Guidelines**:
 
@@ -29,7 +29,7 @@ Review what is already known from the conversation so far, then identify what is
 - Only ask clarifying questions when you cannot infer the information needed for Phase 2
 - If everything is already clear, say "You've given me a clear picture. I'll put together a use case specification now." and move to Phase 2.
 
-⏸ Wait for user after each clarifying question.
+ Wait for user after each clarifying question.
 
 ### Phase 2: Producing a Use Case Specification Document
 
@@ -39,17 +39,17 @@ Review what is already known from the conversation so far, then identify what is
 ```
 Use case description
   - Concise problem statement + what the custom model will do
-  - Field name: “Business Problem”
+  - Field name: Business Problem
   - Type: String
 
 Key stakeholders
   - Who uses the model and in what context
-  - Field name: “Primary Users”
+  - Field name: Primary Users
   - Type: String, comma separated if there are multiple 
 
 Success criteria
   - A list of 3 criteria (a short name and a description) with which the user measure the success of the custom model. 
-  - Field name: “Success Tenets”
+  - Field name: Success Tenets
   - Type: list of name-description pairs
 ```
 
@@ -63,7 +63,7 @@ A use case specification is a design principle recommended by the [AWS Responsib
 
 Does this match your intent?
 
-⏸ Wait for user approval.
+ Wait for user approval.
 
 ## use_case_specification Edit Protocol
 

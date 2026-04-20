@@ -2,7 +2,7 @@
 
 ## Strategy
 
-Serverless observability relies on three pillars — logs, metrics, and traces — but the approach differs from traditional infrastructure. There are no servers to SSH into, functions are distributed by nature, and cold starts create visibility gaps. Every function should emit structured logs, publish custom metrics, and participate in distributed traces from day one.
+Serverless observability relies on three pillars  logs, metrics, and traces  but the approach differs from traditional infrastructure. There are no servers to SSH into, functions are distributed by nature, and cold starts create visibility gaps. Every function should emit structured logs, publish custom metrics, and participate in distributed traces from day one.
 
 Use AWS Lambda Powertools as the consistent instrumentation layer across all functions. It handles Logger, Tracer, and Metrics with minimal boilerplate. For installation and the full utilities reference, see [powertools.md](powertools.md).
 
@@ -59,9 +59,9 @@ Use structured JSON logging so CloudWatch Logs Insights can query across fields 
 
 **Required fields in every log entry:**
 
-- `request_id` — Lambda request ID for correlating logs to a single invocation
-- `function_name` — identifies which function emitted the log
-- `level` — DEBUG, INFO, WARN, ERROR
+- `request_id`  Lambda request ID for correlating logs to a single invocation
+- `function_name`  identifies which function emitted the log
+- `level`  DEBUG, INFO, WARN, ERROR
 - Business context (user ID, order ID, operation type) as fields, not embedded in message strings
 
 **Python:**
@@ -100,7 +100,7 @@ export const handler = async (event: any, context: Context) => {
 | Staging     | INFO  | Verify behavior without noise                             |
 | Production  | WARN  | Minimize log volume and cost; drop to INFO when debugging |
 
-Set `LOG_LEVEL` or `POWERTOOLS_LOG_LEVEL` via environment variable — no code changes needed to adjust per environment.
+Set `LOG_LEVEL` or `POWERTOOLS_LOG_LEVEL` via environment variable  no code changes needed to adjust per environment.
 
 Enable `POWERTOOLS_LOG_DEDUPLICATION_DISABLED=true` in test environments to prevent log deduplication issues with test frameworks.
 
@@ -161,11 +161,11 @@ export const handler = async (event: any, context: any) => {
 
 **Key concepts:**
 
-- **Annotations** — indexed key-value pairs you can filter on in the X-Ray console (e.g., find all traces for `orderId=ord-123`)
-- **Metadata** — non-indexed data attached to a segment for debugging context
-- **`captureAWSv3Client`** — automatically traces all AWS SDK calls (DynamoDB, S3, SQS, etc.) without manual subsegments
-- **Subsegments** — wrap custom logic blocks to measure their duration separately
-- **Cold start annotation** — add `ColdStart: true/false` as an annotation so you can filter X-Ray traces by cold start status and measure cold start impact on latency separately from warm invocations. Use the `capture_cold_start_metric=True` option on `@metrics.log_metrics` to track cold starts automatically via EMF metrics.
+- **Annotations**  indexed key-value pairs you can filter on in the X-Ray console (e.g., find all traces for `orderId=ord-123`)
+- **Metadata**  non-indexed data attached to a segment for debugging context
+- **`captureAWSv3Client`**  automatically traces all AWS SDK calls (DynamoDB, S3, SQS, etc.) without manual subsegments
+- **Subsegments**  wrap custom logic blocks to measure their duration separately
+- **Cold start annotation**  add `ColdStart: true/false` as an annotation so you can filter X-Ray traces by cold start status and measure cold start impact on latency separately from warm invocations. Use the `capture_cold_start_metric=True` option on `@metrics.log_metrics` to track cold starts automatically via EMF metrics.
 
 **Sampling rules:** X-Ray defaults to 1 request/second reservoir + 5% of additional requests. For high-throughput functions, this is usually sufficient. Lower the percentage if tracing costs are a concern. Configure custom rules via the X-Ray console or API.
 
@@ -177,10 +177,10 @@ Application Signals provides APM-style capabilities on top of X-Ray, giving you 
 
 **What it provides:**
 
-- **Service dependency map** — visual topology showing how your Lambda functions connect to downstream services (DynamoDB, S3, SQS, other Lambda functions, external APIs)
-- **Pre-built service dashboards** — per-service latency (p50, p90, p99), error rate, throughput, and fault breakdown without manual widget configuration
-- **SLO tracking** — define Service Level Objectives (latency p99 < 500ms, availability > 99.9%) and monitor compliance over rolling windows
-- **Anomaly detection** — automatic alerting when a service deviates from its learned baseline
+- **Service dependency map**  visual topology showing how your Lambda functions connect to downstream services (DynamoDB, S3, SQS, other Lambda functions, external APIs)
+- **Pre-built service dashboards**  per-service latency (p50, p90, p99), error rate, throughput, and fault breakdown without manual widget configuration
+- **SLO tracking**  define Service Level Objectives (latency p99 < 500ms, availability > 99.9%) and monitor compliance over rolling windows
+- **Anomaly detection**  automatic alerting when a service deviates from its learned baseline
 
 **Enable via SAM template:**
 
@@ -200,7 +200,7 @@ Globals:
 
 Layer ARNs vary by runtime and architecture. Check the [ADOT Lambda layer documentation](https://aws-otel.github.io/docs/getting-started/lambda/) for the correct ARN for your runtime (Python, Node.js, Java, .NET) and architecture (amd64, arm64).
 
-**SLO configuration** happens in the CloudWatch console or via API after deployment — define SLIs (latency percentile, error rate, availability) and set objectives with burn rate alerting.
+**SLO configuration** happens in the CloudWatch console or via API after deployment  define SLIs (latency percentile, error rate, availability) and set objectives with burn rate alerting.
 
 **When to use Application Signals vs plain X-Ray:**
 
@@ -211,13 +211,13 @@ Layer ARNs vary by runtime and architecture. Check the [ADOT Lambda layer docume
 | SLO tracking and compliance reporting  | Application Signals                                            |
 | Custom trace annotations and filtering | X-Ray with Powertools Tracer (complements Application Signals) |
 
-Application Signals and Powertools Tracer are complementary — ADOT handles auto-instrumentation and service-level metrics, while Powertools adds custom annotations, metadata, and fine-grained subsegments. Use both together for full coverage.
+Application Signals and Powertools Tracer are complementary  ADOT handles auto-instrumentation and service-level metrics, while Powertools adds custom annotations, metadata, and fine-grained subsegments. Use both together for full coverage.
 
 **Pricing:** Application Signals charges per service signal ingested. For low-traffic services the cost is negligible; for high-throughput services, review the [Application Signals pricing page](https://aws.amazon.com/cloudwatch/pricing/) and use X-Ray sampling rules to control trace volume.
 
 ## Custom Metrics
 
-**Use Embedded Metric Format (EMF)** instead of calling `cloudwatch:PutMetricData`. EMF writes metrics as structured log entries that CloudWatch parses asynchronously — zero latency overhead and no extra API cost.
+**Use Embedded Metric Format (EMF)** instead of calling `cloudwatch:PutMetricData`. EMF writes metrics as structured log entries that CloudWatch parses asynchronously  zero latency overhead and no extra API cost.
 
 **Python:**
 
@@ -249,7 +249,7 @@ export const handler = async (event: any) => {
 };
 ```
 
-**Dimensions:** Standard dimensions should include service name and environment. Avoid high-cardinality dimensions (user IDs, request IDs) — each unique combination creates a separate CloudWatch metric and incurs cost.
+**Dimensions:** Standard dimensions should include service name and environment. Avoid high-cardinality dimensions (user IDs, request IDs)  each unique combination creates a separate CloudWatch metric and incurs cost.
 
 **Resolution:** Standard resolution (60-second aggregation) is appropriate for most use cases. Use high resolution (1-second) only for latency-sensitive SLAs where you need sub-minute granularity.
 
@@ -259,15 +259,15 @@ export const handler = async (event: any) => {
 
 Distinguish between **technical metrics** (errors, duration, throttles) and **business KPI metrics** (orders processed, revenue, user signups). Both are emitted via EMF, but they serve different audiences and alarm strategies.
 
-**Technical metrics** are infrastructure-facing — they tell you whether the system is healthy. AWS provides most of these automatically; you supplement with custom metrics for gaps (e.g., cold start count).
+**Technical metrics** are infrastructure-facing  they tell you whether the system is healthy. AWS provides most of these automatically; you supplement with custom metrics for gaps (e.g., cold start count).
 
-**Business KPI metrics** are product-facing — they tell you whether the system is doing its job. These must be explicitly instrumented:
+**Business KPI metrics** are product-facing  they tell you whether the system is doing its job. These must be explicitly instrumented:
 
 ```python
-# Technical metric — system health
+# Technical metric  system health
 metrics.add_metric(name="OrderProcessingErrors", unit=MetricUnit.Count, value=1)
 
-# Business KPI metric — product health
+# Business KPI metric  product health
 metrics.add_metric(name="OrdersPlaced", unit=MetricUnit.Count, value=1)
 metrics.add_metric(name="OrderRevenue", unit=MetricUnit.Count, value=order["total"])
 ```
@@ -288,7 +288,7 @@ metrics.add_metric(name="OrderRevenue", unit=MetricUnit.Count, value=order["tota
 | `Throttles`            | Rejected due to concurrency limits | > 0                        |
 | `ConcurrentExecutions` | Current concurrent invocations     | > 80% of account limit     |
 
-Use **p90 for early warning** (catches widespread degradation) and **p99 for tail latency** (catches outlier slowness). Alert on p90 first — if p90 is breaching, most users are affected.
+Use **p90 for early warning** (catches widespread degradation) and **p99 for tail latency** (catches outlier slowness). Alert on p90 first  if p90 is breaching, most users are affected.
 
 ### Event Source Metrics
 
@@ -308,10 +308,10 @@ Use **p90 for early warning** (catches widespread degradation) and **p99 for tai
 
 ### Alarm Best Practices
 
-- Use **anomaly detection** for functions with variable traffic instead of static thresholds — CloudWatch learns the expected pattern and alerts on deviations
-- Use **composite alarms** to reduce alert fatigue — combine multiple signals (e.g., error rate AND duration spike) before paging
-- Set alarm actions to SNS for notifications; chain SNS → Lambda for auto-remediation (e.g., increase reserved concurrency on throttle alarm)
-- Use `get_metrics` to retrieve current values before setting thresholds — base alarms on observed behavior, not guesses
+- Use **anomaly detection** for functions with variable traffic instead of static thresholds  CloudWatch learns the expected pattern and alerts on deviations
+- Use **composite alarms** to reduce alert fatigue  combine multiple signals (e.g., error rate AND duration spike) before paging
+- Set alarm actions to SNS for notifications; chain SNS  Lambda for auto-remediation (e.g., increase reserved concurrency on throttle alarm)
+- Use `get_metrics` to retrieve current values before setting thresholds  base alarms on observed behavior, not guesses
 
 ## CloudWatch Logs Insights
 
@@ -360,7 +360,7 @@ filter @type = "REPORT"
 
 ## Lambda Insights
 
-Lambda Insights provides enhanced monitoring with per-function CPU utilization, memory usage, network throughput, and disk I/O — metrics that standard Lambda monitoring does not expose.
+Lambda Insights provides enhanced monitoring with per-function CPU utilization, memory usage, network throughput, and disk I/O  metrics that standard Lambda monitoring does not expose.
 
 **Enable via SAM template:**
 
@@ -380,7 +380,7 @@ Globals:
 - Network bottlenecks from slow downstream calls
 - Understanding disk I/O patterns for `/tmp`-heavy workloads
 
-**Pricing:** Lambda Insights writes performance log events to CloudWatch Logs and publishes enhanced metrics — you pay standard CloudWatch Logs ingestion and metrics pricing based on invocation volume. Enable selectively for functions you are actively troubleshooting, not across all functions by default.
+**Pricing:** Lambda Insights writes performance log events to CloudWatch Logs and publishes enhanced metrics  you pay standard CloudWatch Logs ingestion and metrics pricing based on invocation volume. Enable selectively for functions you are actively troubleshooting, not across all functions by default.
 
 ## Dashboards
 
@@ -497,7 +497,7 @@ Set these in the `Globals.Function.Environment.Variables` section of your SAM te
 
 Observability has a cost. Manage it deliberately.
 
-**Log retention:** Set CloudWatch log retention per environment — don't pay to store debug logs forever.
+**Log retention:** Set CloudWatch log retention per environment  don't pay to store debug logs forever.
 
 | Environment | Retention | Rationale                     |
 | ----------- | --------- | ----------------------------- |

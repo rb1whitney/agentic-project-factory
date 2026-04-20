@@ -1,8 +1,8 @@
-# Repository Architecture: THE ELITE SWARM
+# Repository Architecture: THE Agent Swarm
 
 This document defines the high-precision, "Flat Expert" structure of the Programming-Work unified AI hub.
 
-## 🏛️ The Infrastructure Layer Cake
+##  The Infrastructure Layer Cake
 
 The repository is organized into four core architectural pillars, each representing a specific layer of the swarm's cognitive and operational capabilities.
 
@@ -33,7 +33,7 @@ graph TD
     end
 ```
 
-## 🛡️ Zero-Trust Credential Flow
+##  Zero-Trust Credential Flow
 
 Secrets never touch the repository. They are dynamically injected at runtime via the secure MCP wrapper.
 
@@ -50,6 +50,3 @@ sequenceDiagram
     Wrapper->>Server: exec(Server, ENV={TOKEN})
     Server->>Cloud: Authenticated API Request
 ```
-
----
-*Maintained by the Swarm Supervisor — Status: HARDENED.*

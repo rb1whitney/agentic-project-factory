@@ -54,7 +54,7 @@ For Mode D (free-text):
    Based on your requirements, I extracted:
    - Q1 (Timeline): [extracted value]
    - Q2 (Primary concern): [extracted value]
-   - Q3 (Team experience): [default value] ← using default
+   - Q3 (Team experience): [default value]  using default
    - ...
 
    Accept these, or re-run with Mode A/B to override?
@@ -67,7 +67,7 @@ For Mode D (free-text):
 
 Write `clarified.json` to `.migration/[MMDD-HHMM]/` directory.
 
-**Schema:** See `references/shared/output-schema.md` → `clarified.json (Phase 2 output)` section for complete schema and field documentation.
+**Schema:** See `references/shared/output-schema.md`  `clarified.json (Phase 2 output)` section for complete schema and field documentation.
 
 **Key fields:**
 

@@ -52,8 +52,8 @@
 **Options:**
 
 - A. Highly variable (10x-100x spikes)
-- B. Predictable (±20% variation)
-- C. Mostly steady (±5% variation)
+- B. Predictable (20% variation)
+- C. Mostly steady (5% variation)
 - D. Unknown / hard to predict
 
 **Default (Mode C):** B (Predictable; assume on-demand sizing)

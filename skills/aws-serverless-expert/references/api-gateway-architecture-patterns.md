@@ -106,7 +106,7 @@ Connect API Gateway to on-premises or edge applications:
 
 To prevent clients from bypassing CloudFront and hitting API Gateway directly (skipping WAF, caching, geo-restrictions):
 
-- **Private API approach**: Make the API Gateway endpoint private (VPC endpoint only), place CloudFront in front with VPC Origins: CloudFront → VPC Origin (internal ALB) → execute-api VPC endpoint → private API. All traffic stays within AWS private network and the API is unreachable from the public internet without CloudFront
+- **Private API approach**: Make the API Gateway endpoint private (VPC endpoint only), place CloudFront in front with VPC Origins: CloudFront  VPC Origin (internal ALB)  execute-api VPC endpoint  private API. All traffic stays within AWS private network and the API is unreachable from the public internet without CloudFront
 - **Regional API + restrictions** (defense-in-depth, not a security boundary): Keep a regional endpoint but restrict direct access. Use a custom header from CloudFront (via origin custom headers) and validate it in a Lambda authorizer. Combine with disabling the default `execute-api` endpoint to force traffic through the custom domain fronted by CloudFront. **Caveat**: The header value is a static secret. If leaked through logs, source code, or developer machines, attackers can bypass CloudFront. Rotate the value regularly, store it in AWS Secrets Manager, and treat it as a credential.
 
 ### On-Premises Access to Private APIs

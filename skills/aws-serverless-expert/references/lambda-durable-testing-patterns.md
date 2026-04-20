@@ -8,28 +8,28 @@ Test durable functions locally and in the cloud with comprehensive test runners.
 
 ### DO:
 
-- ✅ Name all operations for test reliability
-- ✅ TypeScript: Use `runner.getOperation("name")` to find operations by name
-- ✅ TypeScript: Use `WaitingOperationStatus.STARTED` when waiting for callback operations
-- ✅ TypeScript: JSON.stringify callback parameters: `sendCallbackSuccess(JSON.stringify(data))`
-- ✅ TypeScript: Use `skipTime: true` in setupTestEnvironment for fast tests
-- ✅ TypeScript: Wrap event data in `payload` object: `runner.run({ payload: { ... } })`
-- ✅ TypeScript: Cast `getResult()` to appropriate type: `execution.getResult() as ResultType`
-- ✅ Python: Use `result.get_step("name")` to find step operations by name
-- ✅ Python: Use `result.operations` to iterate and filter operations by type
-- ✅ Python: Instantiate `DurableFunctionTestRunner(handler=my_handler)` directly
-- ✅ Python: Use `runner.run(input={...}, timeout=10)` — note `input=` not `payload`
-- ✅ Python: The value of result.result is serialized. Deserialize using the appropriate SerDes or default json deserializer.
+-  Name all operations for test reliability
+-  TypeScript: Use `runner.getOperation("name")` to find operations by name
+-  TypeScript: Use `WaitingOperationStatus.STARTED` when waiting for callback operations
+-  TypeScript: JSON.stringify callback parameters: `sendCallbackSuccess(JSON.stringify(data))`
+-  TypeScript: Use `skipTime: true` in setupTestEnvironment for fast tests
+-  TypeScript: Wrap event data in `payload` object: `runner.run({ payload: { ... } })`
+-  TypeScript: Cast `getResult()` to appropriate type: `execution.getResult() as ResultType`
+-  Python: Use `result.get_step("name")` to find step operations by name
+-  Python: Use `result.operations` to iterate and filter operations by type
+-  Python: Instantiate `DurableFunctionTestRunner(handler=my_handler)` directly
+-  Python: Use `runner.run(input={...}, timeout=10)`  note `input=` not `payload`
+-  Python: The value of result.result is serialized. Deserialize using the appropriate SerDes or default json deserializer.
 
 ### DON'T:
 
-- ❌ Use `getOperationByIndex()` unless absolutely necessary
-- ❌ Assume operation indices are stable (parallel creates nested operations)
-- ❌ TypeScript: Send objects to sendCallbackSuccess — stringify first
-- ❌ TypeScript: Forget that callback results are JSON strings — parse them
-- ❌ TypeScript: Test callbacks without proper synchronization (leads to race conditions)
-- ❌ Python: Confuse `DurableFunctionTestRunner` (local) with `DurableFunctionCloudTestRunner` (cloud)
-- ❌ Python: Forget the `with runner:` context manager — it manages execution lifecycle
+-  Use `getOperationByIndex()` unless absolutely necessary
+-  Assume operation indices are stable (parallel creates nested operations)
+-  TypeScript: Send objects to sendCallbackSuccess  stringify first
+-  TypeScript: Forget that callback results are JSON strings  parse them
+-  TypeScript: Test callbacks without proper synchronization (leads to race conditions)
+-  Python: Confuse `DurableFunctionTestRunner` (local) with `DurableFunctionCloudTestRunner` (cloud)
+-  Python: Forget the `with runner:` context manager  it manages execution lifecycle
 
 ## Local Testing Setup
 
@@ -104,7 +104,7 @@ it('should execute steps in order', async () => {
   const runner = new LocalDurableTestRunner({ handlerFunction: handler });
   await runner.run({ payload: { test: true } });
 
-  // ✅ CORRECT: Get by name
+  //  CORRECT: Get by name
   const fetchStep = runner.getOperation('fetch-user');
   expect(fetchStep.getType()).toBe(OperationType.STEP);
   expect(fetchStep.getStatus()).toBe(OperationStatus.SUCCEEDED);
@@ -112,7 +112,7 @@ it('should execute steps in order', async () => {
   const processStep = runner.getOperation('process-data');
   expect(processStep.getStatus()).toBe(OperationStatus.SUCCEEDED);
 
-  // ❌ WRONG: Get by index (brittle, breaks easily)
+  //  WRONG: Get by index (brittle, breaks easily)
   // const step1 = runner.getOperationByIndex(0);
 });
 ```
@@ -128,11 +128,11 @@ def test_steps_execute():
     with runner:
         result = runner.run(input={'test': True}, timeout=10)
 
-    # ✅ CORRECT: Get step by name
+    #  CORRECT: Get step by name
     fetch_step = result.get_step('fetch-user')
     assert fetch_step is not None
 
-    # ✅ Also valid: filter result.operations by type
+    #  Also valid: filter result.operations by type
     step_names = {op.name for op in result.operations if op.operation_type == OperationType.STEP}
     assert step_names >= {'fetch-user', 'process-data'}
     assert 'process-data' in step_names
@@ -195,12 +195,12 @@ it('should use correct test runner API', async () => {
     handlerFunction: handler,
   });
 
-  // ✅ CORRECT: Wrap event in payload
+  //  CORRECT: Wrap event in payload
   const execution = await runner.run({
     payload: { name: 'Alice', userId: '123' }
   });
 
-  // ✅ CORRECT: Type cast result
+  //  CORRECT: Type cast result
   const result = execution.getResult() as {
     greeting: string;
     message: string;
@@ -208,19 +208,19 @@ it('should use correct test runner API', async () => {
 
   expect(result.greeting).toBe('Hello, Alice!');
 
-  // ✅ CORRECT: Get operations by name
+  //  CORRECT: Get operations by name
   const greetingStep = runner.getOperation('generate-greeting');
   expect(greetingStep.getStepDetails()?.result).toBe('Hello, Alice!');
 });
 
-// ❌ WRONG: Missing payload wrapper and type casting
+//  WRONG: Missing payload wrapper and type casting
 it('incorrect api usage', async () => {
   const runner = new LocalDurableTestRunner({ handlerFunction: handler });
 
-  // ❌ Missing payload wrapper
+  //  Missing payload wrapper
   const execution = await runner.run({ name: 'Alice' });
 
-  // ❌ No type casting - result is 'unknown'
+  //  No type casting - result is 'unknown'
   const result = execution.getResult();
   // expect(result.greeting).toBe('...'); // Type error!
 });
@@ -243,13 +243,13 @@ it('should handle callback success', async () => {
     payload: { approver: 'alice@example.com' }
   });
 
-  // ✅ CRITICAL: Get operation by NAME
+  //  CRITICAL: Get operation by NAME
   const callbackOp = runner.getOperation('wait-for-approval');
 
-  // ✅ CRITICAL: Wait for operation to reach STARTED status
+  //  CRITICAL: Wait for operation to reach STARTED status
   await callbackOp.waitForData(WaitingOperationStatus.STARTED);
 
-  // ✅ CRITICAL: Must JSON.stringify callback data!
+  //  CRITICAL: Must JSON.stringify callback data!
   await callbackOp.sendCallbackSuccess(
     JSON.stringify({ approved: true, comments: 'Looks good' })
   );
@@ -257,7 +257,7 @@ it('should handle callback success', async () => {
   const execution = await executionPromise;
   expect(execution.getStatus()).toBe('SUCCEEDED');
 
-  // ✅ CRITICAL: Parse JSON string result
+  //  CRITICAL: Parse JSON string result
   const result: any = execution.getResult();
   const approval = typeof result.approval === 'string'
     ? JSON.parse(result.approval)
@@ -511,21 +511,21 @@ it('should validate operation details', async () => {
 
 ## Common Pitfalls
 
-### ❌ Getting Operations by Index
+###  Getting Operations by Index
 
 ```typescript
 // Brittle - breaks when operations change
 const step = runner.getOperationByIndex(0);
 ```
 
-### ✅ Getting Operations by Name
+###  Getting Operations by Name
 
 ```typescript
 // Robust - works even if operation order changes
 const step = runner.getOperation('fetch-user');
 ```
 
-### ❌ Not Waiting for Callbacks
+###  Not Waiting for Callbacks
 
 ```typescript
 // Race condition - callback might not exist yet
@@ -533,7 +533,7 @@ const callbackOp = runner.getOperation('wait-approval');
 await callbackOp.sendCallbackSuccess('{}');
 ```
 
-### ✅ Waiting for Callbacks
+###  Waiting for Callbacks
 
 ```typescript
 // Use waitForData with proper status

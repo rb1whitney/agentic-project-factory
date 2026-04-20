@@ -37,7 +37,7 @@ Create 8-12 week timeline with critical path based on cluster dependencies and d
 
 - Deploy smallest cluster to AWS
 - Test application performance
-- Validate data pipeline (GCP → AWS)
+- Validate data pipeline (GCP  AWS)
 - Measure baseline latency
 
 ### Week 6-8: Full Infrastructure
@@ -56,7 +56,7 @@ Create 8-12 week timeline with critical path based on cluster dependencies and d
 ### Week 11: Cutover
 
 - Test failover procedures
-- DNS switch (GCP → AWS)
+- DNS switch (GCP  AWS)
 - Monitor for 24-48 hours
 - Rollback procedures on standby
 
@@ -87,7 +87,7 @@ Create 8-12 week timeline with critical path based on cluster dependencies and d
 **Rollback steps (reversible up to DNS cutover):**
 
 1. Pause dual-write replication
-2. Reverse DNS records (AWS → GCP)
+2. Reverse DNS records (AWS  GCP)
 3. Shut down AWS workloads (keep for 1 week as standby)
 4. Resume GCP read traffic
 5. Monitor for 24 hours
@@ -140,13 +140,13 @@ Write `execution.json`:
 Write `execution-timeline.md`:
 
 ```
-# GCP→AWS Migration Timeline
+# GCPAWS Migration Timeline
 
 ## Week 1-2: Planning & Setup
 - [ ] AWS account setup
 - [ ] VPC / Subnets / Routing
 - [ ] IAM roles & policies
-- [ ] GCP→AWS connectivity test
+- [ ] GCPAWS connectivity test
 
 ## Week 3-5: Proof of Concept
 - [ ] Deploy pilot cluster
@@ -195,7 +195,7 @@ Update `.phase-status.json`:
 
 Output to user:
 
-"✓ Migration plan complete. Summary:
+" Migration plan complete. Summary:
 
 - Timeline: 12 weeks
 - AWS monthly cost: $[balanced total from estimation.json] (Balanced)

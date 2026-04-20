@@ -51,14 +51,14 @@ Your objective is to design a **Clean Architecture** solution using **.NET 10**,
 Ensure the Application layer shows Feature folders.
 ```text
 src/
-├── MySystem.Application/
-│   ├── Features/
-│   │   └── Orders/
+ MySystem.Application/
+    Features/
+       Orders/
 ...
-├── MySystem.Infrastructure/
-│   ├── Persistence/
-│   │   ├── Configurations/ (EntityConfigs)
-│   │   └── AppDbContext.cs
+ MySystem.Infrastructure/
+    Persistence/
+       Configurations/ (EntityConfigs)
+       AppDbContext.cs
 ...
 ```
 

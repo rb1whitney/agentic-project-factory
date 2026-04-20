@@ -79,7 +79,7 @@ White-label domain support allows SaaS providers to serve multiple external cust
 
 ### Migration from Base Path Mappings
 
-1. Set routing mode to "Routing rules then API mappings" — existing base path mappings continue as fallback
+1. Set routing mode to "Routing rules then API mappings"  existing base path mappings continue as fallback
 2. Progressively create routing rules (e.g., start with a test header rule for controlled traffic). Include a catch-all rule (no conditions) at the lowest priority as a safety net; without this, unmatched requests will receive a 404 after switching modes in step 4
 3. Monitor with `$context.customDomain.routingRuleIdMatched` in access logs to verify routing behavior and confirm all expected traffic paths are covered by rules
 4. Once all traffic is covered by rules, switch to "Routing rules only" mode

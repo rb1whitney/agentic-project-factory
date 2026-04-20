@@ -19,7 +19,7 @@ Lambda allocates CPU proportionally to memory. The goal is to find the configura
 
 **CPU scaling:** Lambda allocates CPU proportionally to memory. At **1,769 MB** a function has the equivalent of one full vCPU. Functions below this threshold share a single vCPU. If your function is CPU-bound, the optimal memory setting is often 1,769 MB or higher.
 
-**arm64 (Graviton) savings:** arm64 is approximately **20% cheaper per GB-second** than x86_64 and typically provides equal or faster performance. This is the single easiest cost optimization for most functions. Use x86_64 only when you depend on x86-only native binaries — older Python C extension wheels (NumPy, Pandas pre-built for x86), Node.js native addons compiled for x86, or vendor-provided Lambda layers that ship only x86 binaries. Most pure-Python, pure-Node.js, and Java/Go/.NET workloads run on arm64 without changes.
+**arm64 (Graviton) savings:** arm64 is approximately **20% cheaper per GB-second** than x86_64 and typically provides equal or faster performance. This is the single easiest cost optimization for most functions. Use x86_64 only when you depend on x86-only native binaries  older Python C extension wheels (NumPy, Pandas pre-built for x86), Node.js native addons compiled for x86, or vendor-provided Lambda layers that ship only x86 binaries. Most pure-Python, pure-Node.js, and Java/Go/.NET workloads run on arm64 without changes.
 
 ### AWS Lambda Power Tuning
 
@@ -62,7 +62,7 @@ sam deploy --guided
 | Parameter     | Description                                                |
 | ------------- | ---------------------------------------------------------- |
 | `lambdaARN`   | ARN of the function to tune                                |
-| `powerValues` | Memory sizes (MB) to test — include 1769 (1 vCPU boundary) |
+| `powerValues` | Memory sizes (MB) to test  include 1769 (1 vCPU boundary) |
 | `num`         | Invocations per memory setting (50-100 for stable results) |
 | `payload`     | Event payload to pass to each invocation                   |
 
@@ -70,7 +70,7 @@ sam deploy --guided
 
 **When to use:**
 
-- Before launching a new function to production — right-size from the start
+- Before launching a new function to production  right-size from the start
 - When `get_metrics` shows memory utilization is consistently very low or very high
 - After significant code changes that affect compute profile
 - Periodically (quarterly) for long-running production functions
@@ -114,7 +114,7 @@ MyFunction:
 
 SnapStart only works on **published versions**, not `$LATEST`. Always use an alias pointing to a published version.
 
-**Critical — handle uniqueness correctly:**
+**Critical  handle uniqueness correctly:**
 
 ```python
 # WRONG: unique value captured in snapshot, reused across invocations
@@ -126,13 +126,13 @@ def handler(event, context):
     correlation_id = str(uuid.uuid4())
 ```
 
-**Re-establish connections on restore:** Use `lambda_runtime_api_prepare_to_invoke.py` (Python) runtime hooks to reconnect databases or refresh credentials after snapshot restoration — connection state is not guaranteed.
+**Re-establish connections on restore:** Use `lambda_runtime_api_prepare_to_invoke.py` (Python) runtime hooks to reconnect databases or refresh credentials after snapshot restoration  connection state is not guaranteed.
 
 **When to use SnapStart vs provisioned concurrency:**
 
 | Scenario                                   | Recommendation          |
 | ------------------------------------------ | ----------------------- |
-| Tolerate ~100–200 ms restore time          | SnapStart               |
+| Tolerate ~100200 ms restore time          | SnapStart               |
 | Require < 10 ms latency                    | Provisioned concurrency |
 | Java/Python/.NET with heavy initialization | SnapStart               |
 | Infrequently invoked functions             | Neither                 |
@@ -151,13 +151,13 @@ Lambda Managed Instances run your function on dedicated EC2 instances from your 
 
 **When NOT to use:**
 
-- Bursty or unpredictable traffic — instances take tens of seconds to launch (vs. seconds for regular Lambda)
+- Bursty or unpredictable traffic  instances take tens of seconds to launch (vs. seconds for regular Lambda)
 - Low-volume applications
 - Any code that is not thread-safe (module-level mutable state, non-reentrant libraries)
 
 **Cost model:** EC2 instance cost + 15% premium + $0.20 per million requests. Compatible with existing EC2 Savings Plans. GPU instances are not supported.
 
-**Configure via AWS CLI** (SAM template support may vary — check latest CloudFormation docs):
+**Configure via AWS CLI** (SAM template support may vary  check latest CloudFormation docs):
 
 ```bash
 aws lambda create-function \
@@ -209,7 +209,7 @@ Response streaming sends data to the client incrementally rather than buffering 
 | Long-running operations (up to 15 min) | Keeps the HTTP connection alive and sends progress            |
 | Large file/dataset delivery            | Stream directly without S3 pre-signed URL workarounds         |
 
-### Lambda Side — `streamifyResponse`
+### Lambda Side  `streamifyResponse`
 
 Wrap your handler with `awslambda.streamifyResponse()` (Node.js runtime). Use `HttpResponseStream.from()` to attach HTTP metadata before writing to the stream.
 
@@ -233,7 +233,7 @@ export const handler = awslambda.streamifyResponse(streamingHandler);
 
 **Runtime support:** Node.js only for `streamifyResponse`. Python and other runtimes can stream via Lambda Function URLs using a different mechanism.
 
-### API Gateway REST API — Enable Streaming
+### API Gateway REST API  Enable Streaming
 
 API Gateway REST API response streaming requires two changes in your OpenAPI definition:
 
@@ -259,9 +259,9 @@ uri:
   Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MyFunction.Arn}/invocations"
 ```
 
-This feature is available on all endpoint types — regional, private, and edge-optimized.
+This feature is available on all endpoint types  regional, private, and edge-optimized.
 
-### Lambda Function URLs — Enable Streaming
+### Lambda Function URLs  Enable Streaming
 
 Function URLs also support streaming without API Gateway:
 
@@ -276,7 +276,7 @@ MyFunction:
 
 ### Server-Sent Events (SSE) Pattern
 
-For LLM and AI streaming, use SSE format — it's natively supported by browsers and easy to consume:
+For LLM and AI streaming, use SSE format  it's natively supported by browsers and easy to consume:
 
 ```text
 data: {"token":"Hello"}\n\n

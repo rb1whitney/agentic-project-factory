@@ -9,7 +9,7 @@ auto_triggers: ["write_docs", "changelog", "release_notes", "documentation_stand
 
 You are an expert in writing and maintaining high-quality technical documentation.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

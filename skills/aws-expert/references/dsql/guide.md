@@ -34,7 +34,7 @@ sampled in [.mcp.json](../../.mcp.json)
 
 #### [mcp-tools.md](mcp/mcp-tools.md)
 
-**When:** Load when you need detailed MCP tool syntax and examples. PREFER MCP tools for ad-hoc queries — execute directly rather than writing scripts.
+**When:** Load when you need detailed MCP tool syntax and examples. PREFER MCP tools for ad-hoc queries  execute directly rather than writing scripts.
 **Contains:** Tool parameters, detailed examples, usage patterns, [input validation](mcp/tools/input-validation.md)
 
 ### [language.md](references/language.md)
@@ -59,7 +59,7 @@ sampled in [.mcp.json](../../.mcp.json)
 
 ### [access-control.md](references/access-control.md)
 
-**When:** MUST load when creating database roles, granting permissions, setting up schemas for applications, or handling sensitive data. ALWAYS use scoped roles for applications — create database roles with `dsql:DbConnect`.
+**When:** MUST load when creating database roles, granting permissions, setting up schemas for applications, or handling sensitive data. ALWAYS use scoped roles for applications  create database roles with `dsql:DbConnect`.
 **Contains:** Scoped role setup, IAM-to-database role mapping, schema separation for sensitive data, role design patterns
 
 ### DDL Migrations (modular):
@@ -127,7 +127,7 @@ See [mcp-tools.md](mcp/mcp-tools.md) for detailed usage and examples.
 ### AWS Knowledge MCP (`awsknowledge`)
 
 Consult for verifying DSQL service limits before advising users. The numeric limits below are
-defaults that may change — when a user's decision depends on an exact limit, verify it first:
+defaults that may change  when a user's decision depends on an exact limit, verify it first:
 
 | Limit                          | Default       | Verify query                       |
 | ------------------------------ | ------------- | ---------------------------------- |
@@ -181,7 +181,7 @@ Use transact tool with list of SQL statements
 Follow one-DDL-per-transaction rule
 Always use CREATE INDEX ASYNC in separate transaction
 ALTER COLUMN TYPE, DROP COLUMN, DROP CONSTRAINT are NOT supported directly
-  → These require the Table Recreation Pattern (see Workflow 6)
+   These require the Table Recreation Pattern (see Workflow 6)
 ```
 
 ---
@@ -214,9 +214,9 @@ ALTER COLUMN TYPE, DROP COLUMN, DROP CONSTRAINT are NOT supported directly
 
 ### Workflow 3: Application-Layer Referential Integrity
 
-**INSERT:** MUST validate parent exists with readonly_query → throw error if not found → insert child with transact.
+**INSERT:** MUST validate parent exists with readonly_query  throw error if not found  insert child with transact.
 
-**DELETE:** MUST check dependents with readonly_query COUNT → return error if dependents exist → delete with transact if safe.
+**DELETE:** MUST check dependents with readonly_query COUNT  return error if dependents exist  delete with transact if safe.
 
 ### Workflow 4: Query with Tenant Isolation
 
@@ -234,7 +234,7 @@ MUST load [access-control.md](references/access-control.md) for role setup, IAM 
 
 ### Workflow 6: Table Recreation DDL Migration
 
-DSQL does NOT support direct `ALTER COLUMN TYPE`, `DROP COLUMN`, `DROP CONSTRAINT`, or `MODIFY PRIMARY KEY`. These operations require the **Table Recreation Pattern** — creating a new table, copying data, dropping the original, and renaming. This is a destructive workflow that requires user confirmation at each step.
+DSQL does NOT support direct `ALTER COLUMN TYPE`, `DROP COLUMN`, `DROP CONSTRAINT`, or `MODIFY PRIMARY KEY`. These operations require the **Table Recreation Pattern**  creating a new table, copying data, dropping the original, and renaming. This is a destructive workflow that requires user confirmation at each step.
 
 MUST load [ddl-migrations/overview.md](references/ddl-migrations/overview.md) before attempting any of these operations.
 
@@ -248,9 +248,9 @@ MUST load [mysql-migrations/type-mapping.md](references/mysql-migrations/type-ma
 
 - **MCP server unavailable:** Fall back to CLI scripts ([scripts/](../../scripts/)) or direct psql. Note the limitation to the user.
 - **`awsknowledge` returns no results:** Use the default limits in the table above and note that limits should be verified against [DSQL documentation](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/).
-- **OCC serialization error:** Retry the transaction. If persistent, check for hot-key contention — see [troubleshooting.md](references/troubleshooting.md).
-- **Transaction exceeds limits:** Split into batches under 3,000 rows — see [batched-migration.md](references/ddl-migrations/batched-migration.md).
-- **Token expiration mid-operation:** Generate a fresh IAM token and reconnect — see [authentication-guide.md](references/auth/authentication-guide.md).
+- **OCC serialization error:** Retry the transaction. If persistent, check for hot-key contention  see [troubleshooting.md](references/troubleshooting.md).
+- **Transaction exceeds limits:** Split into batches under 3,000 rows  see [batched-migration.md](references/ddl-migrations/batched-migration.md).
+- **Token expiration mid-operation:** Generate a fresh IAM token and reconnect  see [authentication-guide.md](references/auth/authentication-guide.md).
 - See [troubleshooting.md](references/troubleshooting.md) for other issues.
 
 ---

@@ -54,4 +54,4 @@ Let me know how it goes -- or if anything needs changes!
 
 Once the user confirms testing is successful (or has no changes needed), summarize the frontend integration and testing results.
 
-This phase is now complete. Do not read other reference files or proceed to the next phase — return control to the orchestrator workflow (SKILL.md).
+This phase is now complete. Do not read other reference files or proceed to the next phase  return control to the orchestrator workflow (SKILL.md).

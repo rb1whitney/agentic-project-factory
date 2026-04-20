@@ -33,10 +33,10 @@ To "turn on" all servers (ensure they are downloaded, built, and configured for 
 
 ### Individual Commands
 
-- **Status**: `./tools/mcp-servers/manage_mcps.sh status` — Show build and runtime status.
-- **Build**: `./tools/mcp-servers/manage_mcps.sh build [server]` — Build specific or all servers.
-- **Config**: `./tools/mcp-servers/manage_mcps.sh config` — Regenerate `.gemini/settings.json` and `.vscode/mcp.json`.
-- **Health**: `./tools/mcp-servers/manage_mcps.sh health [server]` — Verify JSON-RPC capability.
+- **Status**: `./tools/mcp-servers/manage_mcps.sh status`  Show build and runtime status.
+- **Build**: `./tools/mcp-servers/manage_mcps.sh build [server]`  Build specific or all servers.
+- **Config**: `./tools/mcp-servers/manage_mcps.sh config`  Regenerate `.gemini/settings.json` and `.vscode/mcp.json`.
+- **Health**: `./tools/mcp-servers/manage_mcps.sh health [server]`  Verify JSON-RPC capability.
 
 ## Configuration Details
 

@@ -7,7 +7,7 @@ Both SAM and CDK synthesize CloudFormation. Choosing between them is a matter of
 |                          | SAM                                     | CDK                                                       |
 | ------------------------ | --------------------------------------- | --------------------------------------------------------- |
 | **Language**             | YAML/JSON (declarative)                 | TypeScript, Python, Java, Go, C# (imperative)             |
-| **Learning curve**       | Lower — close to CloudFormation         | Higher — requires familiarity with a programming language |
+| **Learning curve**       | Lower  close to CloudFormation         | Higher  requires familiarity with a programming language |
 | **Abstraction level**    | Handles wiring for Serverless resources | Rich L2/L3 constructs handle wiring automatically         |
 | **Code sharing**         | Template fragments only                 | Full reuse via construct libraries (npm, PyPI)            |
 | **Loops and conditions** | Limited                                 | Native language constructs (`for`, `if`, maps)            |
@@ -50,17 +50,17 @@ npm install
 
 ```text
 my-serverless-app/
-├── bin/
-│   └── my-serverless-app.ts    # App entry point
-├── lib/
-│   └── my-serverless-app-stack.ts  # Stack definition
-├── lambda/
-│   └── handler.ts              # Lambda function code
-├── test/
-│   └── my-serverless-app.test.ts
-├── cdk.context.json            # Committed to git — caches lookups
-├── cdk.json                    # CDK config
-└── tsconfig.json
+ bin/
+    my-serverless-app.ts    # App entry point
+ lib/
+    my-serverless-app-stack.ts  # Stack definition
+ lambda/
+    handler.ts              # Lambda function code
+ test/
+    my-serverless-app.test.ts
+ cdk.context.json            # Committed to git  caches lookups
+ cdk.json                    # CDK config
+ tsconfig.json
 ```
 
 ---
@@ -81,7 +81,7 @@ CDK has three levels of constructs:
 
 ## Lambda Functions
 
-For CDK Lambda function constructs — `NodejsFunction` (TypeScript/JavaScript with esbuild), `PythonFunction` (alpha, Docker-based), and base `Function` (Java, Go, .NET) — see [cdk-lambda-constructs.md](cdk-lambda-constructs.md).
+For CDK Lambda function constructs  `NodejsFunction` (TypeScript/JavaScript with esbuild), `PythonFunction` (alpha, Docker-based), and base `Function` (Java, Go, .NET)  see [cdk-lambda-constructs.md](cdk-lambda-constructs.md).
 
 ---
 
@@ -107,10 +107,10 @@ bucket.grantPut(myFunction);
 queue.grantSendMessages(myFunction);
 queue.grantConsumeMessages(myFunction);
 
-// EventBridge — put events
+// EventBridge  put events
 eventBus.grantPutEventsTo(myFunction);
 
-// Lambda — invoke another function
+// Lambda  invoke another function
 otherFunction.grantInvoke(myFunction);
 
 // Secrets Manager
@@ -133,7 +133,7 @@ myFunction.addToRolePolicy(new iam.PolicyStatement({
 
 ## Common Serverless Patterns
 
-For CDK code examples of common serverless patterns — API Gateway HTTP API, Lambda Function URL, EventBridge custom bus, DynamoDB table, and SQS queue with Lambda — see [cdk-serverless-patterns.md](cdk-serverless-patterns.md).
+For CDK code examples of common serverless patterns  API Gateway HTTP API, Lambda Function URL, EventBridge custom bus, DynamoDB table, and SQS queue with Lambda  see [cdk-serverless-patterns.md](cdk-serverless-patterns.md).
 
 ---
 
@@ -145,13 +145,13 @@ Stateful resources (databases, queues, S3 buckets, event buses) should be in a s
 // bin/my-app.ts
 const app = new cdk.App();
 
-// Stateful stack — deployed once, termination-protected
+// Stateful stack  deployed once, termination-protected
 const stateful = new StatefulStack(app, 'StatefulStack', {
   env: { account: '123456789012', region: 'us-east-1' },
   terminationProtection: true,
 });
 
-// Stateless stack — deployed on every code change
+// Stateless stack  deployed on every code change
 const stateless = new StatelessStack(app, 'StatelessStack', {
   env: { account: '123456789012', region: 'us-east-1' },
   // Pass references from stateful stack
@@ -240,7 +240,7 @@ describe('OrderStack', () => {
 });
 ```
 
-**Assert logical IDs of stateful resources** to catch accidental replacements early — renaming a CDK construct ID causes CloudFormation to delete and recreate the resource:
+**Assert logical IDs of stateful resources** to catch accidental replacements early  renaming a CDK construct ID causes CloudFormation to delete and recreate the resource:
 
 ```typescript
 it('orders table logical ID is stable', () => {
@@ -269,7 +269,7 @@ cdk deploy StatelessStack
 # Deploy with approval prompt disabled (CI/CD)
 cdk deploy --require-approval never
 
-# Destroy a stack (respects RemovalPolicy — RETAIN resources are kept)
+# Destroy a stack (respects RemovalPolicy  RETAIN resources are kept)
 cdk destroy StatelessStack
 ```
 
@@ -315,7 +315,7 @@ The pipeline updates itself: when you push changes to the pipeline stack, the ne
 
 ## SAM and CDK Coexistence
 
-For guidance on running SAM and CDK side by side — incremental migration, using `sam build` on CDK-synthesized templates, and when to use which — see [sam-cdk-coexistence.md](sam-cdk-coexistence.md).
+For guidance on running SAM and CDK side by side  incremental migration, using `sam build` on CDK-synthesized templates, and when to use which  see [sam-cdk-coexistence.md](sam-cdk-coexistence.md).
 
 ---
 
@@ -323,11 +323,11 @@ For guidance on running SAM and CDK side by side — incremental migration, usin
 
 ### Do
 
-- Use TypeScript — type checking catches errors at synthesis time, before any AWS API calls
+- Use TypeScript  type checking catches errors at synthesis time, before any AWS API calls
 - Prefer L2 constructs and `grant*` methods over L1 and raw IAM statements
-- Never hardcode resource names — always reference generated names (`table.tableName`, `queue.queueUrl`)
+- Never hardcode resource names  always reference generated names (`table.tableName`, `queue.queueUrl`)
 - Separate stateful and stateless resources into different stacks; enable termination protection on stateful stacks
-- Commit `cdk.context.json` to version control — it caches VPC/AZ lookups for deterministic synthesis
+- Commit `cdk.context.json` to version control  it caches VPC/AZ lookups for deterministic synthesis
 - Write unit tests with `aws-cdk-lib/assertions`; assert logical IDs of stateful resources to detect accidental replacements
 - Set `RemovalPolicy.RETAIN` on all databases, S3 buckets, and event buses
 - Use `cdk diff` in CI before every deployment to review changes
@@ -335,9 +335,9 @@ For guidance on running SAM and CDK side by side — incremental migration, usin
 
 ### Don't
 
-- Hardcode account IDs or region strings — use `this.account` and `this.region`
+- Hardcode account IDs or region strings  use `this.account` and `this.region`
 - Use `cdk deploy` directly in production without a pipeline
-- Skip `cdk bootstrap` — deployments will fail without the CDK toolkit stack
+- Skip `cdk bootstrap`  deployments will fail without the CDK toolkit stack
 - Rely on CloudFormation `Parameters` and `Conditions` when you can express the same logic in TypeScript
 - Mix `RemovalPolicy.DESTROY` into shared/stateful stacks
 - Reference constructs across separate CDK apps using CloudFormation outputs if you can pass object references directly

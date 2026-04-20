@@ -33,7 +33,7 @@
 
 | Tool | Version | Purpose |
 |---|---|---|
-| Terraform | managed via tfenv | Primary IaC — all cloud resources |
+| Terraform | managed via tfenv | Primary IaC  all cloud resources |
 | tfenv | latest | Terraform version management across projects |
 | Packer | 1.10+ | Immutable AMI and VM image builds |
 | Ansible | core 2.15+ | Configuration management, OS provisioning |
@@ -72,8 +72,8 @@
 - **Terraform variables**: All variables must have `description` and `type`
 - **Ansible tasks**: All tasks must have `name`; use `become` explicitly
 - **Python**: Targeting 3.11+; no external dependencies beyond requirements in each tool dir
-- **Secrets**: Never committed — use AWS Secrets Manager, GCP Secret Manager, or Ansible Vault
-- **State**: Terraform state must be remote (S3 + DynamoDB lock or GCS) — local state is never committed
+- **Secrets**: Never committed  use AWS Secrets Manager, GCP Secret Manager, or Ansible Vault
+- **State**: Terraform state must be remote (S3 + DynamoDB lock or GCS)  local state is never committed
 
 ## Approved vs Not Approved
 

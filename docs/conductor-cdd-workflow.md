@@ -2,7 +2,7 @@
 
 This document visualizes the strict **Spec-Plan-Implement** lifecycle used to ensure zero information loss and autonomous project management.
 
-## 🔄 The Conductor Loop
+##  The Conductor Loop
 
 Every track follows a deterministic state-machine cycle led by the [**swarm-supervisor**](file://../../agents/swarm-supervisor/SYSTEM.md).
 
@@ -20,7 +20,7 @@ stateDiagram-v2
     Sync --> [*]
 ```
 
-## 📂 The CDD Folder Structure
+##  The CDD Folder Structure
 
 Tracks are organized into nested folders to maintain isolation and history.
 
@@ -36,6 +36,3 @@ graph LR
     ProjectB --> SpecB[spec.md]
     ProjectB --> PlanB[plan.md]
 ```
-
----
-*Maintained by the Swarm Supervisor — Status: HARDENED.*

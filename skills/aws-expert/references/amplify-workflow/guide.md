@@ -14,7 +14,7 @@ Orchestrated workflow for AWS Amplify Gen 2 development.
 
 ## Defaults
 
-- **Phase ordering**: Backend → Sandbox → Frontend → Production (only applicable phases are included)
+- **Phase ordering**: Backend  Sandbox  Frontend  Production (only applicable phases are included)
 - **Deployment target**: `sandbox` for development/testing, `cicd` for production
 
 ---

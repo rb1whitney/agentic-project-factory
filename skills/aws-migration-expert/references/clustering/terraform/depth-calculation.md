@@ -5,7 +5,7 @@ Assigns topological depth to every resource via Kahn's algorithm (longest path v
 ## Depth Semantics
 
 - **Depth 0**: Resources with no incoming dependencies (can start immediately)
-- **Depth N**: Resources where all dependencies are at depth ≤ N-1, and at least one is at depth N-1
+- **Depth N**: Resources where all dependencies are at depth  N-1, and at least one is at depth N-1
 
 Higher depth = later in deployment sequence.
 
@@ -54,16 +54,16 @@ If queue empties but unassigned resources remain:
 - **Bounded retry** (max 3 attempts total):
   1. Identify the cycle (trace unassigned resources' dependencies)
   2. Find lowest-confidence edge in cycle (prefer `unknown_dependency` or LLM-inferred edges over deterministic edges)
-  3. **Only break inferred edges** (confidence < 1.0). If all edges in the cycle are deterministic (hardcoded classification), do NOT break — proceed to STOP.
+  3. **Only break inferred edges** (confidence < 1.0). If all edges in the cycle are deterministic (hardcoded classification), do NOT break  proceed to STOP.
   4. Remove the selected edge and restart the algorithm
   5. Log warning: "Circular dependency detected and broken (attempt N/3): {resources and edges removed}"
-- **If cycle persists after 3 attempts**: **STOP**. Output: "Unresolvable circular dependency between: [resource addresses]. All edges are deterministic. Manual review required — restructure Terraform dependencies or add `depends_on` overrides."
+- **If cycle persists after 3 attempts**: **STOP**. Output: "Unresolvable circular dependency between: [resource addresses]. All edges are deterministic. Manual review required  restructure Terraform dependencies or add `depends_on` overrides."
 
 ### Step 5: Assign Final Depths
 
 All resources have assigned `depth` field.
 
-Verify: Every resource has `depth ∈ [0, max_depth]`.
+Verify: Every resource has `depth  [0, max_depth]`.
 
 ## Pseudocode
 
@@ -72,7 +72,7 @@ function calculateDepth(resources) {
   // Build graph
   in_degree = {}
   depends_on = {}
-  dependents_of = {}  // Reverse adjacency: resource → resources that depend on it
+  dependents_of = {}  // Reverse adjacency: resource  resources that depend on it
   for each resource R:
     in_degree[R] = count incoming edges
     depends_on[R] = R.dependencies[]
@@ -117,10 +117,10 @@ function calculateDepth(resources) {
 **Resources and dependencies:**
 
 ```
-A: depends on [] → depth 0
-B: depends on [A] → depth 1
-C: depends on [A] → depth 1
-D: depends on [B, C] → depth 2
+A: depends on []  depth 0
+B: depends on [A]  depth 1
+C: depends on [A]  depth 1
+D: depends on [B, C]  depth 2
 ```
 
 **Queue trace:**
@@ -132,7 +132,7 @@ D: depends on [B, C] → depth 2
 5. Dequeue D, depth[D]=2
 6. Queue empty; all depths assigned
 
-**Final**: A:0, B:1, C:1, D:2 ✓
+**Final**: A:0, B:1, C:1, D:2 
 
 ## Deployment Order Guarantee
 

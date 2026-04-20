@@ -53,26 +53,26 @@ public final class UserService {
 **Rules**:
 - No single-letter variables except loop counters (`i`, `j`) and streams (`s`, `e`)
 - Boolean variables and methods use `is`, `has`, `can` prefix: `isActive`, `hasPermission`
-- Avoid abbreviations in names — `request` not `req`, `exception` not `e` in catch blocks
+- Avoid abbreviations in names  `request` not `req`, `exception` not `e` in catch blocks
 
 ## Formatting
 
 - **Indentation**: 4 spaces (no tabs)
-- **Line length**: 120 characters (Google's default is 100 — this project extends to 120)
+- **Line length**: 120 characters (Google's default is 100  this project extends to 120)
 - **Braces**: Always use braces even for single-statement bodies
 - **Blank lines**: One blank line between methods; two blank lines between top-level declarations
 
 ```java
-// Bad — no braces, compressed
+// Bad  no braces, compressed
 if (user == null)
   throw new IllegalArgumentException();
 
-// Good — explicit braces
+// Good  explicit braces
 if (user == null) {
     throw new IllegalArgumentException("user must not be null");
 }
 
-// Block layout — opening brace on same line
+// Block layout  opening brace on same line
 public Optional<User> findById(long userId) {
     if (userId <= 0) {
         throw new IllegalArgumentException("userId must be positive, got: " + userId);
@@ -84,13 +84,13 @@ public Optional<User> findById(long userId) {
 ## Immutability First
 
 ```java
-// Bad — mutable state by default
+// Bad  mutable state by default
 public class UserDto {
     public String name;
     public String email;
 }
 
-// Good — immutable record (Java 16+)
+// Good  immutable record (Java 16+)
 public record UserDto(String name, String email) {
     public UserDto {
         requireNonNull(name, "name");
@@ -98,7 +98,7 @@ public record UserDto(String name, String email) {
     }
 }
 
-// Good — immutable class (pre-Java 16)
+// Good  immutable class (pre-Java 16)
 public final class UserDto {
     private final String name;
     private final String email;
@@ -116,14 +116,14 @@ public final class UserDto {
 ## Optionals
 
 ```java
-// Bad — Optional as field or parameter
+// Bad  Optional as field or parameter
 private Optional<String> name;                    // never
 public void process(Optional<String> input) {}    // never
 
-// Bad — get() without check
+// Bad  get() without check
 String name = user.getName().get();
 
-// Good — orElseThrow, orElse, ifPresent, map
+// Good  orElseThrow, orElse, ifPresent, map
 String name = user.getName()
     .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -131,7 +131,7 @@ String displayName = user.getName().orElse("Anonymous");
 
 user.getEmail().ifPresent(emailService::send);
 
-// Good — Optional with map/filter pipeline
+// Good  Optional with map/filter pipeline
 return userRepository.findById(userId)
     .filter(User::isActive)
     .map(UserDto::from)
@@ -141,7 +141,7 @@ return userRepository.findById(userId)
 ## Streams and Lambdas
 
 ```java
-// Bad — imperative style for collection operations
+// Bad  imperative style for collection operations
 List<String> result = new ArrayList<>();
 for (User user : users) {
     if (user.isActive()) {
@@ -149,19 +149,19 @@ for (User user : users) {
     }
 }
 
-// Good — stream pipeline
+// Good  stream pipeline
 List<String> activeEmails = users.stream()
     .filter(User::isActive)
     .map(User::getEmail)
     .collect(Collectors.toUnmodifiableList());
 
-// Bad — complex lambda body
+// Bad  complex lambda body
 users.stream()
     .filter(u -> {
         return u.isActive() && u.getRole() == Role.ADMIN;
     });
 
-// Good — extract complex lambdas to methods
+// Good  extract complex lambdas to methods
 users.stream()
     .filter(this::isActiveAdmin)
     ...
@@ -174,19 +174,19 @@ private boolean isActiveAdmin(User user) {
 ## Exception Handling
 
 ```java
-// Bad — swallowing exceptions
+// Bad  swallowing exceptions
 try {
     processPayment(order);
 } catch (Exception e) {
     // silence
 }
 
-// Bad — catching Exception broadly
+// Bad  catching Exception broadly
 catch (Exception e) {
     log.error("error", e);
 }
 
-// Good — catch specific, log with context, rethrow or wrap
+// Good  catch specific, log with context, rethrow or wrap
 try {
     paymentGateway.charge(amount, card);
 } catch (PaymentDeclinedException e) {
@@ -206,17 +206,17 @@ Custom exceptions must:
 ## Dependency Injection
 
 ```java
-// Bad — field injection
+// Bad  field injection
 @Autowired
 private UserRepository userRepository;
 
-// Good — constructor injection (testable, immutable)
+// Good  constructor injection (testable, immutable)
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    // Spring auto-detects single constructor — @Autowired not needed
+    // Spring auto-detects single constructor  @Autowired not needed
     public UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = requireNonNull(userRepository);
         this.emailService = requireNonNull(emailService);
@@ -227,29 +227,29 @@ public class UserService {
 ## Logging Conventions
 
 ```java
-// Bad — string concatenation in log statements (allocates even when disabled)
+// Bad  string concatenation in log statements (allocates even when disabled)
 log.debug("Processing user " + userId + " with order " + orderId);
 
-// Good — parameterized logging
+// Good  parameterized logging
 log.debug("Processing user {} with order {}", userId, orderId);
 
-// Good — guard expensive operations
+// Good  guard expensive operations
 if (log.isTraceEnabled()) {
     log.trace("Full request payload: {}", objectMapper.writeValueAsString(request));
 }
 
 // Log levels:
-// ERROR — system failures requiring immediate attention
-// WARN  — unexpected state that is recoverable
-// INFO  — significant business events (user created, order completed)
-// DEBUG — developer diagnostic data
-// TRACE — request/response payloads, method entry/exit
+// ERROR  system failures requiring immediate attention
+// WARN   unexpected state that is recoverable
+// INFO   significant business events (user created, order completed)
+// DEBUG  developer diagnostic data
+// TRACE  request/response payloads, method entry/exit
 ```
 
 ## Testing Standards
 
 ```java
-// Use JUnit 5 + AssertJ — never assertEquals(expected, actual) style
+// Use JUnit 5 + AssertJ  never assertEquals(expected, actual) style
 class UserServiceTest {
 
     @Mock
@@ -286,17 +286,17 @@ class UserServiceTest {
 ## Code Review Checklist
 
 - [ ] All fields `final` where possible
-- [ ] No field injection — constructor injection only
+- [ ] No field injection  constructor injection only
 - [ ] `Optional` not used as field type or method parameter
 - [ ] `Optional.get()` never called without prior `isPresent()` or `orElse`
-- [ ] No raw types — generics always fully parameterized
+- [ ] No raw types  generics always fully parameterized
 - [ ] Lambdas extracted to named methods when they exceed 2 lines
 - [ ] Checked exceptions declared in signature or explicitly wrapped
-- [ ] No exception swallowing — always log or rethrow
+- [ ] No exception swallowing  always log or rethrow
 - [ ] Log statements use parameterized format (not concatenation)
 - [ ] Test method names follow `{method}_{scenario}_{expected}` pattern
 - [ ] Tests use AssertJ (`assertThat()`) not JUnit assertions directly
-- [ ] No `Thread.sleep()` in tests — use Awaitility for async assertions
+- [ ] No `Thread.sleep()` in tests  use Awaitility for async assertions
 
 ---
 

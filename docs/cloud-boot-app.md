@@ -87,6 +87,5 @@ podman build -t cloud-boot-app:modernized .
 podman run -p 8090:8090 -d cloud-boot-app:modernized
 ```
 
----
-*Author: Richard Whitney*
+./Author: Richard Whitney*
 *Created as part of the Cloud Boot App modernization.*

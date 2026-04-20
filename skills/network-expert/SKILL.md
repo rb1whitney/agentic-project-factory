@@ -9,7 +9,7 @@ auto_triggers: ["networking", "vpc", "routing", "load_balancer", "privatelink", 
 
 You are an expert in designing and troubleshooting complex cloud networks.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

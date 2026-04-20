@@ -24,7 +24,7 @@
 
 ## General Approach
 
-1. Enable execution logging (REST/WebSocket only — [HTTP API supports access logging only](https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html)) AND access logging before troubleshooting
+1. Enable execution logging (REST/WebSocket only  [HTTP API supports access logging only](https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html)) AND access logging before troubleshooting
 2. Use `x-amzn-requestid` response header to trace specific requests in execution logs
 3. Check enhanced observability variables in access logs to identify which phase failed (see `references/observability-logging.md`)
 4. Use CloudWatch Logs Insights for pattern analysis across many requests
@@ -160,7 +160,7 @@ Common causes:
 
 ### Lambda Authorizer Malformed Response
 
-- **Cause**: Lambda authorizer returns invalid JSON, missing `principalId`, or policy exceeding ~8 KB. API Gateway returns **500** (not 401/403) — commonly mistaken for a backend issue ([Authorizer output format](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-lambda-authorizer-output.html))
+- **Cause**: Lambda authorizer returns invalid JSON, missing `principalId`, or policy exceeding ~8 KB. API Gateway returns **500** (not 401/403)  commonly mistaken for a backend issue ([Authorizer output format](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-lambda-authorizer-output.html))
 - **Fix**: Check execution logs for authorizer errors; verify response includes `principalId` and valid `policyDocument`
 
 ### General Lambda Integration

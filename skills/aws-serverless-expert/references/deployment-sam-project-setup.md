@@ -21,17 +21,17 @@ Choose `arm64` (Graviton) for better price-performance unless you have x86-speci
 
 ```text
 my-serverless-app/
-├── template.yaml          # SAM template
-├── samconfig.toml         # Deployment configuration
-├── src/                   # Function source code
-│   ├── handlers/          # Lambda function handlers
-│   ├── layers/            # Shared layers
-│   └── utils/             # Utility functions
-├── events/                # Test event files
-└── tests/                 # Unit and integration tests
+ template.yaml          # SAM template
+ samconfig.toml         # Deployment configuration
+ src/                   # Function source code
+    handlers/          # Lambda function handlers
+    layers/            # Shared layers
+    utils/             # Utility functions
+ events/                # Test event files
+ tests/                 # Unit and integration tests
 ```
 
-**Testability tip:** Extract pure business logic (calculations, validations, decisions) into plain functions that don't import the AWS SDK. This lets you unit test core logic without mocking — reserve mocks for the handler-level tests that exercise SDK calls.
+**Testability tip:** Extract pure business logic (calculations, validations, decisions) into plain functions that don't import the AWS SDK. This lets you unit test core logic without mocking  reserve mocks for the handler-level tests that exercise SDK calls.
 
 ## Template Configuration
 
@@ -217,13 +217,13 @@ SAM builds the image locally during `sam build` and pushes it to ECR during `sam
 
 ### Seekable OCI (SOCI) Lazy Loading
 
-Container images have longer cold starts than zip because Lambda must download the full image before starting. SOCI creates an index that enables lazy loading — Lambda pulls only the layers needed at startup and fetches the rest in the background.
+Container images have longer cold starts than zip because Lambda must download the full image before starting. SOCI creates an index that enables lazy loading  Lambda pulls only the layers needed at startup and fetches the rest in the background.
 SOCI is most beneficial for images larger than 250 MB. For smaller images, the overhead of maintaining the index may not be worthwhile.
 
 ### Best Practices
 
-- [ ] Use multi-stage builds to minimize final image size — install build dependencies in a builder stage, copy only artifacts to the final stage
-- [ ] Use AWS base images (`public.ecr.aws/lambda/*`) — they include the Lambda runtime interface client
+- [ ] Use multi-stage builds to minimize final image size  install build dependencies in a builder stage, copy only artifacts to the final stage
+- [ ] Use AWS base images (`public.ecr.aws/lambda/*`)  they include the Lambda runtime interface client
 - [ ] Choose `arm64` architecture for the same 20% cost savings as zip deployments
 - [ ] Pin base image tags to specific versions in production (e.g., `python:3.12.2024.11.22` not `python:3.12`)
 - [ ] Create SOCI indexes for images larger than 250 MB to reduce cold starts
@@ -366,7 +366,7 @@ Ephemeral stacks (one per PR) provide full isolation between test runs without p
 
 ### Testing Checklist
 
-- [ ] Mock all AWS SDK calls in unit tests — never call real AWS services
+- [ ] Mock all AWS SDK calls in unit tests  never call real AWS services
 - [ ] Keep test events in `events/` for repeatability
 - [ ] Use `sam local generate-event` rather than hand-crafting event JSON
 - [ ] Set `POWERTOOLS_DEV=true` locally for verbose structured log output

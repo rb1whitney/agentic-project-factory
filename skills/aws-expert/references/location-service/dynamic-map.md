@@ -188,7 +188,7 @@ Not all features are available on every map style. Applying an unsupported featu
 
 ### Style Change Persistence
 
-Calling `map.setStyle()` completely replaces the map's style object. This destroys all custom sources and layers added via `map.addSource()` / `map.addLayer()` — route lines, geofence polygons, heatmaps, cluster layers, etc. DOM-based elements like `maplibregl.Marker` survive because they exist outside the style.
+Calling `map.setStyle()` completely replaces the map's style object. This destroys all custom sources and layers added via `map.addSource()` / `map.addLayer()`  route lines, geofence polygons, heatmaps, cluster layers, etc. DOM-based elements like `maplibregl.Marker` survive because they exist outside the style.
 
 Any code that switches map styles MUST re-add custom layers after the new style loads. The recommended pattern is:
 

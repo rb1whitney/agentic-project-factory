@@ -6,10 +6,10 @@
 
 **Possible causes (check in order):**
 
-1. Cold start — check if latency is only on first invocations after idle
-2. Under-provisioned memory — more memory = more CPU
-3. Slow external calls — database, HTTP APIs, other AWS services
-4. Large deployment package — increases cold start time
+1. Cold start  check if latency is only on first invocations after idle
+2. Under-provisioned memory  more memory = more CPU
+3. Slow external calls  database, HTTP APIs, other AWS services
+4. Large deployment package  increases cold start time
 
 **Diagnosis steps:**
 
@@ -52,13 +52,13 @@
 
 **Common misconception:** Async Lambda invocations (`InvocationType: Event`) are subject to throttling like sync invocations.
 
-**Reality:** Async invocations are **always accepted** — Lambda's Event Invoke Frontend queues the request without checking concurrency limits. The invocation call itself never returns a throttle error. Throttling is only checked later when the internal poller attempts to run the function synchronously. If throttled at that point, the event is returned to the internal queue and retried for **up to 6 hours**.
+**Reality:** Async invocations are **always accepted**  Lambda's Event Invoke Frontend queues the request without checking concurrency limits. The invocation call itself never returns a throttle error. Throttling is only checked later when the internal poller attempts to run the function synchronously. If throttled at that point, the event is returned to the internal queue and retried for **up to 6 hours**.
 
 **Practical implications:**
 
-- You do not need SNS or EventBridge as a throttle-protection buffer in front of async Lambda invocations — direct Lambda-to-Lambda async calls are safe
+- You do not need SNS or EventBridge as a throttle-protection buffer in front of async Lambda invocations  direct Lambda-to-Lambda async calls are safe
 - If you need guaranteed delivery with a DLQ, configure one on the function directly
-- Async invocations with reserved concurrency set to 0 will still be accepted but will fail during processing — they will retry and eventually go to the DLQ or on-failure destination
+- Async invocations with reserved concurrency set to 0 will still be accepted but will fail during processing  they will retry and eventually go to the DLQ or on-failure destination
 
 ### Throttling and Concurrency Limits
 
@@ -67,7 +67,7 @@
 **Key concurrency facts:**
 
 - Default account limit: **1,000 concurrent executions** per region (shared across all functions)
-- **Concurrency ≠ requests per second**: Concurrency = avg_RPS × avg_duration_seconds
+- **Concurrency  requests per second**: Concurrency = avg_RPS  avg_duration_seconds
 - Burst limit: Lambda can scale by **1,000 new concurrent executions per 10 seconds** (on-demand)
 
 **Diagnosis:**
@@ -129,16 +129,16 @@
 | Kafka/MSK connection failing       | `esm_kafka_troubleshoot`         |
 | Need IAM policy for ESM            | `secure_esm_*` (source-specific) |
 
-### DynamoDB Streams — High Iterator Age
+### DynamoDB Streams  High Iterator Age
 
 **Symptoms:** `IteratorAge` metric increasing in CloudWatch
 
 **Diagnosis steps:**
 
-1. Check `ParallelizationFactor` — default is 1, maximum is 10
-2. Check function duration — slow processing causes backlog
+1. Check `ParallelizationFactor`  default is 1, maximum is 10
+2. Check function duration  slow processing causes backlog
 3. Check for poison records causing repeated retries
-4. Check concurrency — throttling prevents scaling
+4. Check concurrency  throttling prevents scaling
 
 **Resolution:**
 
@@ -147,7 +147,7 @@
 - Set `MaximumRetryAttempts` to limit retries on persistent failures
 - Use `esm_optimize` for specific tuning recommendations
 
-### Kinesis — Shard Throttling
+### Kinesis  Shard Throttling
 
 **Symptoms:** `ReadProvisionedThroughputExceeded` errors
 
@@ -158,7 +158,7 @@
 - Consider switching to ON_DEMAND stream mode for automatic scaling
 - Increase shard count for PROVISIONED mode
 
-### SQS — Messages Going to DLQ
+### SQS  Messages Going to DLQ
 
 **Symptoms:** Messages accumulating in dead-letter queue
 
@@ -168,7 +168,7 @@
 - Check for partial batch failures: enable `ReportBatchItemFailures` in `FunctionResponseTypes`
 - Check `maxReceiveCount` in the redrive policy (too low causes premature DLQ routing)
 
-### Kafka/MSK — Connection Failures
+### Kafka/MSK  Connection Failures
 
 **Symptoms:** ESM stays in `Creating` or `Failed` state
 
@@ -192,7 +192,7 @@
 - Add VPC gateway endpoints for DynamoDB and S3 (free, recommended)
 - Add VPC interface endpoints for other services (per-hour + per-GB cost)
 - Add NAT Gateway in public subnet (higher cost, required for internet access)
-- **Use IPv6 + Egress-Only Internet Gateway** for internet access — Lambda now supports IPv6, so if your VPC has IPv6 CIDR blocks and an Egress-Only Internet Gateway, Lambda functions can reach the internet without a NAT Gateway, eliminating NAT Gateway costs entirely
+- **Use IPv6 + Egress-Only Internet Gateway** for internet access  Lambda now supports IPv6, so if your VPC has IPv6 CIDR blocks and an Egress-Only Internet Gateway, Lambda functions can reach the internet without a NAT Gateway, eliminating NAT Gateway costs entirely
 
 ### ENI Exhaustion
 
@@ -242,6 +242,6 @@ When a function is failing and the cause is unclear, follow this sequence:
 2. **Check metrics**: Use `get_metrics` to identify error rate, duration, and throttle trends
 3. **Check configuration**: Verify timeout, memory, VPC, and IAM settings in the SAM template
 4. **Test locally**: Use `sam_local_invoke` with the failing event payload to reproduce
-5. **Test deployed function**: Use `sam remote invoke` with the failing event to test directly in AWS — bypasses local environment differences
+5. **Test deployed function**: Use `sam remote invoke` with the failing event to test directly in AWS  bypasses local environment differences
 6. **Trace calls**: Enable X-Ray tracing to identify which downstream call is failing
 7. **Check dependencies**: Verify external services (databases, APIs) are reachable and healthy

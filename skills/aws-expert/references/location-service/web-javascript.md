@@ -88,10 +88,10 @@ const config = authHelper.getClientConfig();
 
 **When to use**:
 
-- ✅ **Recommended** for Maps, Places, and Routes APIs
-- ✅ Public client-side applications where AWS credentials cannot be exposed
-- ✅ Simpler setup without identity pool configuration
-- ⚠️ **Not available** for Geofencing and Tracking APIs (use Cognito instead)
+-  **Recommended** for Maps, Places, and Routes APIs
+-  Public client-side applications where AWS credentials cannot be exposed
+-  Simpler setup without identity pool configuration
+-  **Not available** for Geofencing and Tracking APIs (use Cognito instead)
 
 ### Cognito Authentication
 
@@ -106,10 +106,10 @@ const config = authHelper.getClientConfig();
 
 **When to use**:
 
-- ✅ **Required** for Geofencing and Tracking APIs
-- ✅ Applications with user authentication
-- ✅ When you need per-user authorization or temporary AWS credentials
-- ⚠️ More complex setup than API keys
+-  **Required** for Geofencing and Tracking APIs
+-  Applications with user authentication
+-  When you need per-user authorization or temporary AWS credentials
+-  More complex setup than API keys
 
 ### Custom Credential Provider (Advanced/Fallback)
 
@@ -127,7 +127,7 @@ const config = authHelper.getClientConfig();
 
 **When to use**:
 
-- ⚠️ **Fallback option only** - not recommended over API Key or Cognito
+-  **Fallback option only** - not recommended over API Key or Cognito
 - Advanced use cases with custom credential providers
 - Static credentials from environment variables
 - Authentication through a separate backend service

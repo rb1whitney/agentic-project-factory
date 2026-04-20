@@ -9,7 +9,7 @@ auto_triggers: []
 
 ## Philosophy
 
-- **Re-platform by default**: Select AWS services that match GCP workload types (e.g., Cloud Run → Fargate, Cloud SQL → RDS).
+- **Re-platform by default**: Select AWS services that match GCP workload types (e.g., Cloud Run  Fargate, Cloud SQL  RDS).
 - **Dev sizing unless specified**: Default to development-tier capacity (e.g., db.t4g.micro, single AZ). Upgrade only on user direction.
 - **Infrastructure-first approach**: v1.0 migrates Terraform-defined infrastructure only. App code scanning and billing import are v1.1+.
 
@@ -28,15 +28,15 @@ Migration state lives in `.migration/[MMDD-HHMM]/` directory (created by Phase 1
 
 ```
 .migration/
-├── .gitignore                       # Auto-created to protect state files from git
-└── 0226-1430/                       # MMDD-HHMM timestamp
-    ├── .phase-status.json           # Current phase tracking
-    ├── gcp-resource-inventory.json  # All GCP resources found
-    ├── gcp-resource-clusters.json   # Clustered resources by affinity
-    ├── clarified.json               # User answers (Phase 2 output)
-    ├── aws-design.json              # AWS services mapping (Phase 3 output)
-    ├── estimation.json              # Cost breakdown (Phase 4 output)
-    └── execution.json               # Timeline + risks (Phase 5 output)
+ .gitignore                       # Auto-created to protect state files from git
+ 0226-1430/                       # MMDD-HHMM timestamp
+     .phase-status.json           # Current phase tracking
+     gcp-resource-inventory.json  # All GCP resources found
+     gcp-resource-clusters.json   # Clustered resources by affinity
+     clarified.json               # User answers (Phase 2 output)
+     aws-design.json              # AWS services mapping (Phase 3 output)
+     estimation.json              # Cost breakdown (Phase 4 output)
+     execution.json               # Timeline + risks (Phase 5 output)
 ```
 
 **Note:** The `.migration/` directory is automatically protected by a `.gitignore` file created in Phase 1. Migration state files will not be accidentally committed to version control.
@@ -54,7 +54,7 @@ Migration state lives in `.migration/[MMDD-HHMM]/` directory (created by Phase 1
 
 If `.phase-status.json` exists:
 
-- If `status` is `completed`: advance to next phase (discover→clarify, clarify→design, etc.)
+- If `status` is `completed`: advance to next phase (discoverclarify, clarifydesign, etc.)
 - If `status` is `in-progress`: resume from that phase
 
 ## Phase Routing
@@ -74,11 +74,11 @@ If `.phase-status.json` exists:
        - If phase status is `completed`: Advance to next phase
 
 2. **Phase transition mapping** (when phase is `completed`):
-   - discover (completed) → Route to clarify
-   - clarify (completed) → Route to design
-   - design (completed) → Route to estimate
-   - estimate (completed) → Route to execute
-   - execute (completed) → Migration complete; offer summary and cleanup options
+   - discover (completed)  Route to clarify
+   - clarify (completed)  Route to design
+   - design (completed)  Route to estimate
+   - estimate (completed)  Route to execute
+   - execute (completed)  Migration complete; offer summary and cleanup options
 
 3. **Phase gate checks**: If prior phase incomplete, do not advance (e.g., cannot enter estimate without completed design)
 
@@ -114,14 +114,14 @@ If `.phase-status.json` exists:
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | No `.tf` files found                        | Stop. Output: "No Terraform files detected. Please provide `.tf` files with your GCP resources and try again."               |
 | `.phase-status.json` missing phase gate     | Stop. Output: "Cannot enter Phase X: Phase Y-1 not completed. Start from Phase Y or resume Phase Y-1."                       |
-| awspricing unavailable after 3 attempts     | Display user warning about ±15-25% accuracy. Use `pricing-fallback.json`. Add `pricing_source: fallback` to estimation.json. |
+| awspricing unavailable after 3 attempts     | Display user warning about 15-25% accuracy. Use `pricing-fallback.json`. Add `pricing_source: fallback` to estimation.json. |
 | User does not answer all Q1-8               | Offer Mode C (defaults) or Mode D (free text). Phase 2 completes either way.                                                 |
 | `aws-design.json` missing required clusters | Stop Phase 4. Output: "Re-run Phase 3 to generate missing cluster designs."                                                  |
 
 ## Defaults
 
-- **IaC output**: None (v1.0 produces design, cost estimates, and execution plans — no IaC code generation)
-- **Region**: `us-east-1` (unless user specifies, or GCP region → AWS region mapping suggests otherwise)
+- **IaC output**: None (v1.0 produces design, cost estimates, and execution plans  no IaC code generation)
+- **Region**: `us-east-1` (unless user specifies, or GCP region  AWS region mapping suggests otherwise)
 - **Sizing**: Development tier (e.g., Aurora Serverless v2 0.5 ACU for databases, 0.5 CPU for Fargate)
 - **Migration mode**: Full infrastructure path (no AI-only subset path in v1.0)
 - **Cost currency**: USD
@@ -139,11 +139,11 @@ When invoked, the agent **MUST follow this exact sequence**:
    - If status is `in-progress`: Resume that phase (read corresponding reference file)
    - If status is `completed`: Advance to next phase (read next reference file)
    - Phase mapping for advancement:
-     - discover (completed) → Execute clarify (read `references/phases/clarify.md`)
-     - clarify (completed) → Execute design (read `references/phases/design.md`)
-     - design (completed) → Execute estimate (read `references/phases/estimate.md`)
-     - estimate (completed) → Execute execute (read `references/phases/execute.md`)
-     - execute (completed) → Migration complete
+     - discover (completed)  Execute clarify (read `references/phases/clarify.md`)
+     - clarify (completed)  Execute design (read `references/phases/design.md`)
+     - design (completed)  Execute estimate (read `references/phases/estimate.md`)
+     - estimate (completed)  Execute execute (read `references/phases/execute.md`)
+     - execute (completed)  Migration complete
 
 3. **Read phase reference**: Load the full reference file for the target phase.
 

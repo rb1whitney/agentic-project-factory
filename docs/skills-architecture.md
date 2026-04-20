@@ -259,7 +259,7 @@ The inventory is regenerated automatically when the skill library changes using 
 
 **Cross-skill memory** would allow insights discovered in one expert context to be propagated to related skills during a session. If the `aws-networking-expert` determines that a specific security group ID is the root cause of a connectivity issue, that finding should be available to the `aws-rds-expert` when it resumes its investigation without requiring the user to restate it.
 
-## 🧩 Intelligence Hub Integration (MCP)
+##  Intelligence Hub Integration (MCP)
 Specialist agents leverage the Model Context Protocol to query real-time ground-truth sensors.
 
 ```mermaid

@@ -8,8 +8,8 @@ Default: TypeScript
 
 Override syntax:
 
-- "use Python" → Generate Python code
-- "use JavaScript" → Generate JavaScript code
+- "use Python"  Generate Python code
+- "use JavaScript"  Generate JavaScript code
 
 When not specified, ALWAYS use TypeScript
 
@@ -224,40 +224,40 @@ export const handler = withDurableExecution(async (event, context: DurableContex
 
 ```
 my-durable-function/
-├── src/
-│   ├── handler.ts              # Main handler
-│   ├── steps/                  # Step functions
-│   │   ├── validate.ts
-│   │   └── process.ts
-│   └── utils/                  # Utilities
-│       └── retry-strategies.ts
-├── tests/
-│   └── handler.test.ts         # Tests with LocalDurableTestRunner
-├── infrastructure/
-│   └── template.yaml           # SAM/CloudFormation
-├── eslint.config.js            # ESLint configuration
-├── jest.config.js              # Jest configuration
-├── tsconfig.json               # TypeScript configuration
-└── package.json
+ src/
+    handler.ts              # Main handler
+    steps/                  # Step functions
+       validate.ts
+       process.ts
+    utils/                  # Utilities
+        retry-strategies.ts
+ tests/
+    handler.test.ts         # Tests with LocalDurableTestRunner
+ infrastructure/
+    template.yaml           # SAM/CloudFormation
+ eslint.config.js            # ESLint configuration
+ jest.config.js              # Jest configuration
+ tsconfig.json               # TypeScript configuration
+ package.json
 ```
 
 ### Python
 
 ```
 my-durable-function/
-├── src/
-│   ├── handler.py              # Main handler
-│   ├── steps/                  # Step functions
-│   │   ├── __init__.py
-│   │   ├── validate.py
-│   │   └── process.py
-│   └── utils/
-│       └── retry_strategies.py
-├── tests/
-│   └── test_handler.py         # Tests with DurableFunctionTestRunner
-├── infrastructure/
-│   └── template.yaml           # SAM/CloudFormation
-└── pyproject.toml              # Project configuration
+ src/
+    handler.py              # Main handler
+    steps/                  # Step functions
+       __init__.py
+       validate.py
+       process.py
+    utils/
+        retry_strategies.py
+ tests/
+    test_handler.py         # Tests with DurableFunctionTestRunner
+ infrastructure/
+    template.yaml           # SAM/CloudFormation
+ pyproject.toml              # Project configuration
 ```
 
 ## ESLint Plugin Setup

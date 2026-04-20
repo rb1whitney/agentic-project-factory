@@ -8,12 +8,16 @@ Usage:
 """
 
 import os
+import sys
 import re
 import yaml
 import argparse
+import logging
 from pathlib import Path
 from datetime import datetime, timezone
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger("update_inventory")
 
 def extract_frontmatter(skill_md_path: Path) -> dict:
     """Extract YAML frontmatter from a SKILL.md file."""
@@ -26,7 +30,6 @@ def extract_frontmatter(skill_md_path: Path) -> dict:
     except yaml.YAMLError:
         return {}
 
-
 def build_inventory(skills_dir: Path) -> list[dict]:
     """Walk skills_dir and extract metadata from every SKILL.md."""
     inventory = []
@@ -37,7 +40,7 @@ def build_inventory(skills_dir: Path) -> list[dict]:
 
         meta = extract_frontmatter(skill_md)
         if not meta.get("name"):
-            print(f"  WARN: No frontmatter name in {skill_md} — skipping")
+            logger.warning(f"No frontmatter name in {skill_md} — skipping")
             continue
 
         has_refs = (skill_path / "references").is_dir()
@@ -53,7 +56,6 @@ def build_inventory(skills_dir: Path) -> list[dict]:
         })
 
     return inventory
-
 
 def render_markdown(inventory: list[dict]) -> str:
     """Render the inventory as a structured Markdown file."""
@@ -91,8 +93,7 @@ def render_markdown(inventory: list[dict]) -> str:
 
     return "\n".join(lines)
 
-
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Regenerate skills/INVENTORY.md")
     parser.add_argument(
         "--skills-dir",
@@ -106,17 +107,20 @@ def main():
     skills_dir = Path(args.skills_dir) if args.skills_dir else repo_root / "skills"
 
     if not skills_dir.exists():
-        print(f"ERROR: Skills directory not found: {skills_dir}")
-        exit(1)
+        logger.error(f"Skills directory not found: {skills_dir}")
+        sys.exit(1)
 
-    print(f"Scanning: {skills_dir}")
+    logger.info(f"Scanning: {skills_dir}")
     inventory = build_inventory(skills_dir)
-    print(f"Found {len(inventory)} skills")
+    logger.info(f"Found {len(inventory)} skills")
 
     output_path = skills_dir / "INVENTORY.md"
-    output_path.write_text(render_markdown(inventory), encoding="utf-8")
-    print(f"Written: {output_path}")
-
+    try:
+        output_path.write_text(render_markdown(inventory), encoding="utf-8")
+        logger.info(f"Written: {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write inventory to {output_path}: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

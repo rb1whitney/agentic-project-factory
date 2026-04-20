@@ -1,6 +1,6 @@
 # Contributing to Programming-Work
 
-This repository is a centralized hub for AI agents and skills across Claude, Copilot, and Gemini. Contributions should maintain the standards that make the system work — primarily that agents can reliably activate the right expertise for any task without being told to.
+This repository is a centralized hub for AI agents and skills across Claude, Copilot, and Gemini. Contributions should maintain the standards that make the system work  primarily that agents can reliably activate the right expertise for any task without being told to.
 
 ---
 
@@ -75,17 +75,17 @@ Find the correct expert skill for the service affected:
 | Kubernetes, EKS, GKE | `skills/kubernetes-expert/references/` |
 | Multi-cloud automation | `skills/cloud-ops-expert/references/` |
 
-Do not add runbooks to `cloud-debugger` — distribute them to the specific service expert.
+Do not add runbooks to `cloud-debugger`  distribute them to the specific service expert.
 
 ---
 
 ## Modifying AGENT.md
 
-`AGENT.md` is the passive context file injected into every agent session. It is symlinked as `CLAUDE.md`, `GEMINI.md`, and `.github/copilot-instructions.md` — edit only `AGENT.md`.
+`AGENT.md` is the passive context file injected into every agent session. It is symlinked as `CLAUDE.md`, `GEMINI.md`, and `.github/copilot-instructions.md`  edit only `AGENT.md`.
 
 **Rules for AGENT.md edits**:
 - The `IMPORTANT: Prefer retrieval-led reasoning...` directive must remain the first instruction
-- The skills index must remain inline — do not replace it with a link to another file
+- The skills index must remain inline  do not replace it with a link to another file
 - Every new skill must be added to the skills index in the correct category
 - Descriptions in the index must match the trigger keywords in the skill's `SKILL.md`
 
@@ -114,7 +114,7 @@ After significant changes to source code in `tools/`, regenerate the code map:
 python3 tools/ast-bridge/code_mapper.py .
 ```
 
-The `code_map.md` and `.ast_cache/context_map.json` are in `.gitignore` — they are generated at runtime and not committed.
+The `code_map.md` and `.ast_cache/context_map.json` are in `.gitignore`  they are generated at runtime and not committed.
 
 ---
 

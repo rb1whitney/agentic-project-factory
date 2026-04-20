@@ -6,15 +6,15 @@ Structural patterns and constraints for AWS architecture diagram XML.
 
 ALWAYS use the `mxgraph.aws4.*` namespace. Reference `aws4-shapes-services.md` and `aws4-shapes-resources.md` for valid shape names.
 
-There are two style patterns — the difference matters for rendering:
+There are two style patterns  the difference matters for rendering:
 
-**Service icon (resourceIcon)** — Main AWS services. Renders the colored square icon. The `points` array gives 16 connection anchors:
+**Service icon (resourceIcon)**  Main AWS services. Renders the colored square icon. The `points` array gives 16 connection anchors:
 
 ```
 sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#16191F;fillColor={CATEGORY_COLOR};strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.{shape_name}
 ```
 
-**Sub-resource icon** — Service sub-components (glue_crawlers, ecs_task, etc.). Smaller flat icons, 48x48:
+**Sub-resource icon**  Service sub-components (glue_crawlers, ecs_task, etc.). Smaller flat icons, 48x48:
 
 ```
 sketch=0;outlineConnect=0;fontColor=#16191F;gradientColor=none;fillColor={CATEGORY_COLOR};strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.{shape_name}
@@ -30,7 +30,7 @@ value="AWS Lambda&lt;div&gt;&lt;i&gt;compress queries&lt;/i&gt;&lt;/div&gt;"
 
 ## Label Placement (CRITICAL)
 
-- **Container `value`** = functional category label (e.g., "DNS", "Compute", "Database", "Auth") — NOT the service name
+- **Container `value`** = functional category label (e.g., "DNS", "Compute", "Database", "Auth")  NOT the service name
 - **Icon `value`** = service name + optional italic sub-label with `verticalLabelPosition=bottom;verticalAlign=top`
 - NEVER put the service name on the container. NEVER put the category label on the icon.
 
@@ -62,7 +62,7 @@ The `x` value controls position along the edge (-1 = source, 0 = midpoint, 1 = t
 ## Groups and Containers
 
 - Set `parent="containerId"` on children; children use **relative coordinates**
-- Add `container=1;pointerEvents=0;` to group styles — **EXCEPT Region groups which MUST use `container=0`**
+- Add `container=1;pointerEvents=0;` to group styles  **EXCEPT Region groups which MUST use `container=0`**
 - **Region groups are decoration-only**: Services positioned visually inside the region rectangle still have `parent="aws-cloud"` or `parent="1"` with absolute coordinates. This prevents nesting depth from breaking edge auto-routing.
 - Full group style strings: `group-styles.md`
 

@@ -32,7 +32,7 @@ Amazon Location provides three main search APIs:
 | User searches for business/POI by name     | SearchText   | "Starbucks near downtown"                         |
 | User searches by category                  | SearchText   | "restaurants in Vancouver"                        |
 | Find places near a point on map            | SearchNearby | Find gas stations within 10km of current location |
-| Type-ahead for place names (not addresses) | Suggest      | "star" → Starbucks, Starwood Hotel                |
+| Type-ahead for place names (not addresses) | Suggest      | "star"  Starbucks, Starwood Hotel                |
 | Type-ahead for addresses                   | Autocomplete | Use address-input reference instead               |
 | Get full details after search              | GetPlace     | Fetch hours, contact info by PlaceId              |
 
@@ -54,19 +54,19 @@ For the full feature-by-API matrix (including Geocode, ReverseGeocode, and Autoc
 
 ### Contacts and Opening Hours
 
-Contact and opening hours data is available on GetPlace, SearchText, and SearchNearby. Request both by including `"Contact"` in the `AdditionalFeatures` array. The valid `AdditionalFeatures` enum values are `TimeZone`, `Phonemes`, `Access`, and `Contact` (GetPlace also supports `SecondaryAddresses`). There is no separate `"OpeningHours"` enum value — requesting `"Contact"` returns both contact details and opening hours.
+Contact and opening hours data is available on GetPlace, SearchText, and SearchNearby. Request both by including `"Contact"` in the `AdditionalFeatures` array. The valid `AdditionalFeatures` enum values are `TimeZone`, `Phonemes`, `Access`, and `Contact` (GetPlace also supports `SecondaryAddresses`). There is no separate `"OpeningHours"` enum value  requesting `"Contact"` returns both contact details and opening hours.
 
 Contacts can include:
 
-- **Phone number** — primary contact number, may include international dialing codes
-- **Email address** — primary contact email from the public listing
-- **Website** — link to the official site
+- **Phone number**  primary contact number, may include international dialing codes
+- **Email address**  primary contact email from the public listing
+- **Website**  link to the official site
 
 Opening hours can include:
 
-- **Regular hours** — standard weekly schedule (e.g., Mon–Fri 9 AM–5 PM)
-- **Special hours** — holiday or event overrides to the regular schedule
-- **Open now** — whether the location is currently open based on local time
+- **Regular hours**  standard weekly schedule (e.g., MonFri 9 AM5 PM)
+- **Special hours**  holiday or event overrides to the regular schedule
+- **Open now**  whether the location is currently open based on local time
 
 ```javascript
 // Request contacts and opening hours
@@ -115,7 +115,7 @@ async function searchPlaces(query) {
       console.log(place.Address?.Label); // "123 Main St, Austin, TX"
       console.log(place.Position); // [lon, lat]
       // Categories are objects: { Id: string, Name: string, LocalizedName?: string, Primary?: boolean }
-      console.log(place.Categories); // [{ Id: "9000", Name: "Coffee Shop" }, { Id: "5814", Name: "Café" }]
+      console.log(place.Categories); // [{ Id: "9000", Name: "Coffee Shop" }, { Id: "5814", Name: "Caf" }]
       console.log(place.PlaceId); // For fetching details
     });
 
@@ -309,8 +309,8 @@ For exact request parameters and response structure, see the [Suggest API Refere
 
 Suggest returns items with a `SuggestResultItemType` that can be `"Place"` or `"Query"`:
 
-- **Place results**: Have `item.Place.PlaceId`, `item.Place.Position`, `item.Place.Address` — use `PlaceId` with `GetPlace` for full details
-- **Query results**: Have `item.Query.QueryText` — these are search refinement suggestions, not actual places
+- **Place results**: Have `item.Place.PlaceId`, `item.Place.Position`, `item.Place.Address`  use `PlaceId` with `GetPlace` for full details
+- **Query results**: Have `item.Query.QueryText`  these are search refinement suggestions, not actual places
 
 Always check `item.Place?.PlaceId` before attempting to call `GetPlace`.
 

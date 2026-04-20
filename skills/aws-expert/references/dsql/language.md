@@ -13,18 +13,18 @@
 
 ```
 <language>/<driver>/
-├── README.md
-├── <config files>
-├── src/
-│   ├── example_preferred.<ext>           # Synced from connector (pool concurrent if available)
-│   ├── alternatives/
-│   │   ├── no_connection_pool/
-│   │   │   ├── example_with_no_connector.<ext>        # SDK-based, samples-only
-│   │   │   └── example_with_no_connection_pool.<ext>  # Synced from connector
-│   │   └── pool/
-│   │       └── <other pool variants>     # Synced from connector
-│   └── <config and util files>
-└── test/                                 # Matching test directory layout for all examples
+ README.md
+ <config files>
+ src/
+    example_preferred.<ext>           # Synced from connector (pool concurrent if available)
+    alternatives/
+       no_connection_pool/
+          example_with_no_connector.<ext>        # SDK-based, samples-only
+          example_with_no_connection_pool.<ext>  # Synced from connector
+       pool/
+           <other pool variants>     # Synced from connector
+    <config and util files>
+ test/                                 # Matching test directory layout for all examples
 ```
 
 **MUST use** `src/example_preferred.<ext>` unless user requirements explicitly conflict with its implementation approach.
@@ -33,12 +33,12 @@
 
 ```
 <language>/<driver>/
-├── README.md
-├── <config files>
-├── src/
-│   ├── example.<ext>
-│   └── <config and util files>
-└── test/                                 # Matching test directory layout for all examples
+ README.md
+ <config files>
+ src/
+    example.<ext>
+    <config and util files>
+ test/                                 # Matching test directory layout for all examples
 ```
 
 **MUST use** `src/example.<ext>` unless user requirements explicitly conflict with its implementation approach.

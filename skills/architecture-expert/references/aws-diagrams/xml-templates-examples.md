@@ -1,4 +1,4 @@
-# XML Templates — Examples
+# XML Templates  Examples
 
 Edge, container, and annotation XML snippets. For core structure (title, users, legend), see `xml-templates-structure.md`.
 

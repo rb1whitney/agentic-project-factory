@@ -32,8 +32,8 @@ Default: TypeScript
 
 Override syntax:
 
-- "use Python" → Generate Python code
-- "use JavaScript" → Generate JavaScript code
+- "use Python"  Generate Python code
+- "use JavaScript"  Generate JavaScript code
 
 When not specified, ALWAYS use TypeScript
 
@@ -43,8 +43,8 @@ Default: CDK
 
 Override syntax:
 
-- "use CloudFormation" → Generate YAML templates
-- "use SAM" → Generate YAML templates
+- "use CloudFormation"  Generate YAML templates
+- "use SAM"  Generate YAML templates
 
 When not specified, ALWAYS use CDK
 
@@ -173,8 +173,8 @@ Your Lambda execution role MUST have the `AWSLambdaBasicDurableExecutionRolePoli
 When writing or reviewing durable function code, ALWAYS check for these replay model violations:
 
 1. **Non-deterministic code outside steps**: `Date.now()`, `Math.random()`, UUID generation, API calls, database queries must all be inside steps
-2. **Nested durable operations in step functions**: Cannot call `context.step()`, `context.wait()`, or `context.invoke()` inside a step function — use `context.runInChildContext()` instead
-3. **Closure mutations that won't persist**: Variables mutated inside steps are NOT preserved across replays — return values from steps instead
+2. **Nested durable operations in step functions**: Cannot call `context.step()`, `context.wait()`, or `context.invoke()` inside a step function  use `context.runInChildContext()` instead
+3. **Closure mutations that won't persist**: Variables mutated inside steps are NOT preserved across replays  return values from steps instead
 4. **Side effects outside steps that repeat on replay**: Use `context.logger` for logging (it is replay-aware and deduplicates automatically)
 
 When implementing or modifying tests for durable functions, ALWAYS verify:

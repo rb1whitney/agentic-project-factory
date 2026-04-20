@@ -7,7 +7,7 @@ Spacing, edge routing, overlap prevention, and placement rules for AWS architect
 - 180px horizontal / 120px vertical gaps between 120px service group containers
 - Group padding: 30px all sides; children start at y=40, x=20 minimum
 - ~20px label height below each 48x48 icon; 60px gap between vertical tiers
-- Edge labels MUST NOT overlap icons or text — use `y` offset to shift; 30px clearance from arrow endpoints to italic text
+- Edge labels MUST NOT overlap icons or text  use `y` offset to shift; 30px clearance from arrow endpoints to italic text
 - Standalone services 200px+ from top-left corner of Region/VPC groups
 - Align all positions to grid multiples of 10
 
@@ -17,7 +17,7 @@ For diagrams with 13+ services, increase spacing:
 
 - Horizontal: 220px; Vertical: 160px; Page: `pageWidth=1600;pageHeight=1200` minimum
 - Route long-distance edges around clusters using explicit waypoints (`<Array as="points"><mxPoint x=... y=.../></Array>`)
-- Arrows MUST NOT cross through service containers — use waypoints to route around them
+- Arrows MUST NOT cross through service containers  use waypoints to route around them
 - For non-adjacent service connections, ALWAYS add explicit waypoints to route around intervening containers
 
 ## Edge Routing
@@ -27,9 +27,9 @@ Study `example-event-driven.drawio` and `example-complex-platform.drawio` for co
 **Basic rules:**
 
 - Use `edgeStyle=orthogonalEdgeStyle` for right-angle connectors
-- For simple adjacent connections, let draw.io auto-route — do NOT set entry/exit points
+- For simple adjacent connections, let draw.io auto-route  do NOT set entry/exit points
 - Leave 20px straight segment before target and after source for arrowheads
-- Edges leave PERPENDICULAR to the container face and route OUTWARD — first segment MUST move AWAY from the container (exit bottom → go DOWN, exit right → go RIGHT)
+- Edges leave PERPENDICULAR to the container face and route OUTWARD  first segment MUST move AWAY from the container (exit bottom  go DOWN, exit right  go RIGHT)
 
 **Multiple edges from one service** (CRITICAL):
 
@@ -47,7 +47,7 @@ Study `example-event-driven.drawio` and `example-complex-platform.drawio` for co
 
 ## Handling Overlaps
 
-**Always add `labelBackgroundColor=none`** to every edge label. NEVER use `labelBackgroundColor=#ffffff` — it breaks dark mode adaptive contrast.
+**Always add `labelBackgroundColor=none`** to every edge label. NEVER use `labelBackgroundColor=#ffffff`  it breaks dark mode adaptive contrast.
 
 Only reroute an edge when the overlap is severe and the reroute is simple and clean. Label zone footprints: 78px icons = ~103px tall (with label), 48px icons = ~68px tall, group labels = 30px at top-left.
 
@@ -69,7 +69,7 @@ For complex diagrams (7+ services or multiple branching paths):
 
 **Legend height MUST match diagram**: `legend-outer` height from `y=30` to AWS Cloud bottom + 20px. MUST NOT cover diagram elements. See `xml-templates-structure.md` for XML, `style-guide.md` for rules.
 
-**Auxiliary/monitoring services**: ONLY CloudWatch, CloudTrail, X-Ray, and IAM are auxiliary. No step numbers, no edges. Place inside a dashed, unfilled rectangle (`rounded=0;fillColor=none;dashed=1;verticalAlign=top`) labeled "Auxiliary Services". Must be INSIDE AWS Cloud, in a free corner, not covered by legend. Use correct tint colors (CloudWatch/X-Ray: `#FCE4EC`/`#E7157B`, IAM: `#FFEBEE`/`#DD344C`) — NOT gray. Add italic legend note BELOW step descriptions, ABOVE Line Styles box. **All other services are primary** and MUST have edges and step numbers.
+**Auxiliary/monitoring services**: ONLY CloudWatch, CloudTrail, X-Ray, and IAM are auxiliary. No step numbers, no edges. Place inside a dashed, unfilled rectangle (`rounded=0;fillColor=none;dashed=1;verticalAlign=top`) labeled "Auxiliary Services". Must be INSIDE AWS Cloud, in a free corner, not covered by legend. Use correct tint colors (CloudWatch/X-Ray: `#FCE4EC`/`#E7157B`, IAM: `#FFEBEE`/`#DD344C`)  NOT gray. Add italic legend note BELOW step descriptions, ABOVE Line Styles box. **All other services are primary** and MUST have edges and step numbers.
 
 **Decision points**: Maximum 1-2 per diagram. Use `fontStyle=2` (italic) for `[condition]` text on edge labels. Dashed arrows ONLY for failure/fallback paths.
 
@@ -83,7 +83,7 @@ For complex diagrams (7+ services or multiple branching paths):
 | Route 53, CloudFront, S3, IAM, CloudWatch        | Outside VPC                |
 | Users, On-premises                               | Outside AWS Cloud boundary |
 
-**External actor coordinates**: External actors MUST have coordinates that place them visually OUTSIDE the AWS Cloud group rectangle — at least 40px from the boundary.
+**External actor coordinates**: External actors MUST have coordinates that place them visually OUTSIDE the AWS Cloud group rectangle  at least 40px from the boundary.
 
 ## Layout Sizing Reference
 

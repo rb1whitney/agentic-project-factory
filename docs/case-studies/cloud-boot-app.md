@@ -1,11 +1,11 @@
 # Case Study: CLOUD-BOOT-APP
 
-This document serves as the **Master Implementation Blueprint** for the Elite Swarm. It details the strategic orchestration used to architect, harden, and bootstrap the project from a raw concepts folder to a production-ready agentic ecosystem.
+This document serves as the **Master Implementation Blueprint** for the Agent Swarm. It details the strategic orchestration used to architect, harden, and bootstrap the project from a raw concepts folder to a production-ready agentic ecosystem.
 
-## 🚀 The Mission
+##  The Mission
 Transition from a legacy, static repository structure to a unified, multi-platform **Expert Hub** governed by the Context-Driven Development (CDD) protocol.
 
-## 🏛️ The Architecture
+##  The Architecture
 We implemented a four-pillar structure that decouples cognitive logic from operational capability:
 
 1.  **Cognitive Layer ([`agents/`](file://../../agents/))**: Specialist manuals that define the "Senior Engineer" persona.
@@ -13,7 +13,7 @@ We implemented a four-pillar structure that decouples cognitive logic from opera
 3.  **Intelligence Layer ([`mcp-servers/`](file://../../mcp-servers/))**: Real-time ground-truth sensors (Model Context Protocol) that bind agents to live infrastructure.
 4.  **Operations Hub ([`bin/`](file://../../bin/))**: Codified bootstrap and nexus management to ensure zero-trust parity.
 
-## ⚡ The Swarm in Action
+##  The Swarm in Action
 
 ### Phase 1: Strategic Discovery
 The **Swarm Architect** utilized the [**`ast-bridge`**](file://../../bin/ast-bridge/) to build a semantic map of the existing tools. This identified the "Symlink Soup" as the primary technical debt.
@@ -28,10 +28,7 @@ We promoted the [**Intelligence Hub**](file://../../mcp-servers/) to a root-leve
 - **Problem**: Manual symlinks were brittle and opaque.
 - **Solution**: Developed [`nexus.py`](file://../../bin/nexus.py) to codify multi-platform parity across Gemini, Claude, and Cursor.
 
-## 📈 Key Outcomes
+##  Key Outcomes
 - **Transparency**: Every symlink is now auditable and verified via `nexus.py --verify`.
 - **Autonomy**: Specialists (e.g., `terraform-expert`) now have direct sensors for their domain.
 - **Auditability**: The **Conductor Protocol** ensures that every change is specified, planned, and implemented through a formal state-machine.
-
----
-*Maintained by the Swarm Supervisor — Status: BLUEPRINT CERTIFIED.*

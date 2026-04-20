@@ -11,7 +11,7 @@ All development follows the **Context-Driven Development (CDD)** protocol define
 
 ## 3. Campaigns
 
-### 🎯 Campaign 1: CLI Foundation (`baker-recon`)
+###  Campaign 1: CLI Foundation (`baker-recon`)
 - **Status**: **Active**
 - **Objective**: Build the `baker-recon` CLI (Python/Typer) to audit and flag "i18n smells" (hardcoded locales, date formats, currencies).
 - **Target**: `projects/project-baker/`
@@ -20,7 +20,7 @@ All development follows the **Context-Driven Development (CDD)** protocol define
     - Implementation of file crawlers for hardcoded string detection.
     - Integration with `Rich` for enhanced console reporting.
 
-### 🎯 Campaign 2: AI Refactoring Engine
+###  Campaign 2: AI Refactoring Engine
 - **Status**: **Pending**
 - **Objective**: Implement agentic generation of `messages.properties` and automated string replacement using Gemini Pro 1.5.
 - **Target**: `projects/cloud-boot-app/`
@@ -29,7 +29,7 @@ All development follows the **Context-Driven Development (CDD)** protocol define
     - AST-based string replacement in Java/Kotlin.
     - Validation suite for refactored localized keys.
 
-### 🎯 Campaign 3: Infrastructure Scaffolding (Regional Parity)
+###  Campaign 3: Infrastructure Scaffolding (Regional Parity)
 - **Status**: **Pending**
 - **Objective**: Standardize multi-region infrastructure with Terraform modules for `us-east-1` and `eu-west-1` parity.
 - **Target**: `projects/managed-cloud-infra/`
@@ -43,6 +43,5 @@ All development follows the **Context-Driven Development (CDD)** protocol define
 - **Last Updated**: 2024-05-24
 - **Next Step**: `@swarm-architect` to create detailed tasks for Campaign 1 in `plans/PHASE_1_CLI_FOUNDATION_PLAN.md`.
 
----
-**Protocol Guardian**: @swarm-supervisor
+./*Protocol Guardian**: @swarm-supervisor
 **Strategic Designer**: @swarm-architect

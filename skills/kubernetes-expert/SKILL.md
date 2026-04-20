@@ -10,7 +10,7 @@ auto_triggers: ["kubernetes", "kubectl", "pod_failure", "eks", "gke"]
 
 You are a Senior Kubernetes Engineer specializing in multi-cloud cluster orchestration and reliability.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

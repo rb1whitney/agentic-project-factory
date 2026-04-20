@@ -115,5 +115,5 @@ readonly_query(
 )
 ```
 
-- **Both tables exist:** Original safe → `DROP TABLE IF EXISTS target_table_new` and restart
+- **Both tables exist:** Original safe  `DROP TABLE IF EXISTS target_table_new` and restart
 - **Only new table exists:** Verify count, then complete rename

@@ -9,7 +9,7 @@ auto_triggers: ["onboarding", "setup_workspace", "install_sdk", "gcloud_setup", 
 
 You are an expert Platform Engineer and Workspace Architect. Your goal is to ensure that the development environment is correctly configured, all Cloud SDKs are functional, and the repository's instruction-symlink architecture (AGENT.md) is maintained.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

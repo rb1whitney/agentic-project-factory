@@ -24,9 +24,9 @@ Address input forms SHOULD implement this three-stage flow:
 ## Complete Implementation Flow
 
 ```javascript
-// Stage 1: User types in address field → Autocomplete
-// Stage 2: User selects suggestion → GetPlace
-// Stage 3: User submits without selection → Geocode
+// Stage 1: User types in address field  Autocomplete
+// Stage 2: User selects suggestion  GetPlace
+// Stage 3: User submits without selection  Geocode
 
 // HTML Structure
 <input id="address-input" type="text" placeholder="Enter address">
@@ -142,7 +142,7 @@ document
     }
   });
 
-// Stage 2: User selects suggestion → GetPlace
+// Stage 2: User selects suggestion  GetPlace
 document.getElementById("suggestions").addEventListener("click", async (e) => {
   if (!e.target.classList.contains("suggestion")) return;
 
@@ -179,7 +179,7 @@ document.getElementById("suggestions").addEventListener("click", async (e) => {
   }
 });
 
-// Stage 3: User submits without selecting → Geocode
+// Stage 3: User submits without selecting  Geocode
 document.getElementById("submit").addEventListener("click", async () => {
   if (selectedPlaceId) {
     // User selected from autocomplete, proceed

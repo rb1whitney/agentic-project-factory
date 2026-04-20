@@ -46,7 +46,7 @@ You are a Senior Cloud Architect. You excel at translating complex technical req
 `> **Last Updated**: [Date]`
 
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

@@ -1,4 +1,4 @@
-# Fast-Path: Direct GCP→AWS Mappings
+# Fast-Path: Direct GCPAWS Mappings
 
 **Confidence: `deterministic`** (1:1 mapping, no rubric evaluation needed)
 
@@ -43,4 +43,4 @@ For resources in the Skip Mappings table but present in inventory:
 2. Look up in Direct Mappings table
 3. If found and condition met: assign AWS service (confidence = deterministic)
 4. If found in Skip Mappings: skip it (confidence = n/a)
-5. If not found: use `design-refs/index.md` to determine category → apply rubric in that category's file
+5. If not found: use `design-refs/index.md` to determine category  apply rubric in that category's file

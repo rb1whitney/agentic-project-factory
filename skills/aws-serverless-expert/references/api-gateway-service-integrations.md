@@ -9,7 +9,7 @@ The patterns below cover the most commonly used service integrations. REST API `
 
 ## EventBridge Integration
 
-Integrates directly with EventBridge PutEvents API (see [aws-samples/serverless-patterns/apigw-rest-api-eventbridge-sam](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-rest-api-eventbridge-sam)). For a complete SAM template, see [SAM Service Integration Templates — EventBridge](sam-service-integrations.md#direct-aws-service-integration-eventbridge).
+Integrates directly with EventBridge PutEvents API (see [aws-samples/serverless-patterns/apigw-rest-api-eventbridge-sam](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-rest-api-eventbridge-sam)). For a complete SAM template, see [SAM Service Integration Templates  EventBridge](sam-service-integrations.md#direct-aws-service-integration-eventbridge).
 
 - Use `Type: AWS` integration with URI `arn:aws:apigateway:{region}:events:action/PutEvents`
 - Set required headers via `RequestParameters` (e.g., `integration.request.header.X-Amz-Target: "'AWSEvents.PutEvents'"`, `integration.request.header.Content-Type: "'application/x-amz-json-1.1'"`). Alternative: set via VTL `$context.requestOverride.header` in the mapping template, but avoid applying the same header in both places ([double-application causes 5XX](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-override-request-response-parameters.html))
@@ -25,7 +25,7 @@ Integrates directly with EventBridge PutEvents API (see [aws-samples/serverless-
 
 ## SQS Integration (Async Buffer)
 
-Integrates directly with SQS SendMessage API to decouple producers from consumers (see [aws-samples/serverless-patterns/apigw-sqs-lambda-iot](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-sqs-lambda-iot)). For a complete SAM template, see [SAM Service Integration Templates — SQS](sam-service-integrations.md#direct-aws-service-integration-sqs).
+Integrates directly with SQS SendMessage API to decouple producers from consumers (see [aws-samples/serverless-patterns/apigw-sqs-lambda-iot](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-sqs-lambda-iot)). For a complete SAM template, see [SAM Service Integration Templates  SQS](sam-service-integrations.md#direct-aws-service-integration-sqs).
 
 - Use `Type: AWS` integration with URI `arn:aws:apigateway:{region}:sqs:path/{account-id}/{queue-name}`
 - Two protocol options:
@@ -54,7 +54,7 @@ Integrates directly with SNS Publish API for fan-out to multiple subscribers (se
 
 ## DynamoDB Integration (Write-Through with Streams)
 
-Integrates directly with DynamoDB APIs for full CRUD without Lambda. For complete SAM templates (OpenAPI-based and inline), see [SAM Service Integration Templates — DynamoDB Full CRUD](sam-service-integrations.md#direct-aws-service-integration-dynamodb-full-crud).
+Integrates directly with DynamoDB APIs for full CRUD without Lambda. For complete SAM templates (OpenAPI-based and inline), see [SAM Service Integration Templates  DynamoDB Full CRUD](sam-service-integrations.md#direct-aws-service-integration-dynamodb-full-crud).
 
 - Use `Type: AWS` integration with URI `arn:aws:apigateway:{region}:dynamodb:action/{action}` (supports `GetItem`, `PutItem`, `UpdateItem`, `DeleteItem`, `Query`, and `Scan`)
 - VTL mapping template transforms HTTP request into DynamoDB JSON format:
@@ -71,7 +71,7 @@ Integrates directly with DynamoDB APIs for full CRUD without Lambda. For complet
 - For async event processing, enable **DynamoDB Streams** on the table:
   - Stream triggers Lambda function on every insert/update/delete
   - Lambda processes changes asynchronously (enrichment, notifications, scheduling, cross-service sync)
-  - Example chain: API Gateway → DynamoDB (Streams) → Lambda → EventBridge Scheduler → SES for scheduled email reminders
+  - Example chain: API Gateway  DynamoDB (Streams)  Lambda  EventBridge Scheduler  SES for scheduled email reminders
   - Stream view type options: `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`; choose based on what the processor needs
 - **Gotcha**: DynamoDB reserved keywords (`datetime`, `email`, `status`, `name`, `type`, `data`, etc.) require `ExpressionAttributeNames` with `#placeholder` syntax. This applies in VTL templates too, not just SDK calls
 - **Security**: Never interpolate request input into DynamoDB expression strings (`UpdateExpression`, `FilterExpression`, `ProjectionExpression`). Hardcode expression structures in VTL and only map user input into `ExpressionAttributeValues` (`:placeholder` values). Interpolating into expressions allows callers to inject additional clauses that expose unintended attributes or modify other items
@@ -79,7 +79,7 @@ Integrates directly with DynamoDB APIs for full CRUD without Lambda. For complet
 
 ## Kinesis Data Streams Integration (High-Throughput Ingestion)
 
-Integrates directly with Kinesis Data Streams PutRecord/PutRecords APIs for high-volume data ingestion (see [aws-samples/serverless-patterns/apigw-kinesis-lambda](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-kinesis-lambda)). For a complete SAM template, see [SAM Service Integration Templates — Kinesis Data Streams](sam-service-integrations.md#direct-aws-service-integration-kinesis-data-streams).
+Integrates directly with Kinesis Data Streams PutRecord/PutRecords APIs for high-volume data ingestion (see [aws-samples/serverless-patterns/apigw-kinesis-lambda](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-kinesis-lambda)). For a complete SAM template, see [SAM Service Integration Templates  Kinesis Data Streams](sam-service-integrations.md#direct-aws-service-integration-kinesis-data-streams).
 
 - Use `Type: AWS` integration with URI `arn:aws:apigateway:{region}:kinesis:action/{action}` (e.g., `action/PutRecord`, `action/PutRecords`)
 - Use `PassthroughBehavior: WHEN_NO_TEMPLATES` to ensure requests are only accepted when a matching mapping template exists
@@ -96,9 +96,9 @@ Integrates directly with Kinesis Data Streams PutRecord/PutRecords APIs for high
 
 ## Step Functions Integration (Workflow Orchestration)
 
-Integrates directly with Step Functions to orchestrate multi-step workflows without Lambda glue code. For complete SAM templates (REST and WebSocket), see [SAM Service Integration Templates — Step Functions](sam-service-integrations.md#direct-aws-service-integration-step-functions).
+Integrates directly with Step Functions to orchestrate multi-step workflows without Lambda glue code. For complete SAM templates (REST and WebSocket), see [SAM Service Integration Templates  Step Functions](sam-service-integrations.md#direct-aws-service-integration-step-functions).
 
-**REST API → Step Functions** (see [aws-samples/serverless-patterns/apigw-rest-stepfunction](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-rest-stepfunction)):
+**REST API  Step Functions** (see [aws-samples/serverless-patterns/apigw-rest-stepfunction](https://github.com/aws-samples/serverless-patterns/tree/main/apigw-rest-stepfunction)):
 
 - Two execution modes available:
   - **Asynchronous** (Standard workflow): `action/StartExecution`, which returns execution ARN immediately. Client does not wait for workflow completion. IAM role needs `states:StartExecution`
@@ -113,7 +113,7 @@ Integrates directly with Step Functions to orchestrate multi-step workflows with
   }
   ```
 
-**WebSocket API → Step Functions** (see [aws-samples/serverless-samples/apigw-ws-integrations](https://github.com/aws-samples/serverless-samples/tree/main/apigw-ws-integrations)):
+**WebSocket API  Step Functions** (see [aws-samples/serverless-samples/apigw-ws-integrations](https://github.com/aws-samples/serverless-samples/tree/main/apigw-ws-integrations)):
 
 - Two execution modes via custom routes matched by `routeSelectionExpression`:
   - **Synchronous** (Express workflow): `action/StartSyncExecution`, which waits for workflow to complete and returns the result directly to the WebSocket client. **Constrained by the 29-second WebSocket API integration timeout**, not the 5-minute Express workflow maximum. Workflows exceeding 29 seconds will time out at the API Gateway level. Use for short-lived workflows where the client needs the result immediately
@@ -127,19 +127,19 @@ Integrates directly with Step Functions to orchestrate multi-step workflows with
 - **Express** (sync): Max 5 minutes, at-least-once execution, lower cost for high-volume short tasks. Good for synchronous REST/WebSocket responses within the API Gateway timeout
 - **Standard** (async): Max 1 year, exactly-once execution, full execution history. Good for long-running orchestrations that push results via callback, webhook, or polling
 
-**Lambda durable functions as alternative**: Durable functions are invoked as regular Lambda integrations (proxy or custom) — no `Type: AWS` service integration or VTL needed. See the [aws-lambda-durable-functions skill](../../aws-lambda-durable-functions/) for details.
+**Lambda durable functions as alternative**: Durable functions are invoked as regular Lambda integrations (proxy or custom)  no `Type: AWS` service integration or VTL needed. See the [aws-lambda-durable-functions skill](../../aws-lambda-durable-functions/) for details.
 
 ## S3 Integration (File Storage Proxy)
 
 Acts as an S3 proxy for file upload, download, and listing without Lambda (see [Developer Guide tutorial](https://docs.aws.amazon.com/apigateway/latest/developerguide/integrating-api-with-aws-services-s3.html)):
 
 - Use `Type: AWS` integration with `Action type: Use path override`. API Gateway forwards requests to S3 REST API path-style (`s3-host-name/{bucket}/{key}`)
-- **Resource structure**: `/{folder}` maps to S3 bucket, `/{folder}/{item}` maps to S3 object. Map path parameters in integration request: `method.request.path.folder` → `{bucket}`, `method.request.path.item` → `{object}`
+- **Resource structure**: `/{folder}` maps to S3 bucket, `/{folder}/{item}` maps to S3 object. Map path parameters in integration request: `method.request.path.folder`  `{bucket}`, `method.request.path.item`  `{object}`
 - **Operations**: GET on `/` lists buckets, GET on `/{folder}` lists objects in a bucket, GET on `/{folder}/{item}` downloads an object, PUT on `/{folder}/{item}` uploads an object
 - **Binary files** (images, PDFs, etc.): Register media types in `binaryMediaTypes` (e.g., `image/png`), add `Accept` (download) and `Content-Type` (upload) headers to the method request, leave `contentHandling` unset (passthrough behavior); no mapping template for binary content types
 - **Payload limit**: 10 MB max through API Gateway. For larger files, generate S3 presigned URLs via Lambda and have the client upload/download directly to S3 (presigned URLs cannot be generated from a direct service integration; Lambda is required)
 - Response header mapping: Map `integration.response.header.Content-Type`, `integration.response.header.Content-Length`, and `integration.response.header.Date` to method response headers for proper content delivery
-- S3 objects with `/` or special characters in the key must be URL-encoded in the request path (e.g., `test/test.txt` → `test%2Ftest.txt`)
+- S3 objects with `/` or special characters in the key must be URL-encoded in the request path (e.g., `test/test.txt`  `test%2Ftest.txt`)
 - IAM execution role needs S3 permissions (`s3:GetObject`, `s3:PutObject`, `s3:ListBucket`) scoped to the specific bucket(s)
 
 ## HTTP Integration (Proxy to HTTP Endpoints)
@@ -152,7 +152,7 @@ Forwards requests to any HTTP-accessible endpoint: ALB, NLB, ECS, EC2, on-premis
 - **VPC Link** for private backends: Use `connectionType: VPC_LINK` to reach ALB, NLB, or Cloud Map services inside a VPC without exposing them to the internet. VPC Link v2 supports REST and HTTP APIs (targets ALB and NLB); WebSocket API uses VPC Link v1 (NLB only)
 - **Path and parameter passthrough**: Map URL path parameters, query strings, and headers from the method request to the integration request. Use `{proxy+}` greedy path parameter for catch-all routing
 - **TLS to backend**: API Gateway validates the backend's TLS certificate by default. If the backend uses a self-signed or private CA certificate, set `insecureSkipVerification: true` on the integration (testing/development only; not recommended for production). Provide the full certificate chain on the backend for proper validation
-- **Timeouts**: Configure `timeoutInMillis` on the integration (50ms–29s for REST, 30s hard limit for HTTP API). For backends that may exceed this, consider async patterns
+- **Timeouts**: Configure `timeoutInMillis` on the integration (50ms29s for REST, 30s hard limit for HTTP API). For backends that may exceed this, consider async patterns
 - **Connection reuse**: API Gateway reuses connections to HTTP backends by default for lower latency on subsequent requests
 - **No automatic retries**: API Gateway does not retry failed HTTP integration requests. If the backend returns 5xx or the connection times out, the error is returned directly to the client. Implement retry logic on the client side or use SQS as a buffer
 
@@ -173,12 +173,12 @@ Returns responses directly from API Gateway without calling any backend:
 - **IAM execution role**: Every direct service integration requires an IAM role with the specific action permission (e.g., `sqs:SendMessage`, `dynamodb:PutItem`, `events:PutEvents`, `kinesis:PutRecord`, `states:StartExecution`). Pass the role ARN in the integration `Credentials` field
 - **Request validation at the gateway**: Use API Gateway request validators (models) to reject invalid requests before they reach the backend service, reducing cost and protects downstream services
 - **Response mapping**: Transform raw AWS service responses into clean API responses using VTL response templates. Map HTTP status codes for error cases in `IntegrationResponses`
-- **Lambda invocations support sync and async**: API Gateway Lambda integrations default to synchronous invocation (wait for response). For asynchronous invocation (fire-and-forget, returns 200 immediately while Lambda processes in background), set `X-Amz-Invocation-Type: 'Event'` in the integration request HTTP headers (see [re:Post guide](https://repost.aws/knowledge-center/api-gateway-invoke-lambda)). Async invocation supports Lambda's built-in retry (up to 2 retries) and dead-letter queues. REST API supports this natively via non-proxy integration; HTTP API only supports proxy integrations for Lambda so `X-Amz-Invocation-Type` cannot be set — use a proxy Lambda that invokes the target Lambda asynchronously via the SDK
+- **Lambda invocations support sync and async**: API Gateway Lambda integrations default to synchronous invocation (wait for response). For asynchronous invocation (fire-and-forget, returns 200 immediately while Lambda processes in background), set `X-Amz-Invocation-Type: 'Event'` in the integration request HTTP headers (see [re:Post guide](https://repost.aws/knowledge-center/api-gateway-invoke-lambda)). Async invocation supports Lambda's built-in retry (up to 2 retries) and dead-letter queues. REST API supports this natively via non-proxy integration; HTTP API only supports proxy integrations for Lambda so `X-Amz-Invocation-Type` cannot be set  use a proxy Lambda that invokes the target Lambda asynchronously via the SDK
 - **Prevent backend bypass (zero trust)**: Ensure backends can only be reached through API Gateway, not invoked or accessed directly. Apply defense in depth per integration type:
   - **Lambda**: Restrict Lambda resource policies to allow invocations only from the API Gateway source ARN
   - **VPC Link targets (ALB/NLB)**: Use security groups on the load balancer to accept traffic only from the VPC Link's ENIs, not from arbitrary sources
   - **HTTP integrations**: Use mutual TLS, API keys, or signed requests between API Gateway and the backend to authenticate the caller
-  - **Direct service integrations** (SQS, DynamoDB, etc.): The IAM execution role scopes access — ensure the role is only assumable by API Gateway (`apigateway.amazonaws.com` principal) and follows least-privilege for the specific resources
+  - **Direct service integrations** (SQS, DynamoDB, etc.): The IAM execution role scopes access  ensure the role is only assumable by API Gateway (`apigateway.amazonaws.com` principal) and follows least-privilege for the specific resources
 - **Parameter overriding (REST API)**: Override request/response parameters and status codes at method level:
   - `RequestParameters` in Integration: Map method request values to integration request values
   - `ResponseParameters` in IntegrationResponses: Map integration response values to method response values
@@ -188,4 +188,4 @@ Returns responses directly from API Gateway without calling any backend:
 - **Binary media types**: API Gateway request and response payloads can be text or binary (JPEG, GZip, XML, PDF, etc.). Configure `binaryMediaTypes` on the API, specifying content types treated as binary (e.g., `image/png`, `application/octet-stream`). **Avoid `*/*` wildcard**: it treats ALL responses as binary, breaking Lambda proxy integrations that return JSON:
   - **Lambda proxy integrations**: Lambda must return the response body as base64-encoded and set `isBase64Encoded: true`. The API must have matching `binaryMediaTypes` configured. Client sends `Accept` header matching a binary media type
   - **Non-proxy integrations**: Set `binaryMediaTypes` on the API, or use `contentHandling` on the `Integration` and `IntegrationResponse` resources: `CONVERT_TO_BINARY` (base64-decode text to binary), `CONVERT_TO_TEXT` (base64-encode binary to text), or undefined (passthrough)
-- **Local testing limitation**: `sam local start-api` does not support `Type: AWS` service integrations; it only supports Lambda proxy/non-proxy integrations. Test direct service integrations by deploying to a dev stage and using the API Gateway test console (AWS Console → method → Test) to validate VTL mapping templates against sample requests without a full deployment cycle
+- **Local testing limitation**: `sam local start-api` does not support `Type: AWS` service integrations; it only supports Lambda proxy/non-proxy integrations. Test direct service integrations by deploying to a dev stage and using the API Gateway test console (AWS Console  method  Test) to validate VTL mapping templates against sample requests without a full deployment cycle

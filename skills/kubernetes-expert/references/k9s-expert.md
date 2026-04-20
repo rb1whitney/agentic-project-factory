@@ -8,7 +8,7 @@ You are a k9s power user. k9s is the standard terminal UI for Kubernetes cluster
 k9s                                  # Current kubeconfig context
 k9s --context my-eks-cluster         # Specific context
 k9s --namespace production           # Specific namespace
-k9s --readonly                       # Safe mode — disables all destructive operations
+k9s --readonly                       # Safe mode  disables all destructive operations
 k9s --kubeconfig ~/.kube/my-config   # Custom kubeconfig path
 k9s --headless                       # No header bar (useful on small terminals)
 ```
@@ -18,7 +18,7 @@ k9s --headless                       # No header bar (useful on small terminals)
 k9s uses vim-inspired keybindings. Always start by understanding the current context:
 
 1. Press `:` to enter command mode
-2. Type `ctx` to see all available contexts — confirm you are on the right cluster
+2. Type `ctx` to see all available contexts  confirm you are on the right cluster
 3. Type `ns` to select the target namespace
 4. Type `pods` to view pods in that namespace
 
@@ -70,7 +70,7 @@ k9s uses vim-inspired keybindings. Always start by understanding the current con
 ### Pod Not Starting
 
 ```
-:pods → select problem pod → d (describe) → scroll to Events section
+:pods  select problem pod  d (describe)  scroll to Events section
 ```
 
 Events section shows the root cause: ImagePullBackOff, OOMKilled, Unschedulable, etc.
@@ -78,7 +78,7 @@ Events section shows the root cause: ImagePullBackOff, OOMKilled, Unschedulable,
 ### Stream Live Logs
 
 ```
-:pods → select pod → l
+:pods  select pod  l
 ```
 
 In log view: `f` to toggle full-screen, `/` to filter log lines, `w` to toggle word wrap, `ctrl-s` to save logs to file.
@@ -86,7 +86,7 @@ In log view: `f` to toggle full-screen, `/` to filter log lines, `w` to toggle w
 ### Exec Into Running Container
 
 ```
-:pods → select pod → s
+:pods  select pod  s
 ```
 
 If the pod has multiple containers you will be prompted to select one. Requires a shell (`sh` or `bash`) in the container image. For minimal images use the busybox shell pod via `shift-s`.
@@ -94,7 +94,7 @@ If the pod has multiple containers you will be prompted to select one. Requires 
 ### Port Forward to Local Machine
 
 ```
-:pods → select pod → f → enter local port
+:pods  select pod  f  enter local port
 ```
 
 This creates a tunnel from `localhost:<local-port>` to the pod's container port. The tunnel stays active until you quit k9s or press `ctrl-c` in the port-forward panel.
@@ -102,7 +102,7 @@ This creates a tunnel from `localhost:<local-port>` to the pod's container port.
 ### Investigate Node Pressure
 
 ```
-:node → select node → d (describe)
+:node  select node  d (describe)
 ```
 
 Look for `Conditions` section: `MemoryPressure`, `DiskPressure`, `PIDPressure`. Check `Allocatable` vs `Capacity` for resource exhaustion.
@@ -110,8 +110,8 @@ Look for `Conditions` section: `MemoryPressure`, `DiskPressure`, `PIDPressure`. 
 ### View RBAC for a Service Account
 
 ```
-:sa → select service account → enter → shows associated role bindings
-:rb → filter by namespace → d (describe) to see permissions
+:sa  select service account  enter  shows associated role bindings
+:rb  filter by namespace  d (describe) to see permissions
 ```
 
 ## Configuration
@@ -169,7 +169,7 @@ k9s:
 
 **Shell exec fails**: The container image may not have a shell. Use `shift-s` to launch a busybox shell pod on the same node.
 
-**Logs not streaming**: The pod may be in `Pending` or `Completed` state — logs only stream from running containers. Check pod status with `d` (describe).
+**Logs not streaming**: The pod may be in `Pending` or `Completed` state  logs only stream from running containers. Check pod status with `d` (describe).
 
 **Port forward stops unexpectedly**: Check network connectivity and ensure the pod is still running. Port forwards terminate when the pod restarts.
 

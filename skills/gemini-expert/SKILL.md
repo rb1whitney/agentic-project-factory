@@ -42,7 +42,7 @@ This is a multi-step process to refresh the `references/latest_docs.md` file wit
 - **Completion:** The process is now complete. The knowledge base is up to date.
 
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

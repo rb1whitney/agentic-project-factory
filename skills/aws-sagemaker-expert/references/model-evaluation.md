@@ -24,7 +24,7 @@ If you know this already, skip this step. If not, ask the user:
 
 > "What task is this model trained to do?"
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 2: Get evaluation dataset
 
@@ -33,14 +33,14 @@ If you know this already, skip this step. If not, ask the user:
 
 > "Where's your evaluation dataset stored in S3?"
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 3: Understand the data
 
 For this step, you need: **to understand what the data looks like to inform metric recommendations.**
 If you already know what the data looks like, skip this step. If not, ask the user:
 
-> "Can you tell me a bit about your evaluation dataset — what format is it in, and what do the input/output fields look like?"
+> "Can you tell me a bit about your evaluation dataset  what format is it in, and what do the input/output fields look like?"
 
 If the user isn't sure, offer to peek at the data:
 
@@ -61,12 +61,12 @@ For this step, you need: **whether the user has predefined custom metrics.**
 
 > "Do you have predefined custom metrics you'd like to use? If so, they must follow the Bedrock custom metrics format: https://docs.aws.amazon.com/bedrock/latest/userguide/model-evaluation-custom-metrics-prompt-formats.html
 >
-> If not, no worries — I can recommend built-in metrics for your task."
+> If not, no worries  I can recommend built-in metrics for your task."
 
-⏸ Wait for user.
+ Wait for user.
 
-- If the user has custom metrics → Read `references/llmaaj-custom-evaluation.md` and follow its instructions to collect and validate the metrics JSON.
-- If the user does not have custom metrics → Move to Step 6.
+- If the user has custom metrics  Read `references/llmaaj-custom-evaluation.md` and follow its instructions to collect and validate the metrics JSON.
+- If the user does not have custom metrics  Move to Step 6.
 
 ### Step 6: Select built-in metrics
 
@@ -80,7 +80,7 @@ If they say no, skip to Step 7.
 
 For built-in metric selection, read `references/llmaaj-builtin-evaluation.md` and follow its instructions.
 
-⏸ Wait for user to confirm metrics.
+ Wait for user to confirm metrics.
 
 ### Step 7: Resolve Model Package ARN
 
@@ -103,12 +103,12 @@ For this step, you need: **the Model Package ARN of the fine-tuned model.**
 - **Verify the ARN exists** before proceeding by calling `describe-model-package` via the AWS tool.
   If this fails, tell the user the ARN wasn't found and ask them to double-check.
 
-⏸ Wait for confirmation before proceeding.
+ Wait for confirmation before proceeding.
 
 ### Step 8: Select judge model
 
 For this step, you need: **which judge model to use for evaluation.**
-This step always runs — both built-in and custom metrics require a judge model.
+This step always runs  both built-in and custom metrics require a judge model.
 
 Read `references/supported-judge-models.md` for the canonical list, selection guidance, and validation steps.
 
@@ -126,14 +126,14 @@ Present the available models as a numbered list:
 
 **EXTREMELY IMPORTANT: NEVER recommend or suggest any particular model based on the context you have. YOU ARE ALLOWED ONLY to display the list of models. DO NOT add your own recommendation or suggestion after displaying the list.**
 
-⏸ Wait for user to confirm.
+ Wait for user to confirm.
 
 ### Step 9: Collect remaining parameters
 
 For this step, you need: **AWS Region and S3 output path.**
 For each value you don't already have, ask one at a time.
 
-⏸ Wait for each answer before asking the next.
+ Wait for each answer before asking the next.
 
 ### Step 10: Confirm configuration
 
@@ -143,7 +143,7 @@ Summarize everything and ask for approval:
 >
 > - Task: [task]
 > - Dataset: [path]
-> - Custom metrics: [Yes — N metrics / No]
+> - Custom metrics: [Yes  N metrics / No]
 > - Built-in metrics: [list, or None]
 > - Judge: [model]
 > - Model Package ARN: [arn]
@@ -154,7 +154,7 @@ Summarize everything and ask for approval:
 >
 > Does this look right?"
 
-⏸ Wait for user approval.
+ Wait for user approval.
 
 ### Step 11: Bedrock Evaluations agreement
 
@@ -168,7 +168,7 @@ Before generating the notebook, present the following agreement language:
 >
 > Do you acknowledge and agree to proceed?
 
-⏸ **Hard stop.** Wait for the user to explicitly confirm. Acceptable responses include "yes", "I agree", "proceed", "ok", or similar affirmative statements. If the user asks questions about the terms, answer them, then re-ask for confirmation. Do NOT generate the notebook until the user has confirmed.
+ **Hard stop.** Wait for the user to explicitly confirm. Acceptable responses include "yes", "I agree", "proceed", "ok", or similar affirmative statements. If the user asks questions about the terms, answer them, then re-ask for confirmation. Do NOT generate the notebook until the user has confirmed.
 
 ### Step 12: Generate notebook
 
@@ -178,7 +178,7 @@ Check for existing notebooks in `<project-name>/notebooks/`. Then ask:
 
 > "Would you like to append to an existing notebook, or create a new one: `<project-name>/notebooks/<project-name>_model-evaluation.ipynb`?"
 
-⏸ Wait for user.
+ Wait for user.
 
 **Before writing the notebook, read:**
 
@@ -189,16 +189,16 @@ Check for existing notebooks in `<project-name>/notebooks/`. Then ask:
 
 ```
 To run:
-1. Cell 1 — configuration and SDK install
-2. Cell 2 — start evaluation
-3. Cell 3 — polls status automatically (~25-60 min)
-4. Cell 4 — show base vs custom model comparison
+1. Cell 1  configuration and SDK install
+2. Cell 2  start evaluation
+3. Cell 3  polls status automatically (~25-60 min)
+4. Cell 4  show base vs custom model comparison
 ```
 
 ## Notes
 
 - Not all models support serverless evaluation. If job fails with "DownstreamServiceUnavailable", the model doesn't have evaluation recipes.
-- Jobs stuck in "Executing" is normal — inference takes 15-30+ minutes.
+- Jobs stuck in "Executing" is normal  inference takes 15-30+ minutes.
 - For faster iteration, use a small dataset (5-10 examples).
 - Known working models: DeepSeek R1 Distilled Qwen 32B
 - Expected duration: small model (<10B) 25-40 min, large model (>30B) 40-60 min, with base comparison 2x.
@@ -206,7 +206,7 @@ To run:
 ## FAQ
 
 **Q: Can I use benchmarks or custom scorer evaluations?**
-A: Not yet — this skill currently supports LLM-as-Judge evaluations only (built-in and custom metrics). Benchmark and custom scorer support will be added in a future version. In the meantime, you can set these up through the SageMaker console or refer to the [SageMaker evaluation documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/model-evaluation.html).
+A: Not yet  this skill currently supports LLM-as-Judge evaluations only (built-in and custom metrics). Benchmark and custom scorer support will be added in a future version. In the meantime, you can set these up through the SageMaker console or refer to the [SageMaker evaluation documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/model-evaluation.html).
 
 **Q: Can I combine custom and built-in metrics in the same evaluation?**
 A: Yes. You can use up to 10 custom metrics alongside any number of built-in metrics in a single evaluation job.

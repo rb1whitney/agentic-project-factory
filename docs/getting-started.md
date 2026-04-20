@@ -1,6 +1,6 @@
 # Getting Started: Developer Environment Setup
 
-This guide installs and configures the complete toolchain required for this repository. Follow steps in order — several tools depend on earlier ones being present.
+This guide installs and configures the complete toolchain required for this repository. Follow steps in order  several tools depend on earlier ones being present.
 
 **Supported platforms**: macOS and Linux/WSL2 (Windows Subsystem for Linux).
 
@@ -374,7 +374,7 @@ mkdir -p "$PACKER_PLUGIN_PATH"
 Required for local container builds and testing.
 
 ```bash
-# macOS — install Docker Desktop
+# macOS  install Docker Desktop
 brew install --cask docker
 
 # Linux / WSL2
@@ -438,7 +438,7 @@ k9s --context my-eks-cluster
 
 | Key | Action |
 |---|---|
-| `:` | Command mode — type resource name (pods, svc, deploy, ns) |
+| `:` | Command mode  type resource name (pods, svc, deploy, ns) |
 | `l` | View logs for selected pod |
 | `s` | Shell into selected container |
 | `d` | Describe selected resource |

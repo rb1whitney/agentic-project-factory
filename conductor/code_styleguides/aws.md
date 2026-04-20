@@ -40,7 +40,7 @@ Pattern: `{project}-{environment}-{resource-type}[-{qualifier}]`
 | KMS key alias | `alias/{project}-{env}-{purpose}` | `alias/myapp-prod-rds` |
 
 **Rules**:
-- Lowercase only, hyphens as separator (not underscores — most AWS services prohibit them in names)
+- Lowercase only, hyphens as separator (not underscores  most AWS services prohibit them in names)
 - S3 bucket names must include account ID prefix to ensure global uniqueness
 - Never use generic names like `default`, `test`, `temp` in production
 
@@ -59,7 +59,7 @@ resource "aws_iam_policy" "bad" {
   })
 }
 
-# Good — specific actions, specific resources
+# Good  specific actions, specific resources
 resource "aws_iam_policy" "s3_read" {
   name        = "${var.project}-${var.environment}-s3-read"
   description = "Read-only access to the data bucket"
@@ -87,7 +87,7 @@ resource "aws_iam_policy" "s3_read" {
 ## Security Group Rules
 
 ```hcl
-# Bad — open to the internet
+# Bad  open to the internet
 resource "aws_security_group_rule" "bad" {
   cidr_blocks = ["0.0.0.0/0"]
   from_port   = 22
@@ -96,7 +96,7 @@ resource "aws_security_group_rule" "bad" {
   type        = "ingress"
 }
 
-# Good — reference security group IDs, never CIDR for internal traffic
+# Good  reference security group IDs, never CIDR for internal traffic
 resource "aws_security_group_rule" "alb_to_web" {
   description              = "Allow HTTPS from ALB to web tier"
   type                     = "ingress"
@@ -107,7 +107,7 @@ resource "aws_security_group_rule" "alb_to_web" {
   security_group_id        = aws_security_group.web.id
 }
 
-# Egress — be explicit, never use -1 (all traffic)
+# Egress  be explicit, never use -1 (all traffic)
 resource "aws_security_group_rule" "web_egress_https" {
   description       = "Allow HTTPS egress to internet for package updates"
   type              = "egress"
@@ -165,7 +165,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "data" {
 }
 ```
 
-## CloudWatch Alarms — Standard Thresholds
+## CloudWatch Alarms  Standard Thresholds
 
 ```hcl
 # EC2 CPU alarm
@@ -233,7 +233,7 @@ aws ec2 describe-instances \
 # Use --profile for named credential sets
 aws s3 ls --profile prod-readonly
 
-# Never pipe secrets — use parameter store
+# Never pipe secrets  use parameter store
 aws ssm get-parameter \
   --name "/${var.project}/${var.environment}/db/password" \
   --with-decryption \
@@ -251,7 +251,7 @@ aws ssm get-parameter \
 - [ ] S3 buckets have public access block + encryption + versioning
 - [ ] KMS keys have rotation enabled and 30-day deletion window
 - [ ] Remote state backend uses S3 + DynamoDB locking + encryption
-- [ ] No credentials hardcoded — use IAM roles or Parameter Store
+- [ ] No credentials hardcoded  use IAM roles or Parameter Store
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Abstract
 
-The `AGENT.md` file in this repository is not a generic instruction file. Every structural decision in it — the compressed inline index, the IMPORTANT retrieval directive, the category-tagged skill listings, the absence of "go read this other file" indirection — was made in response to quantified evidence from AI eval research conducted by Vercel's engineering team. This document records that evidence, explains how it maps to the specific design choices in our `AGENT.md`, and establishes the principles that should guide any future modifications.
+The `AGENT.md` file in this repository is not a generic instruction file. Every structural decision in it  the compressed inline index, the IMPORTANT retrieval directive, the category-tagged skill listings, the absence of "go read this other file" indirection  was made in response to quantified evidence from AI eval research conducted by Vercel's engineering team. This document records that evidence, explains how it maps to the specific design choices in our `AGENT.md`, and establishes the principles that should guide any future modifications.
 
 **Source**: Jude Gao, Software Engineer, Next.js at Vercel. "AGENTS.md outperforms skills in our agent evals." January 27, 2026. https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals
 
@@ -10,7 +10,7 @@ The `AGENT.md` file in this repository is not a generic instruction file. Every 
 
 ## The Problem Being Solved
 
-AI coding agents are trained on data that becomes outdated. The training cutoff means that any framework, service, or API that evolved after that date exists outside the model's reliable knowledge. For cloud infrastructure work, this is not an edge case — it is the norm. AWS introduces new instance types, IAM condition keys, and service-linked roles continuously. Kubernetes releases change default behaviors, deprecate flags, and alter scheduler logic across minor versions. Terraform provider schemas evolve with every release.
+AI coding agents are trained on data that becomes outdated. The training cutoff means that any framework, service, or API that evolved after that date exists outside the model's reliable knowledge. For cloud infrastructure work, this is not an edge case  it is the norm. AWS introduces new instance types, IAM condition keys, and service-linked roles continuously. Kubernetes releases change default behaviors, deprecate flags, and alter scheduler logic across minor versions. Terraform provider schemas evolve with every release.
 
 The same problem Vercel measured with Next.js 16 APIs applies directly to cloud infrastructure expertise. An agent reasoning from pre-training knowledge about a specific AWS service configuration, a deprecated GCP API, or a Kubernetes RBAC change will produce code that was correct at some point in the past but is wrong now.
 
@@ -24,7 +24,7 @@ The solution space has two candidates: skills-based retrieval and passive contex
 
 Vercel's engineering team built a specialized eval suite for Next.js 16 APIs that are not in current model training data. The evals target seven specific API patterns: `connection()` for dynamic rendering, the `use cache` directive, `cacheLife()` and `cacheTag()`, `forbidden()` and `unauthorized()`, `proxy.ts` for API proxying, async `cookies()` and `headers()`, and `after()`, `updateTag()`, and `refresh()`.
 
-The eval suite was hardened before final measurements: ambiguous prompts were removed, implementation-detail assertions were replaced with behavior-based assertions, and test leakage was eliminated. Multiple retries were used to rule out model variance. This is a methodologically sound experimental design.
+The eval suite was secure before final measurements: ambiguous prompts were removed, implementation-detail assertions were replaced with behavior-based assertions, and test leakage was eliminated. Multiple retries were used to rule out model variance. This is a methodologically sound experimental design.
 
 Four configurations were measured against the same test suite.
 
@@ -104,7 +104,7 @@ flowchart LR
 The skills index in AGENT.md uses a consistent format:
 
 ```
-[Category]  skill-slug  → brief description of when to use it
+[Category]  skill-slug   brief description of when to use it
 ```
 
 This format was designed to maximize scanning speed. An agent processing the skills index at the start of a session does not need to reason deeply about each entry. The category tag narrows the domain, the slug is the activation key, and the description provides the selection signal. A cloud infrastructure task activates category tags like AWS Compute, AWS Database, and Kubernetes. The agent can skip the CI/CD, Documentation, and Packer categories without reading their entries.
@@ -173,7 +173,7 @@ This section documents design constraints that must be preserved when modifying 
 
 ## Maintenance Protocol
 
-When the skill library changes — new skills added, old skills consolidated, descriptions updated — AGENT.md must be updated in the same commit. A skill that exists in `skills/` but is not represented in the AGENT.md index will experience the same 56% non-invocation rate as an uninstructed skill in an eval harness.
+When the skill library changes  new skills added, old skills consolidated, descriptions updated  AGENT.md must be updated in the same commit. A skill that exists in `skills/` but is not represented in the AGENT.md index will experience the same 56% non-invocation rate as an uninstructed skill in an eval harness.
 
 The INVENTORY.md file in the skills directory provides the source of truth for skill metadata. The compressed AGENT.md index is derived from it. When a skill's description, triggers, or related skills change, both files should be updated together.
 

@@ -285,7 +285,7 @@ Additional patterns can be added by modifying the `skip_patterns` list in `code_
 ## References
 
 **Primary Source: Hacker News Discussion**
-"Ask HN: How are you using LLMs for coding beyond autocomplete?" — https://news.ycombinator.com/item?id=47367129
+"Ask HN: How are you using LLMs for coding beyond autocomplete?"  https://news.ycombinator.com/item?id=47367129
 
 Key contributors and their ideas incorporated into this architecture:
 
@@ -299,7 +299,7 @@ Key contributors and their ideas incorporated into this architecture:
 | rafael-lua | CI integration for shared team code maps committed to version control. |
 
 **Secondary Source: Vercel Eval Research**
-"AGENTS.md outperforms skills in our agent evals" — Jude Gao, Vercel Engineering, January 27 2026. https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals
+"AGENTS.md outperforms skills in our agent evals"  Jude Gao, Vercel Engineering, January 27 2026. https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals
 
 Applied to this architecture: the passive context principle that drives the serialization of the code map to Markdown rather than requiring active retrieval.
 

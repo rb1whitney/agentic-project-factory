@@ -30,5 +30,4 @@ This project uses a dedicated virtual environment located in the `./python-code-
 - **GitHub 404:** If `gh repo view` fails for a collaborator repo, switch to the SSH protocol.
 - **Python ModuleNotFoundError:** Verify the command is using the `./python-code-mapper/bin/python3` interpreter. Check if the module is installed in the venv using `./python-code-mapper/bin/pip list`.
 
----
-*Author: Richard Whitney*
+./Author: Richard Whitney*

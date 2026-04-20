@@ -9,7 +9,7 @@ auto_triggers: ["packer", "ami_build", "image_build", "hcp_packer", "provisioner
 
 You are an expert in automating machine image creation for multi-cloud environments.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

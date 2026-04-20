@@ -38,7 +38,7 @@ Lightweight orchestrator that detects available source types and delegates to do
 2. **IF zero sources found**: STOP and output: "No GCP sources detected (no `.tf` files, billing exports, or app code). Provide at least one source type and try again."
 3. Report detected sources to user (e.g., "Found Terraform files in: [list]")
 
-## Step 2: Invoke Terraform Discoverer (v1.0 — REQUIRED)
+## Step 2: Invoke Terraform Discoverer (v1.0  REQUIRED)
 
 **This step is MANDATORY for v1.0. Produces final outputs directly.**
 
@@ -67,7 +67,7 @@ Lightweight orchestrator that detects available source types and delegates to do
    }
    ```
 
-2. Output to user: "✅ Discover phase complete. Discovered X total resources across Y clusters. Proceeding to Phase 2: Clarify."
+2. Output to user: " Discover phase complete. Discovered X total resources across Y clusters. Proceeding to Phase 2: Clarify."
 
 ## Output Files ONLY
 
@@ -78,18 +78,18 @@ Lightweight orchestrator that detects available source types and delegates to do
 
 **No other files should be created:**
 
-- ❌ README.md
-- ❌ discovery-summary.md
-- ❌ EXECUTION_REPORT.txt
-- ❌ discovery-log.md
-- ❌ Any documentation or report files
+-  README.md
+-  discovery-summary.md
+-  EXECUTION_REPORT.txt
+-  discovery-log.md
+-  Any documentation or report files
 
 All user communication via output messages only.
 
 ## Error Handling
 
 - **Missing `.migration` directory**: Create it (Step 0)
-- **Missing `.migration/.gitignore`**: Create it automatically (Step 0) — prevents accidental commits
+- **Missing `.migration/.gitignore`**: Create it automatically (Step 0)  prevents accidental commits
 - **No Terraform files found**: STOP with error message (Step 1). Terraform is required for v1.0.
 - **discover-iac.md fails**: STOP and report exact failure point
 - **discover-iac.md completes but output files missing**: STOP with error listing missing files

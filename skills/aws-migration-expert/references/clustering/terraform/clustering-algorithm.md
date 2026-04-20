@@ -31,7 +31,7 @@ All resources with fields:
 **Process:**
 
 1. **Identify all resource types with 2+ PRIMARY resources**
-   - Example: 4× `google_pubsub_topic`, 3× `google_storage_bucket`, 2× `google_sql_database_instance`
+   - Example: 4 `google_pubsub_topic`, 3 `google_storage_bucket`, 2 `google_sql_database_instance`
 
 2. **For EACH resource type with 2+ primaries: Create ONE cluster containing ALL of them**
    - Do NOT create separate clusters for each resource
@@ -57,16 +57,16 @@ All resources with fields:
 
 **Correct Examples (ONE cluster per type):**
 
-- 4× `google_pubsub_topic` → 1 cluster: `messaging_pubsubtopic_us-central1_001`
-- 3× `google_storage_bucket` → 1 cluster: `storage_bucket_us-central1_001`
-- 2× `google_sql_database_instance` → 1 cluster: `database_sql_us-central1_001`
-- 3× `google_container_cluster` → 1 cluster: `compute_gke_us-central1_001` (NOT `k8s_001`, `k8s_002`, `k8s_003`)
+- 4 `google_pubsub_topic`  1 cluster: `messaging_pubsubtopic_us-central1_001`
+- 3 `google_storage_bucket`  1 cluster: `storage_bucket_us-central1_001`
+- 2 `google_sql_database_instance`  1 cluster: `database_sql_us-central1_001`
+- 3 `google_container_cluster`  1 cluster: `compute_gke_us-central1_001` (NOT `k8s_001`, `k8s_002`, `k8s_003`)
 
 **INCORRECT Examples (DO NOT DO THIS):**
 
-- ❌ 4× `google_pubsub_topic` → 4 clusters (`compute_pubsubtopic_001`, `compute_pubsubtopic_002`, etc.)
-- ❌ 3× `google_storage_bucket` → 3 clusters (`compute_storagebucket_001`, `compute_storagebucket_002`, etc.)
-- ❌ 3× `google_container_cluster` → 3 clusters (`k8s_001`, `k8s_002`, `k8s_003`)
+-  4 `google_pubsub_topic`  4 clusters (`compute_pubsubtopic_001`, `compute_pubsubtopic_002`, etc.)
+-  3 `google_storage_bucket`  3 clusters (`compute_storagebucket_001`, `compute_storagebucket_002`, etc.)
+-  3 `google_container_cluster`  3 clusters (`k8s_001`, `k8s_002`, `k8s_003`)
 
 **Output**: ONE cluster per resource type (not per resource)
 
@@ -98,7 +98,7 @@ All resources with fields:
 
 **Reasoning**: Some workloads must deploy together (e.g., two Cloud Runs sharing database)
 
-**Heuristic**: Merge if one PRIMARY depends on another's output (e.g., Function → Database). Do NOT merge independent workloads.
+**Heuristic**: Merge if one PRIMARY depends on another's output (e.g., Function  Database). Do NOT merge independent workloads.
 
 ### Rule 5: Skip API Services
 

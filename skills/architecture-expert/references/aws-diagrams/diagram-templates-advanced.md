@@ -1,4 +1,4 @@
-# Diagram Templates — Advanced
+# Diagram Templates  Advanced
 
 Multi-region, hybrid, and sizing guidelines. See `diagram-templates-basic.md` for basic patterns.
 
@@ -12,9 +12,9 @@ Layout (two regions side by side):
     [CloudFront]                        [CloudFront]
     [ALB]                               [ALB]
     [ECS/Lambda]                        [ECS/Lambda]
-    [Aurora (primary)]  ←──replication──→  [Aurora (replica)]
-    [DynamoDB Global Table] ←──sync──→  [DynamoDB Global Table]
-    [S3] ←──replication──→              [S3]
+    [Aurora (primary)]  replication  [Aurora (replica)]
+    [DynamoDB Global Table] sync  [DynamoDB Global Table]
+    [S3] replication              [S3]
 
   [Global Accelerator] optionally at top
 ```
@@ -28,7 +28,7 @@ Layout:
     [Database]
     [Active Directory]
 
-  ←── [Direct Connect] / [Site-to-Site VPN] ──→
+   [Direct Connect] / [Site-to-Site VPN] 
 
   [AWS Cloud]
     [Transit Gateway]

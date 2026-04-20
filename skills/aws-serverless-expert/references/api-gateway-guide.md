@@ -153,7 +153,7 @@ When diagnosing API Gateway errors, consult `references/troubleshooting.md` for 
 8. **JWT authorizer public keys cached 2 hours**. Account for this in key rotation
 9. **Management API rate limit: 10 rps / 40 burst**. Heavy automation can hit this
 10. **Always redeploy REST API after configuration changes**. Changes don't take effect until deployed
-11. **Edge-optimized endpoints do NOT cache at the edge** — they only optimize TCP connections via CloudFront POPs. If you need edge caching, edge compute (CloudFront Functions, Lambda@Edge), or granular CloudFront control, use a Regional API with your own CloudFront distribution instead
+11. **Edge-optimized endpoints do NOT cache at the edge**  they only optimize TCP connections via CloudFront POPs. If you need edge caching, edge compute (CloudFront Functions, Lambda@Edge), or granular CloudFront control, use a Regional API with your own CloudFront distribution instead
 
 For additional pitfalls (header handling, URL encoding, caching charges, canary deployments, usage plans), see `references/pitfalls.md`.
 
@@ -163,9 +163,9 @@ Default: CDK TypeScript
 
 Override syntax:
 
-- "use SAM" → Generate SAM/CloudFormation YAML templates
-- "use CloudFormation" → Generate CloudFormation YAML templates
-- "use Terraform" → Generate Terraform HCL
+- "use SAM"  Generate SAM/CloudFormation YAML templates
+- "use CloudFormation"  Generate CloudFormation YAML templates
+- "use Terraform"  Generate Terraform HCL
 
 When not specified, ALWAYS use CDK TypeScript.
 

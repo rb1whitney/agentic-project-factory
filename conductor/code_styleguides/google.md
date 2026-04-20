@@ -6,22 +6,22 @@ Standards for writing GCP infrastructure code across Terraform, gcloud CLI, GKE,
 
 ## Project and Resource Hierarchy
 
-GCP uses a 3-tier hierarchy: Organization → Folder → Project. Every resource lives in a project.
+GCP uses a 3-tier hierarchy: Organization  Folder  Project. Every resource lives in a project.
 
 ```
 organization/
-├── folder: production/
-│   ├── project: myapp-prod-vpc-host     # Shared VPC host project
-│   └── project: myapp-prod              # Service project
-└── folder: non-production/
-    ├── project: myapp-dev
-    └── project: myapp-staging
+ folder: production/
+    project: myapp-prod-vpc-host     # Shared VPC host project
+    project: myapp-prod              # Service project
+ folder: non-production/
+     project: myapp-dev
+     project: myapp-staging
 ```
 
 **Rules**:
 - Use separate projects per environment (not separate namespaces in one project)
 - Use Shared VPC for network isolation between service projects
-- Project IDs are globally unique and immutable — format: `{org}-{app}-{env}`
+- Project IDs are globally unique and immutable  format: `{org}-{app}-{env}`
 
 ## Naming Conventions
 
@@ -37,8 +37,8 @@ Pattern: `{project-id}-{resource-type}[-{qualifier}]`
 | Subnet | `{network}-{region}-{tier}` | `myapp-vpc-us-central1-private` |
 
 **Rules**:
-- All lowercase, hyphens only (no underscores — Cloud Run and GKE names prohibit them)
-- GCS bucket names must be globally unique — prefix with project ID
+- All lowercase, hyphens only (no underscores  Cloud Run and GKE names prohibit them)
+- GCS bucket names must be globally unique  prefix with project ID
 - Service account display names use sentence case
 
 ## Labels Strategy
@@ -62,7 +62,7 @@ Label key/value rules: lowercase letters, numbers, hyphens, underscores only. Ma
 ## IAM and Service Accounts
 
 ```hcl
-# Never use default service accounts — create purpose-specific ones
+# Never use default service accounts  create purpose-specific ones
 resource "google_service_account" "gke_nodes" {
   account_id   = "gke-node-sa"
   display_name = "GKE Node Service Account"
@@ -93,7 +93,7 @@ resource "google_storage_bucket" "artifacts" {
   name                        = "${var.project_id}-artifacts"
   location                    = var.region
   project                     = var.project_id
-  uniform_bucket_level_access = true  # Always enable — disables legacy ACLs
+  uniform_bucket_level_access = true  # Always enable  disables legacy ACLs
   force_destroy               = false # Never true in production
 
   versioning {
@@ -133,16 +133,16 @@ resource "google_container_cluster" "main" {
   location = var.region  # Regional cluster (not zonal) for HA
   project  = var.project_id
 
-  # Remove default node pool — manage node pools separately
+  # Remove default node pool  manage node pools separately
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  # Workload Identity — the correct way to give pods GCP permissions
+  # Workload Identity  the correct way to give pods GCP permissions
   workload_identity_config {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
-  # Private cluster — no public node IPs
+  # Private cluster  no public node IPs
   private_cluster_config {
     enable_private_nodes    = true
     enable_private_endpoint = false  # Allow kubectl from authorized networks
@@ -202,7 +202,7 @@ resource "google_cloud_run_v2_service" "api" {
         value = var.project_id
       }
 
-      # Secrets from Secret Manager — never inline
+      # Secrets from Secret Manager  never inline
       env {
         name = "DB_PASSWORD"
         value_source {
@@ -230,7 +230,7 @@ gcloud compute instances list --format="table(name,zone,status,machineType)"
 # Use --filter for server-side filtering (faster than grep)
 gcloud compute instances list --filter="status=RUNNING AND tags.items=web"
 
-# Access secrets — never from env vars directly
+# Access secrets  never from env vars directly
 gcloud secrets versions access latest --secret=db-password --project=myapp-prod
 
 # Impersonate service accounts for testing permissions
@@ -240,7 +240,7 @@ gcloud compute instances list \
 
 ## Code Review Checklist
 
-- [ ] No default service accounts used — purpose-specific SAs with minimal roles
+- [ ] No default service accounts used  purpose-specific SAs with minimal roles
 - [ ] No primitive roles (`owner`, `editor`, `viewer`) in production
 - [ ] GCS buckets have `uniform_bucket_level_access = true`
 - [ ] GCS buckets use CMEK (customer-managed encryption keys)

@@ -1,8 +1,8 @@
 # CDK Lambda Function Constructs
 
-CDK provides specialized constructs for defining Lambda functions. Always prefer the runtime-specific L2 constructs (`NodejsFunction`, `PythonFunction`) over the base `Function` when available — they handle bundling automatically.
+CDK provides specialized constructs for defining Lambda functions. Always prefer the runtime-specific L2 constructs (`NodejsFunction`, `PythonFunction`) over the base `Function` when available  they handle bundling automatically.
 
-## Node.js — `NodejsFunction`
+## Node.js  `NodejsFunction`
 
 The `NodejsFunction` construct bundles TypeScript/JavaScript with esbuild automatically. No separate build step needed.
 
@@ -41,7 +41,7 @@ export class MyStack extends cdk.Stack {
 
 **Handler resolution:** `"handler"` (no dot) resolves to `"index.handler"`.
 
-## Python — `PythonFunction` (Alpha)
+## Python  `PythonFunction` (Alpha)
 
 `PythonFunction` is in a separate alpha package and requires Docker for bundling.
 
@@ -72,7 +72,7 @@ The `entry` directory should contain a `requirements.txt`, `Pipfile`, or `pyproj
 
 > **Alpha warning:** `@aws-cdk/aws-lambda-python-alpha` can introduce breaking changes without a major version bump. Pin the exact version and test after upgrades.
 
-## Other Runtimes — Base `Function`
+## Other Runtimes  Base `Function`
 
 For Java, Go, .NET, or custom runtimes, use the base `Function` construct with `Code.fromAsset()`:
 

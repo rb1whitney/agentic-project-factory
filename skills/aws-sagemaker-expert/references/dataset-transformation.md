@@ -17,17 +17,17 @@ Transforms a data set provided by the user into their desired format. All transf
 5. **No repetition.** If you said something before a tool call, don't repeat it after. Only share new information.
 6. **Do not deviate from the Workflow.** The steps listed in the workflow should be followed exactly as described. Progress from Step 1 to Step 10 to complete the task. Do not deviate from the workflow!
 7. **Always end with a question.** Whenever you pause for user input, acknowledgment, or feedback, your response must end with a question. Never leave the user with a statement and expect them to know they need to respond.
-8. **Never overwrite existing files — append instead.** If a target notebook already exists, do NOT overwrite it. Append new cells to the existing file. Notify the user that the file already exists and that you will be appending to it.
+8. **Never overwrite existing files  append instead.** If a target notebook already exists, do NOT overwrite it. Append new cells to the existing file. Notify the user that the file already exists and that you will be appending to it.
 9. **Avoid filename collisions.** When creating a new file, check if a file with the same name already exists. If it does, rename the new file by appending a numeric suffix (e.g., `transform_dataset_2.ipynb`) before writing.
-10. **Default output format is JSONL.** Unless the user explicitly requests a different file format, the transformed dataset should be written as `.jsonl` (JSON Lines — one JSON object per line).
+10. **Default output format is JSONL.** Unless the user explicitly requests a different file format, the transformed dataset should be written as `.jsonl` (JSON Lines  one JSON object per line).
 
 ## Known Dataset Formats Reference
 
-This skill supports two transformation purposes — **training data** and **evaluation data** — each with its own format resolution path. The purpose is determined in Step 1 of the workflow.
+This skill supports two transformation purposes  **training data** and **evaluation data**  each with its own format resolution path. The purpose is determined in Step 1 of the workflow.
 
 ### Training Data Formats
 
-When the transformation is for **model training**, resolve the target format using the reference file `../dataset-evaluation/references/strategy_data_requirements.md`. The required format depends on both the **model type** (Open Weights like Llama/Qwen vs Nova) and the **finetuning technique** (SFT, DPO, RLVR) — make sure to match on both dimensions. If either the model type or technique is not yet known, ask the user before resolving the format.
+When the transformation is for **model training**, resolve the target format using the reference file `../dataset-evaluation/references/strategy_data_requirements.md`. The required format depends on both the **model type** (Open Weights like Llama/Qwen vs Nova) and the **finetuning technique** (SFT, DPO, RLVR)  make sure to match on both dimensions. If either the model type or technique is not yet known, ask the user before resolving the format.
 
 ### Evaluation Data Formats
 
@@ -46,12 +46,12 @@ Your first response should determine whether this transformation is for **model 
 
 > "Is this dataset transformation for model training or model evaluation? This helps me look up the right target format for you."
 
-- **Training** → format resolution will use the local training data requirements reference (model type + finetuning technique dependent).
-- **Evaluation** → format resolution will use the live AWS documentation (with offline fallback).
+- **Training**  format resolution will use the local training data requirements reference (model type + finetuning technique dependent).
+- **Evaluation**  format resolution will use the live AWS documentation (with offline fallback).
 
-Remember this choice — it determines how the target format is resolved in Step 3.
+Remember this choice  it determines how the target format is resolved in Step 3.
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 2: Set expectations
 
@@ -59,7 +59,7 @@ Acknowledge the user's request and state what this skill can do:
 
 > "I can help you transform your dataset's format! Here's my plan: I will first need to understand the format of your dataset and the transformation requirements. Once I have that, I will generate a dataset transformation function that we can refine together. After the dataset transformation function is refined to your liking, I will perform the transformation task and upload it to your desired location! Does this sound good?"
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 3: Understand the dataset transformation task
 
@@ -77,7 +77,7 @@ Resolve the target format based on the purpose determined in Step 1:
 
 If the user describes a custom format not listed in the reference doc, ask them to provide a sample record of the desired output format.
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 4: Get the dataset from the user
 
@@ -86,15 +86,15 @@ If you know this already, skip this step. If not, ask the user:
 
 > "Where can I find your dataset? Either a local directory or S3 location works!"
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 5: Examine sample data
 
-Read 1–2 sample records from the user's dataset and show them so the user can confirm the source schema. Do not run format detection — that is handled by the planning skill before this skill is invoked.
+Read 12 sample records from the user's dataset and show them so the user can confirm the source schema. Do not run format detection  that is handled by the planning skill before this skill is invoked.
 
-Do not show a side-by-side mapping to the target format here — the detailed mapping will be handled in Step 7 when generating the transformation function.
+Do not show a side-by-side mapping to the target format here  the detailed mapping will be handled in Step 7 when generating the transformation function.
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 6: Get the dataset output location
 
@@ -105,7 +105,7 @@ If you already know where the dataset is supposed to be output to, skip this ste
 
 If the user provides a directory (not a full file path), construct the output filename using the pattern `{original_name}_{target_format}.jsonl` (e.g., `gen_qa_100k_openai.jsonl`).
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 7: Generate and validate the transformation function
 
@@ -121,7 +121,7 @@ def transform_dataset(df: pd.DataFrame) -> pd.DataFrame:
 
 Add a `%%writefile <project-dir>/scripts/transform_fn.py` code cell to the notebook AND write the file to disk for testing. The `<project-dir>` is the project directory established by the directory-management skill (e.g., `dpo-to-rlvr-conversion`). All notebooks go in `<project-dir>/notebooks/` and all scripts go in `<project-dir>/scripts/`.
 
-Continue iterating with the user's feedback — update the notebook cell in place on each revision rather than showing code inline.
+Continue iterating with the user's feedback  update the notebook cell in place on each revision rather than showing code inline.
 
 **If sample data was collected in Step 5**, test the function against the sample records:
 
@@ -133,7 +133,7 @@ Continue iterating with the user's feedback — update the notebook cell in plac
 
 **If no sample data**, present the function for review and refinement.
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 8: Generate the execution cells in the notebook
 
@@ -159,7 +159,7 @@ Read the reference guide at `references/dataset_transformation_code.md` and foll
 
 **If no sample data**, present the notebook for review and refinement.
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 9: Determine and confirm execution mode
 
@@ -170,46 +170,46 @@ Check the size of the input dataset:
 
 **Decision criteria:**
 
-- Dataset < 50 MB → recommend local execution
-- Dataset ≥ 50 MB → recommend SageMaker Processing Job
+- Dataset < 50 MB  recommend local execution
+- Dataset  50 MB  recommend SageMaker Processing Job
 
 Inform the user of the recommendation and get their approval:
 
 If local:
 
-> "Your dataset is {size} MB — since it's under 50 MB, I'd recommend running the transformation locally. Would you like to proceed with local execution, or would you prefer a SageMaker Processing Job instead?"
+> "Your dataset is {size} MB  since it's under 50 MB, I'd recommend running the transformation locally. Would you like to proceed with local execution, or would you prefer a SageMaker Processing Job instead?"
 
 If SageMaker Processing Job:
 
-> "Your dataset is {size} MB — since it's over 50 MB, I'd recommend running this as a SageMaker Processing Job for better performance. Would you like to proceed with a SageMaker Processing Job, or would you prefer to run it locally instead?"
+> "Your dataset is {size} MB  since it's over 50 MB, I'd recommend running this as a SageMaker Processing Job for better performance. Would you like to proceed with a SageMaker Processing Job, or would you prefer to run it locally instead?"
 
 Do not execute until the user approves. If the user rejects the recommendation, switch to the alternative and get their explicit approval before proceeding.
 
-⏸ Wait for user.
+ Wait for user.
 
-**After user confirms, add an execution cell to the notebook. Do NOT run the full transformation — only generate the cell for the user to execute themselves:**
+**After user confirms, add an execution cell to the notebook. Do NOT run the full transformation  only generate the cell for the user to execute themselves:**
 
 If local execution:
 
-- Add a cell that runs the transformation by importing from the `.py` files already on disk (written by the agent during Steps 7–8): import `transform_dataset` from `transform_fn`, load the dataset, transform, and save output. Scripts are located in `<project-dir>/scripts/`.
+- Add a cell that runs the transformation by importing from the `.py` files already on disk (written by the agent during Steps 78): import `transform_dataset` from `transform_fn`, load the dataset, transform, and save output. Scripts are located in `<project-dir>/scripts/`.
 
 If SageMaker Processing Job:
 
 - Add a cell that submits and monitors the Processing Job inline using the V3 SageMaker SDK directly (FrameworkProcessor, ProcessingInput, ProcessingOutput, etc.). Create a FrameworkProcessor with the SKLearn 1.2-1 image, configure inputs/outputs, and call `processor.run(wait=True, logs=True)` to block the cell and stream logs until the job completes. See `scripts/transformation_tools.py` for reference implementation details.
 - Inform the user they can run this cell to kick off and monitor the job.
 
-**Important:** The agent must NOT execute the full dataset transformation itself. The notebook cells are generated for the user to review and run. Only sample data (from Steps 7–8) should be transformed by the agent for validation purposes.
+**Important:** The agent must NOT execute the full dataset transformation itself. The notebook cells are generated for the user to review and run. Only sample data (from Steps 78) should be transformed by the agent for validation purposes.
 
 > "I've added the execution cell to the notebook. You can run it to transform the full dataset. Would you like to review the notebook before running it?"
 
-⏸ Wait for user.
+ Wait for user.
 
 ### Step 10: Verify and confirm with the user
 
 For this step, you need: **to verify the output looks correct and confirm with the user.**
 
-- Read 1–2 sample records from the output to show the user.
+- Read 12 sample records from the output to show the user.
 - Report the total number of records transformed.
 - Ask the user if the output looks good.
 
-⏸ Wait for user to confirm.
+ Wait for user to confirm.

@@ -38,4 +38,4 @@ Follow all other SOP steps (2 through 11) completely. Do not improvise or skip t
 
 After the SOP is fully executed, summarize what was created (which resources, files, configurations).
 
-This phase is now complete. Do not read other reference files or proceed to the next phase — return control to the orchestrator workflow (SKILL.md).
+This phase is now complete. Do not read other reference files or proceed to the next phase  return control to the orchestrator workflow (SKILL.md).

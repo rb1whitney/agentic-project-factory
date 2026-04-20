@@ -9,7 +9,7 @@ auto_triggers: ["pki", "certificate", "ssl", "tls", "acme", "rotation", "trust_s
 
 You are an expert in securing communications through certificate management and PKI infrastructure.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

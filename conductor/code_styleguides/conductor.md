@@ -10,16 +10,16 @@ Every track lives in `conductor/tracks/<track-name>/`:
 
 ```
 conductor/
-├── product.md             # Product vision, goals, personas
-├── tech-stack.md          # Approved technologies and constraints
-├── product-guidelines.md  # Brand voice, UI/UX, communication standards
-├── workflow.md            # Development lifecycle rules
-├── tracks.md              # Registry of all active and completed tracks
-├── tracks/
-│   └── <track-name>/
-│       ├── spec.md        # What and why — requirements and acceptance criteria
-│       └── plan.md        # How — phases, tasks, dependencies
-└── code_styleguides/      # Per-language style references (this directory)
+ product.md             # Product vision, goals, personas
+ tech-stack.md          # Approved technologies and constraints
+ product-guidelines.md  # Brand voice, UI/UX, communication standards
+ workflow.md            # Development lifecycle rules
+ tracks.md              # Registry of all active and completed tracks
+ tracks/
+    <track-name>/
+        spec.md        # What and why  requirements and acceptance criteria
+        plan.md        # How  phases, tasks, dependencies
+ code_styleguides/      # Per-language style references (this directory)
 ```
 
 ## spec.md Format
@@ -38,8 +38,8 @@ One paragraph. What is broken or missing and why it matters.
 - Explicitly excluded scope to prevent scope creep
 
 ## Acceptance Criteria
-- [ ] Criterion 1 — specific and verifiable
-- [ ] Criterion 2 — specific and verifiable
+- [ ] Criterion 1  specific and verifiable
+- [ ] Criterion 2  specific and verifiable
 
 ## Constraints
 - Technical constraints (must use X, cannot break Y)
@@ -59,12 +59,12 @@ One paragraph summary of the implementation approach.
 
 ## Phase 1: <Phase Name>
 
-### Task 1.1 — <Task Name>
+### Task 1.1  <Task Name>
 - **Action**: Specific imperative instruction (e.g., "Create file X", "Modify function Y")
 - **File**: Path relative to repo root
 - **Acceptance**: How to verify this task is done
 
-### Task 1.2 — <Task Name>
+### Task 1.2  <Task Name>
 - **Action**: ...
 - **File**: ...
 - **Acceptance**: ...
@@ -100,17 +100,17 @@ One paragraph summary of the implementation approach.
 ### Spec Rules
 - **Problem Statement**: State the current broken state, not the desired future state
 - **Goals**: Use verb phrases ("User can X", "System returns Y within Z ms")
-- **Acceptance Criteria**: Every criterion must be binary — it either passes or it does not
+- **Acceptance Criteria**: Every criterion must be binary  it either passes or it does not
 - **Non-Goals**: Be explicit. "We will not X" prevents future misunderstanding
 
 ### Plan Rules
 - **Tasks must be atomic**: Each task changes one thing in one place
 - **Tasks must be ordered**: Later tasks may depend on earlier ones; earlier tasks must not depend on later ones
 - **Tasks must be verifiable**: Each task has a specific file path and acceptance condition
-- **No vague verbs**: Use "Create", "Modify", "Delete", "Move", "Rename" — not "Update", "Fix", "Improve"
+- **No vague verbs**: Use "Create", "Modify", "Delete", "Move", "Rename"  not "Update", "Fix", "Improve"
 
 ### Phase Rules
-- Each phase must produce a working state — the codebase must be runnable after each phase
+- Each phase must produce a working state  the codebase must be runnable after each phase
 - Phase names describe the architectural concern, not the implementation action ("Data Layer", not "Write Code")
 - End each phase with explicit verification commands
 
@@ -134,7 +134,7 @@ Every commit made during conductor implementation must follow:
 ```
 <type>(<scope>): <imperative description>
 
-<body — optional, explains why not what>
+<body  optional, explains why not what>
 
 Track: <track-name>
 Task: <phase>.<task>

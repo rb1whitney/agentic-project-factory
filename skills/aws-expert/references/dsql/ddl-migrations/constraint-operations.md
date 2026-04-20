@@ -159,7 +159,7 @@ transact([
 
 ### Split Column
 
-**Goal:** Split one column into multiple (e.g., `full_name` → `first_name` + `last_name`).
+**Goal:** Split one column into multiple (e.g., `full_name`  `first_name` + `last_name`).
 
 ```sql
 -- Create new table with split columns
@@ -185,7 +185,7 @@ transact([
 
 ### Merge Columns
 
-**Goal:** Combine multiple columns into one (e.g., `first_name` + `last_name` → `display_name`).
+**Goal:** Combine multiple columns into one (e.g., `first_name` + `last_name`  `display_name`).
 
 ```sql
 -- Create new table with merged column

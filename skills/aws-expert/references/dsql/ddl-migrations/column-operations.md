@@ -79,7 +79,7 @@ readonly_query(
 | VARCHAR   | INTEGER    | MUST validate all values are numeric                    |
 | VARCHAR   | BOOLEAN    | MUST validate values are 'true'/'false'/'t'/'f'/'1'/'0' |
 | INTEGER   | VARCHAR    | Safe conversion                                         |
-| TEXT      | VARCHAR(n) | MUST validate max length ≤ n                            |
+| TEXT      | VARCHAR(n) | MUST validate max length  n                            |
 | TIMESTAMP | DATE       | Safe (truncates time)                                   |
 | INTEGER   | DECIMAL    | Safe conversion                                         |
 

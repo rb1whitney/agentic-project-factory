@@ -1,14 +1,27 @@
 import os
 import argparse
 import sys
+import logging
+from typing import Optional
 
-def auto_context(query, code_map_file):
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger("auto_context")
+
+def auto_context(query: str, code_map_file: str) -> Optional[str]:
     """
     Sub-agent utility that identifies the 5-10 most relevant files for a task.
     This is intended to be called by an LLM with the code_map.md as context.
     """
-    with open(code_map_file, "r") as f:
-        code_map = f.read()
+    if not os.path.exists(code_map_file):
+        logger.error(f"Code map file not found: {code_map_file}")
+        return None
+
+    try:
+        with open(code_map_file, "r", encoding="utf-8") as f:
+            code_map = f.read()
+    except Exception as e:
+        logger.error(f"Failed to read code map file: {e}")
+        return None
 
     # The actual 'Auto-Context' logic happens in the LLM's reasoning.
     # This utility just provides the structured context.
@@ -28,10 +41,16 @@ Return a list of file paths that should be prioritized for reasoning, along with
     # For this skill-based implementation, the agent uses this tool to 'lens' into the repo.
     return prompt
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Generate context prompt from a code map.")
     parser.add_argument("query", help="User request or task")
     parser.add_argument("map", help="Code Map file")
     args = parser.parse_args()
     
-    print(auto_context(args.query, args.map))
+    result = auto_context(args.query, args.map)
+    if result is None:
+        sys.exit(1)
+    print(result)
+
+if __name__ == "__main__":
+    main()

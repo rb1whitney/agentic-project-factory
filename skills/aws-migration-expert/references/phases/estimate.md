@@ -46,9 +46,9 @@ Attempt to reach awspricing with **up to 2 retries** (3 total attempts):
   2. **Check staleness**:
      - Read `metadata.last_updated` (e.g., "2026-02-24")
      - Calculate days since update: `today - last_updated`
-     - If > 60 days: Add to estimation report: "⚠️ Cached pricing data is >60 days old; accuracy may be significantly degraded"
-     - If 30-60 days: Add to estimation report: "⚠️ Cached pricing data is 30-60 days old; accuracy may be reduced"
-     - If ≤ 30 days: Add to estimation report: "Note: Using cached rates (±15-25% accuracy)"
+     - If > 60 days: Add to estimation report: " Cached pricing data is >60 days old; accuracy may be significantly degraded"
+     - If 30-60 days: Add to estimation report: " Cached pricing data is 30-60 days old; accuracy may be reduced"
+     - If  30 days: Add to estimation report: "Note: Using cached rates (15-25% accuracy)"
   3. Log warning: "AWS pricing API unavailable; using cached rates from [last_updated]"
   4. **Display to user**: Add visible warning to estimation report with staleness notice
   5. **Pricing source**: Mark as `fallback` in estimation.json with note
@@ -104,8 +104,8 @@ Sum of all service monthly costs (Balanced tier)
 **One-time migration cost:**
 
 ```
-Development hours: X hours × $150/hour (assume 10-15 weeks)
-Data transfer: Y GB × $0.02/GB (egress from GCP)
+Development hours: X hours  $150/hour (assume 10-15 weeks)
+Data transfer: Y GB  $0.02/GB (egress from GCP)
 ```
 
 **ROI (vs GCP):**
@@ -124,7 +124,7 @@ Monthly GCP cost: (from above)
 AWS monthly cost: (from Step 3)
 Monthly savings: GCP - AWS
 Payback period: One-time cost / Monthly savings (in months)
-5-year savings: (Monthly savings × 60) - One-time cost
+5-year savings: (Monthly savings  60) - One-time cost
 ```
 
 Add to assumptions: "GCP monthly cost: [SOURCE - actual, user estimate, or default]"
@@ -137,7 +137,7 @@ Write `estimation.json` (schema must match `references/shared/output-schema.md`)
 {
   "pricing_source": {
     "status": "live|fallback",
-    "message": "Using live AWS pricing API|Using cached rates from [date] (±15-25% accuracy)",
+    "message": "Using live AWS pricing API|Using cached rates from [date] (15-25% accuracy)",
     "fallback_staleness": {
       "last_updated": "2026-02-24",
       "days_old": 3,

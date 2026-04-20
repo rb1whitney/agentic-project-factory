@@ -2,9 +2,9 @@
 
 ## Overview
 
-This guide covers the most common Lambda event sources — both polling-based (Event Source Mappings) and push-based (S3 notifications, SNS subscriptions). Use `esm_guidance` for polling source setup recommendations and `esm_optimize` for performance tuning.
+This guide covers the most common Lambda event sources  both polling-based (Event Source Mappings) and push-based (S3 notifications, SNS subscriptions). Use `esm_guidance` for polling source setup recommendations and `esm_optimize` for performance tuning.
 
-**Delivery guarantee:** All Lambda event sources deliver events **at least once**. Your function must be idempotent — the same record may be processed more than once. Use the AWS Lambda Powertools Idempotency utility (backed by DynamoDB) to handle duplicates safely.
+**Delivery guarantee:** All Lambda event sources deliver events **at least once**. Your function must be idempotent  the same record may be processed more than once. Use the AWS Lambda Powertools Idempotency utility (backed by DynamoDB) to handle duplicates safely.
 
 ## Polling-Based Event Sources (ESM)
 
@@ -79,7 +79,7 @@ processor = BatchProcessor(event_type=EventType.SQS)
 def process_record(record: SQSRecord):
     body = record.json_body
     logger.info("Processing order", order_id=body["orderId"])
-    # Business logic here — raise to mark this record as failed
+    # Business logic here  raise to mark this record as failed
     return {"orderId": body["orderId"], "status": "processed"}
 
 @logger.inject_lambda_context
@@ -177,15 +177,15 @@ Use a self-managed Kafka ESM when your cluster is not AWS-managed. Lambda connec
 
 **Use case:** React to changes in DocumentDB collections
 
-Similar to DynamoDB Streams — Lambda polls the DocumentDB change stream. Requires DocumentDB change streams to be enabled on the collection and Lambda to have VPC access to the cluster.
+Similar to DynamoDB Streams  Lambda polls the DocumentDB change stream. Requires DocumentDB change streams to be enabled on the collection and Lambda to have VPC access to the cluster.
 
 ## Push-Based Event Sources
 
-These sources invoke Lambda directly via asynchronous invocation — no ESM poller involved. Lower latency than polling sources, but less control over throughput and concurrency.
+These sources invoke Lambda directly via asynchronous invocation  no ESM poller involved. Lower latency than polling sources, but less control over throughput and concurrency.
 
 ### S3 Event Notifications
 
-**Use case:** React to object uploads, deletions, or modifications — image processing, file validation, data import, thumbnail generation
+**Use case:** React to object uploads, deletions, or modifications  image processing, file validation, data import, thumbnail generation
 
 **SAM template:**
 
@@ -219,17 +219,17 @@ UploadBucket:
 
 **Key configuration:**
 
-- `Events`: Event types to trigger on — `s3:ObjectCreated:*`, `s3:ObjectRemoved:*`, `s3:ObjectCreated:Put`, etc.
+- `Events`: Event types to trigger on  `s3:ObjectCreated:*`, `s3:ObjectRemoved:*`, `s3:ObjectCreated:Put`, etc.
 - `Filter.S3Key.Rules`: Prefix and/or suffix filters to limit which objects trigger the function
 - `Bucket`: Must reference an `AWS::S3::Bucket` declared in the same SAM template
 
 **Best practices:**
 
-- Avoid recursive triggers — if your function writes back to the same bucket that triggers it, Lambda will loop infinitely. Use a separate output bucket or a different prefix
-- S3 delivers events at least once and NOT in order — write idempotent handlers and don't depend on event sequencing
-- URL-decode the object key (`urllib.parse.unquote_plus` in Python, `decodeURIComponent` in JS) — S3 URL-encodes special characters in keys
+- Avoid recursive triggers  if your function writes back to the same bucket that triggers it, Lambda will loop infinitely. Use a separate output bucket or a different prefix
+- S3 delivers events at least once and NOT in order  write idempotent handlers and don't depend on event sequencing
+- URL-decode the object key (`urllib.parse.unquote_plus` in Python, `decodeURIComponent` in JS)  S3 URL-encodes special characters in keys
 - Use prefix/suffix filters to limit invocations to relevant objects
-- For complex routing (multiple consumers, content-based filtering, cross-account), use S3 → EventBridge instead — enable EventBridge notifications on the bucket and create rules
+- For complex routing (multiple consumers, content-based filtering, cross-account), use S3  EventBridge instead  enable EventBridge notifications on the bucket and create rules
 
 **Python S3 event handler:**
 
@@ -282,7 +282,7 @@ export const handler = async (event: S3Event, context: Context): Promise<void> =
 
 ### SNS Subscriptions
 
-**Use case:** Fan-out processing — one published message triggers multiple independent Lambda consumers
+**Use case:** Fan-out processing  one published message triggers multiple independent Lambda consumers
 
 **SAM template:**
 
@@ -318,18 +318,18 @@ OrderDLQ:
 **Key configuration:**
 
 - `Topic`: ARN or reference to the SNS topic
-- `FilterPolicy`: JSON filter to receive only matching messages — reduces invocations and cost
+- `FilterPolicy`: JSON filter to receive only matching messages  reduces invocations and cost
 - `FilterPolicyScope`: `MessageAttributes` (default) or `MessageBody`
-- `RedrivePolicy`: DLQ ARN for messages that fail delivery — configured at the subscription level, not the topic
+- `RedrivePolicy`: DLQ ARN for messages that fail delivery  configured at the subscription level, not the topic
 
 **Best practices:**
 
-- Use filter policies to reduce invocations — filter at the subscription level, not in handler code
-- Configure a redrive policy (DLQ) on every subscription — SNS retries server-side errors up to 100,015 times over 23 days; client-side errors (deleted function) go directly to DLQ
+- Use filter policies to reduce invocations  filter at the subscription level, not in handler code
+- Configure a redrive policy (DLQ) on every subscription  SNS retries server-side errors up to 100,015 times over 23 days; client-side errors (deleted function) go directly to DLQ
 - Set DLQ `MessageRetentionPeriod` to 14 days (maximum) for investigation time
 - SNS delivers at least once; write idempotent handlers
-- FIFO SNS topics do NOT support Lambda subscriptions — use standard topics only
-- For simple point-to-point delivery, prefer SQS → Lambda (ESM) over SNS → Lambda
+- FIFO SNS topics do NOT support Lambda subscriptions  use standard topics only
+- For simple point-to-point delivery, prefer SQS  Lambda (ESM) over SNS  Lambda
 - For complex event routing with pattern matching, prefer EventBridge over SNS
 
 **Python SNS event handler:**
@@ -400,14 +400,14 @@ MyFunction:
 - Numeric range: `{"body": {"amount": [{"numeric": [">", 100]}]}}`
 - Exists check: `{"body": {"metadata": [{"exists": true}]}}`
 
-Filtering is supported for SQS, Kinesis, DynamoDB Streams, MSK, self-managed Kafka, and MQ. Records that don't match filters are dropped before Lambda is invoked — SQS messages are deleted, stream records are skipped.
+Filtering is supported for SQS, Kinesis, DynamoDB Streams, MSK, self-managed Kafka, and MQ. Records that don't match filters are dropped before Lambda is invoked  SQS messages are deleted, stream records are skipped.
 
 ### Push Source Filtering
 
 Push-based sources use their own filtering mechanisms (not ESM FilterCriteria):
 
 - **S3**: Prefix/suffix filters on the object key via `Filter.S3Key.Rules` in the SAM template
-- **SNS**: Subscription filter policies via `FilterPolicy` — supports matching on `MessageAttributes` (default) or `MessageBody`
+- **SNS**: Subscription filter policies via `FilterPolicy`  supports matching on `MessageAttributes` (default) or `MessageBody`
 
 ## ESM Provisioned Mode
 

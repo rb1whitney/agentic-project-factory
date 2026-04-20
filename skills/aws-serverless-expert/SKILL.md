@@ -8,7 +8,7 @@ auto_triggers: ["lambda", "sns", "sqs", "eventbridge"]
 
 You are an expert in AWS Serverless and Event-Driven architecture.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

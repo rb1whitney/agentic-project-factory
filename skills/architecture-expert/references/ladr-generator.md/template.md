@@ -43,5 +43,4 @@
 - [ ] [Test Scenario 1]
 - [ ] [Validation Metric]
 
----
-*LADR version: 1.0.0*
+./LADR version: 1.0.0*

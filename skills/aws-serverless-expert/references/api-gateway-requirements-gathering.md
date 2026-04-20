@@ -102,7 +102,7 @@ When helping users define requirements for APIs built on Amazon API Gateway, gui
 - Expected peak request rates (per second)? (Account default: 10,000 rps / 5,000 burst across all APIs in a region, adjustable via Service Quotas)
 - Latency requirements (target response time)?
 - Need for response caching? (REST API only, TTL 0-3600s, 0.5-237 GB)
-- Multi-layer caching strategy? (CloudFront edge → API Gateway regional → application-level)
+- Multi-layer caching strategy? (CloudFront edge  API Gateway regional  application-level)
 - Throttling requirements (rate limit, burst limit)?
 - Different throttling tiers for different consumers? (Requires REST API usage plans for per-API-key rate limits)
 - Expected payload sizes? (Max 10 MB for REST/HTTP, consider presigned S3 URLs for larger files, or compressed passthrough via binary media types to exceed Lambda's 6 MB limit)
@@ -124,7 +124,7 @@ When helping users define requirements for APIs built on Amazon API Gateway, gui
 - AWS X-Ray tracing needed? (REST API only)
 - Custom CloudWatch metrics? (Consider CloudWatch Embedded Metrics Format for business metrics)
 - Alerting requirements (latency thresholds, error rate, throttle count)?
-- API analytics pipeline needed? (Firehose → S3 → Athena → QuickSight for deep analytics beyond CloudWatch)
+- API analytics pipeline needed? (Firehose  S3  Athena  QuickSight for deep analytics beyond CloudWatch)
 
 ### 11. Security Requirements
 

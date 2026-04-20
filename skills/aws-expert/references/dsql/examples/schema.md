@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS orders (
 
 ## Schema Design: Index Creation
 
-MUST use `CREATE INDEX ASYNC` (max 24 indexes/table, 8 columns/index — verify via `awsknowledge`: `aurora dsql index limits`). Source: [aurora-dsql-samples/java/liquibase](https://github.com/aws-samples/aurora-dsql-samples/tree/main/java/liquibase)
+MUST use `CREATE INDEX ASYNC` (max 24 indexes/table, 8 columns/index  verify via `awsknowledge`: `aurora dsql index limits`). Source: [aurora-dsql-samples/java/liquibase](https://github.com/aws-samples/aurora-dsql-samples/tree/main/java/liquibase)
 
 ```sql
 CREATE INDEX ASYNC idx_owner_city ON owner(city);

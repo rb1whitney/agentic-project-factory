@@ -1,10 +1,10 @@
 ---
 name: agentic-initializer
-description: Industrial-grade bootstrapper for 100% compliant Agentic Repositories.
+description: Professional-grade bootstrapper for 100% compliant Agentic Repositories.
 ---
 # Agentic Initializer (Hub Bootstrapper)
 
-This skill automates the institutionalization of Expert Hubs within the Elite Product Factory. It transforms any directory into a self-documenting, multi-agent эксперт environment.
+This skill automates the institutionalization of Expert Hubs within theProduct Factory. It transforms any directory into a self-documenting, multi-agent  environment.
 
 ## Logic Overview
 1. **Dense Manifest Generation**: Builds a Vercel-style `AGENT.md` that acts as a high-performance "World Map" for LLMs.

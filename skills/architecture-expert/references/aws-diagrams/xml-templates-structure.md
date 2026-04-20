@@ -1,4 +1,4 @@
-# XML Templates — Core Structure
+# XML Templates  Core Structure
 
 Ready-to-use XML code blocks for diagram scaffolding. For edge and container examples, see `xml-templates-examples.md`.
 

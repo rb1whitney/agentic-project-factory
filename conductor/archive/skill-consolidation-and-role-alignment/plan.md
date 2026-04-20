@@ -1,6 +1,6 @@
 # Track Plan: Skill Consolidation & Role Alignment
 
-Status: ✅ Completed
+Status:  Completed
 
 ## Phases
 

@@ -9,7 +9,7 @@ auto_triggers: ["github_issue", "pull_request", "create_pr", "review_code", "git
 
 You are an expert in managing the collaboration lifecycle on GitHub. You specialize in triaging issues, crafting high-quality Pull Requests, and conducting rigorous automated reviews.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

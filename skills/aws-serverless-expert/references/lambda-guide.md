@@ -9,7 +9,7 @@ Use SAM CLI for project initialization and deployment, Lambda Web Adapter for we
 - **SAM CLI Integration**: Initialize, build, deploy, and test serverless applications
 - **Web Application Deployment**: Deploy full-stack applications with Lambda Web Adapter
 - **Event Source Mappings**: Configure Lambda triggers for DynamoDB, Kinesis, SQS, Kafka
-- **Lambda durable functions**: Resilient multi-step applications with checkpointing — see the [durable-functions skill](../aws-lambda-durable-functions/) for guidance
+- **Lambda durable functions**: Resilient multi-step applications with checkpointing  see the [durable-functions skill](../aws-lambda-durable-functions/) for guidance
 - **Schema Management**: Type-safe EventBridge integration with schema registry
 - **Observability**: CloudWatch logs, metrics, and X-Ray tracing
 - **Performance Optimization**: Right-sizing, cost optimization, and troubleshooting
@@ -38,7 +38,7 @@ Load the appropriate reference file based on what the user is working on:
 
 - Do: Use `sam_init` or `cdk init` with an appropriate template for your use case
 - Do: Set global defaults for timeout, memory, runtime, and tracing (`Globals` in SAM, construct props in CDK)
-- Do: Use AWS Lambda Powertools for structured logging, tracing, metrics (EMF), idempotency, and batch processing — available for Python, TypeScript, Java, and .NET
+- Do: Use AWS Lambda Powertools for structured logging, tracing, metrics (EMF), idempotency, and batch processing  available for Python, TypeScript, Java, and .NET
 - Don't: Copy-paste templates from the internet without understanding the resource configuration
 - Don't: Use the same memory and timeout values for all functions regardless of workload
 
@@ -51,11 +51,11 @@ Load the appropriate reference file based on what the user is working on:
 - Do: Enable Amazon GuardDuty Lambda Protection to monitor function network activity for threats (cryptocurrency mining, data exfiltration, C2 callbacks)
 - Don't: Use wildcard (`*`) resource ARNs or actions in IAM policies
 - Don't: Hardcode credentials or secrets in application code or templates
-- Don't: Store user data or sensitive information in module-level variables — execution environments can be reused across different callers
+- Don't: Store user data or sensitive information in module-level variables  execution environments can be reused across different callers
 
 ### Idempotency
 
-- Do: Write idempotent function code — Lambda delivers events **at least once**, so duplicate invocations must be safe
+- Do: Write idempotent function code  Lambda delivers events **at least once**, so duplicate invocations must be safe
 - Do: Use the AWS Lambda Powertools Idempotency utility (backed by DynamoDB) for critical operations
 - Do: Validate and deduplicate events at the start of the handler before performing side effects
 - Don't: Assume an event will only ever be processed once
@@ -69,7 +69,7 @@ Limits that developers commonly hit:
 | Resource                                     | Limit                               |
 | -------------------------------------------- | ----------------------------------- |
 | Function timeout                             | 900 seconds (15 minutes)            |
-| Memory                                       | 128 MB – 10,240 MB                  |
+| Memory                                       | 128 MB  10,240 MB                  |
 | 1 vCPU equivalent                            | 1,769 MB memory                     |
 | Synchronous payload (request + response)     | 6 MB each                           |
 | Async invocation payload                     | 1 MB                                |
@@ -79,7 +79,7 @@ Limits that developers commonly hit:
 | Container image                              | 10 GB                               |
 | Layers per function                          | 5                                   |
 | Environment variables (aggregate)            | 4 KB                                |
-| `/tmp` ephemeral storage                     | 512 MB – 10,240 MB                  |
+| `/tmp` ephemeral storage                     | 512 MB  10,240 MB                  |
 | Account concurrent executions (default)      | 1,000 (requestable increase)        |
 | Burst scaling rate                           | 1,000 new executions per 10 seconds |
 
@@ -94,7 +94,7 @@ Check Service Quotas for your account limits: `aws lambda get-account-settings`
 | `IteratorAge` increasing            | Stream consumer falling behind | Increase `ParallelizationFactor` and `BatchSize`. Use `esm_optimize`                                                                            |
 | EventBridge events silently dropped | No DLQ, retries exhausted      | Add `RetryPolicy` + `DeadLetterConfig` to rule target                                                                                           |
 | Step Functions failing silently     | No retry on Task state         | Add `Retry` with `Lambda.ServiceException`, `Lambda.AWSLambdaException`                                                                         |
-| Durable Function not resuming       | Missing IAM permissions        | Add `lambda:CheckpointDurableExecution` and `lambda:GetDurableExecutionState` — see [durable-functions skill](../aws-lambda-durable-functions/) |
+| Durable Function not resuming       | Missing IAM permissions        | Add `lambda:CheckpointDurableExecution` and `lambda:GetDurableExecutionState`  see [durable-functions skill](../aws-lambda-durable-functions/) |
 
 For detailed troubleshooting, see [references/troubleshooting.md](references/troubleshooting.md).
 
@@ -134,8 +134,8 @@ Default: TypeScript
 
 Override syntax:
 
-- "use Python" → Generate Python code
-- "use JavaScript" → Generate JavaScript code
+- "use Python"  Generate Python code
+- "use JavaScript"  Generate JavaScript code
 
 When not specified, ALWAYS use TypeScript
 
@@ -145,8 +145,8 @@ Default: CDK
 
 Override syntax:
 
-- "use CloudFormation" → Generate YAML templates
-- "use SAM" → Generate YAML templates
+- "use CloudFormation"  Generate YAML templates
+- "use SAM"  Generate YAML templates
 
 When not specified, ALWAYS use CDK
 

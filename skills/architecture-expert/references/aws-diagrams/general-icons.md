@@ -2,7 +2,7 @@
 
 When the architecture includes non-AWS services (on-premises, third-party, open-source, or platform-native), use these mappings. Same 120x120 container + 48x48 icon pattern as AWS services. Category tint colors match the AWS palette so mixed diagrams look consistent.
 
-The icon is generic — **the container label and service name are critical** for identification.
+The icon is generic  **the container label and service name are critical** for identification.
 
 ## Technology to Shape Mapping
 

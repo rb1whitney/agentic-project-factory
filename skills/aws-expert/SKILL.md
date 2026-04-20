@@ -1,6 +1,6 @@
 ---
 name: aws-expert
-description: Holistic 2026 AWS Expertise — Consolidation of the Well-Architected Framework and Dynamic CLI Discovery.
+description: Holistic 2026 AWS Expertise  Consolidation of the Well-Architected Framework and Dynamic CLI Discovery.
 related_skills: []
 auto_triggers: []
 ---
@@ -55,7 +55,7 @@ aws ec2 describe-vpcs --query 'Vpcs[*].{ID:VpcId,CIDR:CidrBlock,Name:Tags[?Key==
 - **Review Phase**: Perform a "Well-Architected Audit" on the new infrastructure using CLI discovery results.
 
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

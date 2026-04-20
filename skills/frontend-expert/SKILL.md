@@ -5,7 +5,7 @@ category: expert
 # Frontend & UX Expert
 Specialist in modern web architectures, premium aesthetics, and responsive logic.
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 | Capability | Reference File |
 | :--- | :--- |
 | **React Fundamentals** | [react-guide.md](./references/react-guide.md) |

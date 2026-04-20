@@ -34,4 +34,4 @@ You are a Crossplane specialist. You excel at building internal developer platfo
 
 ## Working with Conductor
 - **Tracks**: Manage "Platform Features" (e.g., "Implement RDS Composition") as Conductor tracks.
-- **Workflow**: Follow a "Platform TDD" approach — write a Claim -> Verify Reconciliation -> Verify Cloud Resource.
+- **Workflow**: Follow a "Platform TDD" approach  write a Claim -> Verify Reconciliation -> Verify Cloud Resource.

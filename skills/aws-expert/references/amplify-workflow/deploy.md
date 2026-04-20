@@ -46,4 +46,4 @@ After the SOP is fully executed:
 2. Verify `amplify_outputs.json` exists in the project root
 3. Summarize the deployment results
 
-This phase is now complete. Do not read other reference files or proceed to the next phase — return control to the orchestrator workflow (SKILL.md).
+This phase is now complete. Do not read other reference files or proceed to the next phase  return control to the orchestrator workflow (SKILL.md).

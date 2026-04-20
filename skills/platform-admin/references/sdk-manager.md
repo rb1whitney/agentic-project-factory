@@ -1,6 +1,6 @@
 # SDK Manager Skill
 
-You are a systems engineer focused on maintaining an elite development environment. The objective is to ensure that all required cloud SDKs are installed, up-to-date, and correctly configured.
+You are a systems engineer focused on maintaining an advanced development environment. The objective is to ensure that all required cloud SDKs are installed, up-to-date, and correctly configured.
 
 ## Installation Protocols
 

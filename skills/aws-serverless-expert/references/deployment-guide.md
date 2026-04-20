@@ -23,19 +23,19 @@ Load the appropriate reference file based on what the user is working on:
 - Do: Use `samconfig.toml` environment-specific sections for multi-environment deployments
 - Do: Use `sam build --use-container` when native dependencies are involved
 - Don't: Copy-paste templates from the internet without understanding the resource configuration
-- Don't: Hardcode resource ARNs or account IDs in templates — use `!Ref`, `!GetAtt`, and `!Sub`
+- Don't: Hardcode resource ARNs or account IDs in templates  use `!Ref`, `!GetAtt`, and `!Sub`
 
 ### CDK
 
-- Do: Use TypeScript — type checking catches errors at synthesis time, before any AWS API calls
+- Do: Use TypeScript  type checking catches errors at synthesis time, before any AWS API calls
 - Do: Prefer L2 constructs and `grant*` methods over L1 and raw IAM statements
 - Do: Separate stateful and stateless resources into different stacks; enable termination protection on stateful stacks
-- Do: Commit `cdk.context.json` to version control — it caches VPC/AZ lookups for deterministic synthesis
+- Do: Commit `cdk.context.json` to version control  it caches VPC/AZ lookups for deterministic synthesis
 - Do: Write unit tests with `aws-cdk-lib/assertions`; assert logical IDs of stateful resources to detect accidental replacements
 - Do: Use `cdk diff` in CI before every deployment to review changes
-- Don't: Hardcode account IDs or region strings — use `this.account` and `this.region`
+- Don't: Hardcode account IDs or region strings  use `this.account` and `this.region`
 - Don't: Use `cdk deploy` directly in production without a pipeline
-- Don't: Skip `cdk bootstrap` — deployments will fail without the CDK toolkit stack
+- Don't: Skip `cdk bootstrap`  deployments will fail without the CDK toolkit stack
 
 ## Configuration
 
@@ -72,8 +72,8 @@ Default: CDK
 
 Override syntax:
 
-- "use CloudFormation" → Generate YAML templates
-- "use SAM" → Generate YAML templates
+- "use CloudFormation"  Generate YAML templates
+- "use SAM"  Generate YAML templates
 
 When not specified, ALWAYS use CDK
 
@@ -83,8 +83,8 @@ Default: TypeScript
 
 Override syntax:
 
-- "use Python" → Generate Python code
-- "use JavaScript" → Generate JavaScript code
+- "use Python"  Generate Python code
+- "use JavaScript"  Generate JavaScript code
 
 When not specified, ALWAYS use TypeScript
 

@@ -18,7 +18,7 @@ Aurora DSQL is designed for massive horizontal scale without latency degradation
 
 ### Batch Size Optimization
 
-- **PREFER batches of 500-1,000 rows** - Balance throughput and transaction limits (3,000 rows, 10 MiB, 5 minutes max — verify via `awsknowledge`: `aurora dsql transaction limits`)
+- **PREFER batches of 500-1,000 rows** - Balance throughput and transaction limits (3,000 rows, 10 MiB, 5 minutes max  verify via `awsknowledge`: `aurora dsql transaction limits`)
 - **SHOULD process batches concurrently** - Use multiple connections; consider multiple threads for bulk loading
 - **Smaller batches reduce** lock contention, enable better concurrency, fail faster, distribute load evenly
 
@@ -47,5 +47,5 @@ Aurora DSQL supports both UUID-based identifiers and integer values generated us
 
 **REQUIRED:** Specify CACHE explicitly when creating sequences or identity columns. Supported values are 1 or >= 65536 (verify via `awsknowledge`: `aurora dsql sequence cache`).
 
-- **CACHE >= 65536** — suited for high-frequency identifier generation, many concurrent sessions, and workloads that tolerate gaps and ordering effects (e.g., IoT/telemetry ingestion, job run IDs, internal order numbers)
-- **CACHE = 1** — suited for low allocation rates where identifiers should follow allocation order more closely and minimizing gaps matters more than throughput (e.g., account numbers, reference numbers)
+- **CACHE >= 65536**  suited for high-frequency identifier generation, many concurrent sessions, and workloads that tolerate gaps and ordering effects (e.g., IoT/telemetry ingestion, job run IDs, internal order numbers)
+- **CACHE = 1**  suited for low allocation rates where identifiers should follow allocation order more closely and minimizing gaps matters more than throughput (e.g., account numbers, reference numbers)

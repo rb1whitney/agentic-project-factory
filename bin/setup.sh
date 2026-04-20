@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# setup.sh — Developer Environment Bootstrap
+# setup.sh  Developer Environment Bootstrap
 # Programming-Work Unified AI Agent Hub
 #
 # Usage:
@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-# ── Flags ─────────────────────────────────────────────────────────────────────
+#  Flags 
 SKIP_DOCKER=false
 DRY_RUN=false
 
@@ -22,7 +22,7 @@ for arg in "$@"; do
   esac
 done
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+#  Helpers 
 BOLD="\033[1m"
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
@@ -30,9 +30,9 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 log()  { echo -e "${BOLD}==> $*${RESET}"; }
-ok()   { echo -e "${GREEN}  ✓ $*${RESET}"; }
+ok()   { echo -e "${GREEN}   $*${RESET}"; }
 warn() { echo -e "${YELLOW}  ! $*${RESET}"; }
-err()  { echo -e "${RED}  ✗ $*${RESET}"; }
+err()  { echo -e "${RED}   $*${RESET}"; }
 
 run() {
   if [ "$DRY_RUN" = true ]; then
@@ -59,7 +59,7 @@ detect_os() {
 OS=$(detect_os)
 log "Detected OS: $OS"
 
-# ── 1. Homebrew ───────────────────────────────────────────────────────────────
+#  1. Homebrew 
 log "1. Homebrew"
 if command_exists brew; then
   ok "Homebrew already installed: $(brew --version | head -1)"
@@ -78,7 +78,7 @@ else
   ok "Homebrew installed"
 fi
 
-# ── 2. Core utilities ─────────────────────────────────────────────────────────
+#  2. Core utilities 
 log "2. Core utilities"
 CORE_TOOLS=(git curl wget jq unzip)
 for tool in "${CORE_TOOLS[@]}"; do
@@ -90,7 +90,7 @@ for tool in "${CORE_TOOLS[@]}"; do
   fi
 done
 
-# ── 3. Python 3.11 ────────────────────────────────────────────────────────────
+#  3. Python 3.11 
 log "3. Python 3.11"
 if command_exists python3 && python3 --version 2>&1 | grep -q "3\.1[1-9]"; then
   ok "Python already installed: $(python3 --version)"
@@ -104,7 +104,7 @@ run "pip3 install --upgrade pip --quiet"
 run "pip3 install tree-sitter==0.20.1 tree-sitter-languages pyyaml --quiet"
 ok "Python packages installed (tree-sitter==0.20.1, pyyaml)"
 
-# ── 4. Node.js ────────────────────────────────────────────────────────────────
+#  4. Node.js 
 log "4. Node.js"
 if command_exists node; then
   ok "Node.js already installed: $(node --version)"
@@ -113,7 +113,7 @@ else
   ok "Node.js installed: $(node --version)"
 fi
 
-# ── 4.1. Golang ──────────────────────────────────────────────────────────────
+#  4.1. Golang 
 log "4.1. Golang"
 if command_exists go; then
   ok "Go already installed: $(go version)"
@@ -122,7 +122,7 @@ else
   ok "Go installed: $(go version)"
 fi
 
-# ── 4.2. uv (Python Package Manager) ──────────────────────────────────────────
+#  4.2. uv (Python Package Manager) 
 log "4.2. uv"
 if command_exists uv; then
   ok "uv already installed: $(uv --version)"
@@ -131,7 +131,7 @@ else
   ok "uv installed"
 fi
 
-# ── 5. Gemini CLI ─────────────────────────────────────────────────────────────
+#  5. Gemini CLI 
 log "5. Gemini CLI"
 if command_exists gemini; then
   ok "Gemini CLI already installed"
@@ -141,7 +141,7 @@ else
 fi
 warn "Run 'gemini auth login' to authenticate"
 
-# ── 6. AWS CLI ────────────────────────────────────────────────────────────────
+#  6. AWS CLI 
 log "6. AWS CLI"
 if command_exists aws; then
   ok "AWS CLI already installed: $(aws --version 2>&1)"
@@ -158,7 +158,7 @@ else
 fi
 warn "Run 'aws configure' or 'aws configure sso' to set up credentials"
 
-# ── 7. gcloud ─────────────────────────────────────────────────────────────────
+#  7. gcloud 
 log "7. Google Cloud CLI"
 if command_exists gcloud; then
   ok "gcloud already installed: $(gcloud --version | head -1)"
@@ -173,7 +173,7 @@ else
 fi
 warn "Run 'gcloud init' and 'gcloud auth application-default login' to authenticate"
 
-# ── 8. Terraform via tfenv ────────────────────────────────────────────────────
+#  8. Terraform via tfenv 
 log "8. Terraform (via tfenv)"
 if command_exists tfenv; then
   ok "tfenv already installed"
@@ -196,7 +196,7 @@ else
   ok "Terraform already installed: $(terraform --version | head -1)"
 fi
 
-# ── 9. kubectl ────────────────────────────────────────────────────────────────
+#  9. kubectl 
 log "9. kubectl"
 if command_exists kubectl; then
   ok "kubectl already installed"
@@ -205,7 +205,7 @@ else
   ok "kubectl installed"
 fi
 
-# ── 10. k9s ───────────────────────────────────────────────────────────────────
+#  10. k9s 
 log "10. k9s"
 if command_exists k9s; then
   ok "k9s already installed: $(k9s version 2>/dev/null | head -1)"
@@ -214,7 +214,7 @@ else
   ok "k9s installed"
 fi
 
-# ── 11. Helm ──────────────────────────────────────────────────────────────────
+#  11. Helm 
 log "11. Helm"
 if command_exists helm; then
   ok "Helm already installed: $(helm version --short 2>/dev/null)"
@@ -226,7 +226,7 @@ else
   ok "Helm installed"
 fi
 
-# ── 12. Ansible ───────────────────────────────────────────────────────────────
+#  12. Ansible 
 log "12. Ansible"
 if command_exists ansible; then
   ok "Ansible already installed: $(ansible --version | head -1)"
@@ -241,7 +241,7 @@ run "ansible-galaxy collection install google.cloud --quiet 2>/dev/null || true"
 run "ansible-galaxy collection install community.kubernetes --quiet 2>/dev/null || true"
 ok "Ansible collections installed"
 
-# ── 13. Packer ────────────────────────────────────────────────────────────────
+#  13. Packer 
 log "13. Packer"
 if command_exists packer; then
   ok "Packer already installed: $(packer --version)"
@@ -252,7 +252,7 @@ else
 fi
 run 'mkdir -p "$HOME/.packer.d/plugins"'
 
-# ── 14. Docker ────────────────────────────────────────────────────────────────
+#  14. Docker 
 if [ "$SKIP_DOCKER" = true ]; then
   warn "Skipping Docker (--no-docker flag set)"
 else
@@ -268,12 +268,12 @@ else
       run "sudo apt-get install -y docker.io"
       run "sudo usermod -aG docker $USER"
       warn "Log out and back in (or run 'newgrp docker') for group change to take effect"
-      ok "Docker installed — requires logout to use without sudo"
+      ok "Docker installed  requires logout to use without sudo"
     fi
   fi
 fi
 
-# ── 15. GitHub CLI ────────────────────────────────────────────────────────────
+#  15. GitHub CLI 
 log "15. GitHub CLI"
 if command_exists gh; then
   ok "gh already installed: $(gh --version | head -1)"
@@ -283,7 +283,7 @@ else
 fi
 warn "Run 'gh auth login' to authenticate"
 
-# ── 16. Linting tools ─────────────────────────────────────────────────────────
+#  16. Linting tools 
 log "16. Linting tools"
 
 if command_exists tflint; then
@@ -300,7 +300,7 @@ else
   ok "ansible-lint installed"
 fi
 
-# ── 17. Shell profile ─────────────────────────────────────────────────────────
+#  17. Shell profile 
 log "17. Updating shell profile"
 
 PROFILE=""
@@ -311,7 +311,7 @@ else
 fi
 
 PROFILE_BLOCK='
-# ── Programming-Work toolchain ───────────────────────────────────────────────
+#  Programming-Work toolchain 
 export PATH="$HOME/.tfenv/bin:$PATH"
 export PACKER_PLUGIN_PATH="$HOME/.packer.d/plugins"
 export AWS_DEFAULT_REGION="us-east-1"
@@ -325,7 +325,7 @@ else
   ok "Shell profile already configured"
 fi
 
-# ── 18. Repo setup ────────────────────────────────────────────────────────────
+#  18. Repo setup 
 log "18. Repository setup"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -353,15 +353,15 @@ log "21. Swarm Policy Audit"
 if [ -f "$REPO_ROOT/.gemini/policies/swarm_policy.toml" ]; then
   ok "Swarm RBAC policies detected"
 else
-  warn "Swarm policies missing — Ensure .gemini/policies/ exists"
+  warn "Swarm policies missing  Ensure .gemini/policies/ exists"
 fi
 
-# ── 23. Swarm Nexus Synchronization ──
+#  23. Swarm Nexus Synchronization 
 log "23. Synchronizing Swarm Nexus"
 if command_exists python3; then
     run "python3 bin/nexus.py install"
 else
-    error "Python3 missing — Skipping Swarm Nexus synchronization."
+    error "Python3 missing  Skipping Swarm Nexus synchronization."
 fi
 ok "Swarm Nexus synchronized across all platforms (Gemini, Claude, Cursor, Copilot)"
 
@@ -377,7 +377,7 @@ log "   Regenerating skills inventory"
 run "python3 '$REPO_ROOT/bin/update_inventory.py'"
 ok "skills/INVENTORY.md updated"
 
-# ── 22. External Credential Seeding ──────────────────────────────────────────
+#  22. External Credential Seeding 
 log "22. External Credential Seeding"
 run "mkdir -p $HOME/.mcp-servers"
 run "chmod 700 $HOME/.mcp-servers"
@@ -386,11 +386,11 @@ if [ -f "$HOME/.mcp-servers/credentials" ]; then
 fi
 ok "External credential hub secured: $HOME/.mcp-servers"
 
-# ── Summary ───────────────────────────────────────────────────────────────────
+#  Summary 
 echo ""
-echo -e "${BOLD}${GREEN}╔══════════════════════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}${GREEN}║         Setup Complete — Next Steps                  ║${RESET}"
-echo -e "${BOLD}${GREEN}╚══════════════════════════════════════════════════════╝${RESET}"
+echo -e "${BOLD}${GREEN}${RESET}"
+echo -e "${BOLD}${GREEN}         Setup Complete  Next Steps                  ${RESET}"
+echo -e "${BOLD}${GREEN}${RESET}"
 echo ""
 echo "  1. Reload your shell:    source $PROFILE"
 echo "  2. Authenticate:         gemini auth login"

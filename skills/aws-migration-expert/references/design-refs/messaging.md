@@ -2,29 +2,29 @@
 
 **Applies to:** Pub/Sub, Cloud Tasks
 
-**Quick lookup (no rubric):** Check `fast-path.md` first (Pub/Sub → SNS/SQS, etc.)
+**Quick lookup (no rubric):** Check `fast-path.md` first (Pub/Sub  SNS/SQS, etc.)
 
 ## Eliminators (Hard Blockers)
 
 | GCP Service | AWS | Blocker                                                                                                 |
 | ----------- | --- | ------------------------------------------------------------------------------------------------------- |
-| Pub/Sub     | SNS | Exactly-once delivery required → SNS FIFO + SQS FIFO (SNS FIFO supports exactly-once via deduplication) |
-| Pub/Sub     | SQS | Multiple subscribers per topic → SNS (not SQS)                                                          |
-| Cloud Tasks | SQS | Scheduled/delayed task execution → EventBridge + SNS/SQS                                                |
+| Pub/Sub     | SNS | Exactly-once delivery required  SNS FIFO + SQS FIFO (SNS FIFO supports exactly-once via deduplication) |
+| Pub/Sub     | SQS | Multiple subscribers per topic  SNS (not SQS)                                                          |
+| Cloud Tasks | SQS | Scheduled/delayed task execution  EventBridge + SNS/SQS                                                |
 
 ## Signals (Decision Criteria)
 
 ### Pub/Sub
 
-- **Multiple subscribers, broadcast** → SNS (pub/sub pattern)
-- **Single consumer, durability** → SQS (queue pattern)
-- **Exactly-once delivery** → SNS FIFO + SQS FIFO (deduplication enabled)
-- **Real-time, low latency** → SNS (vs SQS polling delay)
+- **Multiple subscribers, broadcast**  SNS (pub/sub pattern)
+- **Single consumer, durability**  SQS (queue pattern)
+- **Exactly-once delivery**  SNS FIFO + SQS FIFO (deduplication enabled)
+- **Real-time, low latency**  SNS (vs SQS polling delay)
 
 ### Cloud Tasks
 
-- **HTTP callback execution** → EventBridge + SNS/SQS (route to Lambda/Fargate)
-- **Delayed/scheduled queue** → SQS + Lambda (ScheduledEvents)
+- **HTTP callback execution**  EventBridge + SNS/SQS (route to Lambda/Fargate)
+- **Delayed/scheduled queue**  SQS + Lambda (ScheduledEvents)
 
 ## 6-Criteria Rubric
 
@@ -34,9 +34,9 @@ Apply in order:
 2. **Operational Model**: Managed (SNS, SQS, EventBridge) vs Custom queue?
    - Prefer managed
 3. **User Preference**: From `clarified.json`, q2 (primary concern)?
-   - If `"reliability"` → SQS (FIFO for exactly-once); else SNS
+   - If `"reliability"`  SQS (FIFO for exactly-once); else SNS
 4. **Feature Parity**: Does GCP config need features unavailable in AWS?
-   - Example: Pub/Sub ordering guarantee → SQS FIFO (has ordering)
+   - Example: Pub/Sub ordering guarantee  SQS FIFO (has ordering)
 5. **Cluster Context**: Are other resources using SNS/SQS? Match if possible
 6. **Simplicity**: SNS + SQS (coupled) vs separate services
 
@@ -48,7 +48,7 @@ Apply in order:
 - Signals: Broadcast events, multiple subscribers likely
 - Criterion 1 (Eliminators): PASS (retention not critical for broadcast)
 - Criterion 2 (Operational Model): SNS (pub/sub)
-- → **AWS: SNS Topic (Standard)**
+-  **AWS: SNS Topic (Standard)**
 - Note: SNS does not support message retention like GCP Pub/Sub. If retention is critical, consider SQS instead.
 - Confidence: `inferred`
 
@@ -56,8 +56,8 @@ Apply in order:
 
 - GCP: `google_pubsub_topic` + `google_pubsub_subscription` (exactly_once_delivery=true)
 - Signals: Exactly-once delivery required
-- Criterion 1 (Eliminators): Exactly-once required → **use SNS FIFO + SQS FIFO**
-- → **AWS: SNS FIFO Topic + SQS FIFO Queue (deduplication enabled)**
+- Criterion 1 (Eliminators): Exactly-once required  **use SNS FIFO + SQS FIFO**
+-  **AWS: SNS FIFO Topic + SQS FIFO Queue (deduplication enabled)**
 - Confidence: `inferred`
 
 ### Example 3: Cloud Tasks Queue (scheduled)
@@ -65,7 +65,7 @@ Apply in order:
 - GCP: `google_cloud_tasks_queue` (rate_limits=1000 msg/sec, retry_config=[max_retries=5])
 - Signals: Task scheduling, retry configuration
 - Criterion 1 (Eliminators): PASS
-- → **AWS: SQS (standard) + Lambda ScheduledEvents (for scheduling)**
+-  **AWS: SQS (standard) + Lambda ScheduledEvents (for scheduling)**
 - Confidence: `inferred`
 
 ## Output Schema
@@ -84,6 +84,6 @@ Apply in order:
     "display_name": "User Events"
   },
   "confidence": "inferred",
-  "rationale": "Pub/Sub with multiple subscribers → SNS (broadcast pattern)"
+  "rationale": "Pub/Sub with multiple subscribers  SNS (broadcast pattern)"
 }
 ```

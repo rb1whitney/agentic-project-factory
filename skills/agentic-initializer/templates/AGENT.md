@@ -20,6 +20,3 @@ IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning. This 
 2. **TDD Dominance**: Every feature requires a failing test before implementation.
 3. **Physical Sovereignty**: No symlinks for root assets. Experts must be resident.
 4. **Nexus Integrity**: Maintain the symlink nexus in `.gemini/`, `.claude/`, `.copilot/`.
-
----
-**STATUS: {{ project_name }} HUB COMPLIANT | DETERMINISM ENFORCED.**

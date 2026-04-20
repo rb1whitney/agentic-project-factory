@@ -14,7 +14,7 @@ This document summarizes key rules and best practices from the Google C# Style G
 
 ## 2. Formatting Rules
 - **Indentation:** Use 2 spaces (never tabs).
-- **Braces:** K&R style—no line break before the opening brace; keep `} else` on one line; braces required even when optional.
+- **Braces:** K&R styleno line break before the opening brace; keep `} else` on one line; braces required even when optional.
   ```csharp
   if (condition) {
     DoSomething();
@@ -91,7 +91,7 @@ Class member ordering:
 - **Folders and File Locations:**
   - Be consistent within the project.
   - Prefer a flat folder structure where possible.
-  - Don’t force file/folder layout to match namespaces.
+  - Dont force file/folder layout to match namespaces.
 - **Namespaces:**
   - In general, namespaces should be no more than 2 levels deep.
   - For shared library/module code, use namespaces.

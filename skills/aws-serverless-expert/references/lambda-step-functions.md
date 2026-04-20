@@ -22,7 +22,7 @@ Step Functions provides visual workflow orchestration with native integrations t
 
 | State              | Purpose                                                                              |
 | ------------------ | ------------------------------------------------------------------------------------ |
-| `Task`             | Execute work — invoke Lambda, call any AWS service via SDK integration               |
+| `Task`             | Execute work  invoke Lambda, call any AWS service via SDK integration               |
 | `Choice`           | Branch based on input data conditions (no `Next` required on branches)               |
 | `Parallel`         | Execute multiple branches concurrently; waits for all branches to complete           |
 | `Map`              | Iterate over an array; use Distributed Map mode for up to 10M items from S3/DynamoDB |
@@ -64,7 +64,7 @@ Resources:
 
 ## State Machine Definition (ASL)
 
-Use `DefinitionSubstitutions` to inject ARNs — never hardcode them:
+Use `DefinitionSubstitutions` to inject ARNs  never hardcode them:
 
 ```json
 {
@@ -110,7 +110,7 @@ Use `DefinitionSubstitutions` to inject ARNs — never hardcode them:
 }
 ```
 
-## JSONata — Recommended Query Language
+## JSONata  Recommended Query Language
 
 JSONata is the modern, preferred way to reference and transform data in ASL. It replaces the five JSONPath I/O fields (`InputPath`, `Parameters`, `ResultSelector`, `ResultPath`, `OutputPath`) with just two: `Arguments` (inputs) and `Output` (result shape).
 
@@ -126,7 +126,7 @@ JSONata is the modern, preferred way to reference and transform data in ASL. It 
 { "Type": "Task", "QueryLanguage": "JSONata", ... }
 ```
 
-**Expression syntax** — wrap expressions in `{% %}`:
+**Expression syntax**  wrap expressions in `{% %}`:
 
 ```json
 "Arguments": {
@@ -138,13 +138,13 @@ JSONata is the modern, preferred way to reference and transform data in ASL. It 
 
 **Built-in Step Functions JSONata functions:**
 
-- `$uuid()` — generate a v4 UUID
-- `$parse(str)` — deserialize a JSON string to an object
-- `$partition(array, size)` — split array into chunks
-- `$range(start, end, step)` — generate a number array
-- `$hash(value, algorithm)` — compute MD5/SHA-256/etc. hash
+- `$uuid()`  generate a v4 UUID
+- `$parse(str)`  deserialize a JSON string to an object
+- `$partition(array, size)`  split array into chunks
+- `$range(start, end, step)`  generate a number array
+- `$hash(value, algorithm)`  compute MD5/SHA-256/etc. hash
 
-**JSONPath is still supported** and is the default if `QueryLanguage` is omitted — existing state machines do not need to be migrated.
+**JSONPath is still supported** and is the default if `QueryLanguage` is omitted  existing state machines do not need to be migrated.
 
 ## Integration Patterns
 
@@ -156,7 +156,7 @@ JSONata is the modern, preferred way to reference and transform data in ASL. It 
 
 **Wait for Callback** is the human-in-the-loop pattern: pass the task token to an external system (email, Slack, ticketing), call `sfn:SendTaskSuccess` with the token when approved.
 
-## SDK Integrations — Avoid Lambda for Simple AWS Calls
+## SDK Integrations  Avoid Lambda for Simple AWS Calls
 
 Step Functions can call any AWS service API directly without a Lambda intermediary. This saves both cost and latency for simple operations:
 
@@ -190,7 +190,7 @@ Step Functions can call any AWS service API directly without a Lambda intermedia
 
 Avoiding Lambda intermediaries for simple DynamoDB reads/writes, SNS publishes, SQS sends, and EventBridge puts eliminates invocation latency and cost.
 
-## Distributed Map — Large-Scale Processing
+## Distributed Map  Large-Scale Processing
 
 `Map` state with `Mode: DISTRIBUTED` processes up to 10 million items from S3, DynamoDB, or inline arrays, with each item running as an independent child workflow:
 
@@ -213,11 +213,11 @@ Avoiding Lambda intermediaries for simple DynamoDB reads/writes, SNS publishes, 
 
 ## Testing
 
-For testing Step Functions workflows, see [step-functions-testing.md](step-functions-testing.md) — covers TestState API (mocking, inspection levels, retry simulation, chained tests) and Step Functions Local (Docker).
+For testing Step Functions workflows, see [step-functions-testing.md](step-functions-testing.md)  covers TestState API (mocking, inspection levels, retry simulation, chained tests) and Step Functions Local (Docker).
 
 ## Anti-Polling Pattern
 
-The typical polling loop — `Wait → Check Status → Choice → loop` — is an expensive anti-pattern in Standard workflows because every state transition is billed. Replace it with the **callback + event-driven** approach:
+The typical polling loop  `Wait  Check Status  Choice  loop`  is an expensive anti-pattern in Standard workflows because every state transition is billed. Replace it with the **callback + event-driven** approach:
 
 1. Lambda starts the long-running task and receives a task token (`$$.Task.Token`)
 2. Store the task token alongside the job ID in DynamoDB
@@ -250,7 +250,7 @@ For third-party APIs that don't emit events, pass a callback URL to the external
 | --------------------------------- | --------------------------------------------------------------------------- |
 | Up to 40 items                    | Step Functions `Map` state (Inline mode)                                    |
 | Up to 10 million items            | Step Functions `Map` state (Distributed mode, child Express workflows)      |
-| Millions of items, cost-sensitive | Custom: S3 → Lambda fan-out → SQS workers → DynamoDB tracking → aggregation |
+| Millions of items, cost-sensitive | Custom: S3  Lambda fan-out  SQS workers  DynamoDB tracking  aggregation |
 
 For most teams, Step Functions Distributed Map is the right trade-off between cost and operational simplicity. A custom S3+SQS+DynamoDB solution is meaningfully cheaper at very high item counts but carries significant implementation overhead.
 
@@ -268,19 +268,19 @@ Always set **both** `TimeoutSeconds` and `HeartbeatSeconds` on Task states. With
 }
 ```
 
-- `TimeoutSeconds` — maximum total time for the state (including retries)
-- `HeartbeatSeconds` — maximum time between heartbeat signals; fails faster when a worker disappears silently
+- `TimeoutSeconds`  maximum total time for the state (including retries)
+- `HeartbeatSeconds`  maximum time between heartbeat signals; fails faster when a worker disappears silently
 
-**Handling Express workflow timeouts:** Express workflows do not publish `TIMED_OUT` events to EventBridge. Wrap Express workflows inside a parent Standard workflow — the Standard workflow can catch the timeout and trigger remediation.
+**Handling Express workflow timeouts:** Express workflows do not publish `TIMED_OUT` events to EventBridge. Wrap Express workflows inside a parent Standard workflow  the Standard workflow can catch the timeout and trigger remediation.
 
 ## Best Practices
 
-- **Always add `Retry` on Task states** — Lambda returns transient errors (`Lambda.ServiceException`, `Lambda.AWSLambdaException`, `Lambda.TooManyRequestsException`) under load; without retry, these fail the execution
-- **Use `Catch` for error routing** — route failures to a dedicated error-handling state rather than letting the execution fail silently
-- **Use `DefinitionSubstitutions`** — never hardcode ARNs or table names in `.asl.json` files
-- **Use JSONata for new workflows** — it produces simpler, more readable definitions than JSONPath
-- **Use SDK integrations directly** — call DynamoDB, SNS, SQS, EventBridge, etc. without a Lambda wrapper for simple operations
+- **Always add `Retry` on Task states**  Lambda returns transient errors (`Lambda.ServiceException`, `Lambda.AWSLambdaException`, `Lambda.TooManyRequestsException`) under load; without retry, these fail the execution
+- **Use `Catch` for error routing**  route failures to a dedicated error-handling state rather than letting the execution fail silently
+- **Use `DefinitionSubstitutions`**  never hardcode ARNs or table names in `.asl.json` files
+- **Use JSONata for new workflows**  it produces simpler, more readable definitions than JSONPath
+- **Use SDK integrations directly**  call DynamoDB, SNS, SQS, EventBridge, etc. without a Lambda wrapper for simple operations
 - **Enable X-Ray tracing** (`Tracing.Enabled: true`) for end-to-end visibility across Step Functions and Lambda spans
 - **Set logging to `Level: ERROR` in production** and `Level: ALL` when debugging; `IncludeExecutionData: true` is required to see input/output in logs
-- **Standard workflows**: prefer for non-idempotent operations — exactly-once semantics prevent accidental double-charges or duplicate records
-- **Express workflows**: ensure downstream operations are idempotent — at-least-once delivery means tasks may run more than once
+- **Standard workflows**: prefer for non-idempotent operations  exactly-once semantics prevent accidental double-charges or duplicate records
+- **Express workflows**: ensure downstream operations are idempotent  at-least-once delivery means tasks may run more than once

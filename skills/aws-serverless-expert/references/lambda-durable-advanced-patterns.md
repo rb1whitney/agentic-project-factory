@@ -186,16 +186,16 @@ const results = await context.map(
 );
 
 // Scenario 1: 7 successes, 0 failures
-// ✅ Stops after 7th success (minSuccessful reached)
+//  Stops after 7th success (minSuccessful reached)
 // Remaining 3 items are not processed
 
 // Scenario 2: 5 successes, 3 failures
-// ❌ Stops after 3rd failure (toleratedFailureCount reached)
+//  Stops after 3rd failure (toleratedFailureCount reached)
 // Remaining 2 items are not processed
 // results.throwIfError() will throw because minSuccessful not met
 
 // Scenario 3: 7 successes, 2 failures
-// ✅ Stops after 7th success (minSuccessful reached)
+//  Stops after 7th success (minSuccessful reached)
 // 1 item not processed, but completion policy satisfied
 ```
 

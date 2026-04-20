@@ -31,6 +31,6 @@ This discoverer will scan application code for `google.cloud.*` imports and dete
 
 ## Integration with Unify Phase
 
-**Note**: `unify-resources.md` does not exist yet — it is a planned v1.1+ file that will check for `app_code_resources.json` and merge service evidence into the final inventory produced by `discover-iac.md`.
+**Note**: `unify-resources.md` does not exist yet  it is a planned v1.1+ file that will check for `app_code_resources.json` and merge service evidence into the final inventory produced by `discover-iac.md`.
 
 **Current Action**: Skip in v1.0. `discover.md` will not call this discoverer until v1.1+ when both this file and `unify-resources.md` are implemented.

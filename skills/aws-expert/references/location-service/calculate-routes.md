@@ -725,20 +725,20 @@ displayOnMap(geometry);
 
 **Use Simple when:**
 
-- ✅ Building for desktop/WiFi users
-- ✅ Calculating single routes per session
-- ✅ Prototyping or developing
-- ✅ Need direct coordinate manipulation
-- ✅ Server-side processing
+-  Building for desktop/WiFi users
+-  Calculating single routes per session
+-  Prototyping or developing
+-  Need direct coordinate manipulation
+-  Server-side processing
 
 **Use FlexiblePolyline when:**
 
-- ✅ Building mobile applications
-- ✅ Calculating multiple routes
-- ✅ Real-time navigation with frequent updates
-- ✅ Caching routes offline
-- ✅ Operating in bandwidth-constrained environments
-- ✅ Batch operations or analytics
+-  Building mobile applications
+-  Calculating multiple routes
+-  Real-time navigation with frequent updates
+-  Caching routes offline
+-  Operating in bandwidth-constrained environments
+-  Batch operations or analytics
 
 **The tradeoff:** Simple format offers convenience (no decoder needed), while FlexiblePolyline offers efficiency (5-10x smaller). Choose based on whether your users will notice the bandwidth difference.
 
@@ -888,7 +888,7 @@ The API returns an array of route options (typically one route):
 Routes are divided into **legs** - segments between waypoints:
 
 - **No waypoints**: 1 leg (origin to destination)
-- **N waypoints**: N+1 legs (origin → waypoint₁ → waypoint₂ → ... → destination)
+- **N waypoints**: N+1 legs (origin  waypoint  waypoint  ...  destination)
 
 Each leg contains its own geometry, distance, duration, and travel steps.
 
@@ -1021,9 +1021,9 @@ const params = {
 
 This creates a route with 3 legs:
 
-1. Origin → Lady Bird Lake Trail
-2. Lady Bird Lake Trail → South Congress
-3. South Congress → Destination
+1. Origin  Lady Bird Lake Trail
+2. Lady Bird Lake Trail  South Congress
+3. South Congress  Destination
 
 ### Waypoint Pass-Through vs. Stop
 
@@ -1284,11 +1284,11 @@ try {
 **Request only needed features**: Each additional feature increases response time and size.
 
 ```javascript
-// ❌ Requesting everything (slower)
+//  Requesting everything (slower)
 LegAdditionalFeatures: ["Summary", "Tolls", "TravelStepInstructions"],
 SpanAdditionalFeatures: ["SpeedLimit", "RoadName", "Regions"]
 
-// ✅ Request only what you need (faster)
+//  Request only what you need (faster)
 LegAdditionalFeatures: ["Summary"]  // For basic route display
 ```
 

@@ -58,8 +58,8 @@ transact([
 
 **REQUIRED:** Specify CACHE explicitly. Supported values are `1` or `>= 65536`.
 
-- **CACHE >= 65536** — High-frequency inserts, many concurrent sessions, tolerates gaps and ordering effects (e.g., IoT/telemetry, job IDs, order numbers)
-- **CACHE = 1** — Low allocation rates, identifiers should follow allocation order closely, minimizing gaps matters more than throughput (e.g., account numbers, reference numbers)
+- **CACHE >= 65536**  High-frequency inserts, many concurrent sessions, tolerates gaps and ordering effects (e.g., IoT/telemetry, job IDs, order numbers)
+- **CACHE = 1**  Low allocation rates, identifiers should follow allocation order closely, minimizing gaps matters more than throughput (e.g., account numbers, reference numbers)
 
 ### Option 3: Explicit SEQUENCE
 

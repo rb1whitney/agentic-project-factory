@@ -8,7 +8,7 @@ Upload to cluster nodes via `hyperpod-ssm` skill, then execute.
 # Text report to console + file
 bash hyperpod_check_versions.sh
 
-# JSON only to stdout (text report still saved to file) — best for piping/parsing
+# JSON only to stdout (text report still saved to file)  best for piping/parsing
 bash hyperpod_check_versions.sh --json
 
 # Custom output file

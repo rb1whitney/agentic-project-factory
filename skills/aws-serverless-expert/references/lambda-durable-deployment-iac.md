@@ -8,8 +8,8 @@ Default: CDK
 
 Override syntax:
 
-- "use CloudFormation" → Generate YAML templates
-- "use SAM" → Generate YAML templates
+- "use CloudFormation"  Generate YAML templates
+- "use SAM"  Generate YAML templates
 
 When not specified, ALWAYS use CDK
 
@@ -185,9 +185,9 @@ durableFunction.role?.addManagedPolicy(
 
 **When to use:**
 
-- ✅ Production environments where log retention policies must be enforced
-- ✅ Development/test environments where automatic cleanup saves costs
-- ✅ Multi-function stacks where consistent log management is needed
+-  Production environments where log retention policies must be enforced
+-  Development/test environments where automatic cleanup saves costs
+-  Multi-function stacks where consistent log management is needed
 
 **Important:** Don't forget to add `AWSLambdaBasicDurableExecutionRolePolicy` when using explicit log groups.
 
@@ -368,7 +368,7 @@ new DurableFunctionStack(app, 'DurableFunction-Prod', {
 
 ### Critical Requirements
 
-**⚠️ Important Invocation Rules:**
+** Important Invocation Rules:**
 
 1. **Qualified Function Name Required**: You MUST provide a qualified function name with version, alias, or `:$LATEST`
 2. **Idempotency with durable-execution-name**: Use this parameter to ensure the same execution name always refers to the same execution
@@ -451,7 +451,7 @@ aws lambda invoke \
 Durable functions require qualified ARNs (version, alias, or `$LATEST`):
 
 ```bash
-# ✅ Invoke specific version
+#  Invoke specific version
 aws lambda invoke \
   --function-name 'myDurableFunction:1' \
   --invocation-type RequestResponse \
@@ -460,7 +460,7 @@ aws lambda invoke \
   --cli-binary-format raw-in-base64-out \
   response.json
 
-# ✅ Invoke using alias
+#  Invoke using alias
 aws lambda invoke \
   --function-name 'myDurableFunction:production' \
   --invocation-type RequestResponse \
@@ -469,7 +469,7 @@ aws lambda invoke \
   --cli-binary-format raw-in-base64-out \
   response.json
 
-# ❌ Unqualified - will fail!
+#  Unqualified - will fail!
 aws lambda invoke \
   --function-name 'myDurableFunction' \
   --payload '{"test":"data"}' \
@@ -544,11 +544,11 @@ DurableFunctionErrorAlarm:
 **Solution:** Use version, alias, or `$LATEST`:
 
 ```bash
-# ✅ Correct
+#  Correct
 aws lambda invoke --function-name myFunction:prod ...
 aws lambda invoke --function-name myFunction:1 ...
 
-# ❌ Wrong
+#  Wrong
 aws lambda invoke --function-name myFunction ...
 ```
 

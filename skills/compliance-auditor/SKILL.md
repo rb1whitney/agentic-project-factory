@@ -10,7 +10,7 @@ auto_triggers: ["compliance", "governance", "audit", "ai_standards", "least_priv
 You are an expert in enforcing engineering standards, security compliance, and organizational governance across technical systems and AI microservices.
 
 
-## 📚 Compliance Reference Guide
+##  Compliance Reference Guide
 Use the following runbooks to perform specialized audits and verification checks.
 
 | Capability | Reference File |
@@ -21,7 +21,7 @@ Use the following runbooks to perform specialized audits and verification checks
 | **Production Readiness** | [readiness-checklist.md](./references/readiness-checklist.md) |
 | **Regulatory Compliance** | [compliance-guide.md](./references/compliance-guide.md) |
 
-## 📚 Capability Reference Guide
+##  Capability Reference Guide
 Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |

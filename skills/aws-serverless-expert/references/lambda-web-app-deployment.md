@@ -2,7 +2,7 @@
 
 ## Overview
 
-Deploy web applications to AWS Serverless using the `deploy_webapp` tool and Lambda Web Adapter. This covers backend APIs, static frontends, and full-stack applications — from endpoint selection through custom domains and frontend updates.
+Deploy web applications to AWS Serverless using the `deploy_webapp` tool and Lambda Web Adapter. This covers backend APIs, static frontends, and full-stack applications  from endpoint selection through custom domains and frontend updates.
 
 ## Deployment Types
 
@@ -93,35 +93,35 @@ Lambda Web Adapter allows standard web frameworks to run on Lambda without code 
 
 ```text
 my-backend/
-├── src/
-│   ├── app.js          # Express application
-│   ├── routes/         # API routes
-│   └── middleware/     # Custom middleware
-├── package.json
-└── Dockerfile          # Optional
+ src/
+    app.js          # Express application
+    routes/         # API routes
+    middleware/     # Custom middleware
+ package.json
+ Dockerfile          # Optional
 ```
 
 ### Frontend-Only
 
 ```text
 my-frontend/
-├── dist/               # Built assets
-│   ├── index.html
-│   └── assets/
-└── package.json
+ dist/               # Built assets
+    index.html
+    assets/
+ package.json
 ```
 
 ### Full-Stack
 
 ```text
 my-fullstack-app/
-├── frontend/
-│   ├── dist/           # Built frontend
-│   └── package.json
-├── backend/
-│   ├── src/
-│   └── package.json
-└── deployment-config.json
+ frontend/
+    dist/           # Built frontend
+    package.json
+ backend/
+    src/
+    package.json
+ deployment-config.json
 ```
 
 ## Frontend Updates
@@ -134,7 +134,7 @@ Use `update_webapp_frontend` to push new frontend assets to S3 and optionally in
 
 - Place Lambda in VPC with private subnets for RDS access
 - Use VPC endpoints to avoid NAT Gateway costs for AWS service calls
-- Set connection pool max to 1 per Lambda instance — but note that Lambda Managed Instances handle multiple concurrent requests, so use a proper connection pool there
+- Set connection pool max to 1 per Lambda instance  but note that Lambda Managed Instances handle multiple concurrent requests, so use a proper connection pool there
 - Store connection strings in Secrets Manager
 
 For DynamoDB optimization (billing, key design, query patterns), see [optimization.md](optimization.md).
@@ -197,13 +197,13 @@ MyApi:
               - !Ref MyCognitoUserPoolClient
 ```
 
-JWT authorizers validate the token signature and claims at the API Gateway level — no Lambda invocation needed for auth. This is free (no extra cost beyond HTTP API pricing).
+JWT authorizers validate the token signature and claims at the API Gateway level  no Lambda invocation needed for auth. This is free (no extra cost beyond HTTP API pricing).
 
 ### Lambda Authorizer
 
 Use Lambda authorizers when you need custom auth logic: validating tokens from a third-party IdP, checking database-backed permissions, or combining multiple auth signals.
 
-**Token-based** authorizers receive only the `Authorization` header. **Request-based** authorizers receive the full request (headers, query string, path, IP) — use these when auth depends on more than just a bearer token.
+**Token-based** authorizers receive only the `Authorization` header. **Request-based** authorizers receive the full request (headers, query string, path, IP)  use these when auth depends on more than just a bearer token.
 
 ```yaml
 MyApi:
@@ -224,7 +224,7 @@ Set `ReauthorizeEvery` > 0 to cache authorization results and avoid invoking the
 
 ### API Keys and Usage Plans
 
-API keys are for tracking and throttling third-party API consumers — they are **not** an authentication mechanism. Always combine API keys with a proper authorizer.
+API keys are for tracking and throttling third-party API consumers  they are **not** an authentication mechanism. Always combine API keys with a proper authorizer.
 
 ```yaml
 MyApi:
@@ -246,9 +246,9 @@ API keys and usage plans are REST API (v1) only. HTTP APIs do not support them.
 
 ### Auth Best Practices
 
-- [ ] Use JWT authorizers with HTTP API for most web applications — cheapest, lowest latency
+- [ ] Use JWT authorizers with HTTP API for most web applications  cheapest, lowest latency
 - [ ] Cache Lambda authorizer results (`ReauthorizeEvery` > 0) to avoid per-request invocations
-- [ ] Never use API keys as the sole authentication mechanism — they are for usage tracking, not identity
+- [ ] Never use API keys as the sole authentication mechanism  they are for usage tracking, not identity
 - [ ] Use IAM authorization (SigV4) for service-to-service calls, not shared API keys
 - [ ] Store JWT client IDs and secrets in SSM Parameter Store, not in template literals
 

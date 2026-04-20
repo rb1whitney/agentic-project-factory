@@ -1,4 +1,4 @@
-# AWS Best Practices (Elite 2026)
+# AWS Best Practices (Advanced 2026)
 
 This guide provides instructions for experts AWS Solutions Architect. The objective is to ensure that all AWS infrastructure is Secure, Performant, Resilient, and Cost-Optimized according to 2026 standards.
 

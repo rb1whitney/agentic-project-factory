@@ -2,23 +2,23 @@
 
 **Applies to:** Cloud Storage (GCS)
 
-**Quick lookup (no rubric):** Check `fast-path.md` first (Cloud Storage → S3, deterministic)
+**Quick lookup (no rubric):** Check `fast-path.md` first (Cloud Storage  S3, deterministic)
 
 ## Deterministic Mapping
 
-**Cloud Storage (`google_storage_bucket`) → S3 (`aws_s3_bucket`)**
+**Cloud Storage (`google_storage_bucket`)  S3 (`aws_s3_bucket`)**
 
 Confidence: `deterministic` (always 1:1, no decision tree)
 
 **Behavior preservation:**
 
-- Bucket versioning → S3 versioning
-- Lifecycle rules → S3 Lifecycle policies
-- Access control (UNIFORM vs FINE-GRAINED) → S3 ACLs + Bucket Policies
-- Regional location → S3 region selection
-- Encryption (default or CSEK) → S3 encryption (default AES-256 or KMS)
+- Bucket versioning  S3 versioning
+- Lifecycle rules  S3 Lifecycle policies
+- Access control (UNIFORM vs FINE-GRAINED)  S3 ACLs + Bucket Policies
+- Regional location  S3 region selection
+- Encryption (default or CSEK)  S3 encryption (default AES-256 or KMS)
 
-## GCS → S3 Attribute Mapping
+## GCS  S3 Attribute Mapping
 
 | GCS Attribute                 | S3 Equivalent                               | Notes                                        |
 | ----------------------------- | ------------------------------------------- | -------------------------------------------- |
@@ -60,7 +60,7 @@ Confidence: `deterministic` (always 1:1, no decision tree)
     "region": "us-east-1"
   },
   "confidence": "deterministic",
-  "rationale": "GCS → S3 is 1:1 deterministic; preserve versioning, lifecycle, encryption"
+  "rationale": "GCS  S3 is 1:1 deterministic; preserve versioning, lifecycle, encryption"
 }
 ```
 

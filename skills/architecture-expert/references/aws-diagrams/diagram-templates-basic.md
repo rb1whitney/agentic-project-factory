@@ -1,16 +1,16 @@
-# Diagram Templates — Basic
+# Diagram Templates  Basic
 
 Ready-to-use patterns for common AWS architectures. Use these as starting points.
 
 ## Serverless Web Application
 
-Services: CloudFront → API Gateway → Lambda → DynamoDB, with S3 for static assets and Cognito for auth.
+Services: CloudFront  API Gateway  Lambda  DynamoDB, with S3 for static assets and Cognito for auth.
 
 ```
 Layout (left to right):
-  [Users] → [CloudFront] → [S3 Bucket (static)]
-                         → [API Gateway] → [Lambda] → [DynamoDB]
-                                                     → [S3 Bucket (data)]
+  [Users]  [CloudFront]  [S3 Bucket (static)]
+                          [API Gateway]  [Lambda]  [DynamoDB]
+                                                      [S3 Bucket (data)]
   [Cognito] connected to [API Gateway] (auth)
 ```
 
@@ -45,18 +45,18 @@ Layout (nested groups):
             - EC2 / ECS instances
             - RDS (standby)
       [Internet Gateway] at VPC boundary
-  [Users] → [Internet Gateway] → [ALB] → [EC2/ECS]
+  [Users]  [Internet Gateway]  [ALB]  [EC2/ECS]
 ```
 
 ## Microservices on ECS/EKS
 
 ```
 Layout:
-  [Route 53] → [CloudFront] → [ALB]
+  [Route 53]  [CloudFront]  [ALB]
 
   [VPC]
     [ECS/EKS Cluster]
-      [Service A] ←→ [Service B] ←→ [Service C]
+      [Service A]  [Service B]  [Service C]
 
     [ElastiCache] connected to services
     [RDS Aurora] connected to services
@@ -70,12 +70,12 @@ Layout:
 ```
 Layout (left to right, pipeline flow):
   [Data Sources]
-    - [Kinesis Data Streams] ← external data
-    - [S3 Bucket (raw)] ← batch uploads
+    - [Kinesis Data Streams]  external data
+    - [S3 Bucket (raw)]  batch uploads
 
   [Processing]
-    - [Kinesis Data Firehose] → [S3 (processed)]
-    - [Glue ETL Jobs] → [S3 (curated)]
+    - [Kinesis Data Firehose]  [S3 (processed)]
+    - [Glue ETL Jobs]  [S3 (curated)]
     - [Lambda] for real-time transforms
 
   [Storage]
@@ -83,9 +83,9 @@ Layout (left to right, pipeline flow):
     - [Glue Data Catalog]
 
   [Analytics]
-    - [Athena] → queries S3
-    - [Redshift] → warehouse
-    - [QuickSight] → dashboards
+    - [Athena]  queries S3
+    - [Redshift]  warehouse
+    - [QuickSight]  dashboards
 
   [Lake Formation] governing access across the pipeline
 ```
@@ -94,8 +94,8 @@ Layout (left to right, pipeline flow):
 
 ```
 Layout (left to right, pipeline stages):
-  [Developer] → [CodeCommit] → [CodePipeline] → [CodeBuild] → [S3 (artifacts)]
-  [CodePipeline] → [CodeDeploy (staging)] → [Manual Approval] → [CodeDeploy (prod)]
+  [Developer]  [CodeCommit]  [CodePipeline]  [CodeBuild]  [S3 (artifacts)]
+  [CodePipeline]  [CodeDeploy (staging)]  [Manual Approval]  [CodeDeploy (prod)]
   [ECR] if deploying containers
   [CloudWatch] monitoring, [SNS] for notifications
 ```
