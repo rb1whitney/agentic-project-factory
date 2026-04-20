@@ -311,6 +311,7 @@ else
   PROFILE="$HOME/.bashrc"
 fi
 
+# shellcheck disable=SC2016
 PROFILE_BLOCK='
 #  Programming-Work toolchain
 export PATH="$HOME/.tfenv/bin:$PATH"
