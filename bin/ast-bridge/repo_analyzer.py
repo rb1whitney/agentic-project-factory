@@ -70,7 +70,11 @@ class RepoAnalyzer:
             for node, tag in captures:
                 try:
                     symbols.append(
-                        {"type": tag, "name": content[node.start_byte : node.end_byte].decode("utf-8"), "line": node.start_point[0] + 1}
+                        {
+                            "type": tag,
+                            "name": content[node.start_byte : node.end_byte].decode("utf-8"),
+                            "line": node.start_point[0] + 1,
+                        }
                     )
                 except UnicodeDecodeError:
                     continue
