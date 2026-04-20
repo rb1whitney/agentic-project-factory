@@ -25,13 +25,19 @@ jobs:
           ruff check . --exclude projects,mcp-servers/mcp-*
 
       - name: Shell Lint (ShellCheck)
-        uses: ludeeus/shellcheck-action@master
+        uses: reviewdog/action-shellcheck@v1
         with:
-          ignore_paths: projects mcp-servers/mcp-*
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-check
+          path: "."
+          exclude: "./projects/*"
 
       - name: Markdown Lint
-        uses: nosotrosa/github-action-markdown-cli@v3.3.0
+        uses: DavidAnson/markdownlint-cli2-action@v19
         with:
-          files: .
-          config: .markdownlint.json
-          ignore_path: .markdownlintignore
+          globs: |
+            **/*.md
+            !projects/**
+            !mcp-servers/mcp-*/**
+            !.ast_cache/**
+            !node_modules/**
