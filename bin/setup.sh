@@ -320,7 +320,7 @@ export GEMINI_MODEL="gemini-2.5-pro"
 '
 
 if ! grep -q "Programming-Work toolchain" "$PROFILE" 2>/dev/null; then
-  run sh -c "echo '$PROFILE_BLOCK' >> \"$PROFILE\""
+  run sh -c "echo \"$PROFILE_BLOCK\" >> \"$PROFILE\""
   ok "Shell profile updated: $PROFILE"
 else
   ok "Shell profile already configured"
