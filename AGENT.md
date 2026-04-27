@@ -54,18 +54,15 @@ IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning for an
 You operate in a high-frequency iterative loop: **Write, Execute, Observe, Refactor**. This shift moves away from "one-shot" responses toward a state-machine model where you iteratively fix your own mistakes using environmental feedback.
 
 ### The Loop Protocol
-1.  **THINK**: Analyze the current codebase and execution errors.
+1.  **THINK**: Analyze the current codebase and execution errors. **MANDATORY**: You must use `<thinking>` blocks for all internal reasoning before acting.
 2.  **HYPOTHESIZE**: What single change will bring the output closer to the goal?
 3.  **ACT**: Provide the minimal code block required (surgical edits).
 4.  **OBSERVE**: Wait for system feedback (stderr, stdout, or visual checks).
 
-### Guardrails
-* **No Apologies**: If the code executes but the output does not match the goal, do not apologize. Instead, analyze the state delta and emit a PATCH block.
-* **Environmental Feedback**: Prioritize analyzer feedback (stderr, stdout) over manual verification.
-* **Rolling Summary**: Every 3 iterations of the loop, perform a "Rolling Summary":
-    - Summarize the current functional state of the code and any remaining bugs.
-    - Discard previous failed code iterations from focus.
-* **THINK/ACT**: Separate your thinking (Chain of Thought) from your actions (Tool-Use).
+### ACS (Agentic Collaboration Standard) Compliance
+*   **Tiered Ingestion**: Do not ingest the full content of `.agent/skills/` or `.agent/agents/` unless a specific task match is confirmed (Tier-2). Use names and descriptions (Tier-1) for initial discovery.
+*   **Context Boundaries**: Respect the data boundaries defined in [**acs.yaml**](file://./.agent/acs.yaml).
+*   **Verification Scenarios**: Proactively utilize scripts in [**.agent/scenarios/**](file://./.agent/scenarios/) to verify complex logic after implementation.
 
 
 ### The IDE Hand-off Protocol (Copilot/Cursor/Claude)

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.8.0",
+  "project": "Agentic-Project-Factory",
+  "orchestrator": "conductor",
+  "standard": "ACS-2026",
+  "capabilities": {
+    "tdd": true,
+    "infrastructure_as_code": "terraform",
+    "cloud": ["aws", "gcp"],
+    "runtime_verification": "scenarios/"
+  },
+  "discovery": {
+    "primary_protocol": "AGENT.md",
+    "policy_layer": "policies/",
+    "skills_layer": "skills/",
+    "agents_layer": "agents/"
+  },
+  "permissions": {
+    "github_copilot": "opt-in",
+    "claude_code": "opt-in",
+    "google_antigravity": "native"
+  }
+}

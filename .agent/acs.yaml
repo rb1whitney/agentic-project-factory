@@ -1,0 +1,27 @@
+version: "1.2.0"
+project:
+  name: "Agentic-Project-Factory"
+  specification: "ACS-2026"
+
+layers:
+  tier-1:
+    description: "Initial discovery layer. Basic role and skill names only."
+    paths: [".agent/agents/", ".agent/skills/"]
+    mode: "names-only"
+  tier-2:
+    description: "Task-aligned instruction layer. Full SKILL.md and SYSTEM.md ingestion."
+    trigger: "intent-match"
+    mode: "on-demand"
+  tier-3:
+    description: "Deep knowledge layer. Technical specs and scenario data."
+    paths: [".agent/context/", ".agent/scenarios/"]
+    mode: "reference-only"
+
+governance:
+  policy_path: ".agent/policies/"
+  allow_multi_engine: true
+  enforce_thinking_blocks: true
+
+orchestrator:
+  standard: "conductor"
+  blueprint: ".agent/skills/product_blueprint.md"
