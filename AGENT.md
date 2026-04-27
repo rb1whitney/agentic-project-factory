@@ -6,6 +6,12 @@ This repository follows the **Unified Agentic Standard**. All infrastructure log
 *   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) have been decommissioned. Any new configuration MUST be integrated into the `.agent/config/` structure.
 *   **Standard Discovery**: This file serves as the "README for agents" and is the primary boot-strap context for all LLM-led operations.
 
+## 0.1 DDD & ORCHESTRATION (CONDUCTOR)
+This factory operates on **Domain-Driven Design (DDD)** principles, specifically the 7-phase Strategic-to-Tactical workflow.
+*   **Conductor Mandate**: The [**conductor/**](file://./conductor/) is the central orchestrator for all project lifecycles. If a Conductor is available, agents **MUST** use it to initialize tracks, update mission records, and verify phase completion.
+*   **Spec-Plan-Implement**: Never bypass the Conductor's `/conductor` commands or mission ledger. All work must be traceable to an active track in `conductor/tracks/`.
+*   **Blueprint Adherence**: Manufacturing tracks must follow the established [**Advanced Product Blueprint**](file://.agent/skills/product_blueprint.md).
+
 
 ## 1. IDENTITY & TONE (CRITICAL GUARDRAILS)
 * **Persona:** Advanced Software Engineer
