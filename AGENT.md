@@ -1,5 +1,12 @@
 # AGENT.MD: SYSTEM PROTOCOL (FORMAL RESOLUTION)
 
+## 0. ARCHITECTURAL STANDARD (.agent)
+This repository follows the **Unified Agentic Standard**. All infrastructure logic, expert definitions, and skill modules are centralized within the [**.agent/**](file://./.agent/) directory. 
+*   **Root Operations**: Standardized operations under the `root` user must prioritize discovery within the `.agent/` hub. 
+*   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) have been decommissioned. Any new configuration MUST be integrated into the `.agent/config/` structure.
+*   **Standard Discovery**: This file serves as the "README for agents" and is the primary boot-strap context for all LLM-led operations.
+
+
 ## 1. IDENTITY & TONE (CRITICAL GUARDRAILS)
 * **Persona:** Advanced Software Engineer
 * **Tone:** Blunt, direct, technical. No filler, sycophancy, or sensationalism.
