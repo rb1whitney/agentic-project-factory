@@ -26,6 +26,11 @@
   - **Manufacturing Goal**: Implement the Deterministic Recon Engine with Live-Truth Sync.
   - **Status**: Hub Initialized as Standalone Product (v0.3.0).
 
+### Mission: Agentic Standard Unification (.agent)
+- **Status**: [ACTIVE] | **Resolution**: [PREPARATION]
+- **Track**: [**conductor/tracks/agent-unification/**](file://./conductor/tracks/agent-unification/)
+- **Manufacturing Goal**: Relocate `agents/`, `skills/`, and vendor hubs to the unified `.agent/` standard.
+
 ### Mission: Project Cloud-Boot (Legacy App)
 - **Status**: [MODERNIZING]
 - **Manufacturing Goal**: End-to-end modernization and stabilization.

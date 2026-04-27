@@ -63,15 +63,17 @@ Unlike the Gemini CLI, most IDE environments do NOT automatically switch subagen
 
 ## Repository Index
 
-This workspace is a centralized AI agent and skills hub for Claude, Copilot, and Gemini. All tools share the same `agents/` and `skills/` directories via symlinks from `.claude/`, `.copilot/`, `.gemini/`.
+This workspace is a centralized AI agent and skills hub. All expert definitions and logic are resident within the `.agent/` directory, serving as the unified structural source of truth.
 
 ### Directory Structure
 ```
 Programming-Work/
- agents/           Domain expert agents (aws-expert, gcp-expert, k8s-expert, sre-expert, architecture-expert, terraform-expert, packer-expert, github-specialist, security-reviewer, swarm-supervisor, swarm-architect, swarm-auditor, swarm-engineer, swarm-msbuild)
- skills/           80+ specialized skills (see index below)
+ .agent/
+    agents/       Domain expert agents (aws-expert, gcp-expert, k8s-expert, sre-expert, architecture-expert, terraform-expert, packer-expert, github-specialist, security-reviewer, swarm-supervisor, swarm-architect, swarm-auditor, swarm-engineer, swarm-msbuild)
+    skills/       80+ specialized skills (see index below)
+    google/       Legacy Gemini configurations (settings.json, system.md)
+    anthropic/    Legacy Claude configurations (rules/)
  conductor/        Project lifecycle: product.md, tech-stack.md, workflow.md, product-guidelines.md
- commands/         [DEPRECATED] Consolidated into domain-driven-design-expert, sql-expert, swarm-expert        Project lifecycle: product.md, tech-stack.md, workflow.md, product-guidelines.md
  tools/
     ast-bridge/   AST context engine: code_mapper.py, auto_context.py, graph_builder.py, semantic_query.py
  .ast_cache/       Incremental Blake2b hash cache (context_map.json)
@@ -148,14 +150,14 @@ These rules are non-negotiable for all work within the `projects/` directory:
 2.  **TDD-FIRST IS THE LAW**: All product development MUST follow a **Test-Driven Design** (TDD) model. Define the success wall (Tests) before building the engine (Implementation).
 3.  **ZERO-ZERO DECOUPLING**: Every product must be 100% standalone and portable from the **First Commit**. No parent-repository escapes (../../) are permitted.
 4.  **BLUEPRINT ADHERENCE**: All manufacturing MUST follow the 6-phase [**Advanced Product Blueprint**](file://./skills/product_blueprint.md).
-5.  **ZERO-DELETE SANCTITY**: The `agents/` and `skills/` directories are **Protected Master Vaults**. Any use of `rm` or `mv` on these paths is strictly prohibited. An agent attempting to mutate these directories without explicit, interactive user verification will be considered a security risk.
-6.  **PHYSICAL SOVEREIGNTY**: Never attempt to reorganize the factory floor into symlinks. The root `agents/` and `skills/` must remain physical source-of-truth directories at all times.
+5.  **ZERO-DELETE SANCTITY**: The `.agent/agents/` and `.agent/skills/` directories are **Protected Master Vaults**. Any use of `rm` or `mv` on these paths is strictly prohibited. An agent attempting to mutate these directories without explicit, interactive user verification will be considered a security risk.
+6.  **PHYSICAL SOVEREIGNTY**: The `.agent/agents/` and `.agent/skills/` directories MUST remain physical source-of-truth directories at all times. Use of cross-boundary symlinks for core factory logic is prohibited.
 
 ---
 
 ### Data Privacy Shield
 *   **DENY ACCESS**: You are strictly prohibited from reading or accessing sensitive credential files...
-*   **UNMANAGED CONFIG WARNING**: You MUST proactively monitor core configuration directories (e.g., [**.gemini/agents/**](file://./.gemini/agents/)). If you notice a "Raw" file (not a symlink) that conflicts with the [**Swarm Nexus**](file://./bin/nexus.py), you MUST warn the USER before proceeding. Do not silently overwrite unmanaged user configuration.
+*   **UNMANAGED CONFIG WARNING**: You MUST proactively monitor core configuration directories (e.g., [**.agent/google/**](file://./.agent/google/)). If you notice a "Raw" file (not a symlink) that conflicts with the [**Swarm Nexus**](file://./bin/nexus.py), you MUST warn the USER before proceeding. Do not silently overwrite unmanaged user configuration.
 *   **ZERO-TRUST STORAGE**: All project-specific secrets MUST reside in [**`~/.mcp-servers/credentials`**](file:///root/.mcp-servers/credentials) or be sourced from [**`gopass`**](file:///usr/bin/gopass) / [**`rbw`**](file:///usr/bin/rbw).
 *   **REASONING**: Credential protection is the highest priority. If a task requires cloud auth, ask the USER to run the command or verify their environment.
 
