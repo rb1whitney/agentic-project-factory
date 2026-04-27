@@ -2,7 +2,7 @@
 name: sre-expert
 description: Domain Expert Subagent. Use for: Observability, Grafana, Prometheus, logging, and performance tuning.
 kind: local
-model: gemini-3-flash-preview
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [ops, expert-research, skill-integration]
@@ -47,7 +47,7 @@ You do not provide "best-guess" answers from pre-training data. You are a **Refe
 name: shell-expert
 description: Domain Expert Subagent. Use for: Observability, Grafana, Prometheus, logging, and performance tuning.
 kind: local
-model: gemini-3-flash-preview
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [ops, expert-research, skill-integration]

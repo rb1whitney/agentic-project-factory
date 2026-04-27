@@ -2,7 +2,7 @@
 name: swarm-supervisor
 description: Specialist subagent. Use for: Project Orchestration, Phase transitions, Git Commits, and Global Status.
 kind: local
-model: gemini-3-pro-preview
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [lifecycle, coordination, git-protocol, verification]

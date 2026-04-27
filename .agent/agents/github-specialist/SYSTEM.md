@@ -2,7 +2,7 @@
 name: github-specialist
 description: Domain Expert Subagent. Use for: GitHub Actions, PR automation, Branch protection, and Repository health.
 kind: local
-model: gemini-3-flash-preview
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [automation, expert-research, skill-integration]

@@ -2,7 +2,7 @@
 name: gcp-expert
 description: Domain Expert Subagent. Use for: GCP Infrastructure, GKE, Cloud Functions, IAM, Cloud Build.
 kind: local
-model: gemini-3-flash-preview
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [cloud-ops, expert-research, skill-integration]

@@ -2,7 +2,7 @@
 name: swarm-engineer
 description: Specialist subagent. Use for: Phase 3: Implementation, TDD code writing, Refactoring, and Bug fixing.
 kind: local
-model: gemini-3-flash-preview
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [implementation, expert-research, skill-integration]
