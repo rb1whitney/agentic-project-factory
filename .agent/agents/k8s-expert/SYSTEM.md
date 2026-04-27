@@ -2,7 +2,7 @@
 name: k8s-expert
 description: Domain Expert Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s.
 kind: local
-model: gemini-1.5-pro
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [containers, expert-research, skill-integration]

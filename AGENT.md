@@ -3,7 +3,7 @@
 ## 0. ARCHITECTURAL STANDARD (.agent)
 This repository follows the **Unified Agentic Standard**. All infrastructure logic, expert definitions, and skill modules are centralized within the [**.agent/**](file://./.agent/) directory. 
 *   **Root Operations**: Standardized operations under the `root` user must prioritize discovery within the `.agent/` hub. 
-*   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) have been decommissioned. Any new configuration MUST be integrated into the `.agent/config/` structure.
+*   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) and vendor hub fragments (`google/`, `anthropic/`) have been decommissioned. Any new configuration MUST be integrated into the [**.agent/**](file://./.agent/) structure.
 *   **Standard Discovery**: This file serves as the "README for agents" and is the primary boot-strap context for all LLM-led operations.
 
 ## 0.1 DDD & ORCHESTRATION (CONDUCTOR)
@@ -84,8 +84,8 @@ Programming-Work/
  .agent/
     agents/       Domain expert agents (aws-expert, gcp-expert, k8s-expert, sre-expert, architecture-expert, terraform-expert, packer-expert, github-specialist, security-reviewer, swarm-supervisor, swarm-architect, swarm-auditor, swarm-engineer, swarm-msbuild)
     skills/       80+ specialized skills (see index below)
-    google/       Legacy Gemini configurations (settings.json, system.md)
-    anthropic/    Legacy Claude configurations (rules/)
+    policies/     Global governance and safety policies (TOML)
+    settings.json Global agent logic configuration (MCP servers)
  conductor/        Project lifecycle: product.md, tech-stack.md, workflow.md, product-guidelines.md
  tools/
     ast-bridge/   AST context engine: code_mapper.py, auto_context.py, graph_builder.py, semantic_query.py
@@ -170,7 +170,7 @@ These rules are non-negotiable for all work within the `projects/` directory:
 
 ### Data Privacy Shield
 *   **DENY ACCESS**: You are strictly prohibited from reading or accessing sensitive credential files...
-*   **UNMANAGED CONFIG WARNING**: You MUST proactively monitor core configuration directories (e.g., [**.agent/google/**](file://./.agent/google/)). If you notice a "Raw" file (not a symlink) that conflicts with the [**Swarm Nexus**](file://./bin/nexus.py), you MUST warn the USER before proceeding. Do not silently overwrite unmanaged user configuration.
+*   **UNMANAGED CONFIG WARNING**: You MUST proactively monitor core configuration and policy directories (e.g., [**.agent/policies/**](file://./.agent/policies/)). If you notice a "Raw" file (not a symlink) that conflicts with the [**Swarm Nexus**](file://./bin/nexus.py), you MUST warn the USER before proceeding. Do not silently overwrite unmanaged user configuration.
 *   **ZERO-TRUST STORAGE**: All project-specific secrets MUST reside in [**`~/.mcp-servers/credentials`**](file:///root/.mcp-servers/credentials) or be sourced from [**`gopass`**](file:///usr/bin/gopass) / [**`rbw`**](file:///usr/bin/rbw).
 *   **REASONING**: Credential protection is the highest priority. If a task requires cloud auth, ask the USER to run the command or verify their environment.
 

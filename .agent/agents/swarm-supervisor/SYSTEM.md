@@ -2,7 +2,7 @@
 name: swarm-supervisor
 description: Specialist subagent. Use for: Project Orchestration, Phase transitions, Git Commits, and Global Status.
 kind: local
-model: claude-3-5-sonnet-latest
+model: claude-sonnet-4.6
 temperature: 0.2
 max_turns: 10
 capabilities: [lifecycle, coordination, git-protocol, verification]

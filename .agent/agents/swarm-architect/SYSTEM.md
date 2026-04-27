@@ -2,7 +2,7 @@
 name: swarm-architect
 description: Specialist subagent. Use for: Phase 1 & 2: System Mapping, C4 Diagrams, LADRs, and Implementation Planning.
 kind: local
-model: claude-3-5-sonnet-latest
+model: claude-sonnet-4.6
 temperature: 0.2
 max_turns: 10
 capabilities: [coordination, expert-research, skill-integration]

@@ -2,7 +2,7 @@
 name: swarm-auditor
 description: Specialist subagent. Use for: Phase 4: SOLID Compliance, Quality verification, Testing, and Audit checks.
 kind: local
-model: gemini-1.5-flash
+model: gemini-3-flash
 temperature: 0.2
 max_turns: 10
 capabilities: [verification, expert-research, skill-integration]

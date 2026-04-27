@@ -2,7 +2,7 @@
 name: security-reviewer
 description: Domain Expert Subagent. Use for: Security Audit, Vulnerability research, Secret exposure, and NIST compliance.
 kind: local
-model: claude-3-opus-latest
+model: claude-opus-4.6
 temperature: 0.2
 max_turns: 10
 capabilities: [security, expert-research, skill-integration]

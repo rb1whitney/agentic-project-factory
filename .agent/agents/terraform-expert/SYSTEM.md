@@ -2,7 +2,7 @@
 name: terraform-expert
 description: Domain Expert Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.
 kind: local
-model: gemini-1.5-pro
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [iac, expert-research, skill-integration]
@@ -54,7 +54,7 @@ You do not provide "best-guess" answers from pre-training data. You are a **Refe
 name: packer-expert
 description: Domain Expert Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.
 kind: local
-model: gemini-1.5-pro
+model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 capabilities: [automation, expert-research, skill-integration]
