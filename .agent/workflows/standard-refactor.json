@@ -1,0 +1,9 @@
+{
+  "name": "Standard Refactor Sequence",
+  "steps": [
+    { "agent": "swarm-architect", "action": "implementation-plan" },
+    { "agent": "swarm-engineer", "action": "tdd-implementation" },
+    { "agent": "security-reviewer", "action": "vulnerability-scan" },
+    { "agent": "swarm-auditor", "action": "verification" }
+  ]
+}

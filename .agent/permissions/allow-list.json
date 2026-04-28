@@ -1,0 +1,5 @@
+{
+  "tools": ["list_dir", "view_file", "grep_search", "read_url_content", "command_status"],
+  "scope": "read-only",
+  "rationale": "High-frequency non-mutating discovery tools."
+}

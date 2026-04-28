@@ -1,1 +1,0 @@
-../../agents/swarm-architect/SYSTEM.md

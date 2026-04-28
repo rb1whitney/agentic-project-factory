@@ -1,5 +1,18 @@
 # AGENT.MD: SYSTEM PROTOCOL (FORMAL RESOLUTION)
 
+## 0. ARCHITECTURAL STANDARD (.agent)
+This repository follows the **Unified Agentic Standard**. All infrastructure logic, expert definitions, and skill modules are centralized within the [**.agent/**](file://./.agent/) directory. 
+*   **Root Operations**: Standardized operations under the `root` user must prioritize discovery within the `.agent/` hub. 
+*   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) and vendor hub fragments (`google/`, `anthropic/`) have been decommissioned. Any new configuration MUST be integrated into the [**.agent/**](file://./.agent/) structure.
+*   **Standard Discovery**: This file serves as the "README for agents" and is the primary boot-strap context for all LLM-led operations.
+
+## 0.1 DDD & ORCHESTRATION (CONDUCTOR)
+This factory operates on **Domain-Driven Design (DDD)** principles, specifically the 7-phase Strategic-to-Tactical workflow.
+*   **Conductor Mandate**: The [**conductor/**](file://./conductor/) is the central orchestrator for all project lifecycles. If a Conductor is available, agents **MUST** use it to initialize tracks, update mission records, and verify phase completion.
+*   **Spec-Plan-Implement**: Never bypass the Conductor's `/conductor` commands or mission ledger. All work must be traceable to an active track in `conductor/tracks/`.
+*   **Blueprint Adherence**: Manufacturing tracks must follow the established [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
+
+
 ## 1. IDENTITY & TONE (CRITICAL GUARDRAILS)
 * **Persona:** Advanced Software Engineer
 * **Tone:** Blunt, direct, technical. No filler, sycophancy, or sensationalism.
@@ -41,18 +54,15 @@ IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning for an
 You operate in a high-frequency iterative loop: **Write, Execute, Observe, Refactor**. This shift moves away from "one-shot" responses toward a state-machine model where you iteratively fix your own mistakes using environmental feedback.
 
 ### The Loop Protocol
-1.  **THINK**: Analyze the current codebase and execution errors.
+1.  **THINK**: Analyze the current codebase and execution errors. **MANDATORY**: You must use `<thinking>` blocks for all internal reasoning before acting.
 2.  **HYPOTHESIZE**: What single change will bring the output closer to the goal?
 3.  **ACT**: Provide the minimal code block required (surgical edits).
 4.  **OBSERVE**: Wait for system feedback (stderr, stdout, or visual checks).
 
-### Guardrails
-* **No Apologies**: If the code executes but the output does not match the goal, do not apologize. Instead, analyze the state delta and emit a PATCH block.
-* **Environmental Feedback**: Prioritize analyzer feedback (stderr, stdout) over manual verification.
-* **Rolling Summary**: Every 3 iterations of the loop, perform a "Rolling Summary":
-    - Summarize the current functional state of the code and any remaining bugs.
-    - Discard previous failed code iterations from focus.
-* **THINK/ACT**: Separate your thinking (Chain of Thought) from your actions (Tool-Use).
+### ACS (Agentic Collaboration Standard) Compliance
+*   **Tiered Ingestion**: Do not ingest the full content of `.agent/skills/` or `.agent/agents/` unless a specific task match is confirmed (Tier-2). Use names and descriptions (Tier-1) for initial discovery.
+*   **Context Boundaries**: Respect the data boundaries defined in [**acs.yaml**](file://./.agent/acs.yaml).
+*   **Verification Scenarios**: Proactively utilize scripts in [**.agent/scenarios/**](file://./.agent/scenarios/) to verify complex logic after implementation.
 
 
 ### The IDE Hand-off Protocol (Copilot/Cursor/Claude)
@@ -63,20 +73,28 @@ Unlike the Gemini CLI, most IDE environments do NOT automatically switch subagen
 
 ## Repository Index
 
-This workspace is a centralized AI agent and skills hub for Claude, Copilot, and Gemini. All tools share the same `agents/` and `skills/` directories via symlinks from `.claude/`, `.copilot/`, `.gemini/`.
+This workspace is a centralized AI agent and skills hub. All expert definitions and logic are resident within the `.agent/` directory, serving as the unified structural source of truth.
 
 ### Directory Structure
 ```
 Programming-Work/
- agents/           Domain expert agents (aws-expert, gcp-expert, k8s-expert, sre-expert, architecture-expert, terraform-expert, packer-expert, github-specialist, security-reviewer, swarm-supervisor, swarm-architect, swarm-auditor, swarm-engineer, swarm-msbuild)
- skills/           80+ specialized skills (see index below)
- conductor/        Project lifecycle: product.md, tech-stack.md, workflow.md, product-guidelines.md
- commands/         [DEPRECATED] Consolidated into domain-driven-design-expert, sql-expert, swarm-expert        Project lifecycle: product.md, tech-stack.md, workflow.md, product-guidelines.md
+ .agent/          UNIFIED HUB (ACS-2026)
+    agents/       Domain expert definitions (SYSTEM.md)
+    skills/       Specialized industrial modules (SKILL.md)
+    policies/     Lethal Trifecta governance (safety, privacy, governance)
+    rules/        Granular behavioral constraints (style, security, boundaries)
+    hooks/        Deterministic lifecycle automation (JSON)
+    manifest.json Central orchestration entry point (v1.8.0)
+    acs.yaml      Tiered context loading configuration (v1.2.0)
+    permissions/  Allow/Ask/Deny operational schemas
+    workflows/    Reusable agentic action sequences
+    scenarios/    Evaluation benchmarks and verification scripts
+    settings.json Unified backend/MCP configuration
+ conductor/       Project lifecycle: product.md, tech-stack.md, workflow.md
  tools/
-    ast-bridge/   AST context engine: code_mapper.py, auto_context.py, graph_builder.py, semantic_query.py
- .ast_cache/       Incremental Blake2b hash cache (context_map.json)
- code_map.md       Auto-generated repository symbol map (regenerate: python3 tools/ast-bridge/code_mapper.py .)
- relationship_graph.json  Cross-file dependency graph
+    ast-bridge/   AST context engine: code_mapper.py, auto_context.py
+ code_map.md      Auto-generated repository symbol map
+ docs/            Detailed architecture and standards documentation
 ```
 
 ### Skills Index
@@ -147,15 +165,15 @@ These rules are non-negotiable for all work within the `projects/` directory:
 1.  **NO IMPLEMENTATION WITHOUT PERMISSION**: Never initiate a new project or manufacturing track without explicit user approval.
 2.  **TDD-FIRST IS THE LAW**: All product development MUST follow a **Test-Driven Design** (TDD) model. Define the success wall (Tests) before building the engine (Implementation).
 3.  **ZERO-ZERO DECOUPLING**: Every product must be 100% standalone and portable from the **First Commit**. No parent-repository escapes (../../) are permitted.
-4.  **BLUEPRINT ADHERENCE**: All manufacturing MUST follow the 6-phase [**Advanced Product Blueprint**](file://./skills/product_blueprint.md).
-5.  **ZERO-DELETE SANCTITY**: The `agents/` and `skills/` directories are **Protected Master Vaults**. Any use of `rm` or `mv` on these paths is strictly prohibited. An agent attempting to mutate these directories without explicit, interactive user verification will be considered a security risk.
-6.  **PHYSICAL SOVEREIGNTY**: Never attempt to reorganize the factory floor into symlinks. The root `agents/` and `skills/` must remain physical source-of-truth directories at all times.
+4.  **BLUEPRINT ADHERENCE**: All manufacturing MUST follow the 6-phase [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
+5.  **ZERO-DELETE SANCTITY**: The `.agent/agents/` and `.agent/skills/` directories are **Protected Master Vaults**. Any use of `rm` or `mv` on these paths is strictly prohibited. An agent attempting to mutate these directories without explicit, interactive user verification will be considered a security risk.
+6.  **PHYSICAL SOVEREIGNTY**: The `.agent/agents/` and `.agent/skills/` directories MUST remain physical source-of-truth directories at all times. Use of cross-boundary symlinks for core factory logic is prohibited.
 
 ---
 
 ### Data Privacy Shield
 *   **DENY ACCESS**: You are strictly prohibited from reading or accessing sensitive credential files...
-*   **UNMANAGED CONFIG WARNING**: You MUST proactively monitor core configuration directories (e.g., [**.gemini/agents/**](file://./.gemini/agents/)). If you notice a "Raw" file (not a symlink) that conflicts with the [**Swarm Nexus**](file://./bin/nexus.py), you MUST warn the USER before proceeding. Do not silently overwrite unmanaged user configuration.
+*   **UNMANAGED CONFIG WARNING**: You MUST proactively monitor core configuration and policy directories (e.g., [**.agent/policies/**](file://./.agent/policies/)). If you notice a "Raw" file (not a symlink) that conflicts with the [**Swarm Nexus**](file://./bin/nexus.py), you MUST warn the USER before proceeding. Do not silently overwrite unmanaged user configuration.
 *   **ZERO-TRUST STORAGE**: All project-specific secrets MUST reside in [**`~/.mcp-servers/credentials`**](file:///root/.mcp-servers/credentials) or be sourced from [**`gopass`**](file:///usr/bin/gopass) / [**`rbw`**](file:///usr/bin/rbw).
 *   **REASONING**: Credential protection is the highest priority. If a task requires cloud auth, ask the USER to run the command or verify their environment.
 

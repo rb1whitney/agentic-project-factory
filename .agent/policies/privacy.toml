@@ -1,0 +1,44 @@
+# DATA PRIVACY SHIELD: Blocking Credential Exfiltration
+
+[[rules]]
+name = "Deny Access to SSH Keys"
+description = "Strictly prevent all agents from reading private SSH keys."
+action = "deny"
+toolName = "read_file"
+filePath = "~/.ssh/*"
+
+[[rules]]
+name = "Deny Access to Cloud Credentials"
+description = "Strictly prevent all agents from reading raw cloud credential files."
+action = "deny"
+toolName = "read_file"
+filePath = "~/.aws/*"
+
+[[rules]]
+name = "Deny Access to Cloud Credentials (GCP)"
+description = "Strictly prevent all agents from reading raw GCP credential files."
+action = "deny"
+toolName = "read_file"
+filePath = "~/.config/gcloud/configurations/*"
+
+[[rules]]
+name = "Deny Access to Environment Files"
+description = "Protect sensitive environment variables."
+action = "deny"
+toolName = "read_file"
+filePath = "**/.env*"
+
+[[rules]]
+name = "Deny Access to Local Database Shards"
+description = "Protect local data sovereignty."
+action = "deny"
+toolName = "read_file"
+filePath = "**/data/*.db"
+
+[[rules]]
+name = "Allow Platform Provisioner to Check SSH"
+subagent = "platform-provisioner"
+description = "Allow the provisioner specifically to check for key existence (not content)."
+action = "allow"
+toolName = "run_command"
+commandPrefix = "ls ~/.ssh/"

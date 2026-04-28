@@ -1,1 +1,0 @@
-../../agents/sre-expert/SYSTEM.md
