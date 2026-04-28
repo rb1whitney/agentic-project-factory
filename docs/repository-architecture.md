@@ -1,35 +1,59 @@
-# Repository Architecture: THE Agent Swarm
+# Repository Architecture: THE Agent Swarm (2026)
 
-This document defines the high-precision, "Flat Expert" structure of the Programming-Work unified AI hub.
+This document defines the high-precision, "Unified Hub" structure of the repository, grounded in the **April 2026 Agentic Collaboration Standard (ACS)**.
 
-##  The Infrastructure Layer Cake
+## The Infrastructure Layer Cake
 
-The repository is organized into four core architectural pillars, each representing a specific layer of the swarm's cognitive and operational capabilities.
+The repository is organized around the `.agent/` hub, which consolidates cognitive, operational, and governance layers into a single Physical Sovereignty point.
 
 ```mermaid
 graph TD
     Root[Repository Root]
-    Root --> Agents[agents/]
-    Root --> Skills[skills/]
+    Root --> Hub[.agent/]
+    Root --> Docs[docs/]
     Root --> MCP[mcp-servers/]
     Root --> Bin[bin/]
+
+    Hub --> Agents[agents/]
+    Hub --> Skills[skills/]
+    Hub --> Policies[policies/]
+    Hub --> Manifest[manifest.json]
 
     subgraph "Cognitive Layer"
         Agents --- Manuals[Specialist Personas]
     end
 
     subgraph "Capabilities Layer"
-        Skills --- ExpertFunctions[80+ Atomic Skills]
+        Skills --- ExpertFunctions[Atomic Skills]
     end
 
-    subgraph "Intelligence Layer"
-        MCP --- GroundTruth[Real-Time Sensors]
+    subgraph "Governance Layer"
+        Policies --- LethalTrifecta[Safety/Privacy/Resource]
+    end
+```
+
+## Tiered Context Loading (ACS v1.2.0)
+
+To maintain performance and security, context is ingested in three distinct tiers as defined in `acs.yaml`.
+
+```mermaid
+flowchart LR
+    Tier1[Tier-1: Discovery] --> |Intent Match| Tier2[Tier-2: Logic]
+    Tier2 --> |Specific Request| Tier3[Tier-3: Deep Context]
+
+    subgraph "Tier-1 (Names Only)"
+        T1A[.agent/agents/]
+        T1B[.agent/skills/]
     end
 
-    subgraph "Operations Hub"
-        Bin --- AST[ast-bridge/]
-        Bin --- Setup[setup.sh]
-        Bin --- Wrapper[mcp_wrapper.sh]
+    subgraph "Tier-2 (On-Demand)"
+        T2A[SYSTEM.md]
+        T2B[SKILL.md]
+    end
+
+    subgraph "Tier-3 (Reference Only)"
+        T3A[Technical Specs]
+        T3B[Historical Logs]
     end
 ```
 

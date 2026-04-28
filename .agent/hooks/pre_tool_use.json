@@ -1,0 +1,14 @@
+{
+  "event": "preToolUse",
+  "matchers": {
+    "tool_name": ["run_command", "write_to_file", "git"],
+    "critical_paths": ["/etc/", "/usr/bin/", ".git/config"]
+  },
+  "actions": [
+    {
+      "type": "permission_check",
+      "policy": "policies/safety.toml",
+      "mode": "ENFORCE"
+    }
+  ]
+}

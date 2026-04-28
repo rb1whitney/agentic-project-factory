@@ -22,6 +22,20 @@ toolName = "read_file"
 filePath = "~/.config/gcloud/configurations/*"
 
 [[rules]]
+name = "Deny Access to Environment Files"
+description = "Protect sensitive environment variables."
+action = "deny"
+toolName = "read_file"
+filePath = "**/.env*"
+
+[[rules]]
+name = "Deny Access to Local Database Shards"
+description = "Protect local data sovereignty."
+action = "deny"
+toolName = "read_file"
+filePath = "**/data/*.db"
+
+[[rules]]
 name = "Allow Platform Provisioner to Check SSH"
 subagent = "platform-provisioner"
 description = "Allow the provisioner specifically to check for key existence (not content)."

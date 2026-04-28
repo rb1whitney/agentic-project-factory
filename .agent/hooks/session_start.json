@@ -1,0 +1,15 @@
+{
+  "event": "sessionStart",
+  "actions": [
+    {
+      "type": "command",
+      "execute": "python3 tools/ast-bridge/code_mapper.py .",
+      "description": "Regenerate symbol map on session initialization."
+    },
+    {
+      "type": "notification",
+      "channel": "system",
+      "message": "ACS Hub Loaded. Symbol Map Refreshed."
+    }
+  ]
+}

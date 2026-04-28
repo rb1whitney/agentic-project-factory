@@ -19,5 +19,9 @@
     "github_copilot": "opt-in",
     "claude_code": "opt-in",
     "google_antigravity": "native"
-  }
+  },
+  "engines": [
+    "gemini-3.1-pro",
+    "claude-sonnet-4.6"
+  ]
 }

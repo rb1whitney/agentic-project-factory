@@ -10,7 +10,7 @@ This repository follows the **Unified Agentic Standard**. All infrastructure log
 This factory operates on **Domain-Driven Design (DDD)** principles, specifically the 7-phase Strategic-to-Tactical workflow.
 *   **Conductor Mandate**: The [**conductor/**](file://./conductor/) is the central orchestrator for all project lifecycles. If a Conductor is available, agents **MUST** use it to initialize tracks, update mission records, and verify phase completion.
 *   **Spec-Plan-Implement**: Never bypass the Conductor's `/conductor` commands or mission ledger. All work must be traceable to an active track in `conductor/tracks/`.
-*   **Blueprint Adherence**: Manufacturing tracks must follow the established [**Advanced Product Blueprint**](file://.agent/skills/product_blueprint.md).
+*   **Blueprint Adherence**: Manufacturing tracks must follow the established [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
 
 
 ## 1. IDENTITY & TONE (CRITICAL GUARDRAILS)
@@ -78,17 +78,23 @@ This workspace is a centralized AI agent and skills hub. All expert definitions 
 ### Directory Structure
 ```
 Programming-Work/
- .agent/
-    agents/       Domain expert agents (aws-expert, gcp-expert, k8s-expert, sre-expert, architecture-expert, terraform-expert, packer-expert, github-specialist, security-reviewer, swarm-supervisor, swarm-architect, swarm-auditor, swarm-engineer, swarm-msbuild)
-    skills/       80+ specialized skills (see index below)
-    policies/     Global governance and safety policies (TOML)
-    settings.json Global agent logic configuration (MCP servers)
- conductor/        Project lifecycle: product.md, tech-stack.md, workflow.md, product-guidelines.md
+ .agent/          UNIFIED HUB (ACS-2026)
+    agents/       Domain expert definitions (SYSTEM.md)
+    skills/       Specialized industrial modules (SKILL.md)
+    policies/     Lethal Trifecta governance (safety, privacy, governance)
+    rules/        Granular behavioral constraints (style, security, boundaries)
+    hooks/        Deterministic lifecycle automation (JSON)
+    manifest.json Central orchestration entry point (v1.8.0)
+    acs.yaml      Tiered context loading configuration (v1.2.0)
+    permissions/  Allow/Ask/Deny operational schemas
+    workflows/    Reusable agentic action sequences
+    scenarios/    Evaluation benchmarks and verification scripts
+    settings.json Unified backend/MCP configuration
+ conductor/       Project lifecycle: product.md, tech-stack.md, workflow.md
  tools/
-    ast-bridge/   AST context engine: code_mapper.py, auto_context.py, graph_builder.py, semantic_query.py
- .ast_cache/       Incremental Blake2b hash cache (context_map.json)
- code_map.md       Auto-generated repository symbol map (regenerate: python3 tools/ast-bridge/code_mapper.py .)
- relationship_graph.json  Cross-file dependency graph
+    ast-bridge/   AST context engine: code_mapper.py, auto_context.py
+ code_map.md      Auto-generated repository symbol map
+ docs/            Detailed architecture and standards documentation
 ```
 
 ### Skills Index
@@ -159,7 +165,7 @@ These rules are non-negotiable for all work within the `projects/` directory:
 1.  **NO IMPLEMENTATION WITHOUT PERMISSION**: Never initiate a new project or manufacturing track without explicit user approval.
 2.  **TDD-FIRST IS THE LAW**: All product development MUST follow a **Test-Driven Design** (TDD) model. Define the success wall (Tests) before building the engine (Implementation).
 3.  **ZERO-ZERO DECOUPLING**: Every product must be 100% standalone and portable from the **First Commit**. No parent-repository escapes (../../) are permitted.
-4.  **BLUEPRINT ADHERENCE**: All manufacturing MUST follow the 6-phase [**Advanced Product Blueprint**](file://./skills/product_blueprint.md).
+4.  **BLUEPRINT ADHERENCE**: All manufacturing MUST follow the 6-phase [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
 5.  **ZERO-DELETE SANCTITY**: The `.agent/agents/` and `.agent/skills/` directories are **Protected Master Vaults**. Any use of `rm` or `mv` on these paths is strictly prohibited. An agent attempting to mutate these directories without explicit, interactive user verification will be considered a security risk.
 6.  **PHYSICAL SOVEREIGNTY**: The `.agent/agents/` and `.agent/skills/` directories MUST remain physical source-of-truth directories at all times. Use of cross-boundary symlinks for core factory logic is prohibited.
 

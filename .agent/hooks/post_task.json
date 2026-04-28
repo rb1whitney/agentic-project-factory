@@ -1,0 +1,20 @@
+{
+  "event": "postTask",
+  "actions": [
+    {
+      "type": "command",
+      "execute": "python3 bin/update_docs.py",
+      "description": "Auto-update documentation based on task outcome."
+    },
+    {
+      "type": "command",
+      "execute": "npm test",
+      "description": "Trigger regression tests after task completion."
+    },
+    {
+      "type": "notification",
+      "channel": "system",
+      "message": "Task complete. Documentation updated and tests triggered."
+    }
+  ]
+}

@@ -29,7 +29,23 @@ commandRegex = "^(aws|gcloud|gh|kubectl|terraform|npm|pip|cargo) ([-a-zA-Z0-9_-]
 decision = "allow"
 priority = 110
 
-# 5. Require confirmation for everything else (mutating tools and unknown shell commands)
+# 5. Network Governance: Restrict egress to approved domains
+[[rule]]
+name = "Network Governance"
+toolName = "web_search"
+allowedDomains = ["*.google.com", "*.github.com", "*.microsoft.com", "*.anthropic.com", "*.openai.com"]
+decision = "allow"
+priority = 120
+
+# 6. Tool Egress: Require human-in-the-loop (HITL) for destructive commands
+[[rule]]
+name = "Tool Egress"
+toolName = "run_shell_command"
+commandRegex = ".*(rm -rf|git push --force|terraform destroy).*"
+decision = "ask_user"
+priority = 200
+
+# 7. Default Policy
 [[rule]]
 toolName = "*"
 decision = "ask_user"
