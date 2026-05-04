@@ -1,0 +1,24 @@
+{
+  "hub": "nit-fabric",
+  "version": "1.0.0",
+  "archetype": "Industrial Networking Backbone",
+  "experts": [
+    {
+      "id": "bgp-audit",
+      "logic": "logic.py",
+      "capability": "Async BGP/BFD Diagnostics",
+      "standard": "Logic 3.0"
+    },
+    {
+      "id": "ipam-expert",
+      "logic": "logic.py",
+      "capability": "Radix Trie CIDR Disjointness Proving",
+      "algorithm": "O(k)"
+    },
+    {
+      "id": "sovereignty-enforcer",
+      "logic": "logic.py",
+      "capability": "Law of Excision Security Auditing"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+### FAILURE INVESTIGATION: {{ id }} ###
+Finding: AWS ASN ({{ truth_report.aws_tgw_asn }}) does not match GCP ASN ({{ truth_report.gcp_router_asn }}).
+Root Cause: Mismatched BGP Autonomous System Numbers.
+
+# PROPOSED REMEDIATION: {{ id }}
+# File: modules/transit/gcp_router.tf
+- bgp { asn = {{ truth_report.gcp_router_asn }} }
++ bgp { asn = {{ truth_report.aws_tgw_asn }} }

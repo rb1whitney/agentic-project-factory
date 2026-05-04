@@ -18,14 +18,6 @@
 - **Track**: production-readiness-and-regional-expansion-phase-5
   - Goal: Master Panel Certification and Hub Decoupling.
 
-### Mission: Project nit-fabric (nit-fabric Hub)
-- **Status**: [ACTIVE] | **Resolution**: [ADVANCED]
-- **Project Hub**: [**projects/nit-fabric/**](file://../projects/nit-fabric/)
-- **Remote**: [**https://github.com/rb1whitney/nit-fabric**](https://github.com/rb1whitney/nit-fabric)
-- **Architect's Verdict**: [CERTIFIED]
-  - **Manufacturing Goal**: Implement the Deterministic Recon Engine with Live-Truth Sync.
-  - **Status**: Hub Initialized as Standalone Product (v0.3.0).
-
 ### Mission: Agentic Standard Unification (.agent)
 - **Status**: [ACTIVE] | **Resolution**: [PREPARATION]
 - **Track**: [**conductor/tracks/agent-unification/**](file://./conductor/tracks/agent-unification/)
@@ -34,3 +26,13 @@
 ### Mission: Project Cloud-Boot (Legacy App)
 - **Status**: [MODERNIZING]
 - **Manufacturing Goal**: End-to-end modernization and stabilization.
+
+---
+
+##  Archived Missions
+
+### Mission: Project nit-fabric (nit-fabric Hub)
+- **Status**: [ARCHIVED] | **Resolution**: [UNIVERSAL-CONTROLLER]
+- **Archive Path**: [**conductor/archive/nit-fabric/**](file://./archive/nit-fabric/)
+- **Achievement**: v0.6.0 Deployed.
+- **Summary**: Implemented 100% deterministic recon engine with hybrid provider support (Terraform + Cloud CLIs). Expert-hardened discovery and surgical remediation active.

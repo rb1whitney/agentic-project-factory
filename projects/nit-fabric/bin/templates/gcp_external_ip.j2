@@ -1,0 +1,6 @@
+### SECURITY VIOLATION: GCP_EXTERNAL_IP ###
+Instance {{ instance_name }} has an external IP.
+
+# PROPOSED REMEDIATION: Remove external IP from {{ instance_name }}
+# File: modules/compute/gce.tf
+- access_config {} # Removed external IP block

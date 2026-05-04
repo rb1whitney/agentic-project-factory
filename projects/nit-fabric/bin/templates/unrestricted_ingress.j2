@@ -1,0 +1,7 @@
+### SECURITY VIOLATION: UNRESTRICTED_INGRESS ###
+Rule {{ rule.rule_id }} allows 0.0.0.0/0 on port {{ rule.port_range }}.
+
+# PROPOSED REMEDIATION: Restrict {{ rule.rule_id }}
+# File: modules/security/main.tf
+- source_ranges = ["0.0.0.0/0"]
++ source_ranges = ["10.0.0.0/8"] # Internal RFC1918 placeholder

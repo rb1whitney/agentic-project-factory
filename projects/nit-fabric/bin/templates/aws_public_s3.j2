@@ -1,0 +1,12 @@
+### SECURITY VIOLATION: AWS_PUBLIC_S3 ###
+Bucket {{ bucket_name }} has public access enabled.
+
+# PROPOSED REMEDIATION: Harden S3 Bucket {{ bucket_name }}
+# File: modules/storage/s3.tf
+resource "aws_s3_bucket_public_access_block" "harden" {
+  bucket = "{{ bucket_name }}"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}

@@ -1,0 +1,13 @@
+{
+  "name": "audit_bgp_session",
+  "description": "Audits the liveness and identity of a BGP peering session between AWS and GCP.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "remote_asn": { "type": "integer" },
+      "local_asn": { "type": "integer" },
+      "session_state": { "type": "string" }
+    },
+    "required": ["remote_asn", "local_asn", "session_state"]
+  }
+}

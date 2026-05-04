@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="nit-fabric Industrial Connectivity Engine")
+    subparsers = parser.add_subparsers(dest="command", help="Operational commands")
+
+    # Scan command
+    scan_parser = subparsers.add_parser("scan", help="Execute security and connectivity scan")
+    scan_parser.add_argument("--mode", choices=["mock", "cli", "terraform"], default="mock", help="Discovery mode")
+    scan_parser.add_argument("--verbose", action="store_true", help="Show raw CLI commands during discovery")
+
+    # Visualize command
+    subparsers.add_parser("visualize", help="Synthesize network topology (Mermaid)")
+
+    # Remediate command
+    rem_parser = subparsers.add_parser("remediate", help="Generate and validate remediation patches")
+    rem_parser.add_argument("--provider", choices=["terraform", "cli"], default="terraform", help="Remediation provider")
+    rem_parser.add_argument("--validate", action="store_true", help="Perform validation check")
+    rem_parser.add_argument("--explain", action="store_true", help="Just explain how to fix each issue (Advisor Mode)")
+
+    # Test command
+    subparsers.add_parser("test", help="Execute TDD Coverage Audit")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    if args.command == "scan":
+        verbose_flag = "--verbose" if args.verbose else ""
+        subprocess.run(f"python3 projects/nit-fabric/bin/discover.py --mode {args.mode} {verbose_flag}", shell=True)
+        subprocess.run(["python3", "projects/nit-fabric/bin/security_graph.py"])
+    
+    elif args.command == "visualize":
+        subprocess.run(["python3", "projects/nit-fabric/bin/visualizer.py", "--output", "projects/nit-fabric/network_state.md"])
+    
+    elif args.command == "remediate":
+        validate_flag = "--validate" if args.validate else ""
+        explain_flag = "--explain" if args.explain else ""
+        subprocess.run(f"python3 projects/nit-fabric/bin/remediator.py --provider {args.provider} {validate_flag} {explain_flag}", shell=True)
+    
+    elif args.command == "test":
+        print("### nit-fabric regression test suite ###")
+        subprocess.run(["python3", "projects/nit-fabric/tests/test_engine.py"])
+    
+    else:
+        print(f"Unknown command: {args.command}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

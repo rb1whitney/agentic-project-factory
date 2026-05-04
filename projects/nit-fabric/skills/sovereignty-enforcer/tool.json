@@ -1,0 +1,16 @@
+{
+  "name": "audit_firewall_rule",
+  "description": "Audits a firewall rule for unrestricted egress violations.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "rule": {
+        "type": "object",
+        "properties": {
+          "destination": { "type": "string" }
+        }
+      }
+    },
+    "required": ["rule"]
+  }
+}

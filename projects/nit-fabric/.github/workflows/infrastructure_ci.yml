@@ -1,0 +1,52 @@
+name: nit-fabric Industrial CI
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - 'skills/**'
+
+# STAFF HARDENING: Identity Sovereignty (OIDC Connect Permits)
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  hcl_quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+      - name: TFLint Audit
+        uses: terraform-linters/setup-tflint@ba6bca358a4417ca3063715fbc7051786520d58a # SHA-Pinning v3.0.0
+      - run: tflint --recursive
+
+  security_boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: OIDC Authentication (Identity Sovereignty)
+        # uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d44e03b0065 # v2.0.0
+        # with:
+        #   role-to-assume: arn:aws:iam::1234567890:role/nit-fabric-ci
+        #   aws-region: us-east-1
+        run: echo "Staff Hardening: OIDC Auth Handshake Simulated"
+      - name: Checkov Sovereignty Scan
+        uses: bridgecrewio/checkov-action@1004a259c63600f13a0c50ce733cf62f5b5f2a96 # SHA-Pinning
+        with:
+          directory: terraform/
+          framework: terraform
+          quiet: true
+
+  logic_integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Python Logic Audit
+        run: |
+          pip install pytest pylint pydantic
+          pytest skills/
+          pylint skills/
