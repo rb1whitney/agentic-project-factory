@@ -32,11 +32,22 @@ A tool for auditing and fixing connectivity issues across AWS and GCP. It helps 
    ./bin/nit-fabric remediate --provider cli > fix.sh
    ```
 
-## Workflow
-The tool works in three stages:
-1. **Discover**: Pulls data from cloud APIs (or local mock for testing).
-2. **Scan**: Runs the data through a set of rules defined in `bin/policies.yaml`.
-3. **Fix**: Proposes ways to repair the violations.
+## Architecture & Design
+
+### 1. Discovery Layer (The Truth)
+The discovery layer uses the AWS and Google Cloud CLI tools to fetch current network state. 
+- **Design Choice**: We query the AWS/GCP APIs directly instead of relying solely on Terraform state. This allows the tool to detect "out-of-band" changes and drift.
+
+### 2. Policy Engine (The Logic)
+A rules-based engine that evaluates the `context.json` against policies defined in `bin/policies.yaml`.
+- **Deterministic**: We use a strictly rules-based engine rather than an LLM. Network configurations require 100% predictability.
+- **Algebraic IPAM**: The engine performs an O(n^2) overlap check using the standard `ipaddress` library.
+- **Generic Templates**: To avoid code bloat, we use generic classes like `ResourceAttributePolicy`.
+
+### 3. Networking Best Practices
+- **BGP Peering**: We use BGP with private ASNs (AWS: 64512, GCP: 64600) for all cross-cloud links.
+- **MTU 1440**: Tunnels are standardized at 1440 MTU to avoid packet fragmentation.
+- **Route Summarization**: We advertise aggregate blocks (e.g., /16) to keep routing tables manageable.
 
 ## Troubleshooting Common Issues
 
@@ -44,7 +55,7 @@ The tool works in three stages:
 | :--- | :--- | :--- |
 | BGP Session Down | ASN Mismatch | Run `./bin/nit-fabric remediate --explain` to check ASNs. |
 | Packet Loss | MTU Issues | Ensure tunnel MTU is set to 1440. |
-| CIDR Conflict | Overlapping Subnets | Check `docs/ARCHITECTURE.md` for IPAM principles. |
+| CIDR Conflict | Overlapping Subnets | Check the overlap output in violations.json. |
 | Discovery Failure | Auth Error | Run `aws sts get-caller-identity` to check credentials. |
 
 ## TODO / Known Issues
@@ -53,6 +64,5 @@ The tool works in three stages:
 - [ ] Add support for Azure (long term).
 - [ ] Performance: O(n^2) CIDR check is slow if you have 1000+ subnets.
 
-## Documentation
-- [Architecture](docs/ARCHITECTURE.md)
-- [Technical Decisions](docs/DECISIONS.md)
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on adding new policies and running tests.
