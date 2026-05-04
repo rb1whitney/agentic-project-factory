@@ -1,0 +1,22 @@
+name: nit-fabric Drift Detection
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at Midnight
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  drift_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Plan (Drift Detection)
+        run: |
+          terraform init
+          terraform plan -detailed-exitcode || if [ $? -eq 2 ]; then echo "DRIFT DETECTED: Truth Decay identified in regional hub."; exit 1; fi

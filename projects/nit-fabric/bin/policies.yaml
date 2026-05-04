@@ -1,0 +1,256 @@
+policies:
+  - name: MULTI_CLOUD_CIDR_OVERLAP
+    description: "Cross-cloud, intra-cloud, or on-prem CIDR overlap detected."
+    severity: CRITICAL
+    class: CIDROverlapPolicy
+    params:
+      protected_ranges: ["192.168.0.0/16", "172.16.0.0/12"]
+      remediation_advice: "IP Space Collision detected. To fix this, you must re-address one of the overlapping networks. For AWS/GCP cross-cloud peering, ensure no overlap exists before creating the VPN/Interconnect to avoid routing asymmetricity."
+  
+  - name: UNRESTRICTED_INGRESS
+    description: "Sensitive port exposed to public internet."
+    severity: CRITICAL
+    class: PublicIngressPolicy
+    params:
+      sensitive_ports: ["22", "3389", "5432", "3306"]
+      remediation_advice: "Exfiltration risk. Exposed administrative ports (SSH/RDP/DB) are primary targets for brute-force attacks. Immediately restrict the source CIDR to your corporate VPN gateway or a trusted bastion range."
+
+  - name: AWS_PUBLIC_S3
+    description: "S3 bucket is publicly accessible."
+    severity: CRITICAL
+    class: AWSPublicS3Policy
+    params:
+      remediation_advice: "Data leak detected. Enable 'Block Public Access' at the bucket and account level. Use S3 Bucket Policies to restrict access to specific VPC Endpoints or IAM roles only."
+
+  - name: GCP_EXTERNAL_IP
+    description: "GCE instance has an external IP assigned."
+    severity: HIGH
+    class: GCPExternalIPPolicy
+    params:
+      remediation_advice: "Internet exposure detected. Remove the external Access Config from the network interface. Use Cloud NAT for egress and a central Bastion or Identity-Aware Proxy (IAP) for ingress."
+
+  - name: AWS_VPC_ENDPOINT_CHECK
+    description: "AWS Service accessed without VPC Endpoint."
+    severity: MEDIUM
+    class: VPCEndpointPolicy
+    params:
+      remediation_advice: "Traffic is egressing to the public internet to reach AWS services. Create an Interface or Gateway VPC Endpoint (PrivateLink) to keep traffic on the AWS private backbone, improving security and reducing NAT costs."
+
+  - name: GKE_WORKLOAD_IDENTITY_CHECK
+    description: "GKE Cluster missing Workload Identity."
+    severity: HIGH
+    class: GKEWorkloadIdentityPolicy
+    params:
+      remediation_advice: "Privilege escalation risk. Legacy GKE clusters use the Compute Engine default service account with broad scopes. Enable Workload Identity to map Kubernetes ServiceAccounts to specific IAM roles with least-privilege."
+
+  - name: GKE_BINARY_AUTHORIZATION_CHECK
+    description: "GKE Cluster missing Binary Authorization."
+    severity: HIGH
+    class: BinaryAuthorizationPolicy
+    params:
+      remediation_advice: "Supply chain risk. Enable Binary Authorization to ensure that only trusted, signed images from authorized registries are deployed to your cluster."
+
+  - name: AWS_IAM_ACCESS_ANALYZER_CHECK
+    description: "AWS IAM Access Analyzer public access finding."
+    severity: CRITICAL
+    class: IAMAccessAnalyzerPolicy
+    params:
+      remediation_advice: "Public resource detected by Access Analyzer. Review the finding in the AWS Console and update the resource policy (S3/KMS/SQS) to remove unrestricted 'Principal: *' permissions."
+
+  - name: GCP_SHARED_VPC_HIERARCHY_CHECK
+    description: "GCP Shared VPC service project missing host mapping."
+    severity: HIGH
+    class: SharedVPCPolicy
+
+  - name: PRIVATE_ACCESS_AUDIT
+    description: "Cloud services accessed via public internet instead of Private Access."
+    severity: HIGH
+    class: PrivateAccessPolicy
+
+  - name: INSPECTION_VPC_ENFORCEMENT
+    description: "Cross-cloud traffic bypassing the security inspection hub."
+    severity: HIGH
+    class: InspectionVPCPolicy
+
+  # AWS Expert Policies
+  - name: AWS_S3_VERSIONING
+    description: "S3 bucket versioning is disabled."
+    severity: MEDIUM
+    class: ResourceAttributePolicy
+    params: { resource_type: "aws_s3_buckets", attribute: "versioning", expected_value: "Enabled" }
+
+  - name: AWS_EBS_ENCRYPTION
+    description: "EBS volume is not encrypted."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "aws_ebs_volumes", attribute: "encrypted", expected_value: true }
+
+  - name: AWS_RDS_MULTI_AZ
+    description: "RDS instance is not configured for Multi-AZ."
+    severity: MEDIUM
+    class: ResourceAttributePolicy
+    params: { resource_type: "aws_rds_instances", attribute: "multi_az", expected_value: true }
+
+  - name: AWS_RDS_ENCRYPTION
+    description: "RDS storage is not encrypted."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "aws_rds_instances", attribute: "encrypted", expected_value: true }
+
+  - name: AWS_IAM_ROOT_KEYS
+    description: "IAM root user has active access keys."
+    severity: CRITICAL
+    class: ResourceAttributePolicy
+    params: { resource_type: "aws_iam_summary", attribute: "root_keys_present", expected_value: false }
+
+  - name: AWS_CLOUDTRAIL_ENABLED
+    description: "CloudTrail is not enabled in the region."
+    severity: CRITICAL
+    class: ResourceExistencePolicy
+    params: { resource_type: "aws_cloudtrails" }
+
+  - name: AWS_GUARDDUTY_ENABLED
+    description: "GuardDuty is not enabled in the account."
+    severity: HIGH
+    class: ResourceExistencePolicy
+    params: { resource_type: "aws_guardduty_detectors" }
+
+  - name: AWS_CONFIG_ENABLED
+    description: "AWS Config is not enabled."
+    severity: MEDIUM
+    class: ResourceExistencePolicy
+    params: { resource_type: "aws_config_recorders" }
+
+  - name: AWS_S3_MFA_DELETE
+    description: "S3 bucket missing MFA delete protection."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "aws_s3_buckets", attribute: "mfa_delete", expected_value: "Enabled" }
+
+  - name: AWS_VPC_FLOW_LOGS
+    description: "VPC flow logs not enabled."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "vpcs", attribute: "flow_logs_enabled", expected_value: true }
+
+  # GCP Expert Policies
+  - name: GCP_SQL_PUBLIC_IP
+    description: "Cloud SQL instance has a public IP address."
+    severity: CRITICAL
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_sql_instances", attribute: "public_ip_enabled", expected_value: false }
+
+  - name: GCP_SQL_SSL_ENFORCED
+    description: "Cloud SQL SSL connections are not enforced."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_sql_instances", attribute: "ssl_enforced", expected_value: true }
+
+  - name: GCP_GCS_VERSIONING
+    description: "GCS bucket versioning is disabled."
+    severity: MEDIUM
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_gcs_buckets", attribute: "versioning_enabled", expected_value: true }
+
+  - name: GCP_GCS_LOGGING
+    description: "GCS bucket logging is not configured."
+    severity: LOW
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_gcs_buckets", attribute: "logging_enabled", expected_value: true }
+
+  - name: GCP_DEFAULT_SVC_ACCT_USAGE
+    description: "Default Compute Engine service account is being used."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_instances", attribute: "using_default_service_account", expected_value: false }
+
+  - name: GCP_PROJECT_SSH_KEYS_ENABLED
+    description: "Project-wide SSH keys are enabled on the instance."
+    severity: MEDIUM
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_instances", attribute: "block_project_ssh_keys", expected_value: true }
+
+  - name: GCP_LOGGING_SINK_EXISTS
+    description: "No centralized logging sink found."
+    severity: HIGH
+    class: ResourceExistencePolicy
+    params: { resource_type: "gcp_logging_sinks" }
+
+  - name: GCP_GKE_DASHBOARD_DISABLED
+    description: "GKE Kubernetes Dashboard is enabled."
+    severity: MEDIUM
+    class: ResourceAttributePolicy
+    params: { resource_type: "gke_clusters", attribute: "dashboard_enabled", expected_value: false }
+
+  - name: GCP_GKE_LEGACY_AUTH_DISABLED
+    description: "GKE Legacy Authorization is enabled."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "gke_clusters", attribute: "legacy_auth_enabled", expected_value: false }
+
+  - name: GCP_VPC_FLOW_LOGS_ENABLED
+    description: "Subnet flow logs are disabled."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "gcp_subnets", attribute: "flow_logs_enabled", expected_value: true }
+
+  # Governance & Network Policies
+  - name: TCP_RDP_PUBLIC_EXPOSURE
+    description: "RDP port (3389) is open to the public internet."
+    severity: CRITICAL
+    class: PublicIngressPolicy
+    params: { sensitive_ports: ["3389"] }
+
+  - name: TCP_DB_PUBLIC_EXPOSURE
+    description: "Database ports (3306, 5432) are open to the public internet."
+    severity: CRITICAL
+    class: PublicIngressPolicy
+    params: { sensitive_ports: ["3306", "5432"] }
+
+  - name: TCP_ELASTIC_PUBLIC_EXPOSURE
+    description: "Elasticsearch port (9200) is open to the public internet."
+    severity: CRITICAL
+    class: PublicIngressPolicy
+    params: { sensitive_ports: ["9200"] }
+
+  - name: TCP_REDIS_PUBLIC_EXPOSURE
+    description: "Redis port (6379) is open to the public internet."
+    severity: CRITICAL
+    class: PublicIngressPolicy
+    params: { sensitive_ports: ["6379"] }
+
+  - name: AWS_TGW_ATTACHMENT_CHECK
+    description: "VPC is not attached to the Transit Gateway hub."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "vpcs", attribute: "tgw_attached", expected_value: true }
+
+  - name: VPN_TUNNEL_STATUS_CHECK
+    description: "Site-to-Site VPN tunnel is down."
+    severity: CRITICAL
+    class: ResourceAttributePolicy
+    params: { resource_type: "vpn_tunnels", attribute: "status", expected_value: "UP" }
+
+  - name: BGP_SESSIONS_DOWN
+    description: "BGP routing session is not established."
+    severity: CRITICAL
+    class: ResourceAttributePolicy
+    params: { resource_type: "bgp_sessions", attribute: "status", expected_value: "ESTABLISHED" }
+
+  - name: NETWORK_FIREWALL_PRESENCE
+    description: "VPC missing a network firewall appliance."
+    severity: HIGH
+    class: ResourceExistencePolicy
+    params: { resource_type: "network_firewalls" }
+
+  - name: NAT_GATEWAY_PRESENCE
+    description: "Private subnet missing a NAT Gateway for egress."
+    severity: MEDIUM
+    class: ResourceExistencePolicy
+    params: { resource_type: "nat_gateways" }
+
+  - name: ROGUE_DNS_DETECTION
+    description: "Non-standard DNS resolver detected in VPC."
+    severity: HIGH
+    class: ResourceAttributePolicy
+    params: { resource_type: "vpcs", attribute: "dns_resolver", expected_value: "AmazonProvidedDNS" }

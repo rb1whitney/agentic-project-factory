@@ -1,0 +1,35 @@
+# [nit-fabric] Industrial Git Exclusion Standard
+
+# Python Caches
+__pycache__/
+*.py[cod]
+*.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Terraform Security
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+
+# Tooling & Logging
+*.log
+*VERDICT.md
+verdict.json
+.obsidian/
+
+# Security Guardrails (Preventative)
+.env
+.env.*
+.gopass*
+.rbw*
+credentials.json
+*.pem
+*.key
+
+# System Noise
+.DS_Store
+Thumbs.db

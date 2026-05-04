@@ -1,0 +1,22 @@
+### TACTICAL REMEDIATION: AWS CLI ###
+Finding: {{ id }}
+
+# PROPOSED SHELL COMMANDS:
+{% if id == 'AWS_PUBLIC_S3' %}
+# Expert Note: Applying account-level and bucket-level public access block.
+aws s3api put-public-access-block \
+    --bucket {{ bucket_name }} \
+    --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+
+{% elif id == 'UNRESTRICTED_INGRESS' %}
+# Expert Note: Using specific rule ID for surgical revocation.
+aws ec2 revoke-security-group-ingress \
+    --group-id {{ rule.group_id }} \
+    --security-group-rule-ids {{ rule.rule_id }}
+
+{% elif id == 'PRIVATE_ACCESS_AUDIT' %}
+# Expert Note: Enabling Private DNS for Interface Endpoint to ensure internet excision.
+aws ec2 modify-vpc-endpoint \
+    --vpc-endpoint-id {{ vpc_id }} \
+    --private-dns-enabled
+{% endif %}

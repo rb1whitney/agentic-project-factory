@@ -1,0 +1,6 @@
+# Cursor Operational Rules for nit-fabric
+
+- **Experts**: Resident specialists are in `agents/`.
+- **Workflow**: Follow the 4-stage lifecycle in `conductor/workflow.md`.
+- **Manifest**: Consult `AGENT.md` (Vercel-Standard) as your primary cognitive guide.
+- **Rules**: Blunt tone, No emojis, Retireval-led reasoning only.

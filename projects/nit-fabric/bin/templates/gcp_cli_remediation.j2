@@ -1,0 +1,29 @@
+### TACTICAL REMEDIATION: GCP CLI ###
+Finding: {{ id }}
+
+# PROPOSED SHELL COMMANDS:
+{% if id == 'GCP_EXTERNAL_IP' %}
+# Expert Note: Removing external IP from specific instance and zone.
+gcloud compute instances delete-access-config {{ instance_name }} \
+    --zone={{ zone }} \
+    --access-config-name="external-nat"
+
+{% elif id == 'GKE_WORKLOAD_IDENTITY_CHECK' %}
+# Expert Note: Enabling Workload Identity on Cluster AND Node Pools.
+gcloud container clusters update {{ cluster_name }} \
+    --location={{ location }} \
+    --workload-pool={{ project_id }}.svc.id.goog
+
+{% for pool in node_pools %}
+gcloud container node-pools update {{ pool }} \
+    --cluster={{ cluster_name }} \
+    --location={{ location }} \
+    --workload-metadata=GKE_METADATA
+{% endfor %}
+
+{% elif id == 'PRIVATE_ACCESS_AUDIT' %}
+# Expert Note: Enabling Private Google Access to ensure subnets use internal backbone for APIs.
+gcloud compute networks subnets update {{ subnet_name }} \
+    --region={{ region }} \
+    --enable-private-ip-google-access
+{% endif %}

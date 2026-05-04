@@ -1,0 +1,19 @@
+{
+  "name": "verify_cidr_disjointness",
+  "description": "Verifies that a proposed VPC CIDR range does not overlap with existing hub ranges.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "claimed_ranges": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of existing CIDR blocks in the hub."
+      },
+      "proposed_range": {
+        "type": "string",
+        "description": "The new CIDR block to verify."
+      }
+    },
+    "required": ["claimed_ranges", "proposed_range"]
+  }
+}
