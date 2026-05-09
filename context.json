@@ -1,0 +1,53 @@
+{
+  "aws_cidrs": [
+    "10.0.0.0/16",
+    "10.0.1.0/24"
+  ],
+  "gcp_cidrs": [
+    "10.1.0.0/16",
+    "192.168.1.0/24"
+  ],
+  "aws_s3_buckets": [
+    {
+      "name": "prod-public-bucket",
+      "public_access": true
+    }
+  ],
+  "gcp_instances": [
+    {
+      "name": "insecure-instance",
+      "has_external_ip": true,
+      "zone": "us-central1-a"
+    }
+  ],
+  "vpcs": [
+    {
+      "id": "vpc-001",
+      "endpoints": [
+        {
+          "Service": "s3",
+          "Type": "Interface",
+          "DnsEnabled": false
+        }
+      ]
+    }
+  ],
+  "gke_clusters": [
+    {
+      "name": "legacy-cluster",
+      "location": "us-central1",
+      "workload_identity_enabled": false,
+      "node_pools": [
+        "default-pool",
+        "highmem-pool"
+      ]
+    }
+  ],
+  "gcp_subnets": [
+    {
+      "name": "prod-subnet",
+      "private_google_access": false,
+      "region": "us-central1"
+    }
+  ]
+}
