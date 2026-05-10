@@ -24,8 +24,10 @@
 
 import argparse
 import sys
+
 import numpy as np
 import pandas as pd
+
 
 def generate_sparkline(vals, num_bins=16, wrapper="|"):
     """
@@ -36,15 +38,15 @@ def generate_sparkline(vals, num_bins=16, wrapper="|"):
         return f"{wrapper}{wrapper}"
     if len(vals) < num_bins:
         num_bins = len(vals)
-        
+
     splits = np.array_split(vals, num_bins)
     binned = np.array([np.mean(s) for s in splits if len(s) > 0])
-    
+
     vmin, vmax = np.min(binned), np.max(binned)
     if vmin == vmax:
         shape_str = "▄" * len(binned)
         return f"{wrapper}{shape_str}{wrapper}"
-        
+
     normalized = np.round((binned - vmin) / (vmax - vmin) * 7).astype(int)
     # Replaced lowest char '_' with ' ' (space) as requested for better framing visibility
     chars = [' ', '▂', '▃', '▄', '▅', '▆', '▇', '█']
@@ -54,24 +56,23 @@ def generate_sparkline(vals, num_bins=16, wrapper="|"):
 def main():
     parser = argparse.ArgumentParser(description="Generates an ASCII sparkline from a CSV file.")
     parser.add_argument("--csv", required=True, help="Path to the input CSV data")
-    parser.add_argument("--values-column-name", dest="values_column", required=True, help="Column name containing the numeric values.")
-    parser.add_argument("--time-column-name", dest="time_column", required=False, help="(Optional) Time column name. Will try to auto-infer if not provided.")
+    parser.add_argument("--values-column-name", dest="values_column", required=True,
+                        help="Column name containing the numeric values.")
+    parser.add_argument("--time-column-name", dest="time_column", required=False,
+                        help="(Optional) Time column name. Will try to auto-infer if not provided.")
     parser.add_argument("--bins", type=int, default=16, help="Number of bins (characters) in the sparkline.")
     parser.add_argument("--wrapper", type=str, default="|", help="Wrapper character around the sparkline (default: |).")
     args = parser.parse_args()
 
     try:
         df = pd.read_csv(args.csv)
-    try:
-        df = pd.read_csv(args.csv)
     except Exception as e:
         print(f"Error reading CSV '{args.csv}': {e}", file=sys.stderr)
         sys.exit(1)
-        print(f"Error reading CSV: {e}", file=sys.stderr)
-        sys.exit(1)
 
     if args.values_column not in df.columns:
-        print(f"Error: Column '{args.values_column}' not found in CSV. Available columns: {', '.join(df.columns)}", file=sys.stderr)
+        print(f"Error: Column '{args.values_column}' not found. Available: "
+              f"{', '.join(df.columns)}", file=sys.stderr)
         sys.exit(1)
 
     # Autoinfer time column if not provided
@@ -83,7 +84,7 @@ def main():
             if any(k in col.lower() for k in time_keywords):
                 time_col = col
                 break
-        
+
         # If still not found, try to see if the first column can be parsed as datetime, or just use the first column
         if not time_col and len(df.columns) > 0:
             potential_col = df.columns[0]
@@ -91,8 +92,8 @@ def main():
                 try:
                     pd.to_datetime(df[potential_col][:5])
                     time_col = potential_col
-                except:
-                    # just pick the first column if no time column is found, as long as it's not the value!
+                except Exception:
+                    # pick first column if no time column found, as long as it's not the value!
                     time_col = potential_col
 
     if time_col and time_col in df.columns:

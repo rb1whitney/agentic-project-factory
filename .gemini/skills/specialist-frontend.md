@@ -1,0 +1,1 @@
+../../.agent/skills/specialist-frontend.md

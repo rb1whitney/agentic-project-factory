@@ -1,7 +1,7 @@
 # AGENT.MD: SYSTEM PROTOCOL (FORMAL RESOLUTION)
 
 ## 0. ARCHITECTURAL STANDARD (.agent)
-This repository follows the **Unified Agentic Standard**. All infrastructure logic, expert definitions, and skill modules are centralized within the [**.agent/**](file://./.agent/) directory. 
+This repository follows the **Unified Agentic Standard**. All infrastructure logic, specialist definitions, and skill modules are centralized within the [**.agent/**](file://./.agent/) directory. 
 *   **Root Operations**: Standardized operations under the `root` user must prioritize discovery within the `.agent/` hub. 
 *   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) and vendor hub fragments (`google/`, `anthropic/`) have been decommissioned. Any new configuration MUST be integrated into the [**.agent/**](file://./.agent/) structure.
 *   **Standard Discovery**: This file serves as the "README for agents" and is the primary boot-strap context for all LLM-led operations.
@@ -73,13 +73,13 @@ Unlike the Gemini CLI, most IDE environments do NOT automatically switch subagen
 
 ## Repository Index
 
-This workspace is a centralized AI agent and skills hub. All expert definitions and logic are resident within the `.agent/` directory, serving as the unified structural source of truth.
+This workspace is a centralized AI agent and skills hub. All specialist definitions and logic are resident within the `.agent/` directory, serving as the unified structural source of truth.
 
 ### Directory Structure
 ```
 Programming-Work/
  .agent/          UNIFIED HUB (ACS-2026)
-    agents/       Domain expert definitions (SYSTEM.md)
+    agents/       Domain specialist definitions (SYSTEM.md)
     skills/       Specialized industrial modules (SKILL.md)
     policies/     Lethal Trifecta governance (safety, privacy, governance)
     rules/        Granular behavioral constraints (style, security, boundaries)
@@ -93,55 +93,51 @@ Programming-Work/
  conductor/       Project lifecycle: product.md, tech-stack.md, workflow.md
  tools/
     ast-bridge/   AST context engine: code_mapper.py, auto_context.py
+ bin/
+    nexus.py      Swarm Nexus synchronization engine.
+    audit_stubs.sh Quality gate verification script.
  code_map.md      Auto-generated repository symbol map
  docs/            Detailed architecture and standards documentation
 ```
 
 ### Skills Index
+[SRE]               skill-safe-sre-investigator   GCP/K8s read-only investigations.
+[SRE]               skill-gcp-slo-management      SLO discovery and creation.
+[SRE]               skill-anomaly-detection       Metric anomaly detection.
+[SRE]               skill-cloud-logging           Token-efficient log analysis.
+[SRE]               skill-cloud-monitoring        GCP monitoring and visualization.
 IMPORTANT: Skills are always available. Do not wait for the user to invoke them. Use the correct skill automatically based on the task.
 
 ```
-[AWS]               aws-expert             Holistic AWS: Specialized services (Location, Amplify, DSQL)
-[AWS]               aws-foundation-expert  Core AWS: IAM, VPC, EC2, RDS, Networking
-[AWS]               aws-serverless-expert  Serverless: Lambda, SNS, SQS, API Gateway
-[AWS]               aws-sagemaker-expert   AI/ML: Fine-tuning, HyperPod, Evaluation
-[GCP]               gcp-expert             Holistic GCP: GKE, Cloud Armor, Workstations, IAM
-[Kubernetes]        k8s-expert             K8s Operations: EKS, GKE, Istio, k9s
-[Terraform]         terraform-expert       IaC Strategy: Modules, Providers, Stacks
-[Terraform]         terraform-tester       IaC Quality: Unit tests, Acceptance tests
-[Terraform]         terraform-admin        IaC Ops: Stacks, Imports, TFE/TFC
-[Terraform]         terraform-module-writer  IaC Authoring: Style guide, Verified modules
+[Swarm]             skill-swarm       Core orchestration and state machine.
+[Swarm]             skill-swarm           Multi-agent lifecycle (Scout/Architect/Engineer/Auditor).
+[AWS]               specialist-aws             Holistic AWS: Specialized services (Location, Amplify, DSQL)
+[AWS]               specialist-aws-foundation  Core AWS: IAM, VPC, EC2, RDS, Networking
+[AWS]               specialist-aws-serverless  Serverless: Lambda, SNS, SQS, API Gateway
+[AWS]               specialist-aws-sagemaker   AI/ML: Fine-tuning, HyperPod, Evaluation
+[GCP]               specialist-gcp             Holistic GCP: GKE, Cloud Armor, Workstations, IAM
+[Kubernetes]        skill-k8s             K8s Operations: EKS, GKE, Istio, k9s
+[Terraform]         specialist-terraform       IaC Strategy: Modules, Providers, Stacks
 [SRE/Ops]           shell-efficiency       Terminal Productivity: Shortcuts, History, Sanity
 [Engineer]          software-swarm-engineer    Implementation: TDD-first, Clean Code, SOLID
-[Engineer]          msbuild-expert         Builds: MSBuild, .NET, Solution orchestration
-[Architecture]      domain-driven-design-expert             Design: 7-step Strategic to Tactical workflow
-[Database]          sql-expert             Audit: Schema analysis & query optimization
-[Orchestrator]      swarm-expert           Swarm: Multi-agent init & project archival
-[Architecture]      architecture-expert    Design: C4 Models, LADR, Draw.io Diagrams
-[Lifecycle]         swarm-supervisor     Autoloads conductor and onboarding skills. Project lifecycle brain.
-software-swarm-engineer  Autoloads software-engineer. Lead implementation expert.
-msbuild-expert       Autoloads msbuild-expert. Build & compilation specialist.
-swarm-architect            Project Manager & Strategic Designer. Uses plans/ Roadmaps.
-swarm-auditor            Verification & SOLID compliance auditor. Security gatekeeper.
-swarm-engineer           Lead Implementation Expert. TDD-first development focus.
-swarm-msbuild            Build Engineer. Specializes in .NET/MSBuild log analysis.
-ci-replicator        Autoloads ci-replicator. CI/CD failure replication specialist.
+[Architecture]      specialist-domain-driven-design             Design: 7-step Strategic to Tactical workflow
+[Database]          skill-sql             Audit: Schema analysis & query optimization
 ```
 
 
 ### Reference Library (per-skill `references/` folders)
-Each expert skill has a `references/` directory with specialized reference guides and runbooks. Agents auto-index on activation.
+Each specialist skill has a `references/` directory with specialized reference guides and runbooks. Agents auto-index on activation.
 ```
-aws-foundation-expert/references/  EC2, RDS, IAM, VPC connectivity
-aws-serverless-expert/references/  Lambda, SQS, SNS patterns
-aws-expert/references/             Location Service, Amplify, DSQL guides
-kubernetes-expert/references/      Istio, k9s, Pod troubleshooting
-architecture-expert/references/    AWS Diagrams, LADR generation
-domain-driven-design-expert/references/             7-phase DDD TOML playbooks
-sql-expert/references/             Database scan & analysis playbooks
-swarm-expert/references/           Swarm init & archival playbooks
+skill-aws-foundation/references/  EC2, RDS, IAM, VPC connectivity
+skill-aws-serverless/references/  Lambda, SQS, SNS patterns
+skill-aws/references/             Location Service, Amplify, DSQL guides
+skill-k8s/references/  Istio, k9s, Pod troubleshooting
+skill-architecture/references/    AWS Diagrams, LADR generation
+skill-domain-driven-design/references/             7-phase DDD TOML playbooks
+skill-sql/references/             Database scan & analysis playbooks
+skill-swarm/references/           Swarm init & archival playbooks
 platform-admin/references/         Onboarding, SDKs, Workspace setup
-github-specialist/references/      PR creation, Issue triage, Review guides
+skill-github/references/      PR creation, Issue triage, Review guides
 ```
 
 
@@ -177,8 +173,15 @@ These rules are non-negotiable for all work within the `projects/` directory:
 *   **ZERO-TRUST STORAGE**: All project-specific secrets MUST reside in [**`~/.mcp-servers/credentials`**](file:///root/.mcp-servers/credentials) or be sourced from [**`gopass`**](file:///usr/bin/gopass) / [**`rbw`**](file:///usr/bin/rbw).
 *   **REASONING**: Credential protection is the highest priority. If a task requires cloud auth, ask the USER to run the command or verify their environment.
 
-### Git & Push Protocol
-*   **SUPERVISOR ONLY**: Only the `@swarm-supervisor` is authorized to execute `git commit` or `git push`.
+### Git & Push Protocol (MANDATORY)
+*   **NEVER COMMIT TO MASTER (CRITICAL)**: Agents MUST NEVER commit directly to the `master` or `main` branch. All changes must be made in a feature branch. Direct commits to master are a catastrophic failure of project governance.
+*   **PR WORKFLOW**: Implementation must follow this strict 5-step protocol:
+    1. Create a descriptive feature branch.
+    2. Write a professional, technical commit message.
+    3. Generate a comprehensive `gh` Pull Request message with a changelog.
+    4. Perform the push as the authenticated Linux user (e.g., `rb1whitney`).
+    5. Include security/specialist reviews as comments within the Pull Request.
+*   **SUPERVISOR ONLY**: Only the `@swarm-supervisor` is authorized to initiate the final push sequence.
 *   **AUDITOR GATE**: No code shall be committed until it has been verified by the `@swarm-auditor` or the USER.
-*   **NEVER MERGE (CRITICAL)**: Agents MUST NEVER merge a Pull Request. Merging is strictly reserved for human operators after all checks pass. Do not run `gh pr merge`.
-*   **DESCRUCTIVE ACTIONS**: `rm -rf` and `terraform destroy` are restricted to the Supervisor and REQUIRE explicit user confirmation.
+*   **NEVER MERGE**: Agents MUST NEVER merge a Pull Request. Merging is strictly reserved for human operators. Do not run `gh pr merge`.
+*   **DESTRUCTIVE ACTIONS**: `rm -rf` and `terraform destroy` REQUIRE explicit user confirmation.

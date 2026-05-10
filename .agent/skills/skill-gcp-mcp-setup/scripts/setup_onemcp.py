@@ -16,8 +16,7 @@
 
 """
 OneMCP Setup Script
-This script sets the gcloud project, installs beta components, enables required services
-and MCP servers. 
+This script sets the gcloud project, installs beta components, and enables MCP.
 
 By default, it installs a lean SRE toolset (Logging, Monitoring, GKE, Run, RM, ErrorReporting, DK).
 Use --all to include databases (SQL, Spanner, Firestore, BigQuery) and Vertex AI.
@@ -26,11 +25,12 @@ Use --all to include databases (SQL, Spanner, Firestore, BigQuery) and Vertex AI
 """
 
 import argparse
-import subprocess
 import json
 import os
+import subprocess
 import sys
 import time
+
 
 def run_command(command, check=True):
     print(f"Running: {' '.join(command)}")
@@ -45,13 +45,16 @@ def main():
         description="Set up Google Managed MCP (OneMCP) for Gemini CLI."
     )
     parser.add_argument("project_id", help="The Google Cloud Project ID to use.")
-    
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--local", action="store_true", help="Update the local .gemini/settings.json file.")
-    group.add_argument("--global", action="store_true", dest="global_config", help="Update the global ~/.gemini/settings.json file.")
 
-    parser.add_argument("--all", action="store_true", help="Enable all supported OneMCP servers, including databases and Vertex AI.")
-    parser.add_argument("--google-maps-key", dest="google_maps_key", help="The Google Maps API Key to enable mapstools MCP.")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--local", action="store_true", help="Update local .gemini/settings.json.")
+    group.add_argument("--global", action="store_true", dest="global_config",
+                        help="Update global ~/.gemini/settings.json.")
+
+    parser.add_argument("--all", action="store_true",
+                        help="Enable all supported OneMCP servers, including DBs and Vertex AI.")
+    parser.add_argument("--google-maps-key", dest="google_maps_key",
+                        help="The Google Maps API Key to enable mapstools MCP.")
 
     args = parser.parse_args()
     project_id = args.project_id
@@ -84,7 +87,7 @@ def main():
 
     if args.all:
         base_services.extend(extra_services)
-    
+
     if args.google_maps_key:
         base_services.append("mapstools.googleapis.com")
 
@@ -106,9 +109,9 @@ def main():
     print("Creating Developer Knowledge API Key...")
     display_name = f"Developer Knowledge Key {int(time.time())}"
     result = run_command([
-        "gcloud", "services", "api-keys", "create", 
-        f"--project={project_id}", 
-        f"--display-name={display_name}", 
+        "gcloud", "services", "api-keys", "create",
+        f"--project={project_id}",
+        f"--display-name={display_name}",
         "--format=value(response.keyString)"
     ])
     dev_key = result.stdout.strip()

@@ -1,0 +1,1 @@
+../../.agent/skills/crossplane-specialist.md

@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import sys
-import argparse
+
 import numpy as np
 import pandas as pd
+
 
 def detect_anomalies_zscore(data_json, threshold, rolling_window):
     try:
@@ -42,7 +44,8 @@ def detect_anomalies_zscore(data_json, threshold, rolling_window):
     series = df['value'].astype(float)
 
     if len(series) < rolling_window:
-        print(json.dumps({"error": f"Not enough data points ({len(series)}) for rolling window {rolling_window}"}), file=sys.stderr)
+        print(json.dumps({"error": f"Not enough points ({len(series)}) for window"}),
+              file=sys.stderr)
         sys.exit(1)
 
     rolling_mean = series.rolling(window=rolling_window, min_periods=1).mean()

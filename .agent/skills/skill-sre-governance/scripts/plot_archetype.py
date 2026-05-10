@@ -22,12 +22,15 @@
 # ]
 # ///
 
-import os
 import argparse
-import pandas as pd
+import os
+
 import matplotlib
+import pandas as pd
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 
 def main():
     parser = argparse.ArgumentParser(description="Expert SRE Incident Graphing Archetype")
@@ -37,7 +40,7 @@ def main():
     parser.add_argument("--ylabel", default="Metric Value", help="Label for the Y-axis")
     parser.add_argument("--final", action="store_true", help="Generate the final graph with incident milestones")
     parser.add_argument("--stacked", action="store_true", help="Create a stacked area chart (ideal for rollouts!)")
-    
+
     # Milestone Times
     parser.add_argument("--start", help="Incident start time (YYYY-MM-DD HH:MM:SS)")
     parser.add_argument("--detect", help="Incident detection time (YYYY-MM-DD HH:MM:SS)")
@@ -63,7 +66,7 @@ def main():
 
     # Plotting
     plt.figure(figsize=(12, 6))
-    
+
     if args.stacked:
         # Stacked Area Chart for Rollouts 🌈
         plt.stackplot(df.index, [df[col] for col in df.columns], labels=df.columns, alpha=0.8)
@@ -71,10 +74,12 @@ def main():
         # Standard Line Plot
         for column in df.columns:
             color = None
-            if "ingress" in column.lower() or "v1" in column.lower(): color = "green"
-            elif "egress" in column.lower() or "v2" in column.lower(): color = "blue"
+            if "ingress" in column.lower() or "v1" in column.lower():
+                color = "green"
+            elif "egress" in column.lower() or "v2" in column.lower():
+                color = "blue"
             plt.plot(df.index, df[column], label=column, color=color)
-        
+
     # Horizontal Scaling Lines
     if args.hmin is not None:
         plt.axhline(y=args.hmin, color='gray', linestyle=':', label=f'Min ({args.hmin})')
@@ -85,7 +90,7 @@ def main():
     plt.xlabel(f"Time ({args.timezone})")
     plt.ylabel(args.ylabel)
     plt.grid(True, alpha=0.3)
-    
+
     if args.final:
         milestones = [
             (args.start, 'red', 'Start'),
@@ -93,19 +98,21 @@ def main():
             (args.mitigate, 'orange', 'Mitigated'),
             (args.end, 'red', 'End')
         ]
-        
+
         active_milestones = []
         for time_str, color, label in milestones:
             if time_str:
                 try:
                     ts = pd.to_datetime(time_str)
-                    if ts.tzinfo is None: ts = ts.tz_localize(args.timezone)
-                    else: ts = ts.tz_convert(args.timezone)
+                    if ts.tzinfo is None:
+                        ts = ts.tz_localize(args.timezone)
+                    else:
+                        ts = ts.tz_convert(args.timezone)
                     plt.axvline(x=ts, color=color, linestyle='--', label=label)
                     active_milestones.append(label)
                 except Exception as e:
                     print(f"⚠️ Warning: Milestone {label} failed: {e}")
-        
+
         if active_milestones or args.hmin is not None or args.hmax is not None or args.stacked:
             plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
             plt.subplots_adjust(bottom=0.25)
@@ -113,7 +120,7 @@ def main():
             plt.legend()
     else:
         plt.legend()
-        
+
     plt.savefig(args.out)
     print(f"✅ Saved graph to {args.out} (Stacked: {args.stacked})")
 

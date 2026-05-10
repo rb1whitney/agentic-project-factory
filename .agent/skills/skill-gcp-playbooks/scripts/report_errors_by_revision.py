@@ -29,7 +29,8 @@ This script correlates Google Cloud Run Revisions with Google Cloud Error Report
 It helps you determine exactly which revision of a Cloud Run service contains or introduced specific errors.
 
 Usage:
-  FOLDER/scripts/report_errors_by_revision.py --project <PROJECT_ID> --region <REGION> --service <SERVICE_NAME> --days <DAYS>
+  FOLDER/scripts/report_errors_by_revision.py --project <PROJECT_ID> \\
+    --region <REGION> --service <SERVICE_NAME> --days <DAYS>
 
 Arguments:
   --project, -p   The Google Cloud Project ID.
@@ -49,13 +50,14 @@ What it does:
 """
 
 import argparse
-import os
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-from googleapiclient.discovery import build
+
 import google.auth
 from dateutil import parser
+from googleapiclient.discovery import build
+
 
 def get_cloud_run_revisions(project_id, region, service_name):
     """
@@ -64,9 +66,9 @@ def get_cloud_run_revisions(project_id, region, service_name):
     credentials, _ = google.auth.default()
     service = build('run', 'v1', credentials=credentials)
     parent = f"projects/{project_id}/locations/{region}"
-    
+
     print(f"Fetching Cloud Run revisions for {service_name} in {region}...")
-    
+
     revisions = []
     try:
         # We assume managed Cloud Run (v1 API)
@@ -75,22 +77,22 @@ def get_cloud_run_revisions(project_id, region, service_name):
             labelSelector=f"serving.knative.dev/service={service_name}"
         )
         response = request.execute()
-        
+
         items = response.get('items', [])
         for item in items:
             metadata = item.get('metadata', {})
             name = metadata.get('name')
             creation_timestamp = metadata.get('creationTimestamp')
-            
+
             if name and creation_timestamp:
                 revisions.append({
                     'name': name,
                     'created': creation_timestamp,
                 })
-                
+
     except Exception as e:
         print(f"Warning: Could not fetch Cloud Run revisions: {e}")
-        
+
     return revisions
 
 def get_errors_by_revision(project_id, region, service_name, days):
@@ -99,11 +101,11 @@ def get_errors_by_revision(project_id, region, service_name, days):
     """
     credentials, _ = google.auth.default()
     service = build('clouderrorreporting', 'v1beta1', credentials=credentials)
-    
+
     project_name = f"projects/{project_id}"
-    
+
     print(f"Fetching error groups for {project_id} (last {days} days)...")
-    
+
     # Map days to closest allowed period
     if days <= 1:
         period = "PERIOD_1_DAY"
@@ -120,24 +122,24 @@ def get_errors_by_revision(project_id, region, service_name, days):
         ).execute()
     except Exception as e:
         print(f"Error fetching group stats: {e}")
-        
+
     group_stats = response.get('errorGroupStats', []) if response else []
-    
+
     # Structure: revision -> list of error details
     revision_errors = defaultdict(list)
-    
+
     # Global map of group_id -> error details to print at the end
     all_error_groups = {}
 
     if group_stats:
         print(f"Found {len(group_stats)} error groups. Analyzing affected revisions...")
-        
+
         for stat in group_stats:
             group_id = stat['group']['groupId']
-            count = stat['count']
             message = stat['representative']['message']
-            last_seen = stat['lastSeenTime']
-            
+            # count = stat['count']
+            # last_seen = stat['lastSeenTime']
+
             # Fetch specific events to find the revision ID
             try:
                 events_response = service.projects().events().list(
@@ -145,26 +147,26 @@ def get_errors_by_revision(project_id, region, service_name, days):
                     groupId=group_id,
                     pageSize=10
                 ).execute()
-                
+
                 events = events_response.get('errorEvents', [])
                 seen_revisions_for_group = set()
-                
+
                 for event in events:
                     context = event.get('serviceContext', {})
                     version = context.get('version')
-                    
+
                     if version:
                         # Store global error details
                         if group_id not in all_error_groups:
                             request_context = event.get('context', {}).get('httpRequest', {})
                             method = request_context.get('method', 'N/A')
                             url = request_context.get('url', 'N/A')
-                            
+
                             lines = message.strip().split('\n')
                             summary = lines[-1] if lines else "Unknown Error"
                             if len(lines) > 1 and lines[0].startswith("Traceback"):
                                     summary = lines[-1]
-                            
+
                             if len(summary) > 100:
                                 summary = summary[:97] + "..."
 
@@ -176,7 +178,7 @@ def get_errors_by_revision(project_id, region, service_name, days):
                                 'url': url,
                                 'affected_revisions': set()
                             }
-                        
+
                         all_error_groups[group_id]['affected_revisions'].add(version)
 
                         if version not in seen_revisions_for_group:
@@ -194,14 +196,14 @@ def get_errors_by_revision(project_id, region, service_name, days):
 
     # Fetch Revisions
     all_revisions = get_cloud_run_revisions(project_id, region, service_name)
-    
+
     all_revisions.sort(key=lambda x: parser.parse(x['created']))
-    
+
     window_end = datetime.now(timezone.utc)
     window_start = window_end - timedelta(days=days)
-    
+
     relevant_revisions = []
-    
+
     for i, rev in enumerate(all_revisions):
         created = parser.parse(rev['created'])
         if created.tzinfo is None:
@@ -214,16 +216,16 @@ def get_errors_by_revision(project_id, region, service_name, days):
             ended = next_created
         else:
             ended = window_end
-            
+
         if created < window_end and ended > window_start:
             relevant_revisions.append(rev)
-            
+
     relevant_revisions.sort(key=lambda x: parser.parse(x['created']), reverse=True)
-    
+
     print("\n" + "="*80)
     print(f"REVISION OVERVIEW (Last {days} Days)")
     print("="*80 + "\n")
-    
+
     displayed_revs = set()
 
     for rev in relevant_revisions:
@@ -231,10 +233,10 @@ def get_errors_by_revision(project_id, region, service_name, days):
         displayed_revs.add(rev_name)
         created = rev['created']
         errors = revision_errors.get(rev_name, [])
-        
+
         print(f"Revision: {rev_name}")
         print(f"Created:  {created}")
-        
+
         if not errors:
             print("Status:   ✅ CLEAN")
         else:
@@ -259,10 +261,11 @@ def get_errors_by_revision(project_id, region, service_name, days):
         print("\n" + "="*80)
         print("DETAILED ERROR LIST")
         print("="*80 + "\n")
-        
+
         for group_id, details in all_error_groups.items():
-            console_url = f"https://console.cloud.google.com/errors/{group_id}?project={project_id}"
-            
+            console_url = (f"https://console.cloud.google.com/errors/{group_id}"
+                           f"?project={project_id}")
+
             print(f"Error Group: {group_id}")
             print(f"Summary:     {details['summary']}")
             print(f"Method/URL:  {details['method']} {details['url']}")
@@ -276,8 +279,10 @@ def get_errors_by_revision(project_id, region, service_name, days):
 if __name__ == "__main__":
     usage_examples = """
 Usage examples:
-  ./scripts/admin/report_errors_by_revision.py --project my-project --region europe-west1 --service my-service --days 7
-  ./scripts/admin/report_errors_by_revision.py -p my-project -r europe-west1 -s my-service -d 3
+  ./scripts/admin/report_errors_by_revision.py --project my-project \\
+    --region europe-west1 --service my-service --days 7
+  ./scripts/admin/report_errors_by_revision.py -p my-project -r europe-west1 \\
+    -s my-service -d 3
 """
     arg_parser = argparse.ArgumentParser(
         description="Report errors by Cloud Run revision.",
@@ -288,11 +293,11 @@ Usage examples:
     arg_parser.add_argument("--region", "-r", required=True, help="Cloud Run region (e.g., europe-west1)")
     arg_parser.add_argument("--service", "-s", required=True, help="Cloud Run service name")
     arg_parser.add_argument("--days", "-d", type=int, required=True, help="Number of days to look back")
-    
+
     if len(sys.argv) == 1:
         arg_parser.print_help()
         sys.exit(1)
 
     args = arg_parser.parse_args()
-    
+
     get_errors_by_revision(args.project, args.region, args.service, args.days)

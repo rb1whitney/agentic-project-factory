@@ -1,0 +1,1 @@
+../../.agent/agents/aws-specialist.md

@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import sys
-import argparse
-import numpy as np
+
 import pandas as pd
+
 
 def smooth_moving_average(series, window):
     return series.rolling(window=window, min_periods=1).mean()
@@ -90,7 +91,8 @@ def preprocess_data(data_json, smoothing_method=None, window=None, alpha=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Preprocess time series data, including smoothing.')
     parser.add_argument('input_file', help='Input JSON file path')
-    parser.add_argument('--smoothing_method', choices=['moving_average', 'exponential'], help='Smoothing method to apply')
+    parser.add_argument('--smoothing_method', choices=['moving_average', 'exponential'],
+                        help='Smoothing method to apply')
     parser.add_argument('--window', type=int, help='Window size for Moving Average')
     parser.add_argument('--alpha', type=float, help='Alpha value for Exponential Smoothing')
     args = parser.parse_args()

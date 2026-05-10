@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
-import json
 import argparse
+import json
+import subprocess
 import sys
+
 
 def run_command(cmd):
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -41,7 +42,7 @@ def list_services(project_id):
     token = get_token()
     url = f"https://monitoring.googleapis.com/v3/projects/{project_id}/services"
     curl_cmd = ["curl", "-s", "-H", f"Authorization: Bearer {token}", url]
-    
+
     data = run_command(curl_cmd)
     if not data or 'services' not in data:
         print("No services found.")
@@ -59,7 +60,7 @@ def list_slos(project_id, service_id):
     token = get_token()
     url = f"https://monitoring.googleapis.com/v3/projects/{project_id}/services/{service_id}/serviceLevelObjectives"
     curl_cmd = ["curl", "-s", "-H", f"Authorization: Bearer {token}", url]
-    
+
     data = run_command(curl_cmd)
     if not data or 'serviceLevelObjectives' not in data:
         print("No SLOs found for this service.")

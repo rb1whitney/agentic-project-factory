@@ -1,0 +1,1 @@
+../../.agent/skills/skill-msbuild.md

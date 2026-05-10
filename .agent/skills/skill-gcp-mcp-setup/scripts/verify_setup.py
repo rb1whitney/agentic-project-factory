@@ -14,13 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import os
 import subprocess
 import sys
-import os
-import json
 import unittest
 import urllib.request
-from unittest.mock import patch, MagicMock
 
 # --- Utility Functions ---
 
@@ -48,7 +47,7 @@ def get_adc_identity():
             check=True
         )
         token = token_res.stdout.strip()
-        
+
         # Call tokeninfo to get the email
         req = urllib.request.Request(f"https://oauth2.googleapis.com/tokeninfo?access_token={token}")
         with urllib.request.urlopen(req) as response:
@@ -90,16 +89,16 @@ def run_gemini_command(prompt):
 # --- Integration / Live System Checks ---
 
 class TestOneMCPIntegration(unittest.TestCase):
-    
+
     def test_identity_match(self):
         """Verifies that gcloud and ADC identities match."""
         print("\n[Security] Verifying identity consistency...")
         gcloud_id = get_gcloud_identity()
         adc_id = get_adc_identity()
-        
+
         print(f"  gcloud identity: {gcloud_id}")
         print(f"  ADC identity:    {adc_id}")
-        
+
         if gcloud_id != adc_id:
             self.fail(f"Identity mismatch! identity1 = {gcloud_id}, identity2 = {adc_id}. "
                       "Run 'gcloud auth application-default login' to fix.")
@@ -109,11 +108,11 @@ class TestOneMCPIntegration(unittest.TestCase):
         """Verifies that /mcp list contains our expected OneMCP servers."""
         print("\n[Integration] Verifying MCP server configuration via Gemini CLI...")
         output = run_gemini_command("/mcp list")
-        
+
         configured_servers = get_configured_servers()
         # Only check for google-managed ones
         expected_servers = [s for s in configured_servers if s.startswith("google-")]
-        
+
         if not expected_servers:
             print("  ⚠️ No google-* MCP servers found in settings.json. Skipping list check.")
             return
@@ -126,7 +125,7 @@ class TestOneMCPIntegration(unittest.TestCase):
     def test_mcp_status_emojis(self):
         """Checks if servers are showing the green status emoji if connected."""
         output = run_gemini_command("/mcp list")
-        
+
         if "🟢" in output or "Ready" in output or "Connected" in output:
             print("  ✅ Green status (🟢) or 'Ready' detected for at least one server!")
         else:
@@ -135,11 +134,11 @@ class TestOneMCPIntegration(unittest.TestCase):
 # --- Unit Tests for setup_onemcp.py logic ---
 
 class TestOneMCPSetupLogic(unittest.TestCase):
-    
+
     def test_missing_arguments(self):
         """Ensures the setup script fails correctly when no project_id or flags are provided."""
         script_path = os.path.join(os.path.dirname(__file__), "setup_onemcp.py")
-        
+
         # Test 1: No arguments at all
         result = subprocess.run([sys.executable, script_path], capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0, "Script should fail with no arguments")
@@ -214,7 +213,7 @@ def get_kubectl_whoami():
             return "Unknown (kubectl auth error)", []
 
 class TestKubectlIntegration(unittest.TestCase):
-    
+
     def test_kubectl_context(self):
         """Checks if kubectl workspace context is set and running."""
         print("\n[Kubernetes] Verifying kubectl context...")
@@ -223,10 +222,11 @@ class TestKubectlIntegration(unittest.TestCase):
         print(f"  kubectl config user/context: {user}")
         print(f"  kubectl server authenticated user: {real_user}")
         print(f"  kubectl groups: {groups}")
-        
+
         if "Unknown" in user or "Unknown" in real_user:
             print("  ⚠️ Warning: kubectl context or auth seems unconfigured or errored.")
-            print("  💡 Suggestion: Run 'gcloud container clusters get-credentials online-boutique --region=us-central1 --project=YOUR_PROJECT'")
+            print("  💡 Suggestion: Run 'gcloud container clusters get-credentials online-boutique "
+                  "--region=us-central1 --project=YOUR_PROJECT'")
 
 if __name__ == "__main__":
     # If run with --unittest, execute the unit tests and integration tests
@@ -235,30 +235,31 @@ if __name__ == "__main__":
     else:
         # Simple execution mode (original behavior)
         print("Starting OneMCP Verification...")
-        
+
         gcloud_id = get_gcloud_identity()
         adc_id = get_adc_identity()
         kubectl_user = get_kubectl_context()
-        
+
         if gcloud_id != adc_id:
-            print(f"\n❌ Error: Identity mismatch detected!")
+            print("\n❌ Error: Identity mismatch detected!")
             print(f"   - gcloud identity (CLI): {gcloud_id}")
             print(f"   - ADC identity (MCP):    {adc_id}")
-            print(f"\n💡 Path Forward:")
-            print(f"   Your MCP servers use Application Default Credentials (ADC), while your CLI uses gcloud login.")
-            print(f"   To synchronize them, please run the following command in your terminal:")
+            print("\n💡 Path Forward:")
+            print("   Your MCP servers use Application Default Credentials (ADC), while your CLI uses gcloud login.")
+            print("   To synchronize them, please run the following command in your terminal:")
             print(f"\n   gcloud auth application-default login --account={gcloud_id}\n")
             # sys.exit(1) # Don't exit early, let's check kubectl too!
-        
+
         print("\n--- Kubernetes Setup ---")
         real_user, groups = get_kubectl_whoami()
         print(f"  kubectl config user:             {kubectl_user}")
         print(f"  kubectl server authenticated as: {real_user}")
         print(f"  kubectl groups:                  {groups}")
-        
+
         if "Unknown" in kubectl_user or "Unknown" in real_user:
             print("  ❌ Error: kubectl context or auth seems unconfigured or errored.")
-            print("  👉 Suggestion: Run 'gcloud container clusters get-credentials online-boutique --region=us-central1 --project=YOUR_PROJECT'\n")
+            print("  👉 Suggestion: Run 'gcloud container clusters get-credentials online-boutique "
+                  "--region=us-central1 --project=YOUR_PROJECT'\n")
         else:
             print("  ✅ kubectl configured.")
 
@@ -266,7 +267,7 @@ if __name__ == "__main__":
         print("\n--- Gemini Output ---")
         print(output)
         print("----------------------\n")
-        
+
         configured_servers = get_configured_servers()
         expected = [s for s in configured_servers if s.startswith("google-")]
 
@@ -279,7 +280,7 @@ if __name__ == "__main__":
             else:
                 print(f"❌ {s}: MISSING")
                 all_found = False
-        
+
         if not all_found:
             sys.exit(1)
         print("\nVerification Successful!")

@@ -1,0 +1,1 @@
+../../.agent/skills/skill-safe-sre-investigator.md

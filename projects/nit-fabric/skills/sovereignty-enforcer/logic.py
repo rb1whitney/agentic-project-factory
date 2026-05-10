@@ -22,6 +22,25 @@ def audit_rule(destination: str) -> bool:
     logger.info("Audit Pass: Egress logic is sovereign.")
     return True
 
+def audit_topology(nodes: list, edges: list) -> bool:
+    """Mathematical graph-based sovereignty audit."""
+    import networkx as nx
+    logger.info("Initiating Topology Graph Audit")
+    
+    G = nx.DiGraph()
+    G.add_nodes_from(nodes)
+    G.add_edges_from(edges)
+    
+    # RULE: No internal node should have an path to 'restricted' without passing through 'audit-gateway'
+    # This is a placeholder for more complex logic
+    if "internal" in G and "restricted" in G:
+        if nx.has_path(G, "internal", "restricted"):
+            logger.critical("SOVEREIGNTY BREACH: Unauthorized path from internal to restricted.")
+            return False
+            
+    logger.info("Topology Audit Pass: Graph is sovereign.")
+    return True
+
 def main():
     parser = argparse.ArgumentParser(description="Sovereignty Enforcer CLI")
     parser.add_argument("--dest", type=str, required=True, help="Destination CIDR to audit")

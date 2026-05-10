@@ -23,11 +23,14 @@
 
 import json
 import sys
-import pandas as pd
+
 import matplotlib
+import pandas as pd
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from datetime import datetime
+
+import matplotlib.pyplot as plt
 
 # Reference: This script shows the pattern for parsing Monitoring JSON,
 # cleaning up the timeline with Pandas, and plotting a Dual Axis graph.
@@ -40,14 +43,15 @@ def generate_graph(json_file, output_file='incident_graph.png'):
     for ts in data.get('timeSeries', []):
         metric_labels = ts['metric']['labels']
         code = metric_labels.get('response_code', 'unknown')
-        
+
         for p in ts.get('points', []):
             et = pd.to_datetime(p['interval']['endTime'])
             st = pd.to_datetime(p['interval']['startTime'])
-            
+
             # Filter for 1-minute delta points only (standard GKE/Istio metric behavior)
-            if (et - st).total_seconds() > 120: continue
-                
+            if (et - st).total_seconds() > 120:
+                continue
+
             val = int(p['value'].get('int64Value', 0))
             records.append({'Time': et, 'Code': code, 'Val': val})
 
@@ -57,20 +61,21 @@ def generate_graph(json_file, output_file='incident_graph.png'):
 
     df = pd.DataFrame(records)
     # Ensure time is in a usable TZ-aware or TZ-naive format consistent with the data
-    df['Time'] = df['Time'].dt.tz_convert('UTC') 
+    df['Time'] = df['Time'].dt.tz_convert('UTC')
     df['IsSuccess'] = df['Code'].str.startswith('2')
 
     # 1. Handling Missing Data (Reindexing)
     # Force a continuous time index from the start to end of the data found
     full_range = pd.date_range(start=df['Time'].min(), end=df['Time'].max(), freq='1min')
-    
+
     # Group, pivot success/fail, and reindex to fill blackout gaps with 0s
     grouped = df.groupby([pd.Grouper(key='Time', freq='1min'), 'IsSuccess'])['Val'].sum().unstack(fill_value=0)
     grouped = grouped.reindex(full_range, fill_value=0)
 
     # Ensure True/False columns exist even if all traffic failed or all succeeded
     for col in [True, False]:
-        if col not in grouped.columns: grouped[col] = 0
+        if col not in grouped.columns:
+            grouped[col] = 0
 
     grouped['Total'] = grouped[True] + grouped[False]
     grouped['Availability'] = (grouped[True] / grouped['Total']) * 100

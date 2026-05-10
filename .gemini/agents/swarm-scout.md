@@ -1,0 +1,1 @@
+../../.agent/agents/swarm-scout.md

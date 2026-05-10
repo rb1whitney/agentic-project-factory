@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import sys
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from datetime import datetime
-import os
 import tempfile
-import argparse
+from datetime import datetime
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+
 
 def plot_anomalies(data_json):
     try:
@@ -72,7 +73,8 @@ def plot_anomalies(data_json):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Plot anomalies from JSON data.')
-    parser.add_argument('input_file', nargs='?', type=str, help='Optional input JSON file path. Reads from stdin if not provided.')
+    parser.add_argument('input_file', nargs='?', type=str,
+                        help='Input JSON file path. Reads from stdin if empty.')
     args = parser.parse_args()
 
     if args.input_file:

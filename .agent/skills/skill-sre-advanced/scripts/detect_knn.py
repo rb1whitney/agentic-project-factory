@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import sys
+
 import numpy as np
 from sklearn.neighbors import LocalOutlierFactor
-import argparse
+
 
 def detect_anomalies_knn(data_json, n_neighbors):
     try:
@@ -38,7 +40,8 @@ def detect_anomalies_knn(data_json, n_neighbors):
         sys.exit(1)
 
     if len(values) < n_neighbors:
-        print(json.dumps({"error": f"Not enough data points ({len(values)}) for KNN with n_neighbors={n_neighbors}"}), file=sys.stderr)
+        print(json.dumps({"error": f"Not enough points ({len(values)}) for KNN"}),
+              file=sys.stderr)
         sys.exit(1)
 
     try:

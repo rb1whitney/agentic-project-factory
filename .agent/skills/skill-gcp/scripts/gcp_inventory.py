@@ -1,5 +1,5 @@
 import subprocess
-import json
+
 
 def run_command(cmd):
     try:
@@ -22,7 +22,8 @@ def get_inventory():
     print(services)
 
     print("\n### Compute Engine Instances (Top 5)")
-    vms = run_command("gcloud compute instances list --limit=5 --format='table(name,zone,status,internal_ip,external_ip)'")
+    vms = run_command("gcloud compute instances list --limit=5 "
+                      "--format='table(name,zone,status,internal_ip,external_ip)'")
     print(vms)
 
 if __name__ == "__main__":

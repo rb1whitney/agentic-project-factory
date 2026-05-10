@@ -27,26 +27,31 @@
 export_timeseries_to_csv.py: Extracts Google Cloud Monitoring data to CSV with embedded metadata and statistics.
 
 Usage:
-  ./export_timeseries_to_csv.py --project <PROJECT_ID> --metric_names <METRIC_1> [<METRIC_2> ...] [--output <FILE.csv>] [--from <ISO8601_OR_HOURS>] [--to <ISO8601>]
+  ./export_timeseries_to_csv.py --project <PROJECT_ID> --metric_names <METRIC_1> \\
+    [<METRIC_2> ...] [--output <FILE.csv>] [--from <ISO8601_OR_HOURS>] [--to <ISO8601>]
 
 Example:
-  ./export_timeseries_to_csv.py --project sre-next --metric_names "kubernetes.io/container/cpu/core_usage_time" "kubernetes.io/container/memory/used_bytes" --from "2 hours ago"
+  ./export_timeseries_to_csv.py --project sre-next \\
+    --metric_names "kubernetes.io/container/cpu/core_usage_time" \\
+    "kubernetes.io/container/memory/used_bytes" --from "2 hours ago"
 """
 
 import argparse
 import csv
-import sys
 import os
-import numpy as np
+import sys
 from datetime import datetime, timedelta, timezone
-from google.cloud import monitoring_v3
+
 import google.auth
+import numpy as np
 from dateutil import parser
+from google.cloud import monitoring_v3
+
 
 def parse_time(time_str, default_time=None):
     if not time_str:
         return default_time
-    
+
     # Handle simple "X hours ago" or just an integer representing hours for convenience
     time_str = time_str.lower().strip()
     if time_str.endswith("hours ago") or time_str.endswith("hour ago") or time_str.isdigit():
@@ -55,7 +60,7 @@ def parse_time(time_str, default_time=None):
             return datetime.now(timezone.utc) - timedelta(hours=hours)
         except ValueError:
             pass
-            
+
     try:
         dt = parser.parse(time_str)
         if dt.tzinfo is None:
@@ -80,16 +85,16 @@ def generate_sparkline(vals, num_bins=16):
         return ""
     if len(vals) < num_bins:
         num_bins = len(vals)
-    
+
     # Split into bins and calculate the mean of each bin
     splits = np.array_split(vals, num_bins)
     binned = np.array([np.mean(s) for s in splits if len(s) > 0])
-    
+
     # Normalize between 0 and 7
     vmin, vmax = np.min(binned), np.max(binned)
     if vmin == vmax:
         return "▄" * len(binned)
-    
+
     normalized = np.round((binned - vmin) / (vmax - vmin) * 7).astype(int)
     chars = [' ', '▂', '▃', '▄', '▅', '▆', '▇', '█']
     shape_str = "".join([chars[i] for i in normalized])
@@ -109,10 +114,9 @@ Ready-to-use Examples (just change <PROJECT_ID>):
      -m "run.googleapis.com/request_count,run.googleapis.com/request_latencies" \\
      -o cloudrun_traffic.csv
 
-3. Compare Network I/O (Received vs Sent bytes) for the last 6 hours:
-   ./export_timeseries_to_csv.py -p <PROJECT_ID> --from "6 hours ago" \\
-     -m "compute.googleapis.com/instance/network/received_bytes_count,compute.googleapis.com/instance/network/sent_bytes_count" \\
-     -o network_io.csv
+  ./export_timeseries_to_csv.py -p <PROJECT_ID> --from "6 hours ago" \\
+    -m "compute.googleapis.com/instance/network/received_bytes_count" \\
+    -o network_io.csv
 """
     arg_parser = argparse.ArgumentParser(
         description="Pull Cloud Monitoring data to CSV with metadata and stats.",
@@ -121,20 +125,25 @@ Ready-to-use Examples (just change <PROJECT_ID>):
     )
     arg_parser.add_argument("--project", "-p", required=True, help="Google Cloud Project ID")
     arg_parser.add_argument("--metric_names", "-m", required=True, help="Comma-separated metric type(s) to query.")
-    arg_parser.add_argument("--filter", "-f", help="Additional filter string to append to the query (e.g., 'resource.labels.pod_name = starts_with(\"frontend-\")').")
+    arg_parser.add_argument("--filter", "-f",
+                            help="Filter (e.g., 'resource.labels.pod_name = starts_with(\"frontend-\")').")
     arg_parser.add_argument("--output", "-o", default="output.csv", help="Output CSV filename")
-    arg_parser.add_argument("--from_time", "--from", dest="start_time", help="Start time (ISO8601 or 'X hours ago'). Defaults to 1 hour ago.")
+    arg_parser.add_argument("--from_time", "--from", dest="start_time",
+                            help="Start time (ISO8601 or 'X hours ago'). Defaults to 1 hour ago.")
     arg_parser.add_argument("--to_time", "--to", dest="end_time", help="End time (ISO8601). Defaults to now.")
-    arg_parser.add_argument("--align_seconds", type=int, help="Bucket size in seconds for data aggregation (e.g., 3600 for 1 hour). If omitted, fetches raw data.")
-    arg_parser.add_argument("--aligner", default="ALIGN_MEAN", help="How to aggregate data in the bucket (e.g., ALIGN_MEAN, ALIGN_MAX, ALIGN_SUM, ALIGN_RATE, ALIGN_PERCENTILE_99). Defaults to ALIGN_MEAN.")
-    arg_parser.add_argument("--num_bins", type=int, default=16, help="Number of bins (characters) for the sparkline shape. Defaults to 16.")
-    
+    arg_parser.add_argument("--align_seconds", type=int,
+                            help="Bucket size in seconds. If omitted, fetches raw data.")
+    arg_parser.add_argument("--aligner", default="ALIGN_MEAN",
+                            help="How to aggregate in bucket (e.g., ALIGN_MEAN). Defaults to ALIGN_MEAN.")
+    arg_parser.add_argument("--num_bins", type=int, default=16,
+                            help="Number of bins (characters) for the sparkline shape. Defaults to 16.")
+
     if len(sys.argv) == 1:
         arg_parser.print_help()
         sys.exit(1)
 
     args = arg_parser.parse_args()
-    
+
     # Process comma-separated metric names
     metric_names_list = [m.strip() for m in args.metric_names.split(",") if m.strip()]
 
@@ -152,7 +161,7 @@ Ready-to-use Examples (just change <PROJECT_ID>):
         sys.exit(1)
 
     project_name = f"projects/{args.project}"
-    
+
     # Prepare the time interval
     interval = monitoring_v3.TimeInterval(
         {
@@ -180,14 +189,14 @@ Ready-to-use Examples (just change <PROJECT_ID>):
     all_data_points = []
     label_keys = set()
     stats_summary = {}
-    
+
     for metric_name in metric_names_list:
         filter_str = f'metric.type = "{metric_name}"'
         if args.filter:
             filter_str += f" AND {args.filter}"
         print(f"Querying {metric_name} with filter: {filter_str}", file=sys.stderr)
         print(f"Time range: {start_time.isoformat()} to {end_time.isoformat()}...", file=sys.stderr)
-        
+
         request_params = {
             "name": project_name,
             "filter": filter_str,
@@ -218,7 +227,7 @@ Ready-to-use Examples (just change <PROJECT_ID>):
                 for k, v in series.metric.labels.items():
                     labels[f"metric_{k}"] = v
                     label_keys.add(f"metric_{k}")
-                    
+
             for point in series.points:
                 # Value extraction
                 val = None
@@ -232,7 +241,7 @@ Ready-to-use Examples (just change <PROJECT_ID>):
                     val = point.value.string_value
                 elif "distribution_value" in point.value:
                     val = point.value.distribution_value.mean # simplify dist to mean
-                    
+
                 if val is not None:
                     ts = point.interval.start_time
                     pt_dict = {
@@ -248,12 +257,12 @@ Ready-to-use Examples (just change <PROJECT_ID>):
             # Sort metric points chronologically first
             metric_points.sort(key=lambda x: x["timestamp"])
             all_data_points.extend(metric_points)
-            
+
             # Extract values in chronological order
             vals = np.array([pt["value"] for pt in metric_points])
             min_idx = np.argmin(vals)
             max_idx = np.argmax(vals)
-            
+
             stats_summary[metric_name] = {
                 "count": len(vals),
                 "sparkline": generate_sparkline(vals, num_bins=args.num_bins),
@@ -281,7 +290,7 @@ Ready-to-use Examples (just change <PROJECT_ID>):
         csvfile.write(f"# metadata_metric_names: {', '.join(metric_names_list)}\n")
         csvfile.write(f"# metadata_from_timestamp: {start_time.isoformat()}\n")
         csvfile.write(f"# metadata_to_timestamp: {end_time.isoformat()}\n")
-        
+
         # Display and write stats
         print("\n" + "="*40)
         print("DESCRIPTIVE STATISTICS")
@@ -290,16 +299,16 @@ Ready-to-use Examples (just change <PROJECT_ID>):
             # Extract just HH:MM:SS from 'YYYY-MM-DDTHH:MM:SS.fZ'
             min_time = s['min_ts'][11:19]
             max_time = s['max_ts'][11:19]
-            
+
             print(f"\nMetric: {m}")
             print(f"  Sparkline:{s['sparkline']}")
-            print(f"  To gen:   uv run ../monitoring-graphs/scripts/csv_to_sparkline.py --csv {args.output} --values-column-name value")
+            print(f"  To gen:   uv run csv_to_sparkline.py --csv {args.output} --values-column-name value")
             print(f"  Count:    {s['count']}")
             print(f"  Average:  {s['avg']:.4f}")
             print(f"  Variance: {s['var']:.4f}")
             print(f"  Minimum:  [{min_time}] {s['min']:.4f} ({s['min_pos']})")
             print(f"  Maximum:  [{max_time}] {s['max']:.4f} ({s['max_pos']})")
-            
+
             # Write to CSV header
             csvfile.write(f"# stats_{m}_sparkline: {s['sparkline']}\n")
             csvfile.write(f"# stats_{m}_avg: {s['avg']}\n")
@@ -316,7 +325,7 @@ Ready-to-use Examples (just change <PROJECT_ID>):
             print("="*40)
 
         csvfile.write(f"# metadata_point_count: {len(all_data_points)}\n")
-        
+
         # Write CSV data
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()

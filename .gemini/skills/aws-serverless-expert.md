@@ -1,0 +1,1 @@
+../../.agent/skills/aws-serverless-expert.md

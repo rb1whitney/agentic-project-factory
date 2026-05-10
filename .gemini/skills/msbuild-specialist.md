@@ -1,0 +1,1 @@
+../../.agent/skills/msbuild-specialist.md

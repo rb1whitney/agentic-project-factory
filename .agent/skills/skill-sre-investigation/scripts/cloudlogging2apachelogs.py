@@ -16,6 +16,7 @@
 import json
 import sys
 
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python3 cloudlogging2apachelogs.py <logfile.json>")
@@ -33,10 +34,10 @@ def main():
     for entry in data:
         # Base fields
         timestamp = entry.get('timestamp', '-')
-        
+
         # HTTP Request object
         http_req = entry.get('httpRequest', {})
-        
+
         # Extracting specific fields with fallbacks
         ip = http_req.get('remoteIp', '-')
         method = http_req.get('requestMethod', '-')
@@ -45,7 +46,7 @@ def main():
         status = http_req.get('status', '-')
         size = http_req.get('responseSize', '-')
         user_agent = http_req.get('userAgent', '-')
-        
+
         # Print loosely resembling Apache Combined Log format
         # IP - - [Timestamp] "METHOD URL PROTOCOL" STATUS SIZE "USER_AGENT"
         print(f'{ip} - - [{timestamp}] "{method} {url} {protocol}" {status} {size} "{user_agent}"')

@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import sys
-import argparse
+
 import numpy as np
-import pandas as pd
 from sklearn.ensemble import IsolationForest
+
 
 def detect_anomalies_isoforest(data_json, contamination):
     try:
@@ -32,7 +33,7 @@ def detect_anomalies_isoforest(data_json, contamination):
         sys.exit(1)
 
     try:
-        timestamps = [item[0] for item in timeseries]
+        # timestamps = [item[0] for item in timeseries]
         values = np.array([item[1] for item in timeseries]).reshape(-1, 1)
     except IndexError:
         print(json.dumps({"error": "Malformed timeseries data"}), file=sys.stderr)
@@ -64,8 +65,9 @@ def detect_anomalies_isoforest(data_json, contamination):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Detect anomalies using Isolation Forest.')
-    parser.add_argument('input_file', help='Input JSON file path with timestamp and value columns')
-    parser.add_argument('--contamination', type=str, default='auto', help='Contamination factor for Isolation Forest (e.g., 0.1 or "auto")')
+    parser.add_argument('input_file', help='Input JSON file path')
+    parser.add_argument('--contamination', type=str, default='auto',
+                        help='Contamination factor (e.g., 0.1 or "auto")')
     args = parser.parse_args()
 
     cont = args.contamination
