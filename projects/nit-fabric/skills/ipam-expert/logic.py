@@ -52,6 +52,19 @@ class RadixTrie:
                 node = node.children[bit]
             return True
 
+    def next_available(self, parent: str, prefix_len: int) -> Optional[str]:
+        """Proactively finds the next non-overlapping CIDR within a parent range."""
+        logger.info(f"Seeking next available /{prefix_len} in parent {parent}")
+        parent_net = ipaddress.ip_network(parent)
+        
+        for subnet in parent_net.subnets(new_prefix=prefix_len):
+            if not self.check_overlap(str(subnet)):
+                logger.info(f"Found available CIDR: {subnet}")
+                return str(subnet)
+        
+        logger.error(f"IPAM DEPLETION: No available /{prefix_len} in {parent}")
+        return None
+
     def _to_binary_string(self, network) -> str:
         return ''.join([f"{int(b):08b}" for b in network.network_address.packed])
 

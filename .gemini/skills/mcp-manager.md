@@ -1,0 +1,1 @@
+../../.agent/skills/mcp-manager.md

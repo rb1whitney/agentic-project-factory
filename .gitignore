@@ -287,3 +287,9 @@ relationship_graph.json
 code_map.md
 
 projects/
+# IDE Specific Rules (Polyfills)
+.cursor/rules/*
+.claude/agents/*
+.github/agents/*
+.github/skills/*
+.vscode/agents/*

@@ -1,0 +1,1 @@
+../../.agent/skills/skill-on-prem-provisioning.md

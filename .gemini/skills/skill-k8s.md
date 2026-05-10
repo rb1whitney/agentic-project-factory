@@ -1,0 +1,1 @@
+../../.agent/skills/skill-k8s.md
