@@ -1,6 +1,6 @@
 ---
 name: specialist-aws
-description: Domain Specialist Subagent. Use for: AWS Infrastructure, S3, IAM, VPC networking, CloudFormation.
+description: "Domain Specialist Subagent. Use for: AWS Infrastructure, S3, IAM, VPC networking, CloudFormation."
 kind: local
 model: gemini-3.1-pro
 temperature: 0.2

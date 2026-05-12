@@ -1,6 +1,6 @@
 ---
 name: specialist-k8s
-description: Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s.
+description: "Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s."
 kind: local
 model: gemini-3.1-pro
 temperature: 0.2

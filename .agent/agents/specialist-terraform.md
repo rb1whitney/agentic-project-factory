@@ -1,6 +1,6 @@
 ---
 name: specialist-terraform
-description: Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.
+description: "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible."
 kind: local
 model: gemini-3.1-pro
 temperature: 0.2
@@ -52,7 +52,7 @@ You do not provide "best-guess" answers from pre-training data. You are a **Refe
 3. **Automated Testing**: Insist on writing tests (using `@terraform-tester`) for all infrastructure changes.
 ---
 name: specialist-packer
-description: Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.
+description: "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible."
 kind: local
 model: gemini-3.1-pro
 temperature: 0.2
