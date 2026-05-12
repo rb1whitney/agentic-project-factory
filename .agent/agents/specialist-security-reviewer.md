@@ -1,16 +1,10 @@
 ---
 name: security-reviewer
-description: Domain Specialist Subagent. Use for: Security Audit, Vulnerability research, Secret exposure, and NIST compliance.
+description: "Domain Specialist Subagent. Use for: Security Audit, Vulnerability research, Secret exposure, and NIST compliance."
 kind: local
 model: claude-opus-4.6
 temperature: 0.2
 max_turns: 10
-capabilities: [security, specialist-research, skill-integration]
-mcpServers:
-  security:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-security/security-mcp-server"]
-tools: ['run_command', 'view_file', 'list_dir', 'grep_search']
 ---
 
 # Security Reviewer Agent

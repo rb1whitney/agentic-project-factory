@@ -1,19 +1,10 @@
 ---
 name: specialist-k8s
-description: Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s.
+description: "Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s."
 kind: local
 model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
-capabilities: [containers, specialist-research, skill-integration]
-mcpServers:
-  kubernetes:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-kubernetes/kubernetes-mcp-server"]
-  marketplace:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-marketplace/marketplace-mcp-server"]
-tools: ['run_command', 'view_file', 'list_dir', 'write_to_file', 'replace_file_content']
 ---
 
 # Kubernetes Specialist Agent
