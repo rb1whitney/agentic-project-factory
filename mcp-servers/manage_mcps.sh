@@ -31,7 +31,8 @@ case $COMMAND in
         elif [ -f "$TARGET/package.json" ]; then
             cd "$TARGET" && npm install && npm run build && cd ..
         elif [ -f "$TARGET/setup.py" ] || [ -f "$TARGET/pyproject.toml" ]; then
-            cd "$TARGET" && uv venv && source .venv/bin/activate && uv pip install -e . && cd ..
+            cd "$TARGET" && uv venv && # shellcheck source=/dev/null
+            source .venv/bin/activate && uv pip install -e . && cd ..
         fi
         ;;
     "build-all")

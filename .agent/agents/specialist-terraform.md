@@ -5,12 +5,6 @@ kind: local
 model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
-capabilities: [iac, specialist-research, skill-integration]
-mcpServers:
-  terraform:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-terraform/terraform-mcp-server"]
-tools: ['run_command', 'view_file', 'list_dir', 'write_to_file', 'replace_file_content']
 ---
 
 # Terraform Specialist Agent
@@ -57,8 +51,6 @@ kind: local
 model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
-capabilities: [automation, specialist-research, skill-integration]
-tools: ['run_command', 'view_file', 'list_dir', 'write_to_file', 'replace_file_content']
 ---
 
 # Packer Specialist Agent

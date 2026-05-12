@@ -5,12 +5,6 @@ kind: local
 model: claude-sonnet-4.6
 temperature: 0.2
 max_turns: 10
-capabilities: [automation, specialist-research, skill-integration]
-mcpServers:
-  github:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-github/github-mcp-server"]
-tools: ['run_command', 'view_file', 'list_dir']
 ---
 
 # GitHub Reviewer Agent

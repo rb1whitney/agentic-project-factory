@@ -5,15 +5,6 @@ kind: local
 model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
-capabilities: [cloud-ops, specialist-research, skill-integration]
-mcpServers:
-  gcloud:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-gcloud/gcloud-mcp-server"]
-  gke:
-    command: "/bin/bash"
-    args: ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-gke/gke-mcp-server"]
-tools: ['run_command', 'view_file', 'list_dir', 'write_to_file', 'replace_file_content']
 ---
 
 # GCP Specialist Agent

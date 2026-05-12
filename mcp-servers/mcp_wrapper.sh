@@ -36,10 +36,14 @@ if [ -f "$EXTERNAL_CONFIG" ]; then
 fi
 
 # Export critical tokens
-export GITHUB_TOKEN=$(get_secret "GITHUB_TOKEN" "")
-export AWS_ACCESS_KEY_ID=$(get_secret "AWS_ACCESS_KEY_ID" "")
-export AWS_SECRET_ACCESS_KEY=$(get_secret "AWS_SECRET_ACCESS_KEY" "")
-export TERRAFORM_CLOUD_TOKEN=$(get_secret "TERRAFORM_CLOUD_TOKEN" "")
+GITHUB_TOKEN=$(get_secret "GITHUB_TOKEN" "")
+export GITHUB_TOKEN
+AWS_ACCESS_KEY_ID=$(get_secret "AWS_ACCESS_KEY_ID" "")
+export AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=$(get_secret "AWS_SECRET_ACCESS_KEY" "")
+export AWS_SECRET_ACCESS_KEY
+TERRAFORM_CLOUD_TOKEN=$(get_secret "TERRAFORM_CLOUD_TOKEN" "")
+export TERRAFORM_CLOUD_TOKEN
 
 # --- Execution Phase ---
 # Hand off control to the actual MCP server binary
