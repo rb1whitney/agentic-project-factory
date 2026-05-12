@@ -266,10 +266,15 @@ test-report*.xml
 # Model Context Protocol (MCP)
 # =============================================================================
 
+# Unignore the orchestration directory to allow scripts
+!mcp-servers/
+
 # Ignore cloned MCP server repositories (automated via download_mcps.sh)
 mcp-servers/mcp-*/
-# Safety: Ignore misplaced mcp folders in root
+
+# Safety: Ignore other misplaced mcp folders in root
 /mcp-*/
+!/mcp-servers/
 bin/kubectl
 
 # --- Swarm Security: Zero-Trust Credentials ---
