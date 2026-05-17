@@ -295,6 +295,7 @@ projects/
 # IDE Specific Rules (Polyfills)
 .cursor/rules/*
 .claude/agents/*
+.gemini/agents/*
 .github/agents/*
 .github/skills/*
 .vscode/agents/*
