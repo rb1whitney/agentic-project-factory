@@ -41,7 +41,8 @@ GLOBAL_SPOKES = [
 
 # Special Instruction Bridges
 ROOT_LINKS = {
-    "AGENT.md": [
+    "AGENTS.md": [
+        "AGENT.md",
         "CLAUDE.md",
         "GEMINI.md",
         ".github/copilot-instructions.md"
@@ -100,7 +101,10 @@ def main():
 
             # Link to Local Spokes
             for spoke in LOCAL_AGENT_SPOKES:
-                create_symlink(agent_file, Path(spoke) / agent_file.name)
+                target_name = agent_file.name
+                if spoke == ".github/agents" and target_name.endswith(".md") and not target_name.endswith(".agent.md"):
+                    target_name = target_name[:-3] + ".agent.md"
+                create_symlink(agent_file, Path(spoke) / target_name)
 
             # Link to Global Spokes
             if args.global_sync:
