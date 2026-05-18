@@ -16,7 +16,6 @@ SKILL_SOURCE = Path(".agent/skills")
 
 # Local Project Spokes
 LOCAL_AGENT_SPOKES = [
-    ".cursor/rules",
     ".claude/agents",
     ".gemini/agents",
     ".gemini/antigravity/agents",
@@ -42,9 +41,6 @@ GLOBAL_SPOKES = [
 # Special Instruction Bridges
 ROOT_LINKS = {
     "AGENTS.md": [
-        "AGENT.md",
-        "CLAUDE.md",
-        "GEMINI.md",
         ".github/copilot-instructions.md"
     ]
 }

@@ -1,1 +1,0 @@
-../../agents/swarm-msbuild/SYSTEM.md
