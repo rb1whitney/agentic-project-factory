@@ -41,6 +41,36 @@ IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning for an
 * **Comments:** Explain the **why** (logic), not the **what** (syntax).
 * **Efficiency:** Omit unchanged regions using `...`.
 
+## 2.1 TOKEN HARVESTER PROTOCOLS (COST & CONTEXT OPTIMIZATION)
+To achieve a **60% to 98% reduction in token consumption** and ensure extreme structural precision, you MUST strictly adhere to the following five architectural frameworks:
+
+### 1. Domain-Specific Micro-Languages (SkillOS Dialects)
+Avoid verbose natural language (English) in internal logs, reasoning structures, and intermediate outputs. Use compressed dialects:
+*   **`strict-patch`**: Forced for code edits. Instead of rewriting full files, emit precise line-number targeted replacements (`[DEL:L]` / `[ADD:L]`).
+*   **`caveman-prose`**: For task tracking and memory. Strip articles, niceties, and pronouns down to actionable fragments (e.g., "Run tests before push").
+*   **`dom-nav`**: For browser automation. Select and display only the interactive elements, collapsing long documents into high-density tokens.
+
+### 2. Sandbox Execution & Database Gating (Context-Mode)
+Do NOT ingest entire large files, logs, or snapshots (>10k tokens) directly into the context window:
+*   **Think in Code**: Write and run local utility scripts (Python, JS, SQLite, or CLI tools) to query, count, or parse data locally, and return *only* the derived counts or scoped matches.
+*   **SQLite FTS5 Indexing**: Intercept massive outputs (like test reports or web pages). Store them locally, run full-text search, and return query-scoped BM25 or regex matches instead of raw dumps.
+
+### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
+Do NOT load entire directories or arbitrary sets of files during code reviews or refactoring:
+*   Run the repository's AST mapping tools (`bin/ast-bridge/auto_context.py` and `semantic_query.py`) to trace exactly which symbols, classes, callers, and dependents are touched by a change.
+*   Restrict the context window *strictly* to the calculated **Blast Radius** of the changes.
+
+### 4. Telegraphic Output Compression (Caveman-Prose Ultra)
+Completely eliminate conversational pleasantries, Markdown padding, intro preambles, and defensive hedging from both internal thinking blocks and final outputs:
+*   **Direct Gating**: Strip phrases like "I'm happy to help", "Here is the corrected file", and other filler.
+*   **Telegraph Shorthand**: Compress all logs and communications to high-density facts (Location, Problem, Fix). Keep substance, precise code blocks, and links 100% intact.
+
+### 5. Terminal CLI Output Proxying (RTK)
+All standard shell/terminal executions (`git`, `terraform`, `ansible`, `npm`, etc.) must be piped or routed through the local `rtk` (Rust Token Killer) binary wrapper:
+*   **Smart Filtering**: Strip comments, empty padding, and boilerplate logs.
+*   **Grouping & Deduplication**: Aggregate files by path and collapse repetitive runtime logs into single-line counters.
+*   **Truncation**: Hard-cut verbose chunks, keeping only the start/end output anchors.
+
 ## 3. KEYWORD TRIGGERS (FIRST TOKEN)
 * `:architect:`  Design strategy only; no code.
 * `:code:`  Implementation focus.
@@ -63,6 +93,7 @@ You operate in a high-frequency iterative loop: **Write, Execute, Observe, Refac
 *   **Tiered Ingestion**: Do not ingest the full content of `.agent/skills/` or `.agent/agents/` unless a specific task match is confirmed (Tier-2). Use names and descriptions (Tier-1) for initial discovery.
 *   **Context Boundaries**: Respect the data boundaries defined in [**acs.yaml**](file://./.agent/acs.yaml).
 *   **Verification Scenarios**: Proactively utilize scripts in [**.agent/scenarios/**](file://./.agent/scenarios/) to verify complex logic after implementation.
+*   **Plan-Commands Compliance**: Plan-driven swarm execution must adhere strictly to the [jjdelorme/plan-commands Specification](https://github.com/jjdelorme/plan-commands).
 
 
 ### The IDE Hand-off Protocol (Copilot/Claude)
@@ -109,19 +140,21 @@ Programming-Work/
 IMPORTANT: Skills are always available. Do not wait for the user to invoke them. Use the correct skill automatically based on the task.
 
 ```
-[Swarm]             skill-swarm       Core orchestration and state machine.
-[Swarm]             skill-swarm           Multi-agent lifecycle (Scout/Architect/Engineer/Auditor).
+[Memory]            memory-agent               Cognitive Archivist: Persistent session memory, insight recall, conflict detection.
+[Memory]            skill-always-on-memory     Always-On SQLite memory layer: ingest, consolidate, query via bin/memory_agent.py.
+[Swarm]             skill-swarm                Core orchestration and state machine.
+[Swarm]             skill-swarm                Multi-agent lifecycle (Scout/Architect/Engineer/Auditor).
 [AWS]               specialist-aws             Holistic AWS: Specialized services (Location, Amplify, DSQL)
 [AWS]               specialist-aws-foundation  Core AWS: IAM, VPC, EC2, RDS, Networking
 [AWS]               specialist-aws-serverless  Serverless: Lambda, SNS, SQS, API Gateway
 [AWS]               specialist-aws-sagemaker   AI/ML: Fine-tuning, HyperPod, Evaluation
 [GCP]               specialist-gcp             Holistic GCP: GKE, Cloud Armor, Workstations, IAM
-[Kubernetes]        skill-k8s             K8s Operations: EKS, GKE, Istio, k9s
+[Kubernetes]        skill-k8s                  K8s Operations: EKS, GKE, Istio, k9s
 [Terraform]         specialist-terraform       IaC Strategy: Modules, Providers, Stacks
-[SRE/Ops]           shell-efficiency       Terminal Productivity: Shortcuts, History, Sanity
+[SRE/Ops]           shell-efficiency           Terminal Productivity: Shortcuts, History, Sanity
 [Engineer]          software-swarm-engineer    Implementation: TDD-first, Clean Code, SOLID
-[Architecture]      specialist-domain-driven-design             Design: 7-step Strategic to Tactical workflow
-[Database]          skill-sql             Audit: Schema analysis & query optimization
+[Architecture]      specialist-domain-driven-design  Design: 7-step Strategic to Tactical workflow
+[Database]          skill-sql                  Audit: Schema analysis & query optimization
 ```
 
 
@@ -136,7 +169,8 @@ skill-architecture/references/    AWS Diagrams, LADR generation
 skill-domain-driven-design/references/             7-phase DDD TOML playbooks
 skill-sql/references/             Database scan & analysis playbooks
 skill-swarm/references/           Swarm init & archival playbooks
-platform-admin/references/         Onboarding, SDKs, Workspace setup
+skill-always-on-memory/           Persistent SQLite memory: ingest, consolidate, query, insight scoring
+platform-admin/references/        Onboarding, SDKs, Workspace setup
 skill-github/references/      PR creation, Issue triage, Review guides
 ```
 

@@ -299,3 +299,7 @@ projects/
 .github/agents/*
 .github/skills/*
 .vscode/agents/*
+
+# --- Swarm Automation: Always-On Memory Database ---
+/memory.db
+/memory.db-journal

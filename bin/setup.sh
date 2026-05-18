@@ -102,8 +102,8 @@ fi
 
 log "   Installing Python AST bridge dependencies"
 run pip3 install --upgrade pip --quiet
-run pip3 install tree-sitter==0.20.1 tree-sitter-languages pyyaml --quiet
-ok "Python packages installed (tree-sitter==0.20.1, pyyaml)"
+run pip3 install tree-sitter==0.20.1 tree-sitter-languages pyyaml code-review-graph --quiet
+ok "Python packages installed (tree-sitter==0.20.1, pyyaml, code-review-graph)"
 
 #  4. Node.js
 log "4. Node.js"
@@ -137,8 +137,8 @@ log "5. Gemini CLI"
 if command_exists gemini; then
   ok "Gemini CLI already installed"
 else
-  run npm install -g @google/gemini-cli
-  ok "Gemini CLI installed"
+  run npm install -g @google/gemini-cli context-mode
+  ok "Gemini CLI and context-mode installed"
 fi
 warn "Run 'gemini auth login' to authenticate"
 
@@ -293,6 +293,11 @@ else
   run brew install tflint
   ok "tflint installed"
 fi
+
+#  16.1. PTK (Python Token Killer - Custom RTK)
+log "16.1. PTK (Python Token Killer - Custom RTK)"
+run chmod +x "$SCRIPT_DIR/rtk"
+ok "rtk (Python Token Killer) initialized and marked executable"
 
 if command_exists ansible-lint; then
   ok "ansible-lint already installed"
