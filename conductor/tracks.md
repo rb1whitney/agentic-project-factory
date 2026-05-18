@@ -19,14 +19,15 @@
   - Goal: Master Panel Certification and Hub Decoupling.
 
 ### Mission: Agentic Standard Unification (.agent)
-- **Status**: [ACTIVE] | **Resolution**: [PREPARATION]
+- **Status**: [COMPLETE] | **Resolution**: [CERTIFIED]
 - **Track**: [**conductor/tracks/agent-unification/**](file://./conductor/tracks/agent-unification/)
 - **Manufacturing Goal**: Relocate `agents/`, `skills/`, and vendor hubs to the unified `.agent/` standard.
 
 ### Mission: Project nit-fabric (Usability Hardening)
-- **Status**: [ACTIVE] | **Resolution**: [RE-OPENED]
+- **Status**: [COMPLETE] | **Resolution**: [CERTIFIED]
 - **Track**: [**conductor/tracks/nit-fabric-usability-hardening/**](file://./conductor/tracks/nit-fabric-usability-hardening/)
 - **Manufacturing Goal**: Decouple from factory root, implement pre-flight checks, and standardize packaging (v0.11.0).
+
 
 ### Mission: Project Cloud-Boot (Legacy App)
 - **Status**: [MODERNIZING]
