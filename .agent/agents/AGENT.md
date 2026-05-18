@@ -2,7 +2,6 @@
 name: globalizer-specialist
 description: "Specialized Swarm agent for internationalization (i18n) and regional parity."
 kind: local
-model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 ---

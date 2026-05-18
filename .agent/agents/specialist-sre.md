@@ -4,7 +4,6 @@ description: >
   Site Reliability Engineering specialist. Specializes in observability, SLO management,
   safe production investigations, anomaly detection, and incident postmortems.
 kind: local
-model: gemini-2.5-pro
 temperature: 0.1
 max_turns: 10
 tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']

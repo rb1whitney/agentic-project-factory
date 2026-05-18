@@ -4,7 +4,6 @@ description: >
   Specialist subagent. Use for: Project Orchestration, Phase transitions,
   Git Commits, and Global Status. Owns the Swarm Management protocol.
 kind: local
-model: claude-sonnet-4.6
 temperature: 0.2
 ---
 

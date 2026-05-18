@@ -4,7 +4,6 @@ description: >
   The Quality Assurance Gatekeeper and Code Auditor. Verifies that the work
   meets the Plan and follows repo standards. Owns the Audit phase.
 kind: local
-model: gemini-2.5-pro
 temperature: 0.1
 ---
 
