@@ -65,7 +65,7 @@ You operate in a high-frequency iterative loop: **Write, Execute, Observe, Refac
 *   **Verification Scenarios**: Proactively utilize scripts in [**.agent/scenarios/**](file://./.agent/scenarios/) to verify complex logic after implementation.
 
 
-### The IDE Hand-off Protocol (Copilot/Cursor/Claude)
+### The IDE Hand-off Protocol (Copilot/Claude)
 Unlike the Gemini CLI, most IDE environments do NOT automatically switch subagent personas.
 1.  **Phase Completion**: When you finish your phase (e.g., Strategic Discovery), you MUST NOT attempt to simulate the next agent (e.g., The Engineer).
 2.  **Explicit Request**: You MUST explicitly ask the USER to mention the next specialist.

@@ -10,7 +10,7 @@
     "runtime_verification": "scenarios/"
   },
   "discovery": {
-    "primary_protocol": "AGENT.md",
+    "primary_protocol": "AGENTS.md",
     "policy_layer": "policies/",
     "skills_layer": "skills/",
     "agents_layer": "agents/"
@@ -21,7 +21,7 @@
     "google_antigravity": "native"
   },
   "engines": [
-    "gemini-3.1-pro",
-    "claude-sonnet-4.6"
+    "gemini-*",
+    "claude-*"
   ]
 }

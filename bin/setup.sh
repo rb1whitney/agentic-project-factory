@@ -365,7 +365,7 @@ if command_exists python3; then
 else
     err "Python3 missing  Skipping Swarm Nexus synchronization."
 fi
-ok "Swarm Nexus synchronized across all platforms (Gemini, Claude, Cursor, Copilot)"
+ok "Swarm Nexus synchronized across all platforms (Gemini, Claude, Copilot)"
 
 # AST code map
 log "   Building initial AST code map"

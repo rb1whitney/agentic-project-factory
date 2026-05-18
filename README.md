@@ -10,7 +10,7 @@ This repository is the **Master Factory** for building standalone code repositor
 - **`agents/` & `skills/`**: The master tools used by factory workers (the AI swarm) to construct products.
 - **`bin/`**: Factory maintenance scripts and setup engines.
 - **`conductor/`**: The **Production Ledger**, tracking the manufacturing queue of each product.
-- **`bin/nexus.py`**: The **Swarm Nexus** engine. Synchronizes agents and skills across Cursor, Claude, Gemini, and Copilot.
+- **`bin/nexus.py`**: The **Swarm Nexus** engine. Synchronizes agents and skills across Claude, Gemini, and Copilot.
 
 ###  Standalone Products (`projects/`)
 The outputs of the factory. Each project in this directory is a **Standalone Product**.
