@@ -10,6 +10,7 @@
 - [ ] **Symlink Removal**: Standard symbolic links for `agents/` and `skills/` within vendor folders are targeted for removal.
 
 ## Current State
-- `agents/` [ROOT]
-- `skills/` [ROOT]
-- Status: Pending `git mv` approval.
+- `agents/` consolidated inside `.agent/agents/` [ROOT]
+- `skills/` consolidated inside `.agent/skills/` [ROOT]
+- Status: [COMPLETE] | [SHIPPED]
+
