@@ -7,6 +7,11 @@
       "description": "Auto-update documentation based on task outcome."
     },
     {
+      "type": "command",
+      "execute": "python3 bin/memory_agent.py complete default_session",
+      "description": "Mark Always-On Memory database session COMPLETED."
+    },
+    {
       "type": "notification",
       "channel": "system",
       "message": "Task complete. Documentation updated successfully."

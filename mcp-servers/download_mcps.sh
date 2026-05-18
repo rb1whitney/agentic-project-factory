@@ -32,6 +32,10 @@ REPOS=(
 
     # --- Developer Tools ---
     "https://github.com/github/github-mcp-server.git mcp-github"
+
+    # --- Token Harvester Frameworks ---
+    "https://github.com/mksglu/context-mode.git mcp-context-mode"
+    "https://github.com/tirth8205/code-review-graph.git mcp-code-review-graph"
 )
 
 echo "--- Initializing Expert Intelligence Hub ---"

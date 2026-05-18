@@ -58,3 +58,8 @@ Use the templates in `templates/` for all swarm artifacts:
 - `templates/IMPLEMENTATION_PLAN.md`
 - `templates/LOGICAL_ARCHITECTURE.md`
 - `templates/PHYSICAL_ARCHITECTURE.md`
+
+## 5. Planning & Execution Commands
+The Swarm utilizes the **Plan-Commands** architectural pattern to represent and execute structured planning tasks deterministically:
+*   **Specification Reference**: [jjdelorme/plan-commands Specification](https://github.com/jjdelorme/plan-commands)
+*   **Execution Rule**: Every complex task track must be decomposed into a sequence of declarative, executable step blocks that are run securely in the sandbox and verified before proceeding to subsequent steps.
