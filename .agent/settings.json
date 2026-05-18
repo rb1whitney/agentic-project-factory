@@ -15,6 +15,14 @@
     "marketplace": {
       "command": "/bin/bash",
       "args": ["./mcp-servers/mcp_wrapper.sh", "./mcp-servers/mcp-marketplace/marketplace-mcp-server"]
+    },
+    "context-mode": {
+      "command": "/bin/bash",
+      "args": ["./mcp-servers/mcp_wrapper.sh", "context-mode"]
+    },
+    "code-review-graph": {
+      "command": "/bin/bash",
+      "args": ["./mcp-servers/mcp_wrapper.sh", "code-review-graph", "serve"]
     }
   }
 }

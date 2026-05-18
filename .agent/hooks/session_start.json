@@ -7,6 +7,11 @@
       "description": "Regenerate symbol map on session initialization."
     },
     {
+      "type": "command",
+      "execute": "python3 bin/memory_agent.py start default_session",
+      "description": "Initialize and record Always-On Memory database session."
+    },
+    {
       "type": "notification",
       "channel": "system",
       "message": "ACS Hub Loaded. Symbol Map Refreshed."

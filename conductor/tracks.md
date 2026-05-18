@@ -28,6 +28,11 @@
 - **Track**: [**conductor/tracks/nit-fabric-usability-hardening/**](file://./conductor/tracks/nit-fabric-usability-hardening/)
 - **Manufacturing Goal**: Decouple from factory root, implement pre-flight checks, and standardize packaging (v0.11.0).
 
+### Mission: Token Harvester & Cost Reducer Integration
+- **Status**: [COMPLETE] | **Resolution**: [SHIPPED-PORTABLE]
+- **Track**: [**conductor/tracks/token-harvester-integration/**](file://./conductor/tracks/token-harvester-integration/)
+- **Manufacturing Goal**: Embed 5 token-saving frameworks into AGENTS.md, build a custom physical-sovereignty `bin/rtk` tool, and integrate `context-mode` and `code-review-graph` MCP environments.
+
 
 ### Mission: Project Cloud-Boot (Legacy App)
 - **Status**: [MODERNIZING]
