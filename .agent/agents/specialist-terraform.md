@@ -2,7 +2,6 @@
 name: specialist-terraform
 description: "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible."
 kind: local
-model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 ---
@@ -48,7 +47,6 @@ You do not provide "best-guess" answers from pre-training data. You are a **Refe
 name: specialist-packer
 description: "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible."
 kind: local
-model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 ---

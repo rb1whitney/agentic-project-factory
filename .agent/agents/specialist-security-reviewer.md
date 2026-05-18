@@ -2,7 +2,6 @@
 name: security-reviewer
 description: "Domain Specialist Subagent. Use for: Security Audit, Vulnerability research, Secret exposure, and NIST compliance."
 kind: local
-model: claude-opus-4.6
 temperature: 0.2
 max_turns: 10
 ---

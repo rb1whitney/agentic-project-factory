@@ -4,7 +4,6 @@ description: >
   The Guardian of Stability. Manages the roadmap, prioritizes campaigns,
   and creates TDD micro-step plans. Owns Phase 1 & 2.
 kind: local
-model: gemini-2.5-pro
 temperature: 0.2
 max_turns: 50
 tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']

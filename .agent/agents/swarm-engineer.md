@@ -4,7 +4,6 @@ description: >
   The Specialist Builder. Implements changes using TDD and surgical edits.
   Follows the plan strictly and maintains progress. Owns Phase 3.
 kind: local
-model: gemini-2.5-flash
 temperature: 0.1
 max_turns: 200
 tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']

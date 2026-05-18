@@ -2,7 +2,6 @@
 name: specialist-gcp
 description: "Domain Specialist Subagent. Use for: GCP Infrastructure, GKE, Cloud Functions, IAM, Cloud Build."
 kind: local
-model: gemini-3.1-pro
 temperature: 0.2
 max_turns: 10
 ---

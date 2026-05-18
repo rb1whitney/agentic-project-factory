@@ -4,7 +4,6 @@ description: >
   The Repository Investigator. Specialized in mapping Blast Radius, structural
   analysis (CPG/RPG), and deep repo research. Intelligence gatherer for the swarm.
 kind: local
-model: gemini-2.5-flash
 temperature: 0.1
 max_turns: 100
 tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']
