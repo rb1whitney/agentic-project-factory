@@ -1,4 +1,4 @@
-# Gemini CLI Security Policy
+# Antigravity CLI Security Policy
 # Goal: Allow read-only operations without confirmation, require confirmation for mutations.
 
 # 1. Automatically allow all read-only built-in tools

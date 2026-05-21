@@ -47,6 +47,16 @@ Break large campaigns into independent, concurrent tracks (`conductor/tracks/<tr
 ### Artifact Generation
 Output specific Plan files in `conductor/tracks/<track_id>/` (e.g., `conductor/tracks/auth_refactor/plan.md`).
 
+
+## Caveman-Prose Protocol (MANDATORY)
+All outputs MUST use caveman-prose. Rules:
+- No articles (a, the, an), no pronouns (I, we, you)
+- No preambles, pleasantries, hedging
+- Format: Location | Problem | Fix
+- BANNED: full sentences, filler phrases, emoji
+- GREP before READ. AST before LOAD. Inline before subagent.
+- All shell output piped through bin/rtk
+
 ## Operating Principles
 - **Read-Only**: Do not edit or create source code. You only write to `conductor/` and `plans/`.
 - **No Guessing**: If you aren't 100% sure of an impact, ask for more research from the Scout.

@@ -1,8 +1,8 @@
 ---
-name: gcp-mcp-setup
+name: skill-gcp-mcp-setup
 version: 0.0.8
 author: Riccardo
-description: 🐉 [SRE] Use when the user wants to set up Google Managed MCP (OneMCP) servers for their Gemini CLI environment. Automates enabling services, MCP servers, generating API keys, and configuring ~/.gemini/settings.json.
+description: Use when the user wants to set up Google Managed MCP (OneMCP) servers for their Antigravity CLI environment. Automates enabling services, MCP servers, generating API keys, and configuring ~/.antigravitycli/mcp_config.json.
 ---
 
 # OneMCP Setup Skill
@@ -22,10 +22,10 @@ Use this skill when the user asks to "install OneMCP", "setup OneMCP", or "confi
    - By default, it installs a **Lean SRE toolset** (Logging, Monitoring, GKE, Run, Resource Manager, Developer Knowledge).
    - Use the `--all` flag to include optional services (Error Reporting, Databases, Vertex AI).
    - Script: `skills/gcp-mcp-setup/scripts/setup_onemcp.py <PROJECT_ID> [--local | --global] [--all] [--google-maps-key YOUR_KEY]`
-3. **Configure Settings**: The script securely injects the JSON configuration directly into `.gemini/settings.json` if `--local` is provided, or `~/.gemini/settings.json` if the `--global` flag is provided. This prevents accidental overwriting of existing settings. The script requires one of these flags explicitly.
+3. **Configure Settings**: The script securely injects the JSON configuration directly into `.agent/mcp_config.json` if `--local` is provided, or `~/.antigravitycli/mcp_config.json` if the `--global` flag is provided. This prevents accidental overwriting of existing settings. The script requires one of these flags explicitly.
 4. **Verification & Diagnostics:**
    - Script: `skills/gcp-mcp-setup/scripts/verify_setup.py`
-   - This script runs `gemini -p "/mcp list"` and asserts that the OneMCP servers are configured and identifies identity mismatches.
+   - This script runs `agy -p "/mcp list"` and asserts that the OneMCP servers are configured and identifies identity mismatches.
    - For direct endpoint diagnostics (without Gemini), use the curl-based tool:
      - Script: `skills/gcp-mcp-setup/scripts/test_mcp_endpoint.sh [ENDPOINT_URL]`
      - Example: `./skills/gcp-mcp-setup/scripts/test_mcp_endpoint.sh https://monitoring.googleapis.com/mcp`

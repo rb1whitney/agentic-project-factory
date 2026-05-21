@@ -287,6 +287,7 @@ credentials
 # --- Swarm Automation: Brain & Cache ---
 # Ignore automated discovery artifacts and temporary brain state
 .gemini/antigravity/
+.antigravitycli/
 .ast_cache/
 relationship_graph.json
 code_map.md
@@ -299,6 +300,8 @@ projects/
 .github/agents/*
 .github/skills/*
 .vscode/agents/*
+.agents/agents/*
+.agents/skills/*
 
 # --- Swarm Automation: Always-On Memory Database ---
 /memory.db

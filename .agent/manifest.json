@@ -22,6 +22,7 @@
   },
   "engines": [
     "gemini-*",
-    "claude-*"
+    "claude-*",
+    "antigravity-*"
   ]
 }

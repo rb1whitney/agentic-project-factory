@@ -19,66 +19,42 @@ Most agents have amnesia. They process information when asked, then forget every
 
 ---
 
-## 2. Architecture: Three-Phase Cognitive Loop
+## 2. Architecture: Triple-Layer Hybrid Stack
 
-The upstream architecture defines three core sub-agents. Our factory adapts these phases via `bin/memory_agent.py`.
+This skill now orchestrates a 2026-standard hybrid memory stack, delegating specialized paging to `@skill-episodic-memory` and extraction to `@skill-graph-memory`.
 
-### Phase 1 — INGEST
-Feed the agent any content. The IngestAgent extracts structured information:
+### Layer 1 — CORE MEMORY (RAM)
+The agent's immediate context block. Managed by Episodic Memory rules. Paged in at session start, paged out when context bloats.
 
-```
-Input: "plan-commands standardizes agent task decomposition."
-           │
-           ▼
-   ┌───────────────────────────────────────────────┐
-   │ Category:   standards                         │
-   │ Insight:    plan-commands standardizes...     │
-   │ Impact:     5.0                               │
-   └───────────────────────────────────────────────┘
-```
+### Layer 2 — RECALL MEMORY (Disk)
+The traditional SQLite interaction and insight log. Handled via standard `bin/memory_agent.py` inserts and queries. Acts as fuzzy, semantic history.
 
-### Phase 2 — CONSOLIDATE
-The ConsolidateAgent (timer-based) connects memories — similar to how the human brain replays during sleep:
+### Layer 3 — GRAPH MEMORY (Relational)
+Extracted entities and relationships. Triggered during the `CONSOLIDATE` phase (via `python3 bin/memory_agent.py complete <session_id>`). 
 
 ```
-Memory #1: "OIDC auth requires port determinism for OTLP"
-Memory #2: "nit-fabric pre-flight checks removed hardcoded paths"
-                   │
-                   ▼
-   ┌───────────────────────────────────────────────┐
-   │ Connections: #1 ↔ #2 — Auth config impacts    │
-   │             fabric discovery pre-flight       │
-   │ Insight: "Zero-trust infra requires both      │
-   │           port discipline AND path agnostic   │
-   │           CLI initialization"                 │
-   └───────────────────────────────────────────────┘
-```
-
-### Phase 3 — QUERY
-Ask any question. The QueryAgent synthesizes answers from all stored memories with source citations.
-
-```
-Q: "What governance decisions have we made?"
-
-A: "Based on stored memory:
-   1. plan-commands enforces structured task decomposition [standards]
-   2. OIDC requires deterministic OTLP port config [SRE]
-   3. Token harvester frameworks reduce costs 60-98% [architecture]"
+[User Workspace] -> migrated to -> [Antigravity CLI]
+         │                                  │
+      impacts                            requires
+         ▼                                  ▼
+[SRE Agent Config]                   [mcp_config.json]
 ```
 
 ---
 
 ## 3. Structural Topology (`memory.db`)
 
-Three high-performance SQLite tables:
+Five high-performance SQLite tables support the hybrid stack:
 
 | Table | Purpose | Key Fields |
 |---|---|---|
 | `sessions` | Task/session boundaries | `session_id`, `start_time`, `status` |
-| `interactions` | Logged user↔agent exchanges | `request`, `response`, `tokens_used` |
-| `insights` | Distilled, high-impact lessons | `category`, `insight_text`, `impact_score` |
+| `interactions` | Recall: Logged user↔agent exchanges | `request`, `response`, `tokens_used` |
+| `insights` | Recall: Distilled, high-impact lessons | `category`, `insight_text`, `impact_score` |
+| `entities` | Graph: Extracted nodes | `entity_id`, `name`, `type` |
+| `relationships`| Graph: Edges between nodes | `source_id`, `target_id`, `predicate`, `timestamp` |
 
-**Indexes**: `idx_insights_category`, `idx_interactions_session` for high-speed querying.
+**Indexes**: `idx_insights_category`, `idx_interactions_session`, `idx_graph_source`, `idx_graph_target` for high-speed routing.
 
 ---
 
@@ -130,10 +106,11 @@ python3 bin/memory_agent.py add-interaction <session_id> "<request>" "<response>
 python3 bin/memory_agent.py summary
 ```
 
-**Mark session complete**:
+**Mark session complete & Trigger Consolidation (Hook integration)**:
 ```bash
 python3 bin/memory_agent.py complete <session_id>
 ```
+*Note: Executing `complete` automatically flushes ephemeral Core Memory to Disk and runs the Graph Extraction pipeline over the session's interactions. This ensures `post_task.json` hooks remain fully compatible with the new architecture.*
 
 ---
 

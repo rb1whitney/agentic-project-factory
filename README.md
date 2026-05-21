@@ -2,10 +2,6 @@
 
 This repository is the **Master Factory** for building standalone code repositories. It provides the high-performance infrastructure, expert AI agents, and manufacturing workflows required to create and stabilize independent technical products.
 
-###  Factory Remote
-- **GitHub**: [https://github.com/rb1whitney/Agentic-Project-Factory](https://github.com/rb1whitney/Agentic-Project-Factory)
-- **Status**: **Private**
-
 ###  Factory Floor (Root)
 - **`agents/` & `skills/`**: The master tools used by factory workers (the AI swarm) to construct products.
 - **`bin/`**: Factory maintenance scripts and setup engines.
