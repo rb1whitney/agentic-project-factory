@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🏛️ SWARM NEXUS: Multi-Platform Symlink Engine (Simplified v2.0)
+SWARM NEXUS: Multi-Platform Symlink Engine (Simplified v2.0)
 Codifies the relationship between core agents/skills and AI tool configurations.
 Mirrors the discovery and $HOME-sync logic of sync_skills.sh.
 """
@@ -20,6 +20,8 @@ LOCAL_AGENT_SPOKES = [
     ".gemini/agents",
     ".gemini/antigravity/agents",
     ".github/agents",
+    ".agents/agents",
+    ".antigravitycli/agents",
 ]
 
 LOCAL_SKILL_SPOKES = [
@@ -27,6 +29,8 @@ LOCAL_SKILL_SPOKES = [
     ".gemini/skills",
     ".gemini/antigravity/skills",
     ".github/skills",
+    ".agents/skills",
+    ".antigravitycli/skills",
 ]
 
 # Global/System Spokes (Mirroring sync_skills.sh)
@@ -36,6 +40,8 @@ GLOBAL_SPOKES = [
     Path.home() / ".gemini",
     Path.home() / ".gemini/antigravity",
     Path.home() / ".config/github-copilot",
+    Path.home() / ".gemini/antigravity-cli",
+    Path.home() / ".antigravitycli",
 ]
 
 # Special Instruction Bridges
@@ -69,14 +75,14 @@ def create_symlink(source: Path, target: Path):
         target.unlink()
     elif target.exists():
         # Do not overwrite real files
-        print(f"⚠️ Target exists and is NOT a symlink: {target}")
+        print(f"Target exists and is NOT a symlink: {target}")
         return
 
     try:
         target.symlink_to(rel_source)
-        print(f"🔗 Linked: {target} -> {rel_source}")
+        print(f"Linked: {target} -> {rel_source}")
     except Exception as e:
-        print(f"❌ Error linking {target}: {e}")
+        print(f"Error linking {target}: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Swarm Nexus: Sync Agents and Skills")
@@ -87,7 +93,7 @@ def main():
     repo_root = Path(__file__).parent.parent.absolute()
     os.chdir(repo_root)
 
-    print(f"🚀 Initializing Swarm Nexus at {repo_root}...")
+    print(f"Initializing Swarm Nexus at {repo_root}...")
 
     # 1. Discover and Sync Agents (*.md)
     if AGENT_SOURCE.exists():
@@ -125,7 +131,7 @@ def main():
         for target_rel in targets:
             create_symlink(source, Path(target_rel))
 
-    print("✅ Nexus synchronization complete.")
+    print("Nexus synchronization complete.")
 
 if __name__ == "__main__":
     main()

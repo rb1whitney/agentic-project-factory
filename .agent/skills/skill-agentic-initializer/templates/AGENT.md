@@ -19,4 +19,4 @@ IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning. This 
 1. **The Plan is Truth**: Work MUST be tracked in `plan.md` or `task.md`.
 2. **TDD Dominance**: Every feature requires a failing test before implementation.
 3. **Physical Sovereignty**: No symlinks for root assets. Specialists must be resident.
-4. **Nexus Integrity**: Maintain the symlink nexus in `.gemini/`, `.claude/`, `.copilot/`.
+4. **Nexus Integrity**: Maintain the symlink nexus in `.agents/`, `.antigravitycli/`, `.claude/`, `.copilot/`.

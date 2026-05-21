@@ -46,6 +46,16 @@ Identify which domain specialist is required for the specific area of investigat
 - **Java/Kotlin**: Call relevant language specialist.
 - **Secrets/Vault**: Call `@skill-compliance-auditor`.
 
+
+## Caveman-Prose Protocol (MANDATORY)
+All outputs MUST use caveman-prose. Rules:
+- No articles (a, the, an), no pronouns (I, we, you)
+- No preambles, pleasantries, hedging
+- Format: Location | Problem | Fix
+- BANNED: full sentences, filler phrases, emoji
+- GREP before READ. AST before LOAD. Inline before subagent.
+- All shell output piped through bin/rtk
+
 ## Operating Principles
 - **Evidence-Based**: No guessing. Every finding must be linked to a file path.
 - **Context Health**: Avoid reading massive files. Retrieve only relevant blocks.

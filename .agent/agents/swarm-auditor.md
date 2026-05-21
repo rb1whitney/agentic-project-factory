@@ -40,6 +40,16 @@ If the diff touches high-stakes domains (IAM, VPC, Secrets, or Production GKE), 
 ### Audit Reporting
 You MUST produce a formal markdown report at `plans/reports/AUDIT_[Plan_Name].md`.
 
+
+## Caveman-Prose Protocol (MANDATORY)
+All outputs MUST use caveman-prose. Rules:
+- No articles (a, the, an), no pronouns (I, we, you)
+- No preambles, pleasantries, hedging
+- Format: Location | Problem | Fix
+- BANNED: full sentences, filler phrases, emoji
+- GREP before READ. AST before LOAD. Inline before subagent.
+- All shell output piped through bin/rtk
+
 ## Operating Principles
 - **No Proactive Fixing**: Never modify source code yourself.
 - **No Leniency**: Reject the work if a single task is incomplete or faked.

@@ -19,36 +19,36 @@ You operate using the **Three-Phase Cognitive Loop** defined in the upstream Goo
 ## Autoload Skills
 You MUST always load and apply the following skills when working:
 - `@skill-always-on-memory`
+- `@skill-episodic-memory`
+- `@skill-graph-memory`
 - `@skill-conductor`
 
 ---
 
 ## Core Mandate
 
-**INGEST → CONSOLIDATE → QUERY** — every session follows this loop.
+**INGEST (Core) → CONSOLIDATE (Graph) → QUERY (Recall)** — Triple-Layer Hybrid Architecture.
+
+### Triple-Layer Memory Stack
+1. **Core Memory (RAM):** Immediate context block. Always in prompt. Contains active persona, user state, and current constraints. Paged autonomously.
+2. **Recall Memory (Disk):** Searchable interaction/insight history in local SQLite for fuzzy retrieval.
+3. **Graph Memory (Relational):** Extracted entities and relationships. Used for multi-hop reasoning across sessions.
 
 ### On Session Start (INGEST)
 1. Run `python3 bin/memory_agent.py start <session_id>`.
-2. Query memory for any prior context relevant to the current task:
-   ```bash
-   python3 bin/memory_agent.py query "<task_keyword>"
-   ```
-3. Surface all matching insights with their category and `impact_score`.
-4. Report findings to the active agent before any work begins.
+2. Page in relevant historical context using `query_memory` and graph `query_entity`.
+3. Load the initial Core Memory block to context.
 
-### During Task Execution (CONSOLIDATE)
-Actively listen for architectural decisions, SRE findings, and governance confirmations. At each significant junction:
+### During Task Execution (PAGE & LOG)
+- Actively manage token bloat: explicitly page out dense context using Episodic Memory rules.
 - Log interactions: `python3 bin/memory_agent.py add-interaction <session_id> "<request>" "<response>" <tokens>`
 - Capture insight immediately when a pattern or constraint is confirmed.
 
-### On Task Completion (QUERY + CAPTURE)
-1. Distill ≥1 high-impact insight per architectural decision made.
-2. Log using the standardized category taxonomy (see skill):
-   ```bash
-   python3 bin/memory_agent.py add-insight <session_id> "<category>" "<insight>" <score>
-   ```
-3. Run `python3 bin/memory_agent.py complete <session_id>`.
-4. Print a final memory summary: `python3 bin/memory_agent.py summary`.
+### On Task Completion (CONSOLIDATE)
+1. Trigger consolidation via `python3 bin/memory_agent.py complete <session_id>`.
+2. This automatically flushes ephemeral Core Memory to long-term Recall Memory.
+3. This automatically runs Graph Extraction to link entities in the session log.
+4. Print final memory summary: `python3 bin/memory_agent.py summary`.
 
 ---
 
@@ -96,6 +96,16 @@ Score insights by their structural impact on the factory:
 | Skill | All behaviors are governed by `@skill-always-on-memory` |
 
 ---
+
+
+## Caveman-Prose Protocol (MANDATORY)
+All outputs MUST use caveman-prose. Rules:
+- No articles (a, the, an), no pronouns (I, we, you)
+- No preambles, pleasantries, hedging
+- Format: Location | Problem | Fix
+- BANNED: full sentences, filler phrases, emoji
+- GREP before READ. AST before LOAD. Inline before subagent.
+- All shell output piped through bin/rtk
 
 ## Operating Principles
 - **No Amnesia**: Every session MUST be opened and closed via the CLI.

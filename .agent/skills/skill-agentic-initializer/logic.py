@@ -12,7 +12,8 @@ def init_repo(target_path: str, project_name: str):
     (base_dir / "skills").mkdir(parents=True, exist_ok=True)
     (base_dir / "conductor").mkdir(parents=True, exist_ok=True)
     (base_dir / ".github").mkdir(parents=True, exist_ok=True)
-    (base_dir / ".gemini").mkdir(parents=True, exist_ok=True)
+    (base_dir / ".agents").mkdir(parents=True, exist_ok=True)
+    (base_dir / ".antigravitycli").mkdir(parents=True, exist_ok=True)
     (base_dir / ".claude").mkdir(parents=True, exist_ok=True)
     (base_dir / ".copilot").mkdir(parents=True, exist_ok=True)
 
@@ -32,10 +33,15 @@ def init_repo(target_path: str, project_name: str):
     # 3. Establish AI Nexus (Symlinks)
     os.chdir(base_dir)
 
-    # .gemini Nexus
-    os.system("ln -sf ../AGENT.md .gemini/GEMINI.md")
-    os.system("ln -sf ../agents .gemini/agents")
-    os.system("ln -sf ../skills .gemini/skills")
+    # .agents Nexus
+    os.system("ln -sf ../AGENT.md .agents/AGENT.md")
+    os.system("ln -sf ../agents .agents/agents")
+    os.system("ln -sf ../skills .agents/skills")
+
+    # .antigravitycli Nexus
+    os.system("ln -sf ../AGENT.md .antigravitycli/AGENT.md")
+    os.system("ln -sf ../agents .antigravitycli/agents")
+    os.system("ln -sf ../skills .antigravitycli/skills")
 
     # .claude Nexus
     os.system("ln -sf ../AGENT.md .claude/AGENT.md")

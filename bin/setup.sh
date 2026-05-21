@@ -132,15 +132,14 @@ else
   ok "uv installed"
 fi
 
-#  5. Gemini CLI
-log "5. Gemini CLI"
-if command_exists gemini; then
-  ok "Gemini CLI already installed"
+#  5. Antigravity 2.0 (agy)
+log "5. Antigravity 2.0 (agy)"
+if command_exists agy; then
+  ok "Antigravity CLI (agy) already installed"
 else
-  run npm install -g @google/gemini-cli context-mode
-  ok "Gemini CLI and context-mode installed"
+  err "Antigravity CLI (agy) is missing."
+  warn "Please install the agy binary from https://antigravity.google"
 fi
-warn "Run 'gemini auth login' to authenticate"
 
 #  6. AWS CLI
 log "6. AWS CLI"
@@ -357,10 +356,10 @@ fi
 
 # Swarm Policies
 log "21. Swarm Policy Audit"
-if [ -f "$REPO_ROOT/.gemini/policies/swarm_policy.toml" ]; then
+if [ -f "$REPO_ROOT/.agent/policies/governance.toml" ]; then
   ok "Swarm RBAC policies detected"
 else
-  warn "Swarm policies missing  Ensure .gemini/policies/ exists"
+  warn "Swarm policies missing  Ensure .agent/policies/governance.toml exists"
 fi
 
 #  23. Swarm Nexus Synchronization
@@ -370,7 +369,7 @@ if command_exists python3; then
 else
     err "Python3 missing  Skipping Swarm Nexus synchronization."
 fi
-ok "Swarm Nexus synchronized across all platforms (Gemini, Claude, Copilot)"
+ok "Swarm Nexus synchronized across all platforms (Antigravity, Claude, Copilot)"
 
 # AST code map
 log "   Building initial AST code map"
@@ -400,7 +399,7 @@ echo -e "${BOLD}${GREEN}         Setup Complete  Next Steps                  ${R
 echo -e "${BOLD}${GREEN}${RESET}"
 echo ""
 echo "  1. Reload your shell:    source $PROFILE"
-echo "  2. Authenticate:         gemini auth login"
+echo "  2. Authenticate:         agy auth login"
 echo "  3.                       aws configure"
 echo "  4.                       gcloud init"
 echo "  5.                       gh auth login"

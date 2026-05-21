@@ -35,7 +35,7 @@ baker audit --resource <type> --name <name> --regions <comma_list>
 ### 3. Automated Refactor
 To apply surgical globalization patches, use the internal automation skills:
 ```bash
-bash .gemini/skills/baker-automate.sh <target_path>
+bash .agents/skills/baker-automate.sh <target_path>
 ```
 
 ## ⚖️ Guardrails
