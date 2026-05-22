@@ -45,12 +45,12 @@ PREFERENCE_PATTERNS = [
 ENTITY_PATTERN = re.compile(
     r"\b(?:"
     r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+"  # Multi-word proper nouns
-    r"|@\w[\w-]+"                        # Agent/skill references
-    r"|[A-Z][A-Z_]{2,}"                 # Acronyms (IAM, OIDC, OTLP, etc.)
-    r"|(?:bin|tools)/[\w./]+"            # Tool paths
-    r"|\.agent/[\w./]+"                  # Agent config paths
-    r"|memory\.db"                       # Known artifacts
-    r"|conductor/[\w./]+"               # Conductor paths
+    r"|@\w[\w-]+"  # Agent/skill references
+    r"|[A-Z][A-Z_]{2,}"  # Acronyms (IAM, OIDC, OTLP, etc.)
+    r"|(?:bin|tools)/[\w./]+"  # Tool paths
+    r"|\.agent/[\w./]+"  # Agent config paths
+    r"|memory\.db"  # Known artifacts
+    r"|conductor/[\w./]+"  # Conductor paths
     r")\b"
 )
 
@@ -258,6 +258,7 @@ def set_preference(key, value, source="manual"):
 
 # -- Consolidation Pipeline --
 
+
 def _classify_entity(name):
     """Classify entity type based on naming patterns."""
     if name.startswith("@"):
@@ -316,8 +317,7 @@ def _extract_preferences_from_text(text):
     prefs = {}
     # "always use X" / "prefer X" / "default to X" / "switch to X"
     for match in re.finditer(
-        r"(?:always\s+use|prefer|default\s+to|switch\s+to)\s+[\"']?([^\"'\n,.]+)[\"']?",
-        text, re.IGNORECASE
+        r"(?:always\s+use|prefer|default\s+to|switch\s+to)\s+[\"']?([^\"'\n,.]+)[\"']?", text, re.IGNORECASE
     ):
         val = match.group(1).strip()
         if len(val) > 2:
@@ -326,10 +326,7 @@ def _extract_preferences_from_text(text):
             prefs[key] = val
 
     # "never X" / "avoid X" / "don't X"
-    for match in re.finditer(
-        r"(?:never|avoid|don't|do\s+not)\s+[\"']?([^\"'\n,.]+)[\"']?",
-        text, re.IGNORECASE
-    ):
+    for match in re.finditer(r"(?:never|avoid|don't|do\s+not)\s+[\"']?([^\"'\n,.]+)[\"']?", text, re.IGNORECASE):
         val = match.group(1).strip()
         if len(val) > 2:
             key = _derive_preference_key(val, text)
@@ -360,7 +357,7 @@ def _derive_preference_key(value, context):
 
 def _consolidate_session(session_id):
     """Run the full consolidation pipeline over a completed session.
-    
+
     Extracts entities, relationships, and preferences from all
     interactions logged during the session.
     """
@@ -430,9 +427,7 @@ def _consolidate_session(session_id):
         prefs = _extract_preferences_from_text(row["request"])
         for key, val in prefs.items():
             # Check if a manual preference exists -- never overwrite manual with auto
-            cursor.execute(
-                "SELECT source FROM user_preferences WHERE key = ?", (key,)
-            )
+            cursor.execute("SELECT source FROM user_preferences WHERE key = ?", (key,))
             existing = cursor.fetchone()
             if existing and existing["source"] == "manual":
                 continue
@@ -459,6 +454,7 @@ def _consolidate_session(session_id):
 
 
 # -- Query Functions --
+
 
 def query_insights(query_str):
     init_db()
@@ -604,9 +600,9 @@ def show_recent(hours=24):
     )
     interactions = cursor.fetchall()
 
-    print(f"\n================================================")
+    print("\n================================================")
     print(f"  MEMORY RECALL: Last {hours} hours")
-    print(f"================================================")
+    print("================================================")
 
     if insights:
         print(f"\nInsights ({len(insights)}):")
@@ -628,7 +624,7 @@ def show_recent(hours=24):
     else:
         print(f"\nNo interactions in last {hours}h.")
 
-    print(f"================================================\n")
+    print("================================================\n")
     conn.close()
 
 
