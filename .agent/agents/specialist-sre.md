@@ -1,12 +1,20 @@
 ---
 name: specialist-sre
-description: >
-  Site Reliability Engineering specialist. Specializes in observability, SLO management,
-  safe production investigations, anomaly detection, and incident postmortems.
+description: 'Site Reliability Engineering specialist. Specializes in observability,
+  SLO management, safe production investigations, anomaly detection, and incident
+  postmortems.
+
+  '
 kind: local
 temperature: 0.1
 max_turns: 10
-tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']
+tools:
+  run_shell_command: true
+  read_file: true
+  list_directory: true
+  write_file: true
+  replace: true
+  activate_skill: true
 ---
 
 # SRE Specialist Agent

@@ -96,15 +96,7 @@ class CodeMapper:
             logger.error(f"Failed to read file content for {rel_path}: {e}")
             return
 
-        lang_key = (
-            "java"
-            if ext == ".java"
-            else "hcl"
-            if ext in [".tf", ".hcl"]
-            else "rust"
-            if ext == ".rs"
-            else "yaml"
-        )
+        lang_key = "java" if ext == ".java" else "hcl" if ext in [".tf", ".hcl"] else "rust" if ext == ".rs" else "yaml"
 
         symbols: Dict[str, list[str]] = {"types": [], "functions": []}
         try:
@@ -116,8 +108,7 @@ class CodeMapper:
                     query_str = ""
                     if lang_key == "java":
                         query_str = (
-                            "(class_declaration name: (identifier) @name) "
-                            "(method_declaration name: (identifier) @name)"
+                            "(class_declaration name: (identifier) @name) (method_declaration name: (identifier) @name)"
                         )
                     elif lang_key == "rust":
                         query_str = (
@@ -126,16 +117,13 @@ class CodeMapper:
                             "(trait_item name: (type_identifier) @name)"
                         )
                     elif lang_key == "hcl":
-                        query_str = (
-                            "(block (identifier) @type (string_lit) @name) "
-                            "(variable_expr (identifier) @name)"
-                        )
+                        query_str = "(block (identifier) @type (string_lit) @name) (variable_expr (identifier) @name)"
 
                     if query_str:
                         query = get_language(lang_key).query(query_str)
                         for node, tag in query.captures(tree.root_node):
                             try:
-                                name = content[node.start_byte:node.end_byte].decode("utf-8").strip('"')
+                                name = content[node.start_byte : node.end_byte].decode("utf-8").strip('"')
                                 if "type" in tag:
                                     symbols["types"].append(name)
                                 else:

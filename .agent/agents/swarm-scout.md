@@ -1,12 +1,19 @@
 ---
 name: swarm-scout
-description: >
-  The Repository Investigator. Specialized in mapping Blast Radius, structural
+description: 'The Repository Investigator. Specialized in mapping Blast Radius, structural
   analysis (CPG/RPG), and deep repo research. Intelligence gatherer for the swarm.
+
+  '
 kind: local
 temperature: 0.1
 max_turns: 100
-tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']
+tools:
+  run_shell_command: true
+  read_file: true
+  list_directory: true
+  write_file: true
+  replace: true
+  activate_skill: true
 ---
 
 # Scout Agent (The Investigator)
