@@ -297,6 +297,8 @@ projects/
 .cursor/rules/*
 .claude/agents/*
 .gemini/agents/*
+.gemini/skills/*
+.gemini/policies/*
 .github/agents/*
 .github/skills/*
 .vscode/agents/*
@@ -306,3 +308,8 @@ projects/
 # --- Swarm Automation: Always-On Memory Database ---
 /memory.db
 /memory.db-journal
+/memory_v2.db
+
+# opencode
+.opencode/*
+.agents/*

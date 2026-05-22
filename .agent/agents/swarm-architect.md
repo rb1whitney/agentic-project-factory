@@ -1,12 +1,19 @@
 ---
 name: swarm-architect
-description: >
-  The Guardian of Stability. Manages the roadmap, prioritizes campaigns,
+description: 'The Guardian of Stability. Manages the roadmap, prioritizes campaigns,
   and creates TDD micro-step plans. Owns Phase 1 & 2.
+
+  '
 kind: local
 temperature: 0.2
 max_turns: 50
-tools: ['run_shell_command', 'read_file', 'list_directory', 'write_file', 'replace', 'activate_skill']
+tools:
+  run_shell_command: true
+  read_file: true
+  list_directory: true
+  write_file: true
+  replace: true
+  activate_skill: true
 ---
 
 # Architect Agent (The Planner)

@@ -283,6 +283,27 @@ else
 fi
 warn "Run 'gh auth login' to authenticate"
 
+#  15.1. OpenCode.ai & Ollama (2026 Agent Stack)
+log "15.1. OpenCode.ai & Ollama (High-Performance Local Stack)"
+if command_exists opencode; then
+  ok "OpenCode already installed"
+else
+  run brew install opencode
+  ok "OpenCode installed"
+fi
+
+if command_exists ollama; then
+  ok "Ollama already installed"
+else
+  log "Installing Ollama with GPU support..."
+  run sh -c "curl -fsSL https://ollama.com/install.sh | sh"
+  ok "Ollama installed"
+fi
+
+log "   Optimizing local model stack for current hardware"
+run python3 "$REPO_ROOT/bin/model_selector.py" install
+ok "Deterministic models synced and OpenCode configured"
+
 #  16. Linting tools
 log "16. Linting tools"
 
@@ -322,6 +343,11 @@ export PATH="$HOME/.tfenv/bin:$PATH"
 export PACKER_PLUGIN_PATH="$HOME/.packer.d/plugins"
 export AWS_DEFAULT_REGION="us-east-1"
 export GEMINI_MODEL="gemini-2.5-pro"
+
+# WSL2 GPU Support for Ollama/OpenCode
+if [ -d "/usr/lib/wsl/lib" ]; then
+    export LD_LIBRARY_PATH="/usr/lib/wsl/lib:$LD_LIBRARY_PATH"
+fi
 '
 
 if ! grep -q "Programming-Work toolchain" "$PROFILE" 2>/dev/null; then
