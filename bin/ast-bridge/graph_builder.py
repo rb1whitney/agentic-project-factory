@@ -70,7 +70,7 @@ class GraphBuilder:
         """)
         for node, tag in query.captures(tree.root_node):
             try:
-                name = content[node.start_byte:node.end_byte].decode("utf-8")
+                name = content[node.start_byte : node.end_byte].decode("utf-8")
                 self.symbol_table[name] = {
                     "file": str(path.relative_to(self.root_dir)),
                     "line": node.start_point[0] + 1,
@@ -94,7 +94,7 @@ class GraphBuilder:
         """)
         for node, tag in query.captures(tree.root_node):
             try:
-                name = content[node.start_byte:node.end_byte].decode("utf-8").strip('"')
+                name = content[node.start_byte : node.end_byte].decode("utf-8").strip('"')
                 self.symbol_table[name] = {
                     "file": str(path.relative_to(self.root_dir)),
                     "line": node.start_point[0] + 1,
@@ -115,13 +115,15 @@ class GraphBuilder:
         query = get_language("java").query("(method_invocation name: (identifier) @call)")
         for node, tag in query.captures(tree.root_node):
             try:
-                name = content[node.start_byte:node.end_byte].decode("utf-8")
+                name = content[node.start_byte : node.end_byte].decode("utf-8")
                 if name in self.symbol_table:
-                    self.edges.append({
-                        "from": str(path.relative_to(self.root_dir)),
-                        "to": name,
-                        "type": "calls",
-                    })
+                    self.edges.append(
+                        {
+                            "from": str(path.relative_to(self.root_dir)),
+                            "to": name,
+                            "type": "calls",
+                        }
+                    )
             except UnicodeDecodeError:
                 continue
 
@@ -137,13 +139,15 @@ class GraphBuilder:
         query = get_language("hcl").query("(variable_expr (identifier) @usage)")
         for node, tag in query.captures(tree.root_node):
             try:
-                name = content[node.start_byte:node.end_byte].decode("utf-8")
+                name = content[node.start_byte : node.end_byte].decode("utf-8")
                 if name in self.symbol_table:
-                    self.edges.append({
-                        "from": str(path.relative_to(self.root_dir)),
-                        "to": name,
-                        "type": "uses",
-                    })
+                    self.edges.append(
+                        {
+                            "from": str(path.relative_to(self.root_dir)),
+                            "to": name,
+                            "type": "uses",
+                        }
+                    )
             except UnicodeDecodeError:
                 continue
 

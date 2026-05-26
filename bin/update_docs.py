@@ -14,5 +14,6 @@ def main():
     # Additional doc sync logic could go here
     print("Documentation sync complete.")
 
+
 if __name__ == "__main__":
     main()

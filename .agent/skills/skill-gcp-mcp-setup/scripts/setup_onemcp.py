@@ -42,14 +42,14 @@ def run_command(command, check=True):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Set up Google Managed MCP (OneMCP) for Gemini CLI."
+        description="Set up Google Managed MCP (OneMCP) for Antigravity CLI."
     )
     parser.add_argument("project_id", help="The Google Cloud Project ID to use.")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--local", action="store_true", help="Update local .gemini/settings.json.")
+    group.add_argument("--local", action="store_true", help="Update local .agent/mcp_config.json.")
     group.add_argument("--global", action="store_true", dest="global_config",
-                        help="Update global ~/.gemini/settings.json.")
+                        help="Update global ~/.antigravitycli/mcp_config.json.")
 
     parser.add_argument("--all", action="store_true",
                         help="Enable all supported OneMCP servers, including DBs and Vertex AI.")
@@ -60,9 +60,9 @@ def main():
     project_id = args.project_id
 
     if args.local:
-        settings_file = os.path.join(os.getcwd(), ".gemini", "settings.json")
+        settings_file = os.path.join(os.getcwd(), ".agent", "mcp_config.json")
     else:
-        settings_file = os.path.expanduser("~/.gemini/settings.json")
+        settings_file = os.path.expanduser("~/.antigravitycli/mcp_config.json")
 
     # Core SRE Services (Default)
     base_services = [

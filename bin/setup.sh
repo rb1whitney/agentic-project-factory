@@ -102,8 +102,8 @@ fi
 
 log "   Installing Python AST bridge dependencies"
 run pip3 install --upgrade pip --quiet
-run pip3 install tree-sitter==0.20.1 tree-sitter-languages pyyaml --quiet
-ok "Python packages installed (tree-sitter==0.20.1, pyyaml)"
+run pip3 install tree-sitter==0.20.1 tree-sitter-languages pyyaml code-review-graph --quiet
+ok "Python packages installed (tree-sitter==0.20.1, pyyaml, code-review-graph)"
 
 #  4. Node.js
 log "4. Node.js"
@@ -132,15 +132,14 @@ else
   ok "uv installed"
 fi
 
-#  5. Gemini CLI
-log "5. Gemini CLI"
-if command_exists gemini; then
-  ok "Gemini CLI already installed"
+#  5. Antigravity 2.0 (agy)
+log "5. Antigravity 2.0 (agy)"
+if command_exists agy; then
+  ok "Antigravity CLI (agy) already installed"
 else
-  run npm install -g @google/gemini-cli
-  ok "Gemini CLI installed"
+  err "Antigravity CLI (agy) is missing."
+  warn "Please install the agy binary from https://antigravity.google"
 fi
-warn "Run 'gemini auth login' to authenticate"
 
 #  6. AWS CLI
 log "6. AWS CLI"
@@ -284,6 +283,27 @@ else
 fi
 warn "Run 'gh auth login' to authenticate"
 
+#  15.1. OpenCode.ai & Ollama (2026 Agent Stack)
+log "15.1. OpenCode.ai & Ollama (High-Performance Local Stack)"
+if command_exists opencode; then
+  ok "OpenCode already installed"
+else
+  run brew install opencode
+  ok "OpenCode installed"
+fi
+
+if command_exists ollama; then
+  ok "Ollama already installed"
+else
+  log "Installing Ollama with GPU support..."
+  run sh -c "curl -fsSL https://ollama.com/install.sh | sh"
+  ok "Ollama installed"
+fi
+
+log "   Optimizing local model stack for current hardware"
+run python3 "$REPO_ROOT/bin/model_selector.py" install
+ok "Deterministic models synced and OpenCode configured"
+
 #  16. Linting tools
 log "16. Linting tools"
 
@@ -293,6 +313,11 @@ else
   run brew install tflint
   ok "tflint installed"
 fi
+
+#  16.1. PTK (Python Token Killer - Custom RTK)
+log "16.1. PTK (Python Token Killer - Custom RTK)"
+run chmod +x "$SCRIPT_DIR/rtk"
+ok "rtk (Python Token Killer) initialized and marked executable"
 
 if command_exists ansible-lint; then
   ok "ansible-lint already installed"
@@ -318,6 +343,11 @@ export PATH="$HOME/.tfenv/bin:$PATH"
 export PACKER_PLUGIN_PATH="$HOME/.packer.d/plugins"
 export AWS_DEFAULT_REGION="us-east-1"
 export GEMINI_MODEL="gemini-2.5-pro"
+
+# WSL2 GPU Support for Ollama/OpenCode
+if [ -d "/usr/lib/wsl/lib" ]; then
+    export LD_LIBRARY_PATH="/usr/lib/wsl/lib:$LD_LIBRARY_PATH"
+fi
 '
 
 if ! grep -q "Programming-Work toolchain" "$PROFILE" 2>/dev/null; then
@@ -352,10 +382,10 @@ fi
 
 # Swarm Policies
 log "21. Swarm Policy Audit"
-if [ -f "$REPO_ROOT/.gemini/policies/swarm_policy.toml" ]; then
+if [ -f "$REPO_ROOT/.agent/policies/governance.toml" ]; then
   ok "Swarm RBAC policies detected"
 else
-  warn "Swarm policies missing  Ensure .gemini/policies/ exists"
+  warn "Swarm policies missing  Ensure .agent/policies/governance.toml exists"
 fi
 
 #  23. Swarm Nexus Synchronization
@@ -365,7 +395,7 @@ if command_exists python3; then
 else
     err "Python3 missing  Skipping Swarm Nexus synchronization."
 fi
-ok "Swarm Nexus synchronized across all platforms (Gemini, Claude, Cursor, Copilot)"
+ok "Swarm Nexus synchronized across all platforms (Antigravity, Claude, Copilot)"
 
 # AST code map
 log "   Building initial AST code map"
@@ -395,7 +425,7 @@ echo -e "${BOLD}${GREEN}         Setup Complete  Next Steps                  ${R
 echo -e "${BOLD}${GREEN}${RESET}"
 echo ""
 echo "  1. Reload your shell:    source $PROFILE"
-echo "  2. Authenticate:         gemini auth login"
+echo "  2. Authenticate:         agy auth login"
 echo "  3.                       aws configure"
 echo "  4.                       gcloud init"
 echo "  5.                       gh auth login"

@@ -4,7 +4,7 @@ This repository opt-in to the following advanced context sharing standards for A
 
 ## GitHub / Copilot
 - **Discovery**: Utilizes [`.agent/manifest.json`](file://./.agent/manifest.json) for capability mapping.
-- **Protocol**: Mandates [**AGENT.md**](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/AGENT.md) for behavioral rules.
+- **Protocol**: Mandates [**AGENTS.md**](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/AGENTS.md) for behavioral rules.
 
 ## Anthropic / Claude Code
 - **Discovery**: Recognizes [**acs.yaml**](file://./.agent/acs.yaml) for tiered context loading.

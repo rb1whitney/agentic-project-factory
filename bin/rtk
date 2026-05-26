@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""
+PTK: Python Token Killer (Custom RTK Equivalent)
+Surgically minifies, aggregates, deduplicates, and truncates terminal output 
+for high-frequency agent loop token cost reduction.
+"""
+import sys
+import re
+
+def minify(text):
+    # 1. Strip ANSI escape sequences (colors, etc.)
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    text = ansi_escape.sub('', text)
+
+    lines = text.splitlines()
+    output_lines = []
+    
+    # 2. Loop Collapse & Deduplication
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if not line:
+            i += 1
+            continue
+            
+        count = 1
+        while i + count < len(lines) and lines[i + count].strip() == line:
+            count += 1
+            
+        if count > 1:
+            output_lines.append(f"{lines[i]}  [x{count}]")
+        else:
+            output_lines.append(lines[i])
+        i += count
+
+    # 3. Hard Truncation (Preserve start/end anchors)
+    if len(output_lines) > 80:
+        total = len(output_lines)
+        truncated_count = total - 80
+        head = output_lines[:40]
+        tail = output_lines[-40:]
+        return "\n".join(head) + f"\n\n... [PTK TRUNCATED {truncated_count} LINES FOR TOKEN EFFICIENCY] ...\n\n" + "\n".join(tail)
+        
+    return "\n".join(output_lines)
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        import subprocess
+        cmd = sys.argv[1:]
+        try:
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            print(minify(result.stdout))
+            sys.exit(result.returncode)
+        except Exception as e:
+            print(f"PTK Execution Error: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        text = sys.stdin.read()
+        print(minify(text))

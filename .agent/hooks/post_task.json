@@ -8,13 +8,13 @@
     },
     {
       "type": "command",
-      "execute": "npm test",
-      "description": "Trigger regression tests after task completion."
+      "execute": "python3 bin/memory_agent.py complete default_session",
+      "description": "Mark Always-On Memory database session COMPLETED."
     },
     {
       "type": "notification",
       "channel": "system",
-      "message": "Task complete. Documentation updated and tests triggered."
+      "message": "Task complete. Documentation updated successfully."
     }
   ]
 }

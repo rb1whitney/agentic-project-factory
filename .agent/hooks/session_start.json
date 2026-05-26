@@ -3,8 +3,13 @@
   "actions": [
     {
       "type": "command",
-      "execute": "python3 tools/ast-bridge/code_mapper.py .",
+      "execute": "python3 bin/ast-bridge/code_mapper.py .",
       "description": "Regenerate symbol map on session initialization."
+    },
+    {
+      "type": "command",
+      "execute": "python3 bin/memory_agent.py start default_session",
+      "description": "Initialize and record Always-On Memory database session."
     },
     {
       "type": "notification",
