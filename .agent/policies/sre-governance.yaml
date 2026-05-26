@@ -1,0 +1,28 @@
+name: SRE Governance Policy
+version: "1.0"
+description: Strict governance policy dictating SRE requirements for PR merges.
+enforcement_level: "blocking"
+
+rules:
+  - id: sre-001
+    name: Mandatory Golden Signals
+    description: "No Pull Request can be merged without passing Golden Signal definitions (Latency, Traffic, Errors, Saturation) defined in Terraform."
+    applies_to:
+      - "projects/*"
+    conditions:
+      - condition: "file_exists"
+        path: "terraform/sre-monitoring.tf"
+      - condition: "content_match"
+        path: "terraform/sre-monitoring.tf"
+        regex: "(?i)(latency|traffic|errors|saturation)"
+    remediation_script: "bin/scaffold_sre.sh {project_dir}"
+
+  - id: sre-002
+    name: Mandatory Runbooks
+    description: "Projects must contain incident response runbooks mapped to the Golden Signals."
+    applies_to:
+      - "projects/*"
+    conditions:
+      - condition: "directory_exists"
+        path: "runbooks/"
+    remediation_script: "bin/scaffold_sre.sh {project_dir}"

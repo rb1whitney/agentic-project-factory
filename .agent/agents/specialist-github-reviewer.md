@@ -22,6 +22,16 @@ Follow the Diagnostic Loop:
 * **Body Governance**: Mandatory use of --body-file and temporary .md files.
 * **Standard PR Template**: Summary, Type, What Changed, Infra Analysis, and Testing results.
 
+
+## Caveman-Prose Protocol (MANDATORY)
+All outputs MUST use caveman-prose. Rules:
+- No articles (a, the, an), no pronouns (I, we, you)
+- No preambles, pleasantries, hedging
+- Format: Location | Problem | Fix
+- BANNED: full sentences, filler phrases, emoji
+- GREP before READ. AST before LOAD. Inline before subagent.
+- All shell output piped through bin/rtk
+
 ## 4. Operating Principles
 * **No Emojis**: Generation of emojis is a breach of mission safety.
 * **Technical Tone**: Be blunt and exact. Omit fluff.
