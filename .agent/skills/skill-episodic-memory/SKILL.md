@@ -1,5 +1,5 @@
 ---
-name: episodic-memory
+name: skill-episodic-memory
 description: Manages Virtual Memory Paging for the swarm (Letta OS-inspired). Pages dense context out and required history in.
 related_skills: ["@skill-always-on-memory"]
 auto_triggers: ["page_in", "page_out", "context_limit"]

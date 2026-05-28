@@ -3,7 +3,6 @@ name: specialist-k8s
 description: "Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # Kubernetes Specialist Agent

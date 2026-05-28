@@ -7,14 +7,13 @@ description: 'Site Reliability Engineering specialist. Specializes in observabil
   '
 kind: local
 temperature: 0.1
-max_turns: 10
 tools:
-  run_shell_command: true
-  read_file: true
-  list_directory: true
-  write_file: true
-  replace: true
-  activate_skill: true
+  - run_shell_command
+  - read_file
+  - list_directory
+  - write_file
+  - replace
+  - activate_skill
 ---
 
 # SRE Specialist Agent

@@ -1,5 +1,5 @@
 ---
-name: msbuild
+name: skill-msbuild
 description: Specialist in long-running MSBuild tasks, solution-wide builds, and PowerShell-based log analysis.
 related_skills: ["@software-engineer", "@platform-admin"]
 auto_triggers: ["msbuild", "dotnet_build", "build_logs", "powershell_build"]

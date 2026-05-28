@@ -7,13 +7,12 @@ description: 'The Cognitive Memory Specialist. Manages persistent session memory
   '
 kind: local
 temperature: 0.1
-max_turns: 50
 tools:
-  run_shell_command: true
-  read_file: true
-  list_directory: true
-  write_file: true
-  activate_skill: true
+  - run_shell_command
+  - read_file
+  - list_directory
+  - write_file
+  - activate_skill
 ---
 
 # Memory Agent (The Cognitive Archivist)

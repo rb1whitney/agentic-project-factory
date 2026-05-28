@@ -1,5 +1,5 @@
 ---
-name: agentic-initializer
+name: skill-agentic-initializer
 description: Professional-grade bootstrapper for 100% compliant Agentic Repositories.
 ---
 # Agentic Initializer (Hub Bootstrapper)

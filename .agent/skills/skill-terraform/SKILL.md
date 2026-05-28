@@ -1,5 +1,5 @@
 ---
-name: terraform
+name: skill-terraform
 description: Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.
 kind: local
 model: gemini-3.1-pro

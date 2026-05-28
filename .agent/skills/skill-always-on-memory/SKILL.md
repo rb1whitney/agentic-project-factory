@@ -1,5 +1,5 @@
 ---
-name: always-on-memory
+name: skill-always-on-memory
 description: Always-On Memory Agent Skill. Queries the local memory database to understand insights, track session interactions, and retrieve historical context.
 related_skills: ["@skill-conductor", "@skill-codebase-recon", "@skill-swarm"]
 auto_triggers: ["memory_init", "record_interaction", "record_insight", "query_memory", "recall", "remember"]

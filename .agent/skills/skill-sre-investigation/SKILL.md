@@ -1,5 +1,5 @@
 ---
-name: sre-investigation
+name: skill-sre-investigation
 description: Incident Response & Investigation Entrypoint. Orchestrates GCP/K8s discovery, log analysis (Cloud Logging), and metric investigation (Cloud Monitoring).
 related_skills: ["@skill-sre-governance", "@skill-sre-advanced", "@skill-k8s"]
 auto_triggers: ["incident_response", "investigate_outage", "gcloud_audit", "kubectl_audit"]

@@ -1,5 +1,5 @@
 ---
-name: sre-advanced
+name: skill-sre-advanced
 description: Advanced SRE Troubleshooting & Remediation. Handles anomaly detection, behavioral evaluations, and generic mitigation playbooks.
 related_skills: ["@skill-sre-investigation", "@skill-behavioral-evals"]
 auto_triggers: ["anomaly_detection", "generic_mitigation", "troubleshoot_complex"]

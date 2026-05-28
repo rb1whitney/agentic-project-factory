@@ -1,5 +1,5 @@
 ---
-name: ddd
+name: skill-ddd
 description: Expert in Domain-Driven Design (DDD) workflows. Orchestrates the 7-step strategic-to-tactical implementation cycle using specialized TOML playbooks.
 related_skills: ["@architecture-expert", "@software-engineer"]
 auto_triggers: ["ddd_workflow", "domain_driven_design", "create_user_stories", "tactical_design"]

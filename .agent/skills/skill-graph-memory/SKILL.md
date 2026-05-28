@@ -1,5 +1,5 @@
 ---
-name: graph-memory
+name: skill-graph-memory
 description: Extracts structured entity relationships from interactions for multi-hop reasoning (Mem0 Knowledge Graph pattern).
 related_skills: ["@skill-always-on-memory"]
 auto_triggers: ["extract_entities", "query_graph", "relationship"]

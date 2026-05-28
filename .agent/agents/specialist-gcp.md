@@ -3,7 +3,6 @@ name: specialist-gcp
 description: "Domain Specialist Subagent. Use for: GCP Infrastructure, GKE, Cloud Functions, IAM, Cloud Build."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # GCP Specialist Agent

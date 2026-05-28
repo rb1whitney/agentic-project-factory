@@ -1,14 +1,14 @@
 ---
 name: specialist-opencode
 description: Specialist in opencode platform management and local model orchestration.
-role: Opencode Specialist
 tools:
-  run_shell_command: {}
-  read_file: {}
-  list_directory: {}
-  write_file: {}
-  replace: {}
-  activate_skill: {}
+  - run_shell_command
+  - read_file
+  - list_directory
+  - write_file
+  - replace
+  - activate_skill
+---
 
 # Opencode Specialist
 

@@ -3,7 +3,6 @@ name: specialist-aws
 description: "Domain Specialist Subagent. Use for: AWS Infrastructure, S3, IAM, VPC networking, CloudFormation."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # AWS Specialist Agent

@@ -1,5 +1,5 @@
 ---
-name: docs
+name: skill-docs
 description: Specialist in technical documentation and changelogs. Enforces documentation standards and automated release notes.
 related_skills: ["@pr-specialist", "@issue-specialist"]
 auto_triggers: ["write_docs", "changelog", "release_notes", "documentation_standard"]

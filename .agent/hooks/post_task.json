@@ -12,6 +12,16 @@
       "description": "Mark Always-On Memory database session COMPLETED."
     },
     {
+      "type": "command",
+      "execute": "bash bin/logger.sh",
+      "description": "Log prompt and response to stack files."
+    },
+    {
+      "type": "command",
+      "execute": "python3 bin/track-savings.py",
+      "description": "Track token savings and usage."
+    },
+    {
       "type": "notification",
       "channel": "system",
       "message": "Task complete. Documentation updated successfully."

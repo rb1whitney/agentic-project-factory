@@ -3,7 +3,6 @@ name: specialist-github
 description: "Domain Specialist Subagent. Use for: GitHub Actions, PR automation, Branch protection, and Repository health."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # GitHub Reviewer Agent

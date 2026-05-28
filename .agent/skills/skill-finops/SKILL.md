@@ -1,5 +1,5 @@
 ---
-name: finops
+name: skill-finops
 category: expert
 ---
 # FinOps & Cloud Governance Expert

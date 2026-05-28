@@ -6,6 +6,16 @@
   },
   "actions": [
     {
+      "type": "command",
+      "execute": "python3 bin/cavecrew-delegate.py",
+      "description": "Check for Investigator Mode activation."
+    },
+    {
+      "type": "command",
+      "execute": "python3 bin/caveman-commit.py",
+      "description": "Enforce caveman commit message constraints."
+    },
+    {
       "type": "permission_check",
       "policy": "policies/safety.toml",
       "mode": "ENFORCE"

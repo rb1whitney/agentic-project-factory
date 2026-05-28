@@ -1,5 +1,5 @@
 ---
-name: opencode
+name: skill-opencode
 description: Manage opencode models, servers, and AI providers. Optimized for GPU acceleration (RTX 3060).
 auto_triggers:
   - opencode

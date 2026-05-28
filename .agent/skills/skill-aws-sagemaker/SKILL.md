@@ -1,5 +1,5 @@
 ---
-name: aws-sagemaker
+name: skill-aws-sagemaker
 description: Holistic AWS SageMaker AI Specialist. Use for model fine-tuning (SFT, DPO, RLVR), HyperPod cluster management, dataset evaluation, and automated deployment. Orchestrates specific sub-skills via the Knowledge Bootstrap protocol.
 related_skills: ["@aws-foundation-specialist", "@cloud-debugger"]
 auto_triggers: ["sagemaker", "fine-tuning", "hyperpod", "dataset_evaluation", "model_deployment", "RLVR", "DPO"]

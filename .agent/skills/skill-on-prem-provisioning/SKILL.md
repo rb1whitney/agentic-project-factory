@@ -1,5 +1,5 @@
 ---
-name: on-prem-provisioning
+name: skill-on-prem-provisioning
 description: Expert in on-premise server provisioning using Puppet and Terraform (Proxmox).
 related_skills: ["@terraform-module-expert", "@network-admin-expert"]
 auto_triggers: ["proxmox", "puppet_provisioning", "on_prem_vm", "firstboot"]

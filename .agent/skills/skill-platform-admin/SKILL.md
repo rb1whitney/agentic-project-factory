@@ -1,5 +1,5 @@
 ---
-name: platform-admin
+name: skill-platform-admin
 description: Specialist in platform onboarding, Cloud SDK management (AWS/GCP/K8s), and workspace configuration. Handles SSH/PAT access, Python venvs, and symlink-based instruction management.
 related_skills: ["@gemini-conductor", "@aws-expert", "@gcp-expert", "@kubernetes-expert"]
 auto_triggers: ["onboarding", "setup_workspace", "install_sdk", "gcloud_setup", "aws_configure", "venv_setup", "ssh_key"]

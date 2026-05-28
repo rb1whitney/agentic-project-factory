@@ -3,7 +3,6 @@ name: globalizer-specialist
 description: "Specialized Swarm agent for internationalization (i18n) and regional parity."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # Globalizer Specialist (Project Baker Specialist)

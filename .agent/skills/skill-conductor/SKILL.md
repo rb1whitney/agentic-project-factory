@@ -1,5 +1,5 @@
 ---
-name: conductor
+name: skill-conductor
 description: "Use for Context-Driven Development protocol. Manages project lifecycle via /conductor commands: setup, newTrack, implement, status, revert, review. Enforces spec-plan-implement discipline with TDD, git notes, and phase verification."
 related_skills: ["@gemini-ci", "@gemini-review-suite", "@ladr-generator"]
 auto_triggers: ["conductor", "newTrack", "implement", "spec.md", "plan.md", "tracks.md", "CDD"]
