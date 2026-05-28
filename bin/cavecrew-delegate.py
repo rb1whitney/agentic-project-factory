@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
+import argparse
 import json
-import sys
 import logging
 import os
-import argparse
+import sys
 from pathlib import Path
 
 # Intent Scoring Engine
@@ -51,10 +51,10 @@ def main():
         if not input_text:
             json.dump({"decision": "allow"}, sys.stdout)
             return
-            
+
         data = json.loads(input_text)
         prompt = data.get('prompt', '') or data.get('llm_request', {}).get('prompt', '')
-        
+
         if score_intent(prompt):
             logger.info("Activating Investigator Mode.")
             response = {
@@ -62,7 +62,9 @@ def main():
                     "llm_request": {
                         "toolConfig": {
                             "mode": "ANY",
-                            "allowedFunctionNames": ["read_file", "grep", "list_dir", "list_directory", "grep_search", "glob"]
+                            "allowedFunctionNames": [
+                                "read_file", "grep", "list_dir", "list_directory", "grep_search", "glob"
+                            ]
                         }
                     }
                 }

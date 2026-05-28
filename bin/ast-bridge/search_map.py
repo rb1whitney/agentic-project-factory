@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import sys
-import os
 import argparse
 import logging
+import os
+import sys
 
 logger = logging.getLogger('map-search')
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s', stream=sys.stderr)
@@ -26,11 +26,11 @@ def search_map(query: str, map_path: str):
                     sys.stdout.write("".join(current_block))
                     sys.stdout.write("-" * 40 + "\n")
                     match_count += 1
-                
+
                 current_header = line.strip()
                 current_block = []
                 found_in_block = False
-                
+
                 if match_count >= 10:
                     sys.stdout.write("\n(Truncated: too many matches. Please refine your search query.)\n")
                     break

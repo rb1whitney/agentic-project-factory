@@ -1,19 +1,29 @@
-import sys
-import os
 import argparse
 import logging
-from typing import List, Dict, Optional, Any
-import tree_sitter
+import sys
 from pathlib import Path
+from typing import Any, Dict, List
+
+import tree_sitter
 
 # Production logging setup
 logger = logging.getLogger('universal-skeleton')
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s', stream=sys.stderr)
 
-class UnsupportedLanguage(Exception): pass
-class FileTooLarge(Exception): pass
-class ParseFailed(Exception): pass
-class IndexError(Exception): pass
+class UnsupportedLanguage(Exception):
+    pass
+
+
+class FileTooLarge(Exception):
+    pass
+
+
+class ParseFailed(Exception):
+    pass
+
+
+class IndexError(Exception):
+    pass
 
 MAX_FILE_SIZE = 1024 * 1024 # 1MB
 
@@ -86,26 +96,26 @@ def get_ts_language(lang_name: str):
 def index_file(path: str) -> str:
     path_obj = Path(path)
     ext = path_obj.suffix.lower()
-    
+
     lang_name = next((name for name, cfg in LANGUAGE_QUERIES.items() if cfg["extension"] == ext), None)
     if not lang_name:
         raise UnsupportedLanguage(f"No skeleton support for {ext}")
-        
+
     if not path_obj.exists():
         raise FileNotFoundError(f"File not found: {path}")
 
     if path_obj.stat().st_size > MAX_FILE_SIZE:
         raise FileTooLarge(f"File {path} exceeds size limit.")
-        
+
     source = path_obj.read_bytes()
     lang = get_ts_language(lang_name)
     parser = tree_sitter.Parser()
     parser.set_language(lang)
     tree = parser.parse(source)
-    
+
     if not tree:
         raise ParseFailed(f"Failed to parse {path}")
-        
+
     extractor = UniversalExtractor(lang_name, lang)
     entries = extractor.extract(tree.root_node, source)
     return format_skeleton(entries, lang_name)
@@ -113,11 +123,11 @@ def index_file(path: str) -> str:
 def format_skeleton(entries: List[Dict], lang_name: str) -> str:
     output = []
     current_type = None
-    
+
     for entry in entries:
         t = entry["type"]
         text = entry["text"].split("{")[0].split(":")[0].strip()
-        
+
         if t == "package":
             output.append(text)
         elif t == "import":
@@ -127,17 +137,17 @@ def format_skeleton(entries: List[Dict], lang_name: str) -> str:
             current_type = text
         elif t == "member":
             output.append(f"  {text}")
-            
+
     if current_type:
         output.append("}")
-        
+
     return "\n".join(output)
 
 def main():
     parser = argparse.ArgumentParser(description="Universal Code Skeleton Generator.")
     parser.add_argument("file_path", help="Path to the source file.")
     args = parser.parse_args()
-    
+
     try:
         skeleton = index_file(args.file_path)
         sys.stdout.write(skeleton + "\n")

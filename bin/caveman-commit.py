@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import argparse
 import json
-import sys
 import logging
 import os
 import re
-import argparse
+import sys
 from pathlib import Path
+
 
 def setup_logging(log_dir: Path):
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -22,14 +23,14 @@ def setup_logging(log_dir: Path):
 
 def lint_commit_message(message: str) -> (bool, str):
     subject = message.split('\n')[0].strip()
-    
+
     if len(subject) > 50:
         return False, "Subject too verbose (> 50 chars)."
-        
+
     forbidden = r'\b(the|a|an)\b'
     if re.search(forbidden, subject, re.IGNORECASE):
          return False, "Subject contains articles. Use caveman prose."
-         
+
     return True, ""
 
 def get_project_root():
@@ -48,10 +49,10 @@ def main():
         if not input_text:
             json.dump({"decision": "allow"}, sys.stdout)
             return
-            
+
         data = json.loads(input_text)
         tool_calls = data.get('llm_request', {}).get('toolCalls', [])
-        
+
         for call in tool_calls:
             if call.get('name') == 'run_shell_command':
                 cmd = call.get('arguments', {}).get('command', '')

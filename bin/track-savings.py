@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
-import json
-import sys
-import os
-import logging
 import argparse
-from pathlib import Path
+import json
+import logging
+import os
+import sys
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
 
 def setup_logging(log_file: Path):
     log_file.parent.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger('agent_metrics')
     logger.setLevel(logging.INFO)
-    
+
     if not logger.handlers:
         handler = RotatingFileHandler(log_file, maxBytes=1024*1024*5, backupCount=5)
         formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -37,31 +38,31 @@ def main():
         if not input_text:
             json.dump({}, sys.stdout)
             return
-            
+
         data = json.loads(input_text)
         usage = data.get('llm_response', {}).get('usageMetadata', {})
         if not usage:
              candidates = data.get('llm_response', {}).get('candidates', [{}])
              if candidates:
                  usage = candidates[0].get('usageMetadata', {})
-                 
+
         tokens = usage.get('totalTokenCount', 0)
         event = data.get('event', 'unknown_event')
-        
+
         logger.info(f"Event: {event} | Tokens: {tokens}")
-        
+
         stats_file = root / 'gemini' / 'metrics.json'
         stats = {}
         if stats_file.exists():
             try:
                 with open(stats_file, 'r') as f:
                     stats = json.load(f)
-            except:
+            except Exception:
                 pass
-                
+
         stats['total_tokens'] = stats.get('total_tokens', 0) + tokens
         stats['last_updated'] = datetime.now(timezone.utc).isoformat()
-        
+
         with open(stats_file, 'w') as f:
             json.dump(stats, f, indent=2)
 

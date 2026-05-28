@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import argparse
 import json
-import sys
 import logging
 import os
-import argparse
+import sys
 from pathlib import Path
+
 
 def setup_logging(log_dir: Path):
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -34,10 +35,10 @@ def main():
         if not input_text:
             json.dump({}, sys.stdout)
             return
-            
-        input_data = json.loads(input_text)
+
+        json.loads(input_text)
         logger.info("Injecting Caveman Override.")
-        
+
         caveman_prompt = """
 SYSTEM OVERRIDE: CAVEMAN MODE ACTIVE.
 Rules:
@@ -46,7 +47,7 @@ Rules:
 3. Full technical accuracy: Retain paths, variable names, and exact code byte-for-byte.
 4. No full sentences unless quoting external docs.
 """
-        
+
         output = {
             "hookSpecificOutput": {
                 "llm_request": {
@@ -54,7 +55,7 @@ Rules:
                 }
             }
         }
-        
+
         json.dump(output, sys.stdout)
 
     except Exception as e:
