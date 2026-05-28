@@ -5,7 +5,7 @@ REPO_STORE="$HOME/.agent/skills-repos"
 COMMON_SKILLS_DIR="$HOME/.agent/skills"
 
 # Check for input
-if [ -z "$@" ]; then
+if [ $# -eq 0 ]; then
   echo "Usage: $0 <skill-repo-name1> [skill-repo-name2]"
   exit 1
 fi
