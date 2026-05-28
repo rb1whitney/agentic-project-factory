@@ -1,5 +1,5 @@
 ---
-name: gemini
+name: skill-gemini
 description: Provides expertise on Gemini CLI. Crucially, it contains the complete workflow to update its own knowledge by fetching and summarizing the latest official documentation.
 related_skills: []
 auto_triggers: []

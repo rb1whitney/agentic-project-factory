@@ -1,5 +1,5 @@
 ---
-name: aws
+name: skill-aws
 description: Holistic 2026 AWS Expertise  Consolidation of the Well-Architected Framework and Dynamic CLI Discovery.
 related_skills: []
 auto_triggers: []

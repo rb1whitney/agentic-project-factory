@@ -1,5 +1,5 @@
 ---
-name: packer
+name: skill-packer
 description: Expert in HashiCorp Packer for Infrastructure-as-Artifact (IaA). Covers building AMIs, Azure managed images, and VMware templates with integrated lifecycle management via HCP Packer.
 related_skills: ["@aws-foundation-expert", "@gcp-expert", "@terraform-admin"]
 auto_triggers: ["packer", "ami_build", "image_build", "hcp_packer", "provisioner", "communicator"]

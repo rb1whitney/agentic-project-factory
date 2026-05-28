@@ -1,5 +1,5 @@
 ---
-name: swarm
+name: skill-swarm
 description: Unified Swarm Orchestration Engine. Manages the high-precision multi-agent workflow (Scout/Architect/Engineer/Auditor) and project state-machine via Conductor.
 related_skills: ["@skill-conductor", "@skill-github", "@skill-architecture"]
 auto_triggers: ["swarm_init", "dispatch_agent", "start_track", "audit_swarm"]
@@ -63,3 +63,9 @@ Use the templates in `templates/` for all swarm artifacts:
 The Swarm utilizes the **Plan-Commands** architectural pattern to represent and execute structured planning tasks deterministically:
 *   **Specification Reference**: [jjdelorme/plan-commands Specification](https://github.com/jjdelorme/plan-commands)
 *   **Execution Rule**: Every complex task track must be decomposed into a sequence of declarative, executable step blocks that are run securely in the sandbox and verified before proceeding to subsequent steps.
+
+## 6. Token & Execution Constraints
+
+*   **Strict Manual Dispatch Only:** You are forbidden from autonomously spawning subagents to scan, map, or plan ahead during basic conversational interactions.
+*   **Swarm Multi-Agent Cap:** When executing the `/conductor:dispatch` command, ensure the parallel subagent lifecycle never exceeds a maximum concurrency of three (3) active runners. 
+*   **Context Isolation:** Do not trigger global workspace analysis unless explicitly ordered via a `swarm-scout` strategic discovery phase directive. Optimize all text exchanges to be dense, code-first, and devoid of repetitive conversational summaries.

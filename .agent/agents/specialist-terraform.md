@@ -3,7 +3,6 @@ name: specialist-terraform
 description: "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # Terraform Specialist Agent
@@ -58,7 +57,6 @@ name: specialist-packer
 description: "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible."
 kind: local
 temperature: 0.2
-max_turns: 10
 ---
 
 # Packer Specialist Agent

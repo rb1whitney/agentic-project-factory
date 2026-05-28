@@ -1,5 +1,5 @@
 ---
-name: architecture
+name: skill-architecture
 description: Specialist architectural documentation, C4 model design, and Architecture Decision Records (ADRs).
 related_skills: []
 auto_triggers: []

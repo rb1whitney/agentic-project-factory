@@ -1,5 +1,5 @@
 ---
-name: github
+name: skill-github
 description: Specialist in GitHub operations. Covers Issue management, Pull Request lifecycle, and automated code reviews.
 related_skills: ["@docs-specialist", "@ci-replicator"]
 auto_triggers: ["github_issue", "pull_request", "create_pr", "review_code", "github_action"]

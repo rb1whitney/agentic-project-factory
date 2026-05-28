@@ -1,5 +1,5 @@
 ---
-name: compliance-auditor
+name: skill-compliance-auditor
 description: Holistic Compliance and Governance Auditor. Enforces AI engineering standards, least-privilege identity patterns, and organizational governance frameworks.
 related_skills: ["@security-reviewer", "@aws-foundation-specialist"]
 auto_triggers: ["compliance", "governance", "audit", "ai_standards", "least_privilege", "identity_audit"]

@@ -1,5 +1,5 @@
 ---
-name: observability
+name: skill-observability
 description: Expert in Datadog APM, metrics correlation, and observability onboarding.
 related_skills: ["@kubernetes-expert", "@platform-onboarding"]
 auto_triggers: ["datadog", "apm", "metrics_correlation", "x_request_id", "observability"]

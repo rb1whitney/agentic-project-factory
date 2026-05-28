@@ -1,5 +1,5 @@
 ---
-name: review-suite
+name: skill-review-suite
 description: High-resolution PR analysis and multi-agent code review suite. Orchestrates GitHub, Quality, and Security agents for comprehensive audit.
 ---
 

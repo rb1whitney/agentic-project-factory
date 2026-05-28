@@ -1,5 +1,5 @@
 ---
-name: behavioral-evals
+name: skill-behavioral-evals
 description: Guidance for creating, running, fixing, and promoting behavioral evaluations. Use when verifying agent decision logic, debugging failures, debugging prompt steering, or adding workspace regression tests.
 related_skills: []
 auto_triggers: []

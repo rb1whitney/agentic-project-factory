@@ -1,5 +1,5 @@
 ---
-name: network
+name: skill-network
 description: Holistic Networking Expert. Covers VPC design, routing, security groups, Load Balancing (ELB/ALB/NLB), and PrivateLink.
 related_skills: ["@aws-foundation-expert", "@certificate-manager"]
 auto_triggers: ["networking", "vpc", "routing", "load_balancer", "privatelink", "dns", "route53"]

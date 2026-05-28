@@ -1,5 +1,5 @@
 ---
-name: frontend
+name: skill-frontend
 category: expert
 ---
 # Frontend & UX Expert

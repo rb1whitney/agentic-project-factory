@@ -1,5 +1,5 @@
 ---
-name: sre-governance
+name: skill-sre-governance
 description: SRE Governance, SLO Management & Reporting. Handles Post-Mortem generation, SLO tracking on GCP, and incident visualization.
 related_skills: ["@skill-sre-investigation", "@skill-docs"]
 auto_triggers: ["create_postmortem", "manage_slo", "incident_graphs", "pomo_aggregator"]

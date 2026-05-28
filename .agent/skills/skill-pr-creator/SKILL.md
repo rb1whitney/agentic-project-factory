@@ -1,5 +1,5 @@
 ---
-name: pr-creator
+name: skill-pr-creator
 description: Comprehensive workflow for creating high-quality GitHub Pull Requests. Ensures adherence to repository standards and documentation compliance.
 ---
 

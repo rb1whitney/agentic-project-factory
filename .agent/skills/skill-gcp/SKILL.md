@@ -1,5 +1,5 @@
 ---
-name: gcp
+name: skill-gcp
 description: Holistic 2026 GCP Expertise  Integration of Production-Ready Standards and Dynamic CLI Discovery.
 related_skills: ["@kubernetes-expert", "@cloud-debugger"]
 auto_triggers: ["gcp", "gcloud", "cloud_run", "cloud_sql"]

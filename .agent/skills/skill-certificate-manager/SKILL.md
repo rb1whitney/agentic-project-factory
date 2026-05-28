@@ -1,5 +1,5 @@
 ---
-name: certificate-manager
+name: skill-certificate-manager
 description: Specialist in Public Key Infrastructure (PKI) and certificate lifecycle management. Covers ACME, certificate rotation, and trust store management.
 related_skills: ["@network-specialist", "@vault-specialist"]
 auto_triggers: ["pki", "certificate", "ssl", "tls", "acme", "rotation", "trust_store"]

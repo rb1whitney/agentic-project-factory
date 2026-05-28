@@ -1,5 +1,5 @@
 ---
-name: kubernetes
+name: skill-kubernetes
 description: Deep expertise in Kubernetes (GKE, EKS, Standard) with integrated SRE troubleshooting guides.
 related_skills: ["@aws-networking-expert", "@gcp-expert", "@cloud-debugger"]
 auto_triggers: ["kubernetes", "kubectl", "pod_failure", "eks", "gke"]

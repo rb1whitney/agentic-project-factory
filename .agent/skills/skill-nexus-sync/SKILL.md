@@ -1,5 +1,5 @@
 ---
-name: nexus-sync
+name: skill-nexus-sync
 description: Synchronizes expert agent and skill definitions across all AI platforms (Cursor, Claude, Gemini, Copilot).
 auto_triggers:
   - "sync skills"

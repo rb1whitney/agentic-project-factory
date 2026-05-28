@@ -1,0 +1,10 @@
+{
+  "event": "beforeAgent",
+  "actions": [
+    {
+      "type": "command",
+      "execute": "python3 bin/caveman-prompt.py",
+      "description": "Inject caveman prose rules into the system prompt."
+    }
+  ]
+}

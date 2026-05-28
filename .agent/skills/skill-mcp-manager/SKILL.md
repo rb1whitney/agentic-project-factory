@@ -1,5 +1,5 @@
 ---
-name: mcp-manager
+name: skill-mcp-manager
 description: Manage MCP (Model Context Protocol) server lifecycle. Use to "turn on", build, and configure MCP servers for the workspace.
 auto_triggers:
   - mcp

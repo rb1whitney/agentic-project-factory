@@ -1,5 +1,5 @@
 ---
-name: aws-foundation
+name: skill-aws-foundation
 description: Holistic AWS Foundation Specialist. Deep specialistise in Compute (EC2), Identity (IAM), Networking (VPC), and Databases (RDS). Orchestrates core service protocols via the Knowledge Bootstrap protocol.
 related_skills: ["@aws-serverless-specialist", "@aws-sagemaker-specialist", "@cloud-debugger"]
 auto_triggers: ["ec2", "iam", "vpc", "networking", "rds", "aurora", "dynamodb", "security_group"]

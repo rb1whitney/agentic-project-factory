@@ -1,5 +1,5 @@
 ---
-name: aws-serverless
+name: skill-aws-serverless
 description: Deep specialistise in AWS Serverless (Lambda, SNS, SQS, API Gateway) with integrated SRE troubleshooting guides.
 related_skills: ["@aws-iam-specialist", "@cloud-debugger"]
 auto_triggers: ["lambda", "sns", "sqs", "eventbridge"]

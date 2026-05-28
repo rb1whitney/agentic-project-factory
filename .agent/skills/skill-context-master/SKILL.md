@@ -1,5 +1,5 @@
 ---
-name: context-master
+name: skill-context-master
 description: High-precision repository analysis and auto-context lensing. Use for mapping large codebases, reducing 1M+ context to high-precision <100k modules, and discovering relevant files for complex tasks.
 related_skills: ["@gemini-conductor", "@terraform-module-expert", "@kubernetes-expert"]
 auto_triggers: ["repository_analysis", "auto_context", "map_repo", "code_map"]
