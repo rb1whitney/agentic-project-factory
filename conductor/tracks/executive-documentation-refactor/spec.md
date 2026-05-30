@@ -1,7 +1,7 @@
 # Specification: Executive Documentation Refactor
 
 ## Mission Goal
-Elevate the project's public and internal documentation to Director/Principal Engineer standards. Pivot from "how-to" tutorials to "Executive Architecture Proposals" focusing on systemic risk, cost efficiency, blast radius, and day-two operations.
+Elevate the project's public and internal documentation to high-signal architectural standards. Pivot from "how-to" tutorials to "Executive Architecture Proposals" focusing on systemic risk, cost efficiency, blast radius, and day-two operations.
 
 ## Success Criteria
 1. `README.md` transformed into an Architectural Topology & Strategy document.

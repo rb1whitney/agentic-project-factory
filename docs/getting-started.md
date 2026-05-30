@@ -4,7 +4,7 @@
 This environment is not a standard development sandbox. It is a **Production-Grade Agentic Manufacturing Plant**. Onboarding focuses on the rapid synchronization of specialized AI workers with the underlying infrastructure.
 
 ### The 60-Second Bootstrap
-For Director/Principal level review, skip the manual configuration. Execute the deterministic setup engine to align the `.agent/` hub with your local runtime:
+For high-signal architectural review, skip the manual configuration. Execute the deterministic setup engine to align the `.agent/` hub with your local runtime:
 
 ```bash
 # Sync physical hub to local spokes
