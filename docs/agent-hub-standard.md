@@ -1,52 +1,43 @@
-# Agent Hub Standard (2026)
+# Agent Hub Standard: The Sovereign Architecture (2026)
 
-This document outlines the standard for the `.agent/` hub as of April 2026. This architecture ensures high-precision orchestration across multiple AI providers (Google Antigravity, Claude Code, GitHub Copilot) while maintaining strict safety and governance.
+## Executive Summary
+The **Agent Hub Standard (ACS-2026)** defines the high-precision architectural framework for the `.agent/` sovereignty layer. This specification ensures a **Single Source of Truth** for AI orchestration, mitigating systemic risk and configuration drift across heterogeneous platform ecosystems (Google Antigravity, Claude Code, GitHub Copilot).
 
-## 1. The Unified Manifest (v1.8.0)
+## 1. The Unified Manifest (v1.8.0): Deterministic Identity
+The `.agent/manifest.json` serves as the **Master Identity Controller**. It defines the runtime boundary, capability surface area, and provider-specific permission tiers.
 
-The `.agent/manifest.json` is the entry point for all agents. It defines the project's identity, capabilities, and provider permissions.
+- **`schema_version`**: v1.8.0 Compliance.
+- **`standard`**: ACS-2026 Multi-Platform Orchestration.
+- **`permissions`**: Granular opt-in/opt-out schemas for privileged operations.
 
-### Key Fields:
-- **`schema_version`**: Must be `1.8.0` for 2026 compliance.
-- **`standard`**: `ACS-2026` ensures tool-agnostic context ingestion.
-- **`permissions`**: Defines the "Opt-In" vs "Native" tiers for specific engines.
+## 2. Tiered Context Loading: Blast Radius & Cost Containment
+To maintain sub-second cognitive response times and minimize token-level operational expenditure, the hub enforces a **Three-Tier Gating Strategy** (v1.2.0).
 
-## 2. ACS v1.2.0: Tiered Context Loading
-
-To prevent context drift and token saturation, the hub implements a three-tier ingestion strategy defined in `.agent/acs.yaml`.
-
-| Tier | Description | Mode |
+| Tier | Strategic Intent | Ingestion Protocol |
 | :--- | :--- | :--- |
-| **Tier-1** | Discovery (Role/Skill names) | `names-only` |
-| **Tier-2** | Logical (Full Prompts/Logic) | `on-demand` (Intent-matched) |
-| **Tier-3** | Deep Context (Specs/Logs) | `reference-only` |
+| **Tier-1: Discovery** | Role & Skill Identification | Metadata-Only (Zero Bloat) |
+| **Tier-2: Logic** | Functional Prompt Ingestion | Intent-Matched (On-Demand) |
+| **Tier-3: Reference** | Historical & Spec Context | Read-Only (Deferred) |
 
-## 3. Physical Sovereignty
+## 3. Physical Sovereignty: Immutable Truth
+The **April 2026 Shift** established the `.agent/` directory as the **Physical Sovereignty Layer**.
+- **Governance Isolation**: Core logic resides outside the agent's destructive boundary, preventing "Self-Sabotage" feedback loops.
+- **Polyfill Portability**: IDE-native configuration endpoints (e.g., `.cursorrules`, `.gemini/`) are implemented as symlink polyfills pointing back to the sovereign hub.
 
-The **April 2026 Shift** established that the `.agent/` directory is the **Physical Truth** for the repository's intelligence.
-- **Zero-Delete Sanctity**: Core expert files (`.agent/agents/`) and skills (`.agent/skills/`) are immutable by the agents themselves to prevent "Self-Sabotage" loops.
-- **IDE Portability**: Root-level symlinks (like `.cursorrules`) point into the hub, ensuring that switching from Cursor to Antigravity or Claude Code preserves the same expert context.
+## 4. The Risk Management Shield (Lethal Trifecta)
+Systemic risk is managed via deterministic policies located in `.agent/policies/`:
+1. **`safety.toml`**: Governs network egress and restricts destructive system calls to a manual-approval workflow.
+2. **`privacy.toml`**: Implements **Data Sovereignty** by redacting PII and sensitive credentials from the context window.
+3. **`governance.toml`**: Manages resource-intensive operations and cross-agent concurrency.
 
-## 4. The Lethal Trifecta (Safety Policies)
+## 5. Industrial Performance Tuning (2026)
+Optimized for high-concurrency production environments:
+- **Google Antigravity**: Primary engine utilizes Gemini 3.1 Pro with native **Thinking Blocks** and low-latency API endpoints.
+- **Anthropic Ecosystem**: Leverages Claude 4.6 via **Deterministic Event Channels** for complex reasoning tasks.
+- **Edge Resilience**: Localized triage using **Nano Banana Pro 2** for offline file parsing and preliminary data reduction.
 
-Located in `.agent/policies/`, these machine-readable files govern agent behavior:
-1. **`safety.toml`**: Restricts network egress (**Network Governance**) and prohibits destructive OS commands (**Tool Egress**) without human approval.
-2. **`privacy.toml`**: Redacts sensitive files (secrets, personal data, .env) from agent context (**Data Sovereignty**).
-3. **`governance.toml`**: Manages resource usage and cross-agent communication protocols.
-
-## 5. Model-Specific Optimizations (April 2026)
-
-Configurations in `.agent/providers/` (or `settings.json`) are optimized for:
-- **Google Antigravity**: Primary engine is Gemini 3.1 Pro with native **Thinking Blocks** enabled.
-- **Anthropic / Claude**: Optimized for Claude 4.6 (Sonnet/Opus) using **Deterministic Event Channels**.
-- **Edge/Local**: Use **Nano Banana Pro 2** for lightweight, offline task triage and local file parsing.
-
-## 6. Lifecycle Hooks
-
-Deterministic event hooks in `.agent/hooks/` allow for precise orchestration:
-- **`session_start.json`**: Pre-loads personas and regenerates symbol maps.
-- **`pre_tool_use.json`**: Intercepts tool calls for policy validation.
-- **`post_task.json`**: Triggers documentation updates and test runs automatically.
+## 6. Deterministic Lifecycle Hooks
+Precision orchestration is achieved through JSON-defined hooks in `.agent/hooks/`, ensuring that critical tasks (Symbol Map generation, Policy Verification, Documentation Updates) are automated and non-negotiable.
 
 ---
 *Last Updated: April 2026*

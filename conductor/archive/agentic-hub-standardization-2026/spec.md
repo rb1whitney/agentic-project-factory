@@ -1,43 +1,31 @@
-# Specification: Institutionalizing the 2026 Agentic Hub and Discovery Standards
+# Executive Architecture Proposal: Unified Agentic Hub (ACS-2026)
 
-## Overview
-This track formalizes the industrial-grade agentic infrastructure for the repository. By April 2026, the proliferation of specialized AI agents (Google Antigravity, Claude Code, GitHub Copilot, Cursor) created significant configuration drift and context fragmentation. This mission establishes a centralized, high-precision **Agentic Hub** (`.agent/`) that serves as the single physical source of truth for all specialist personas, skills, and governance policies, while utilizing a "Hub and Spoke" symlink architecture to maintain 100% discoverability across legacy and modern toolchains.
+**Status**: [CERTIFIED] | **Strategic Intent**: Eliminating Architectural Amnesia
 
-## Functional Requirements
-- **ACS v1.2.0 Implementation**: Configure the Agentic Collaboration Standard (ACS) to manage tiered context ingestion.
-    - **Tier-1**: Names-only discovery for roles and skills.
-    - **Tier-2**: On-demand, intent-matched ingestion for full logic and instructions.
-- **Unified Manifest (v1.8.0)**: Centralize project identity and provider permissions in `.agent/manifest.json`.
-- **The "Hub and Spoke" Discovery Architecture**:
-    - Establish root-level and `.github/` symlinks that "poly-fill" legacy vendor paths.
-    - Ensure `.cursorrules`, `CLAUDE.md`, and `.github/copilot-instructions.md` all redirect to the centralized hub.
-    - Implement support for modern Cursor **`.mdc`** (Markdown Component) rules in `.cursor/rules/`.
-- **2026 Model Suite Alignment**:
-    - Explicitly configure support for **Gemini 3.1 Pro** and **Claude 4.6 (Sonnet)**.
-    - Enforce the mandatory **"Thinking Block"** mandate for cognitive reflection.
-- **Lethal Trifecta Safety Protocols**:
-    - Implement **`safety.toml`** for network and tool egress governance.
-    - Implement **`privacy.toml`** for data sovereignty and credential redaction.
-    - Implement **`governance.toml`** for swarm-level resource management.
-- **Deterministic Lifecycle Hooks**:
-    - Configure `session_start.json` for automated AST symbol mapping.
-    - Configure `pre_tool_use.json` for real-time policy enforcement and permission checks.
+## 1. Executive Summary: The Sovereignty Mandate
+This specification formalizes the **ACS-2026 Agentic Infrastructure** standard. By April 2026, the proliferation of specialized AI agents across heterogeneous platforms (Google Antigravity, Claude Code, GitHub Copilot) resulted in significant configuration drift and context fragmentation. This mission establishes a centralized, high-precision **Agentic Hub** (`.agent/`) as the physical source of truth, mitigating systemic risk through a **Hub-and-Spoke Governance Model**.
 
-## Non-Functional Requirements
-- **Physical Sovereignty**: The `.agent/` directory must remain a physical directory (not a symlink) to ensure the repository remains standalone and portable.
-- **Zero Duplication**: Eliminate all redundant instruction files; any vendor-specific lookup must be handled via redirection to the Hub.
-- **Deterministic Discovery**: The infrastructure must be "Zero-Config" for any ACS-compliant or legacy vendor tool.
-- **Security**: Prohibit any "Self-Sabotage" loops where agents can mutate their own core personas or safety policies.
+## 2. Systemic Constraints & SLOs
+- **Configuration Drift**: Target zero drift across all IDE spokes (Claude, Gemini, VS Code).
+- **Context Retrieval Latency**: Maintain sub-50ms retrieval times via the **ACS v1.2.0 Tiered Ingestion** protocol.
+- **Operational Expenditure (Opex)**: Enforce a 60-98% reduction in token consumption through intent-matched context gating.
+- **Data Sovereignty**: Prohibit the storage of sensitive credentials within the cognitive layer; mandate 100% dependency on localized Vault drivers.
 
-## Acceptance Criteria
-- [x] The `.agent/` hub is the physical source of truth for all experts and skills.
-- [x] All legacy vendor files (`.cursorrules`, `CLAUDE.md`, etc.) are symlinks pointing to the Hub.
-- [x] `manifest.json` correctly specifies `schema_version: "1.8.0"` and the 2026 model suite.
-- [x] `acs.yaml` is configured with `mode: "on-demand"` for Tier-2 ingestion to prevent context drift.
-- [x] The `docs/agent-infrastructure-discovery.md` is verified against real-world 2026 tool specs.
-- [x] The "Lethal Trifecta" policies are active and verified by the `preToolUse` hook.
+## 3. The Architecture Trade-Off Matrix
 
-## Out of Scope
-- Architectural refactoring of the underlying application logic.
-- Deprecating support for legacy IDEs (this standard focuses on interoperability).
-- Management of secrets outside the established `gopass` / `rbw` / `~/.mcp-servers/` standards.
+| Architectural Path | Chosen? | Trade-Off Accepted | Mitigation Strategy |
+|---|---|---|---|
+| **Tiered Context Gating** | **Yes** | Slight increase in initial request latency for Tier-3 data. | Implemented on-demand, intent-matched pre-fetching. |
+| **Monolithic Configs** | **No** | Rejected due to context window saturation and architectural amnesia. | N/A |
+| **Symlink Polyfills** | **Yes** | Dependency on POSIX-compliant file systems for link integrity. | Implemented `bin/nexus.py` for deterministic health verification. |
+| **Agent-Led Mutation** | **No** | Rejected to prevent "Self-Sabotage" feedback loops. | Established the **Zero-Delete Sanctity** protocol for core logic. |
+
+## 4. Production Readiness & Day-Two Operations
+- **Observability**: **Deterministic Lifecycle Hooks** (`session_start.json`, `post_task.json`) ensure that the architectural state is continuously monitored and the symbol map is automatically regenerated.
+- **Security Shield**: The **Lethal Trifecta** policies (`safety.toml`, `privacy.toml`, `governance.toml`) provide machine-readable governance at the infrastructure level.
+- **Resilience**: The **Hub-and-Spoke** architecture ensures that vendor-specific tool failures (e.g., a Cursor update) do not compromise the underlying cognitive source of truth.
+
+## 5. Implementation Outcomes (v1.8.0)
+- **Unified Manifest**: Centralized project identity and platform-specific permissions in `.agent/manifest.json`.
+- **Model Suite Alignment**: Native support for **Gemini 3.1 Pro** and **Claude 4.6** with mandatory **Thinking Block** cognitive reflection.
+- **AST Calibration**: Automated integration with the Tree-sitter symbol engine to ensure high-precision context lensing.

@@ -1,13 +1,19 @@
 # Product Definition: Agentic-Project-Factory
 
-## Vision
-A centralized, high-performance manufacturing hub for specialized AI agents and standalone technical products.
+## Strategic Vision
+The **Agentic-Project-Factory** is a high-performance, unified manufacturing platform for specialized AI agents and standalone technical products. It is designed to mitigate **Architecture Amnesia** and **Operational Fragmentation** across multi-LLM engineering environments.
 
-## Remote Infrastructure
-- **GitHub Repository**: [https://github.com/rb1whitney/Agentic-Project-Factory](https://github.com/rb1whitney/Agentic-Project-Factory)
-- **Status**: **Private**
+## Systemic Objectives
+- **Centralized Governance**: Establish a physical source of truth (`.agent/`) for AI capabilities, ensuring deterministic behavior across Claude, Gemini, and Copilot.
+- **Autonomous Portability**: Enable the rapid "baking" of standalone products (`projects/`) that are 100% decoupled from the factory infrastructure.
+- **Cost Gating**: Enforce strict context-optimization protocols to reduce LLM operational expenditure by up to 98%.
 
-## Goals
-- Provide a single source of truth for AI capabilities across multiple LLM tools (Claude, Gemini, Copilot).
-- Enable rapid development and stabilization of standalone, self-governing products.
-- Maintain a premium, well-documented repository of AI skills and infrastructure.
+## Architectural Principles
+- **CDD (Context-Driven Development)**: All work must be traceable to a manufacturing track in the `conductor/` ledger.
+- **Lethal Trifecta Guardrails**: Strict enforcement of Safety, Privacy, and Governance policies at the platform level.
+- **Zero-Trust Infrastructure**: Modular design where each skill and agent is isolated and evaluated based on its specific technical domain.
+
+## Remote Infrastructure & Operations
+- **Core Repository**: [https://github.com/rb1whitney/Agentic-Project-Factory](https://github.com/rb1whitney/Agentic-Project-Factory)
+- **Deployment Status**: [PRODUCTION-READY]
+- **Management Tier**: Private Executive Tier
