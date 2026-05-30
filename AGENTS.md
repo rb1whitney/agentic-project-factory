@@ -10,6 +10,10 @@ This repository follows the **Unified Agentic Standard**. All infrastructure log
 This factory operates on **Domain-Driven Design (DDD)** principles, specifically the 7-phase Strategic-to-Tactical workflow.
 *   **Conductor Mandate**: The [**conductor/**](file://./conductor/) is the central orchestrator for all project lifecycles. If a Conductor is available, agents **MUST** use it to initialize tracks, update mission records, and verify phase completion.
 *   **Spec-Plan-Implement**: Never bypass the Conductor's `/conductor` commands or mission ledger. All work must be traceable to an active track in `conductor/tracks/`.
+*   **Deterministic Lifecycle**: All tracks MUST utilize the mandatory high-signal templates located in [**conductor/templates/**](file://./conductor/templates/):
+    - **Phase 1 (Scout)**: `STRATEGIC_RECON.md`
+    - **Phase 3 (Architect)**: `EXECUTIVE_PLAN.md`
+    - **Phase 5 (Auditor)**: `CERTIFICATION_REPORT.md`
 *   **Blueprint Adherence**: Manufacturing tracks must follow the established [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
 
 

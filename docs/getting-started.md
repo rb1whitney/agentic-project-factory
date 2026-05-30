@@ -1,12 +1,26 @@
-# Getting Started: Developer Environment Setup
+# Getting Started: Executive Onboarding & Environment Setup
 
-This guide installs and configures the complete toolchain required for this repository. Follow steps in order  several tools depend on earlier ones being present.
+## 0. Executive Summary: The Industrial Factory Pattern
+This environment is not a standard development sandbox. It is a **Production-Grade Agentic Manufacturing Plant**. Onboarding focuses on the rapid synchronization of specialized AI workers with the underlying infrastructure.
 
-**Supported platforms**: macOS and Linux/WSL2 (Windows Subsystem for Linux).
+### The 60-Second Bootstrap
+For high-signal architectural review, skip the manual configuration. Execute the deterministic setup engine to align the `.agent/` hub with your local runtime:
+
+```bash
+# Sync physical hub to local spokes
+bash bin/setup.sh
+```
+
+**Key Architectural Outcomes**:
+- **Identity Alignment**: Synchronizes `gcloud`, `aws`, and `gh` identities across the swarm.
+- **Physical Sovereignty**: Establishes the `.agent/` directory as the immutable source of truth.
+- **AST Calibration**: Rebuilds the Tree-sitter symbol map for high-precision context lensing.
 
 ---
 
-## Automated Install
+## Developer Environment Setup
+
+This guide installs and configures...
 
 The fastest way to set everything up is the bootstrap script. It handles all steps below automatically, skips tools already installed, and is safe to re-run at any time.
 

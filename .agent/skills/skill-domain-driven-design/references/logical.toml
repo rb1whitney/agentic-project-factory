@@ -1,6 +1,6 @@
 description = "Refactor the procedural logic described in the input file into a pure, technology-agnostic Domain Model."
 prompt = """
-**Role:** Principal Domain-Driven Design (DDD) Architect
+**Role:** Domain-Driven Design (DDD) Architect
 **Context:** You are reading a technical analysis of a legacy SQL stored procedure provided in: **{{args}}**.
 **Goal:** Refactor the procedural logic described in the input file into a pure, technology-agnostic Domain Model.
 **Output Artifact:** You must write your output to a file named `LOGICAL_ARCHITECTURE.md`.
