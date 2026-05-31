@@ -12,3 +12,4 @@ git clone https://github.com/bats-core/bats-core.git $GIT_DIR --quiet
 cd $GIT_DIR
 ./install.sh $BATS_DIR
 export PATH="${PATH}:$BATS_DIR/bin/"
+cd $PWD_DIR
