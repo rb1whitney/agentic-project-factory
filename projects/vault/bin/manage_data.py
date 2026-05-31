@@ -30,14 +30,21 @@ def validateInput(cluster_name, validation_type, file_filter, json_files,
                 'Error found in {1} json files. Errors are:\n{0}'.format(
                     '\n'.join(validation_errors), validation_type))
 
-
 # Parse Arguments
 parser = argparse.ArgumentParser(description='Manage Data')
 parser.add_argument('--name',
                     dest='cluster_name',
                     help='Vault Cluster Name',
                     required=True)
-parser.add_argument('--path', dest='path', help='../config', required=True)
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('--path', dest='path', help='Path to config files')
+group.add_argument('--wrapped-token', dest='wrapped_token', help='Wrapped token to deploy configuration to')
+
+parser.add_argument('--namespace',
+                    dest='namespace',
+                    help='Namespace to deploy code (wrapped token only)',
+                    default=None)
+
 parser.add_argument('--log-level',
                     dest='log_level',
                     help='<<WARN|DEBUG|INFO>>',
@@ -70,41 +77,61 @@ vault_client = LocalVaultClient(config['api_endpoint'], logger)
 if args.auth_namespace == 'False':
     vault_client.login(auth_method=args.auth_method, mount_point=args.mount_point)
 
-# Find All json files provided or process single json file if provided instead
-json_files = []
-if os.path.isdir(args.path):
-    for root, dirs, files in os.walk(args.path):
-        for file in files:
-            if file.endswith('.json'):
-                json_files.append(os.path.join(root, file))
-else:
-    json_files.append(args.path)
-json_files.sort()
+if args.wrapped_token:
+    # Handle wrapped data deployment
+    unwrapped_response = vault_client.get('/v1/sys/wrapping/unwrap', { "token" : args.wrapped_token })
+    api_payload = unwrapped_response['data']
 
-# Validate all JSON files prior to processing
-validateInput(cluster_name, 'namespaces', '.*/namespaces/.*', json_files,
-              logger)
-validateInput(cluster_name, 'admin', '.*/admin/.*', json_files, logger)
+    validator = LocalVaultValidator('secret', api_payload)
+    validation_errors = validator.validate(cluster_name, json_payload=api_payload)
+    if len(validation_errors) > 0:
+        raise ValueError('Error found in wrapped payload. Errors are:\n{0}'.format(
+            '\n'.join(validation_errors)))
 
-# Process all json files against Vault API
-for json_file in json_files:
-    vault_client.logger.info('Processing {0}'.format(json_file))
-    json_payload = json.load(open(json_file, 'r'))
-    if '_namespace' in json_payload:
-        # Re-use current access token to access namespace
-        namespace_client = LocalVaultClient(config['api_endpoint'], logger, namespace=json_payload['_namespace'])
+    if args.namespace != None and args.namespace != '':
+        namespace_client = LocalVaultClient(config['api_endpoint'], logger, args.namespace)
         if args.auth_namespace == 'True':
-            namespace_client.login(auth_method=args.auth_method,
-                                   mount_point=args.mount_point)
+            namespace_client.login(auth_method=args.auth_method, mount_point=args.mount_point)
         else:
             namespace_client.adapter.token = vault_client.adapter.token
-        namespace_client.submit(json_payload)
-
-        # Only log out if using namespace token
+        namespace_client.submit(api_payload)
         if args.auth_namespace == 'True':
             namespace_client.logout()
     else:
-        vault_client.submit(json_payload)
+        vault_client.submit(api_payload)
+
+else:
+    # Find All json files provided or process single json file if provided instead
+    json_files = []
+    if os.path.isdir(args.path):
+        for root, dirs, files in os.walk(args.path):
+            for file in files:
+                if file.endswith('.json'):
+                    json_files.append(os.path.join(root, file))
+    else:
+        json_files.append(args.path)
+    json_files.sort()
+
+    # Validate all JSON files prior to processing
+    validateInput(cluster_name, 'namespaces', '.*/namespaces/.*', json_files, logger)
+    validateInput(cluster_name, 'admin', '.*/admin/.*', json_files, logger)
+
+    # Process all json files against Vault API
+    for json_file in json_files:
+        vault_client.logger.info('Processing {0}'.format(json_file))
+        json_payload = json.load(open(json_file, 'r'))
+        if '_namespace' in json_payload:
+            namespace_client = LocalVaultClient(config['api_endpoint'], logger, namespace=json_payload['_namespace'])
+            if args.auth_namespace == 'True':
+                namespace_client.login(auth_method=args.auth_method, mount_point=args.mount_point)
+            else:
+                namespace_client.adapter.token = vault_client.adapter.token
+            namespace_client.submit(json_payload)
+
+            if args.auth_namespace == 'True':
+                namespace_client.logout()
+        else:
+            vault_client.submit(json_payload)
 
 # Revoke our current access
 vault_client.logout()
