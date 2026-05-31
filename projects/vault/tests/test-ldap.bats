@@ -17,16 +17,16 @@ teardown() {
 }
 
 @test "Test Logging into cluster" {
-    run python3 bin/manage_vault.py  --file-path ./config/admin
+    run python3 bin/cluster_secret_data.py --name dev  --path ./config/admin
     export username=vaultdeveloper1
-    export password=$(grep -A3 "^uid: $username" test/fixtures/ldap.ldif | grep userpassword | awk -F' ' '{print $2}')
+    export password=$(grep -A3 "^uid: $username" tests/fixtures/ldap.ldif | grep userpassword | awk -F' ' '{print $2}')
     run vault login -method=ldap username=$username password=$password
     echo "User is able to log into cluster: ${output}"
     [ "$status" -eq 0 ]
 }
 
 @test "Test incorrect Password" {
-    run python3 bin/manage_vault.py  --file-path ./config/admin
+    run python3 bin/cluster_secret_data.py --name dev  --path ./config/admin
     export username=vaultdeveloper1
     export password=thisisnotright
     run vault login -method=ldap username=$username password=$password

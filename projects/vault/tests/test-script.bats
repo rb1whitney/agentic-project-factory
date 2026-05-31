@@ -17,7 +17,7 @@ teardown() {
 }
 
 @test "Write Wrapped Token " {
-    run python3 bin/manage_vault.py  --file-path ./config/admin
+    run python3 bin/cluster_secret_data.py --name dev  --path ./config/admin
     run tee wrapped-token-test.json  <<EOF
 {
     "api_objects": [
@@ -29,7 +29,7 @@ teardown() {
     ]
 }
 EOF
-    run python3 bin/manage_vault.py  --file-path ./wrapped-token-test.json
+    run python3 bin/cluster_secret_data.py --name dev  --path ./wrapped-token-test.json
     echo "User is unable to write wrapped token into cluster: ${output}"
     [ "$status" -eq 0 ]
 }

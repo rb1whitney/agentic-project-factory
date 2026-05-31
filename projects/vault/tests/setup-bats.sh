@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 PWD_DIR=$(pwd)
-GIT_DIR="${PWD_DIR}/test/bats-core"
-BATS_DIR="${PWD_DIR}/test/bats"
+GIT_DIR="${PWD_DIR}/tests/bats-core"
+BATS_DIR="${PWD_DIR}/tests/bats"
 
 # Cleanup bats-core no matter what
 trap 'rc=$?; rm -rf $GIT_DIR; trap - EXIT; exit $rc' EXIT

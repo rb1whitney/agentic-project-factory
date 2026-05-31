@@ -17,28 +17,28 @@ teardown() {
 }
 
 @test "Spinning up cluster admin config" {
-    run python3 bin/manage_vault.py  --file-path ./config/admin
+    run python3 bin/cluster_secret_data.py --name dev  --path ./config/admin
     echo "Cluster Config setup results are: ${output}"
     [ "$status" -eq 0 ]
 }
 
 @test "Spinning up cluster app1 config" {
-    run python3 bin/manage_vault.py  --file-path ./config/admin
-    run find ./config/app1/*.json -exec python3 bin/manage_vault.py --file-path {} \;
-    run vault write /transit/restore/app1-transit-key backup=`cat test/fixtures/app1-transit-key` force=true
-    run python3 bin/manage_vault.py  --file-path ./config/app1/kv/
+    run python3 bin/cluster_secret_data.py --name dev  --path ./config/admin
+    run find ./config/app1/*.json -exec python3 bin/cluster_secret_data.py --name dev --path {} \;
+    run vault write /transit/restore/app1-transit-key backup=`cat tests/fixtures/app1-transit-key` force=true
+    run python3 bin/cluster_secret_data.py --name dev  --path ./config/app1/kv/
     echo "App1 setup results are: ${output}"
     [ "$status" -eq 0 ]
 }
 
 @test "Spinning up improperly written json" {
-    run python3 bin/manage_vault.py  --file-path ./test/test-fixtures/invalid-file.json
+    run python3 bin/cluster_secret_data.py --name dev  --path ./tests/fixtures/invalid-file.json
     echo "Error output: ${output}"
     [ "${status}" != "0" ]
 }
 
 @test "Spinning up invalid json file" {
-    run python3 bin/manage_vault.py  --file-path ./test/test-fixtures/invalid-payload.json
+    run python3 bin/cluster_secret_data.py --name dev  --path ./tests/fixtures/invalid-payload.json
     echo "Error output: ${output}"
     [ "${status}" != "0" ]
 }
