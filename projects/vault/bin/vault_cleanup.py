@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import os
 import json
+from projects.vault.lib.logger import get_logger
+
+logger = get_logger("vault_cleanup")
 
 def get_groups(data):
     # get groups from json data. Need to make sure that groups are only defined once.
@@ -57,9 +60,9 @@ def clean_file(file_path):
             )
         )
 
-def main():
+def main(directory="."):
     bad_guys = set()
-    for root, dirs, files in os.walk(".", topdown=False):
+    for root, dirs, files in os.walk(directory, topdown=False):
         for dir in dirs:
             for grpfile in get_non_ldap_groups_files(os.path.join(root, dir)):
                 # print(grpfile)
@@ -93,12 +96,16 @@ def main():
                     sort_keys=True
                 )
             )
-            print(os.path.join(_dir, "ldap-groups-policies.json"))
+            logger.info("Created: " + os.path.join(_dir, "ldap-groups-policies.json"))
         
         clean_file(bad_file)
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Clean up vault ldap groups")
+    parser.add_argument("--directory", default=".", help="Directory to clean (default: %(default)s)")
+    args = parser.parse_args()
+    main(args.directory)
         
             
 # some namespace directories dont have ldap-groups-policies.json files, we need to create them.

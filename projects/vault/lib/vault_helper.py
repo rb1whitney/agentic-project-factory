@@ -17,15 +17,11 @@ def convert_pgp_key(pgp_key):
 # :param log_level: Sets desired level of the logger
 # :return: Returns a basic logger
 def get_logger(logger_name, log_level):
-    # Setup Basic Logging for Vault Operation Scripts
+    from projects.vault.lib.logger import get_logger as get_centralized_logger
+    logger = get_centralized_logger(logger_name)
     numeric_log_level = getattr(logging, log_level, None)
-    logging_formatter = logging.Formatter(
-        '%(name)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(numeric_log_level)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging_formatter)
-    logger.addHandler(stream_handler)
+    if numeric_log_level is not None:
+        logger.setLevel(numeric_log_level)
     return logger
 
 # Retrieves Cluster Configuration and Server Endpoints

@@ -146,31 +146,31 @@ def add_ldap_groups(read_access, write_access, policies):
 
 
 if __name__ == "__main__":
-    from optparse import OptionParser, OptionGroup
+    import argparse
 
-    p = OptionParser()
-    p.add_option(
+    parser = argparse.ArgumentParser(description="Self Serve Permissions")
+    parser.add_argument(
         "--template",
         default=get_default_template(),
-        help="specify template. default: %default",
+        help="specify template. default: %(default)s",
     )
-    perms = OptionGroup(
-        p, "Permissions", "Specify which LDAP groups should have read and write access"
-    )
-    perms.add_option("-r", dest="read_access", default=[], action="append")
-    perms.add_option("-w", dest="write_access", default=[], action="append")
-    p.add_option_group(perms)
-    svc = OptionGroup(p, "Service", "Specify name, environment, and namespace")
-    svc.add_option("--service")
-    svc.add_option("--namespace", help="default: %default", default=get_namespace())
-    svc.add_option("--env")
-    p.add_option_group(svc)
-    opt, args = p.parse_args()
+    
+    perms = parser.add_argument_group("Permissions", "Specify which LDAP groups should have read and write access")
+    perms.add_argument("-r", "--read-access", dest="read_access", default=[], action="append", help="Read access group")
+    perms.add_argument("-w", "--write-access", dest="write_access", default=[], action="append", help="Write access group")
+    
+    svc = parser.add_argument_group("Service", "Specify name, environment, and namespace")
+    svc.add_argument("--service", required=True, help="Service name")
+    svc.add_argument("--namespace", default=get_namespace(), help="Namespace (default: %(default)s)")
+    svc.add_argument("--env", required=True, help="Environment name")
+    
+    args = parser.parse_args()
+    
     main(
-        opt.service,
-        opt.env,
-        opt.namespace,
-        opt.read_access,
-        opt.write_access,
-        opt.template,
+        args.service,
+        args.env,
+        args.namespace,
+        args.read_access,
+        args.write_access,
+        args.template,
     )

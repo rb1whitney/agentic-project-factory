@@ -4,8 +4,10 @@ import os
 import json
 import sys
 import base64
-
 import urllib3
+from projects.vault.lib.logger import get_logger
+
+logger = get_logger("decode_secret_data")
 urllib3.disable_warnings()
 
 class VaultException(Exception):
@@ -67,7 +69,7 @@ def sanitize_path(config):
 def main(path):
     path = sanitize_path(path)
     if not os.path.isfile(path):
-        sys.stderr.write("Could not find {0}\n".format(path))
+        logger.error("Could not find {0}".format(path))
         sys.exit(1)
 
     vc = VaultClient(
@@ -86,20 +88,20 @@ def main(path):
     try:
         cipher_text = d.get('api_paths')[0].get('api_payload').get('key')
     except:
-        sys.stderr.write("Invalid Format {0}\n".format(path))
+        logger.error("Invalid Format {0}".format(path))
         sys.exit(1)
 
     try:
         decrypted = client.write('transit/decrypt/namespace-encryption', ciphertext=cipher_text)
     except:
-        sys.stderr.write("Can not Decrypt {0}\n".format(path))
+        logger.error("Can not Decrypt {0}".format(path))
         sys.exit(1)
     
     return base64.b64decode(decrypted.get('data').get('plaintext')).decode('utf-8')
 
 if __name__ == '__main__':
-    from optparse import OptionParser
-    p = OptionParser()
-    p.add_option("--path")
-    opt, arg = p.parse_args()
-    print(main(opt.path))
+    import argparse
+    parser = argparse.ArgumentParser(description="Decode Secret Data")
+    parser.add_argument("--path", required=True, help="Path to secret file")
+    args = parser.parse_args()
+    print(main(args.path))
