@@ -1,6 +1,9 @@
 import requests
 import requests.exceptions
 from lib.vault_client_error import VaultClientError
+from projects.vault.lib.logger import get_logger
+
+logger = get_logger("vault_client_adapter")
 
 # Vault Client Adapter
 # This code was ported from HVAC plugin: https://github.com/hvac/hvac/blob/master/hvac/adapters.py
@@ -89,8 +92,8 @@ class VaultClientAdapter:
             if response.headers.get('Content-Type') == 'application/json':
                 try:
                     error = response.json().get('errors')
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.error(f"Failed to parse JSON error response: {e}")
             if error is None:
                 error = response.text
             raise VaultClientError(response.status_code, error, method, url)

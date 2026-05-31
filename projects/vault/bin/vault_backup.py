@@ -3,18 +3,11 @@ import argparse
 import json
 import logging
 import os
-import subprocess
 import sys
+from projects.vault.lib import secure_cmd
+from projects.vault.lib.validators import validate_cluster_name, validate_path, validate_namespace
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
-def run_cmd(cmd, check=True):
-    logging.info(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if check and result.returncode != 0:
-        logging.error(f"Command failed: {result.stderr}")
-        sys.exit(result.returncode)
-    return result
 
 def login(vault_cluster, vault_ldap, vault_namespace):
     os.environ["VAULT_ADDR"] = f"https://vault-{vault_cluster}01.corp.clover.com:8200"
@@ -25,7 +18,7 @@ def login(vault_cluster, vault_ldap, vault_namespace):
         sys.exit(1)
     
     cmd = ["vault", "login", "-method=ldap", f"-path={vault_ldap}", f"username={ldap_user}"]
-    run_cmd(cmd)
+    secure_cmd.run(cmd)
 
 def backup(vault_path, vault_cluster):
     basename = os.path.basename(vault_path)
@@ -36,7 +29,7 @@ def backup(vault_path, vault_cluster):
         pass
     
     cmd = ["vault", "read", "-format=json", vault_path]
-    result = run_cmd(cmd)
+    result = secure_cmd.run(cmd)
     
     data = json.loads(result.stdout).get("data", {})
     with open(json_out, 'w') as f:
@@ -53,7 +46,7 @@ def restore(vault_path, vault_cluster):
         sys.exit(1)
         
     cmd = ["vault", "write", vault_path, f"@{json_in}"]
-    run_cmd(cmd)
+    secure_cmd.run(cmd)
     
     os.remove(bkup_marker)
     logging.info(f"Restored from {json_in} and removed marker {bkup_marker}")
@@ -61,10 +54,10 @@ def restore(vault_path, vault_cluster):
 def main():
     parser = argparse.ArgumentParser(description="Vault backup/restore utility")
     parser.add_argument("mode", choices=["backup", "restore"])
-    parser.add_argument("vault_path")
-    parser.add_argument("vault_cluster")
+    parser.add_argument("vault_path", type=validate_path)
+    parser.add_argument("vault_cluster", type=validate_cluster_name)
     parser.add_argument("vault_ldap", nargs="?", default="ldap")
-    parser.add_argument("vault_namespace", nargs="?", default="puppet")
+    parser.add_argument("vault_namespace", nargs="?", type=validate_namespace, default="puppet")
     args = parser.parse_args()
     
     login(args.vault_cluster, args.vault_ldap, args.vault_namespace)

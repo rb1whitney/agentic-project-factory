@@ -12,6 +12,8 @@ sys.dont_write_bytecode = True
 from lib import vault_helper
 from lib.vault_client import LocalVaultClient
 from lib.vault_client_error import VaultClientError
+from lib import secure_cmd
+from lib.validators import validate_cluster_name, validate_namespace, validate_path
 from os import path
 
 # Surpress InsecureRequestWarning
@@ -98,7 +100,7 @@ def encrypt_api_payload(client, payload, older_json_payload, transit_encrypt_api
                     cleaned_jasypt_value = older_value.replace('ENC(','').replace(')','')
                     os.environ["encrypt_password"] = decrypt_password
                     os.environ["encrypt_secret"] = cleaned_jasypt_value
-                    decrypted_secret = os.popen('sh decrypt_env.sh').read()
+                    decrypted_secret = secure_cmd.run(['sh', 'decrypt_env.sh'], cwd=decrypt_cmd_path).stdout
                     # Pass value back into vault to re-encrypt with transit engine
                     base64_value = str(base64.b64encode(decrypted_secret.encode('UTF-8')), 'UTF-8')
                     transit_payload = {'plaintext': base64_value}
@@ -125,6 +127,7 @@ parser = argparse.ArgumentParser(description='Manage Secret Data')
 parser.add_argument('--name',
                     dest='cluster_name',
                     help='Vault Cluster Name',
+                    type=validate_cluster_name,
                     required=True)
 parser.add_argument('--log-level',
                     dest='log_level',
@@ -137,15 +140,19 @@ parser.add_argument('--auth-method',
 parser.add_argument('--mount-path',
                     dest='mount_point',
                     help='../config',
+                    type=validate_path,
                     default='ldap')
 parser.add_argument('--source-namespace',
                     dest='source_namespace',
+                    type=validate_namespace,
                     default='')
 parser.add_argument('--source-kv',
                     dest='source_kv',
+                    type=validate_path,
                     default='')
 parser.add_argument('--source-path',
                     dest='source_path',
+                    type=validate_path,
                     default='/')
 parser.add_argument('--source-transit-engine',
                     dest='source_transit_engine',
