@@ -1,13 +1,16 @@
 import pytest
-from projects.vault.bin.manage_dr_state import check_dr_status
-from projects.vault.bin.encrypt_secret_data import encrypt_data
-from projects.vault.bin.cluster_init import initialize_cluster
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from projects.vault.bin.cluster_encrypt_ops import handle_encrypt
+from projects.vault.bin.cluster_init import init_cluster
+from projects.vault.bin.cluster_backup import backup
 
-def test_manage_dr_state_import():
-    assert callable(check_dr_status)
-
-def test_encrypt_secret_data_import():
-    assert callable(encrypt_data)
+def test_cluster_encrypt_ops_import():
+    assert callable(handle_encrypt)
 
 def test_cluster_init_import():
-    assert callable(initialize_cluster)
+    assert callable(init_cluster)
+
+def test_cluster_backup_import():
+    assert callable(backup)

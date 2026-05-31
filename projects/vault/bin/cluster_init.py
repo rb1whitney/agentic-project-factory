@@ -112,66 +112,70 @@ def init_cluster(cluster_name,
 
 
 # Surpress InsecureRequestWarning
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+def main():
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# Parse Arguments
-parser = argparse.ArgumentParser(description='Vault Cluster Init Script')
-parser.add_argument('--name',
-                    dest='cluster_name',
-                    help='Vault Cluster Name',
-                    required=True)
-parser.add_argument('--log-level',
-                    dest='log_level',
-                    default='INFO',
-                    help='Script Logging Level: WARN, DEBUG, INFO')
-args = parser.parse_args()
+    # Parse Arguments
+    parser = argparse.ArgumentParser(description='Vault Cluster Init Script')
+    parser.add_argument('--name',
+                        dest='cluster_name',
+                        help='Vault Cluster Name',
+                        required=True)
+    parser.add_argument('--log-level',
+                        dest='log_level',
+                        default='INFO',
+                        help='Script Logging Level: WARN, DEBUG, INFO')
+    args = parser.parse_args()
 
-# Limit Error Seen By User Unless in DEBUG MODE
-if 'DEBUG' not in args.log_level:
-    sys.tracebacklimit = 0
+    # Limit Error Seen By User Unless in DEBUG MODE
+    if 'DEBUG' not in args.log_level:
+        sys.tracebacklimit = 0
 
-# Get Logger and Cluster Config
-cluster_name = args.cluster_name
-config = vault_helper.get_cluster_config(cluster_name)
-logger = vault_helper.get_logger('Vault Init', args.log_level)
+    # Get Logger and Cluster Config
+    cluster_name = args.cluster_name
+    config = vault_helper.get_cluster_config(cluster_name)
+    logger = vault_helper.get_logger('Vault Init', args.log_level)
 
-# Initialize Cluster
-root_token = init_cluster(
-    cluster_name=cluster_name,
-    key_shares=len(config['key_holders']),
-    key_threshold=config['key_threshold'],
-    key_holders=config['key_holders'],
-    logger=logger,
-    server_endpoints=config['server_endpoints'],
-    rekey_cluster=config['key_encrypt'],
-    auto_unseal_enabled=config['recovery_key'])
+    # Initialize Cluster
+    root_token = init_cluster(
+        cluster_name=cluster_name,
+        key_shares=len(config['key_holders']),
+        key_threshold=config['key_threshold'],
+        key_holders=config['key_holders'],
+        logger=logger,
+        server_endpoints=config['server_endpoints'],
+        rekey_cluster=config['key_encrypt'],
+        auto_unseal_enabled=config['recovery_key'])
 
-# Apply Admin Configuration as Root Token
-vault_client = LocalVaultClient(config['server_endpoints'][0], logger)
-vault_client.adapter.token = root_token
+    # Apply Admin Configuration as Root Token
+    vault_client = LocalVaultClient(config['server_endpoints'][0], logger)
+    vault_client.adapter.token = root_token
 
-# Search for all JSON files and then process them
-admin_json_path = '{0}/../config/json_workspaces/{1}/admin/'.format(
-    os.path.dirname(__file__), config['config_env'])
-json_files = []
-for root, dirs, files in os.walk(admin_json_path):
-    for file in files:
-        if file.endswith('.json'):
-            json_files.append(os.path.join(root, file))
-json_files.sort()
+    # Search for all JSON files and then process them
+    admin_json_path = '{0}/../config/json_workspaces/{1}/admin/'.format(
+        os.path.dirname(__file__), config['config_env'])
+    json_files = []
+    for root, dirs, files in os.walk(admin_json_path):
+        for file in files:
+            if file.endswith('.json'):
+                json_files.append(os.path.join(root, file))
+    json_files.sort()
 
-for json_file in json_files:
-    json_payload = json.load(open(json_file, 'r'))
-    if '_namespace' in json_payload:
-        # Re-use current access token to access namespace
-        namespace_client = LocalVaultClient(
-            config['api_endpoint'],
-            logger,
-            namespace=json_payload['_namespace'])
-        namespace_client.adapter.token = vault_client.adapter.token
-        namespace_client.submit(json_payload)
-    else:
-        vault_client.submit(json_payload)
+    for json_file in json_files:
+        json_payload = json.load(open(json_file, 'r'))
+        if '_namespace' in json_payload:
+            # Re-use current access token to access namespace
+            namespace_client = LocalVaultClient(
+                config['api_endpoint'],
+                logger,
+                namespace=json_payload['_namespace'])
+            namespace_client.adapter.token = vault_client.adapter.token
+            namespace_client.submit(json_payload)
+        else:
+            vault_client.submit(json_payload)
 
-# Revoke Root Token
-vault_client.logout()
+    # Revoke Root Token
+    vault_client.logout()
+
+if __name__ == '__main__':
+    main()
