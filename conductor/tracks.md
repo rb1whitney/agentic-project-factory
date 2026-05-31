@@ -6,6 +6,12 @@
 
 ## Active Manufacturing Tracks
 
+### Mission: Vault Level Up
+- **Status**: [PLANNING]
+- **Track**: [**conductor/tracks/vault-level-up/**](file://./conductor/tracks/vault-level-up/)
+- **Strategic Goal**: Modernize and migrate legacy Vault scripts from `old/` to a decoupled `projects/vault/` following TDD and ACS-2026 standards.
+- **Impact**: Establishes a robust, tested, and portable Vault management ecosystem.
+
 ### Mission: Managed Cloud Infra Stabilization
 - **Status**: [PLANNING]
 - **Track**: [**conductor/tracks/managed-cloud-infra-stabilization/**](file://./conductor/tracks/managed-cloud-infra-stabilization/)
@@ -29,6 +35,11 @@
 ---
 
 ## Certified Resolutions (Archive)
+
+### Mission: Financial Sentinel Integration
+- **Status**: [CERTIFIED] | **Operational Impact**: Regional Financial Sovereignty
+- **Strategic Resolution**: Ported the governance, monitoring, and regional data residency standards from `projects/fin-sentinel` to the `cloud-boot-app` and `managed-cloud-infra` primary ecosystems.
+- **Architectural Outcome**: Implemented modular, cloud-agnostic FinOps guardrails and 100% automated Golden Signal monitoring; enforced regional residency via OPA Gatekeeper with integrated SRE remediation hooks.
 
 ### Mission: Executive Documentation Refactor
 - **Status**: [CERTIFIED] | **Operational Impact**: High-Signal Strategic Clarity
@@ -58,6 +69,7 @@
 ---
 
 ## Operations Log
+- **2026-05-27**: Certified Financial Sentinel Integration.
 - **2026-05-30**: Initialized Executive Documentation Refactor.
 - **2026-05-15**: Certified Token Harvester integration.
 - **2026-05-01**: Unified .agent hub architecture deployed.
