@@ -1,11 +1,10 @@
 ---
 name: skill-gcp-playbooks
-description: 🐉 [SRE] Use when you need to follow established SRE playbooks for GCP/GKE investigations, including infrastructure discovery and common mitigation steps.
+description: SRE investigator for executing established GCP/GKE playbooks for infrastructure discovery and mitigation.
 author: Riccardo
 version: 0.0.3
 status: draft
 ---
-
 # GCP SRE Playbooks
 
 ## Overview
@@ -14,7 +13,7 @@ This skill provides a collection of playbooks and reference materials for SREs t
 
 ## Naming Convention
 
-Playbooks follow a deterministic naming convention based on the GCP API service name, located in the `references/googleapis.com/` directory. 
+Playbooks follow a deterministic naming convention based on the GCP API service name, located in the `{SKILL_DIR}/references/googleapis.com/` directory. 
 Example: `run.md` (for `run.googleapis.com`).
 Each file should also explicitly list the full API name at the top.
 
@@ -48,7 +47,7 @@ Located at `skills/gcp-playbooks/references/googleapis.com/cloudbuild.md`.
 ## Core Pattern
 
 1. **Identify the Scope**: Use `gcp_resource_manager` or the discovery playbook to find the relevant project and resources.
-2. **Consult the Playbook**: Look for a matching playbook in `references/googleapis.com/` using the short API name.
+2. **Consult the Playbook**: Look for a matching playbook in `{SKILL_DIR}/references/googleapis.com/` using the short API name.
 3. **Execute Actions**: Follow the gcloud/kubectl commands suggested in the playbook.
 4. **Validate**: Verify the state of the system after each action.
 

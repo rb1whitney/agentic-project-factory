@@ -1,18 +1,22 @@
 ---
 name: skill-agentic-initializer
-description: Professional-grade bootstrapper for 100% compliant Agentic Repositories.
+description: Professional bootstrapper for Vercel-style Agentic Repositories using compressed AGENTS.md manifests.
 ---
-# Agentic Initializer (Hub Bootstrapper)
+# Agentic Initializer (Vercel-Standard)
 
-This skill automates the institutionalization of Specialist Hubs within theProduct Factory. It transforms any directory into a self-documenting, multi-agent  environment.
+This skill automates the creation of a high-performance `AGENTS.md` manifest. Inspired by Vercel's research, it prioritizes "retrieval-led reasoning" over model pre-training by embedding a compressed documentation index directly into the repository root.
 
 ## Logic Overview
-1. **Dense Manifest Generation**: Builds a Vercel-style `AGENT.md` that acts as a high-performance "World Map" for LLMs.
-2. **AI Nexus Provisioning**: Automatically establishes the symlink stack for Gemini, Claude, and Copilot.
-3. **IDE Hardening**: Provisions the `.cursorrules` and `.github/copilot-instructions.md` for absolute context alignment.
+1. **Deterministic Scanning**: Scans a designated documentation directory (default: `{PROJECT_DIR}/docs/`) using `{SKILL_DIR}/scripts/scanner.py`.
+2. **Compressed Indexing**: Builds a pipe-delimited 8KB "World Map" that maps paths to documentation files.
+3. **Passive Context Delivery**: Generates an `AGENTS.md` that acts as the primary cognitive guide for LLM agents, ensuring they always have access to version-matched documentation.
+4. **Retrieval-Led Reasoning**: Injects explicit instructions to prefer retrieval from local docs over potentially outdated training data.
 
 ## Usage
 ```bash
-# From logic.py
-python3 skills/agentic-initializer/logic.py <target_path> <project_name>
+# Initialize a repository with Vercel-style AGENTS.md
+python3 {SKILL_DIR}/scripts/logic.py <target_path> <project_name> [docs_dir]
 ```
+
+## References
+- See `{SKILL_DIR}/references/vercel-agents-md.md` for the original research findings by Jude Gao (Next.js/Vercel).

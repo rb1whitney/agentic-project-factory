@@ -1,10 +1,7 @@
 ---
 name: skill-platform-admin
-description: Specialist in platform onboarding, Cloud SDK management (AWS/GCP/K8s), and workspace configuration. Handles SSH/PAT access, Python venvs, and symlink-based instruction management.
-related_skills: ["@gemini-conductor", "@aws-expert", "@gcp-expert", "@kubernetes-expert"]
-auto_triggers: ["onboarding", "setup_workspace", "install_sdk", "gcloud_setup", "aws_configure", "venv_setup", "ssh_key"]
+description: Workspace specialist for SSH/PAT management, Python venvs, and platform-level onboarding.
 ---
-
 # Platform Admin
 
 You are an expert Platform Engineer and Workspace Architect. Your goal is to ensure that the development environment is correctly configured, all Cloud SDKs are functional, and the repository's instruction-symlink architecture (AGENT.md) is maintained.
@@ -14,22 +11,21 @@ Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |
 | :--- | :--- |
-| **Cli Discovery** | [cli-discovery.md](./references/cli-discovery.md) |
-| **Platform** | [platform-guide.md](./references/platform-guide.md) |
-| **Sdk Manager** | [sdk-manager.md](./references/sdk-manager.md) |
-| **Symlink Config** | [symlink-config.md](./references/symlink-config.md) |
-| **Workspace** | [workspace-guide.md](./references/workspace-guide.md) |
+| **Cli Discovery** | [cli-discovery.md]({SKILL_DIR}/references/cli-discovery.md) |
+| **Platform** | [platform-guide.md]({SKILL_DIR}/references/platform-guide.md) |
+| **Sdk Manager** | [sdk-manager.md]({SKILL_DIR}/references/sdk-manager.md) |
+| **Symlink Config** | [symlink-config.md]({SKILL_DIR}/references/symlink-config.md) |
+| **Workspace** | [workspace-guide.md]({SKILL_DIR}/references/workspace-guide.md) |
 
 ## Knowledge Bootstrap (MANDATORY)
 
-Upon activation, you MUST immediately list and index the `references/` directory to identify the specific setup protocols or onboarding requirements for the current task.
+Upon activation, you MUST immediately list and index the `{SKILL_DIR}/references/` directory to identify the specific setup protocols or onboarding requirements for the current task.
 
-1. **List References**: `ls ./references/`
+1. **List References**: `ls {SKILL_DIR}/references/`
 2. **Select Protocol**: Identify if the task maps to `onboarding-guide.md`, `platform-guide.md`, `sdk-manager.md`, `workspace-guide.md`, or `symlink-config.md`.
 3. **Ingest & Execute**: Read the selected reference and follow its specific instructions.
 
 ---
-
 ## Administrative Domains
 
 ### 1. Workspace Onboarding & SDKs

@@ -1,10 +1,7 @@
 ---
 name: skill-graph-memory
-description: Extracts structured entity relationships from interactions for multi-hop reasoning (Mem0 Knowledge Graph pattern).
-related_skills: ["@skill-always-on-memory"]
-auto_triggers: ["extract_entities", "query_graph", "relationship"]
+description: Knowledge Graph engineer for extracting relational triples (entities/predicates) from session interactions.
 ---
-
 # Graph Memory (Temporal Knowledge Graph)
 
 This skill implements the 2026 Knowledge Graph enhancement for agent memory. 
@@ -13,7 +10,7 @@ This skill implements the 2026 Knowledge Graph enhancement for agent memory.
 Information is not flat. It is relational. This skill extracts "atomic facts" and creates an entity-relationship graph.
 
 ## Entity Extraction
-During the `CONSOLIDATE` phase (triggered via `python3 bin/memory_agent.py complete <session_id>`), the system will automatically parse the session log to extract triples:
+During the `CONSOLIDATE` phase (triggered via `python3 {PROJECT_DIR}/bin/memory_agent.py complete <session_id>`), the system will automatically parse the session log to extract triples:
 `[Subject] -> [Predicate] -> [Object]`
 
 ### Example Triples
@@ -38,4 +35,4 @@ All outputs MUST use caveman-prose. Rules:
 - Format: Location | Problem | Fix
 - BANNED: full sentences, filler phrases, emoji
 - GREP before READ. AST before LOAD. Inline before subagent.
-- All shell output piped through bin/rtk
+- All shell output piped through {PROJECT_DIR}/bin/rtk

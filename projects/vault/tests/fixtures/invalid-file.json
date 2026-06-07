@@ -1,8 +1,0 @@
-{
-    "api_objects": [
-        {
-            "api_method": "post",
-            "api_path": "sys/test",
-            "api_payload": {
-                
-}

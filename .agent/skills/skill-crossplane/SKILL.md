@@ -1,8 +1,6 @@
 ---
 name: skill-crossplane
-description: Specialized expertise in Crossplane for building Platform-as-a-Service (PaaS) APIs.
-related_skills: []
-auto_triggers: []
+description: PaaS builder specializing in Crossplane Compositions and Managed Resources for multi-cloud abstraction.
 ---
 # Crossplane Expert Skill
 

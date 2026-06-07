@@ -1,11 +1,10 @@
 ---
 name: skill-data-ingestion
-description: 🐉 Fetches and parses time-series data from various sources.
+description: Time-series data engineer for fetching and parsing CSV or Cloud Monitoring data into standard JSON.
 author: Szymon Stawski # + Gemini
 version: 0.2.0
 status: development
 ---
-
 # Data Ingestion Skill
 
 This skill is responsible for fetching and converting time-series data from different sources into a standardized JSON format for other skills to consume.
@@ -18,7 +17,7 @@ This skill is responsible for fetching and converting time-series data from diff
 
 **Output:**
 
-A JSON string in the standardized format (see README.md for details).
+A JSON string in the standardized format (see {SKILL_DIR}/references/README.md for details).
 
 **Workflow:**
 
@@ -28,9 +27,9 @@ A JSON string in the standardized format (see README.md for details).
         *   Ensure `source_details` is a list of file paths.
         *   Create a list of temporary file names for intermediate JSON outputs (e.g., `~/.antigravitycli/tmp/user/parsed_0.json`, ...).
         *   **Parse Each CSV:** Iterate through the input file paths:
-            *   Execute `python ./skills/data-ingestion/parse_csv.py <input_csv_path> > <temp_json_path>` using `run_shell_command` (with venv activation).
+            *   Execute `python {SKILL_DIR}/scripts/parse_csv.py <input_csv_path> > <temp_json_path>` using `run_shell_command` (with venv activation).
             *   Check for errors.
-        *   **Merge JSONs:** Execute `python ./skills/data-ingestion/merge_timeseries.py <temp_json_path_1> <temp_json_path_2> ...` using `run_shell_command` (with venv activation).
+        *   **Merge JSONs:** Execute `python {SKILL_DIR}/scripts/merge_timeseries.py <temp_json_path_1> <temp_json_path_2> ...` using `run_shell_command` (with venv activation).
         *   Capture the stdout from `merge_timeseries.py` as the final result.
         *   **Clean up:** Remove the temporary JSON files.
         *   Handle any errors during script executions.
