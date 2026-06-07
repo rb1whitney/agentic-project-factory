@@ -6,7 +6,27 @@
 
 ## Active Manufacturing Tracks
 
-### Mission: Managed Cloud Infra Stabilization
+### Mission: FinOps Oracle v2
+- **Status**: [PLANNING]
+- **Track**: [**conductor/tracks/finops-oracle-implementation/**](file://./conductor/tracks/finops-oracle-implementation/)
+- **Strategic Goal**: Redesign FinOps Oracle using 2026 standards (Gemini 3.1 Pro, CUR v2, S3 Tables, Nova 2).
+- **Impact**: High-fidelity autonomous cost optimization with "Ghost Hunting" capabilities.
+
+---
+
+## Certified Resolutions (Archive)
+
+### Mission: Vault Auth Modernization
+- **Status**: [CERTIFIED] | **Operational Impact**: Unified Multi-Cloud Secrets Access
+- **Strategic Resolution**: Abstracted Vault authentication into a Strategy-based pattern, unifying credentials under standard `VAULT_AUTH_*` environment variables. Faked logic has been replaced with production-ready `boto3` and `google-auth` integrations.
+- **Architectural Outcome**: Decoupled the Vault client from specific authentication implementations, enabling zero-touch scaling to new cloud providers (AWS/GCP) while maintaining 100% backward compatibility with core integration tests.
+
+### Mission: Vault Level Up
+- **Status**: [CERTIFIED] | **Operational Impact**: Robust & Portable Secret Infrastructure
+- **Strategic Resolution**: Certified the modernization and migration of legacy Vault scripts to `projects/vault/` following TDD and ACS-2026 standards.
+- **Architectural Outcome**: Established a high-performance, GPU-accelerated Vault management ecosystem with 100% automated core verification and hardware-aware local model support.
+
+### Mission: FinOps Oracle Implementation (Legacy)
 - **Status**: [PLANNING]
 - **Track**: [**conductor/tracks/managed-cloud-infra-stabilization/**](file://./conductor/tracks/managed-cloud-infra-stabilization/)
 - **Strategic Goal**: Modernize `projects/managed-cloud-infra` to ACS-2026 standards.
@@ -29,6 +49,16 @@
 ---
 
 ## Certified Resolutions (Archive)
+
+### Mission: FinOps Oracle Implementation (Legacy)
+- **Status**: [REJECTED/FAILED] | **Operational Impact**: DEPRECATED
+- **Strategic Resolution**: Previous implementation used 2025 stubs and legacy ingestion methods. Superseded by v2.
+- **Architectural Outcome**: REJECTED in favor of 2026 high-fidelity standards.
+
+### Mission: Financial Sentinel Integration
+- **Status**: [CERTIFIED] | **Operational Impact**: Regional Financial Sovereignty
+- **Strategic Resolution**: Ported the governance, monitoring, and regional data residency standards from `projects/fin-sentinel` to the `cloud-boot-app` and `managed-cloud-infra` primary ecosystems.
+- **Architectural Outcome**: Implemented modular, cloud-agnostic FinOps guardrails and 100% automated Golden Signal monitoring; enforced regional residency via OPA Gatekeeper with integrated SRE remediation hooks.
 
 ### Mission: Executive Documentation Refactor
 - **Status**: [CERTIFIED] | **Operational Impact**: High-Signal Strategic Clarity
@@ -58,6 +88,8 @@
 ---
 
 ## Operations Log
+- **2026-05-27**: Certified FinOps Oracle Implementation.
+- **2026-05-27**: Certified Financial Sentinel Integration.
 - **2026-05-30**: Initialized Executive Documentation Refactor.
 - **2026-05-15**: Certified Token Harvester integration.
 - **2026-05-01**: Unified .agent hub architecture deployed.

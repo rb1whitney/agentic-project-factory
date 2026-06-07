@@ -1,17 +1,14 @@
 ---
 name: skill-mcp-manager
-description: Manage MCP (Model Context Protocol) server lifecycle. Use to "turn on", build, and configure MCP servers for the workspace.
-auto_triggers:
+description: Lifecycle manager for building, configuring, and "turning on" Model Context Protocol (MCP) servers.
   - mcp
   - mcp_server
   - setup_mcp
   - turn_on_mcp
   - configure_mcp
-related_skills:
   - "@gemini-conductor"
   - "@sre-expert"
 ---
-
 # MCP Manager
 
 Expert in managing Model Context Protocol (MCP) servers for the Expert Intelligence Hub.

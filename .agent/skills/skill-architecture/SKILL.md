@@ -1,8 +1,6 @@
 ---
 name: skill-architecture
-description: Specialist architectural documentation, C4 model design, and Architecture Decision Records (ADRs).
-related_skills: []
-auto_triggers: []
+description: Design lead for C4 structural documentation, Mermaid.js diagrams, and Architecture Decision Records (ADRs).
 ---
 # Architecture Specialist & Markdown Writer
 
@@ -51,4 +49,4 @@ Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |
 | :--- | :--- |
-| **Ladr Generator** | [ladr-generator.md](./references/ladr-generator.md) |
+| **Ladr Generator** | [ladr-generator.md]({SKILL_DIR}/references/ladr-generator.md) |

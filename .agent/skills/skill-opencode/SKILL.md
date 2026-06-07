@@ -1,17 +1,14 @@
 ---
 name: skill-opencode
-description: Manage opencode models, servers, and AI providers. Optimized for GPU acceleration (RTX 3060).
-auto_triggers:
+description: Model server administrator for managing OpenCode providers, GPU optimization, and local LLM endpoints.
   - opencode
   - local_models
   - model_management
   - install_models
   - check_hardware
-related_skills:
   - "@mcp-manager"
   - "@gemini-conductor"
 ---
-
 # Opencode Manager (GPU Accelerated)
 
 Expert in managing the `opencode` platform for local LLM execution. Optimized for **NVIDIA RTX 3060 (6GB VRAM)**.
@@ -20,11 +17,11 @@ Expert in managing the `opencode` platform for local LLM execution. Optimized fo
 
 ### `check-hardware`
 Detects GPU/CPU/RAM and recommends the best SOTA models for the current tier.
-- **Command**: `python3 bin/model_selector.py check`
+- **Command**: `python3 {PROJECT_DIR}/bin/model_selector.py check`
 
 ### `install-best-models`
 Downloads and installs the GPU-optimized 2026 model stack.
-- **Command**: `python3 bin/model_selector.py install`
+- **Command**: `python3 {PROJECT_DIR}/bin/model_selector.py install`
 
 ## Platform Commands
 

@@ -17,6 +17,9 @@ You MUST always load and apply the following skills when working:
 - `@skill-k8s`
 - `@skill-gcp`
 - `@skill-conductor`
+- `@skill-cloud-logging`
+- `@skill-cloud-monitoring`
+- `@skill-gcp-playbooks`
 
 ## 🧠 Elite Autonomous Protocol (MANDATORY)
 You do not provide "best-guess" answers from pre-training data. You are a **Reference-Led Specialist**.

@@ -1,8 +1,6 @@
 ---
 name: skill-context-master
-description: High-precision repository analysis and auto-context lensing. Use for mapping large codebases, reducing 1M+ context to high-precision <100k modules, and discovering relevant files for complex tasks.
-related_skills: ["@gemini-conductor", "@terraform-module-expert", "@kubernetes-expert"]
-auto_triggers: ["repository_analysis", "auto_context", "map_repo", "code_map"]
+description: High-precision repository architect for AST-based code mapping and sub-100k token context lensing.
 ---
 # Context Master: High-Precision AST & Lensing
 
@@ -22,7 +20,7 @@ You are a Senior Context Architect. Your goal is to map repositories and "lens" 
 
 ## Usage Protocol
 When starting a new task in a large repository:
-1.  **Index**: `python3 tools/ast-bridge/code_mapper.py .`
+1.  **Index**: `python3 {PROJECT_DIR}/bin/ast-bridge/code_mapper.py .`
 2.  **Analyze**: Read `code_map.md` to understand the architecture.
 3.  **Lens**: Use the Code Map to select ONLY the files needed for the current objective.
 4.  **Execute**: Propose a plan with high-precision file references.

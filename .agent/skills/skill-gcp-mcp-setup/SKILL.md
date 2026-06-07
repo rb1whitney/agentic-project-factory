@@ -2,9 +2,8 @@
 name: skill-gcp-mcp-setup
 version: 0.0.8
 author: Riccardo
-description: Use when the user wants to set up Google Managed MCP (OneMCP) servers for their Antigravity CLI environment. Automates enabling services, MCP servers, generating API keys, and configuring ~/.antigravitycli/mcp_config.json.
+description: Automator for provisioning Google Managed MCP (OneMCP) servers and configuring hub authentication.
 ---
-
 # OneMCP Setup Skill
 
 ## Overview
@@ -21,14 +20,14 @@ Use this skill when the user asks to "install OneMCP", "setup OneMCP", or "confi
 2. **Setup Script Execution**: Run the provided script to enable APIs, MCP services, and generate the required API Key. 
    - By default, it installs a **Lean SRE toolset** (Logging, Monitoring, GKE, Run, Resource Manager, Developer Knowledge).
    - Use the `--all` flag to include optional services (Error Reporting, Databases, Vertex AI).
-   - Script: `skills/gcp-mcp-setup/scripts/setup_onemcp.py <PROJECT_ID> [--local | --global] [--all] [--google-maps-key YOUR_KEY]`
-3. **Configure Settings**: The script securely injects the JSON configuration directly into `.agent/mcp_config.json` if `--local` is provided, or `~/.antigravitycli/mcp_config.json` if the `--global` flag is provided. This prevents accidental overwriting of existing settings. The script requires one of these flags explicitly.
+   - Script: `{SKILL_DIR}/scripts/setup_onemcp.py <PROJECT_ID> [--local | --global] [--all] [--google-maps-key YOUR_KEY]`
+3. **Configure Settings**: The script securely injects the JSON configuration directly into `{PROJECT_DIR}/.agent/mcp_config.json` if `--local` is provided, or `~/.antigravitycli/mcp_config.json` if the `--global` flag is provided. This prevents accidental overwriting of existing settings. The script requires one of these flags explicitly.
 4. **Verification & Diagnostics:**
-   - Script: `skills/gcp-mcp-setup/scripts/verify_setup.py`
+   - Script: `{SKILL_DIR}/scripts/verify_setup.py`
    - This script runs `agy -p "/mcp list"` and asserts that the OneMCP servers are configured and identifies identity mismatches.
    - For direct endpoint diagnostics (without Gemini), use the curl-based tool:
-     - Script: `skills/gcp-mcp-setup/scripts/test_mcp_endpoint.sh [ENDPOINT_URL]`
-     - Example: `./skills/gcp-mcp-setup/scripts/test_mcp_endpoint.sh https://monitoring.googleapis.com/mcp`
+     - Script: `{SKILL_DIR}/scripts/test_mcp_endpoint.sh [ENDPOINT_URL]`
+     - Example: `./{SKILL_DIR}/scripts/test_mcp_endpoint.sh https://monitoring.googleapis.com/mcp`
 
 ## Examples
 
@@ -47,7 +46,7 @@ If MCP doesn't work, yhou can poropose to run this on user's behalf: `gcloud aut
 
 If you encounter an identity mismatch:
 1. Run `gcloud auth application-default login --account=YOUR_CLI_IDENTITY` to synchronize identities.
-2. Verify the identities match by running the verification script: `python3 skills/gcp-mcp-setup/scripts/verify_setup.py`.
+2. Verify the identities match by running the verification script: `python3 {SKILL_DIR}/scripts/verify_setup.py`.
 
 ## Documentation
 

@@ -1,14 +1,12 @@
 ---
 name: skill-aws
-description: Holistic 2026 AWS Expertise  Consolidation of the Well-Architected Framework and Dynamic CLI Discovery.
-related_skills: []
-auto_triggers: []
+description: Comprehensive AWS Cloud expert focusing on Well-Architected Framework audits and dynamic CLI resource discovery.
 ---
 # AWS Expert (Holistic 2026 Edition)
 
 ## Scripts & Automation
 Use these scripts to ground your reasoning in the current environment:
-- `scripts/aws_discovery.sh`: Run this first to identify active identity, region, and resources.
+- `{SKILL_DIR}/scripts/aws_discovery.sh`: Run this first to identify active identity, region, and resources.
 
 ## Core Pillars
 You are a Master AWS Solutions Architect. You combine deep theoretical knowledge of the Well-Architected Framework with the hands-on CLI mastery required to audit and manage multi-account environments.
@@ -18,7 +16,7 @@ You are a Master AWS Solutions Architect. You combine deep theoretical knowledge
 Instead of relying on fixed instructions, you use the `aws` CLI and your **Local Reference Library** as your primary tools for infrastructure discovery and validation.
 
 ### 1. The Reference & Discovery Protocol
-You have an extensive reference library in `./references/`. Before making an architectural recommendation:
+You have an extensive reference library in `{SKILL_DIR}/references/`. Before making an architectural recommendation:
 1. **Search References**: Index the local documents (`iam-identity.md`, `vpc-networking.md`, `s3-storage.md`, `serverless-excellence.md`) for established best practices.
 2. **Sync with CLI**: Use the AWS CLI to verify if the discovered best practice is applicable to the current account context.
 3. **Cite Findings**: Explicitly mention the local reference document used (e.g., "According to `vpc-networking.md`, we should...")
@@ -65,8 +63,8 @@ Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |
 | :--- | :--- |
-| **Iam Identity** | [iam-identity.md](./references/iam-identity.md) |
-| **S3 Storage** | [s3-storage.md](./references/s3-storage.md) |
-| **Serverless Excellence** | [serverless-excellence.md](./references/serverless-excellence.md) |
-| **Vpc Networking** | [vpc-networking.md](./references/vpc-networking.md) |
-| **Well Architected** | [well-architected.md](./references/well-architected.md) |
+| **Iam Identity** | [iam-identity.md]({SKILL_DIR}/references/iam-identity.md) |
+| **S3 Storage** | [s3-storage.md]({SKILL_DIR}/references/s3-storage.md) |
+| **Serverless Excellence** | [serverless-excellence.md]({SKILL_DIR}/references/serverless-excellence.md) |
+| **Vpc Networking** | [vpc-networking.md]({SKILL_DIR}/references/vpc-networking.md) |
+| **Well Architected** | [well-architected.md]({SKILL_DIR}/references/well-architected.md) |

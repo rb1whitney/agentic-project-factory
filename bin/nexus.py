@@ -12,6 +12,7 @@ from pathlib import Path
 AGENT_SOURCE = Path(".agent/agents")
 SKILL_SOURCE = Path(".agent/skills")
 POLICY_SOURCE = Path(".agent/policies")
+HOOK_SOURCE = Path(".agent/hooks")
 
 LOCAL_AGENT_SPOKES = [
     ".claude/agents",
@@ -36,6 +37,15 @@ LOCAL_POLICY_SPOKES = [
     ".gemini/policies",
     ".agents/policies",
     ".antigravitycli/policies",
+]
+
+LOCAL_HOOK_SPOKES = [
+    ".claude/hooks",
+    ".gemini/hooks",
+    ".gemini/antigravity/hooks",
+    ".github/hooks",
+    ".agents/hooks",
+    ".antigravitycli/hooks",
 ]
 
 GLOBAL_SPOKES = [
@@ -91,7 +101,7 @@ def main():
     repo_root = Path(__file__).parent.parent.absolute()
     os.chdir(repo_root)
 
-    counts = {"agents": 0, "skills": 0, "policies": 0}
+    counts = {"agents": 0, "skills": 0, "policies": 0, "hooks": 0}
 
     # 1. Sync Agents
     if AGENT_SOURCE.exists():
@@ -149,13 +159,36 @@ def main():
                 if success:
                     counts["policies"] += 1
 
-    # 4. Instruction Bridges
+    # 4. Sync Hooks
+    if HOOK_SOURCE.exists():
+        for hook_item in HOOK_SOURCE.iterdir():
+            if hook_item.name.startswith("."):
+                continue
+            success = False
+            for spoke in LOCAL_HOOK_SPOKES:
+                if create_symlink(hook_item, Path(spoke) / hook_item.name, args.verbose):
+                    success = True
+            if args.global_sync:
+                for base in GLOBAL_SPOKES:
+                    if create_symlink(
+                        hook_item,
+                        base / "hooks" / hook_item.name,
+                        args.verbose,
+                    ):
+                        success = True
+            if success:
+                counts["hooks"] += 1
+
+    # 5. Instruction Bridges
     for source_rel, targets in ROOT_LINKS.items():
         source = Path(source_rel)
         for target_rel in targets:
             create_symlink(source, Path(target_rel), args.verbose)
 
-    print(f"Nexus Sync: {counts['agents']} agents, {counts['skills']} skills, {counts['policies']} policies")
+    print(
+        f"Nexus Sync: {counts['agents']} agents, {counts['skills']} skills, "
+        f"{counts['policies']} policies, {counts['hooks']} hooks"
+    )
 
 
 if __name__ == "__main__":

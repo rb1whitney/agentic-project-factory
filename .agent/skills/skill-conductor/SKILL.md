@@ -1,8 +1,6 @@
 ---
 name: skill-conductor
-description: "Use for Context-Driven Development protocol. Manages project lifecycle via /conductor commands: setup, newTrack, implement, status, revert, review. Enforces spec-plan-implement discipline with TDD, git notes, and phase verification."
-related_skills: ["@gemini-ci", "@gemini-review-suite", "@ladr-generator"]
-auto_triggers: ["conductor", "newTrack", "implement", "spec.md", "plan.md", "tracks.md", "CDD"]
+description: CDD (Context-Driven Development) protocol manager enforcing the Spec-Plan-Implement-Verify lifecycle.
 ---
 # Gemini Conductor Skill
 
@@ -22,7 +20,7 @@ Conductor is a **Context-Driven Development (CDD)** protocol. It turns an AI age
 ## Protocol Summary
 
 ### 1. Setup (`/conductor:setup`)
-Initialize the `conductor/` directory with:
+Initialize the `{PROJECT_DIR}/conductor/` directory with:
 - `product.md`: Product vision, goals, and user personas.
 - `tech-stack.md`: Technical choices, languages, frameworks, and constraints.
 - `product-guidelines.md`: Brand voice, UI/UX standards, and communication style.
@@ -33,7 +31,7 @@ Initialize the `conductor/` directory with:
 For every new feature or fix:
 1. **Spec**: Define *what* is being built and *why*.
 2. **Plan**: Break down the work into **Phases** and **Tasks**. Each task must be actionable.
-3. **Register**: Add the track to `conductor/tracks.md`.
+3. **Register**: Add the track to `{PROJECT_DIR}/conductor/tracks.md`.
 
 ### 3. Implementation (`/conductor:implement`)
 A strict loop:
@@ -48,5 +46,5 @@ A strict loop:
 
 ## Guidelines for the Agent
 - **Adhere to the Plan**: Do not deviate from the current `plan.md` without formal revision.
-- **Context is King**: Always read and update the core context files in `conductor/` to maintain the project's single source of truth.
+- **Context is King**: Always read and update the core context files in `{PROJECT_DIR}/conductor/` to maintain the project's single source of truth.
 - **Verification First**: Never mark a task as complete without passing tests and verification.

@@ -1,10 +1,7 @@
 ---
 name: skill-codebase-recon
-description: Git forensics tool for identifying hotspots, churn, and knowledge gaps before reading code.
-related_skills: ["@architecture-specialist", "@sre-specialist"]
-auto_triggers: ["reconnaissance", "git_forensics", "churn", "hotspots", "bus_factor"]
+description: Git forensics analyst for identifying hotspots, logic churn, and knowledge gaps via commit history.
 ---
-
 # Codebase Reconnaissance: Git Forensics Protocol
 
 Before diving into the source code, use these Git forensics to identify hotspots, risks, and institutional knowledge gaps. These commands help build a mental map of "danger zones" and key contributors.

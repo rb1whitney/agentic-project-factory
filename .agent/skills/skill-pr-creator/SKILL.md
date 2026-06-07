@@ -1,8 +1,7 @@
 ---
 name: skill-pr-creator
-description: Comprehensive workflow for creating high-quality GitHub Pull Requests. Ensures adherence to repository standards and documentation compliance.
+description: Quality gatekeeper for drafting high-resolution GitHub Pull Requests with documentation compliance.
 ---
-
 # Pull Request Creator
 
 This skill guides the creation of high-performance Pull Requests that adhere to the factory's standards.

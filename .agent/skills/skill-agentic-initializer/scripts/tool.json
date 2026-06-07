@@ -1,6 +1,6 @@
 {
   "name": "init_agentic_repo",
-  "description": "Transforms a directory into a 100% compliant Agentic Repository with localized personas and multi-agent nexus stacks.",
+  "description": "Transforms a directory into a Vercel-style Agentic Repository with a compressed AGENTS.md manifest.",
   "parameters": {
     "type": "object",
     "properties": {
@@ -11,6 +11,10 @@
       "project_name": {
         "type": "string",
         "description": "Name of the project for manifest personalization."
+      },
+      "docs_dir": {
+        "type": "string",
+        "description": "Directory containing documentation to index (default: 'docs')."
       }
     },
     "required": ["target_path", "project_name"]

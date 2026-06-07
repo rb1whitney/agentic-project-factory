@@ -1,10 +1,7 @@
 ---
 name: skill-aws-migration
-description: "Migrate workloads from Google Cloud Platform to AWS. Triggers on: migrate from GCP, GCP to AWS, move off Google Cloud, migrate Terraform to AWS, migrate Cloud SQL to RDS, migrate GKE to EKS, migrate Cloud Run to Fargate, Google Cloud migration. Runs a 5-phase process: discover GCP resources from Terraform files, clarify migration requirements, design AWS architecture, estimate costs, and plan execution."
-related_skills: []
-auto_triggers: []
+description: 5-phase migration engine for transitioning workloads from Google Cloud Platform to AWS architecture.
 ---
-
 # GCP-to-AWS Migration Skill
 
 ## Philosophy
@@ -86,11 +83,11 @@ If `.phase-status.json` exists:
 
 | Phase        | Inputs                                                                        | Outputs                                                                                   | Reference                                |
 | ------------ | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **Discover** | `.tf` files                                                                   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `.phase-status.json` updated | `references/phases/discover/discover.md` |
-| **Clarify**  | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`                   | `clarified.json`, `.phase-status.json` updated                                            | `references/phases/clarify.md`           |
-| **Design**   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `clarified.json` | `aws-design.json`, `aws-design-report.md`, `.phase-status.json` updated                   | `references/phases/design.md`            |
-| **Estimate** | `aws-design.json`, `clarified.json`                                           | `estimation.json`, `estimation-report.md`, `.phase-status.json` updated                   | `references/phases/estimate.md`          |
-| **Execute**  | `aws-design.json`, `estimation.json`                                          | `execution.json`, `execution-timeline.md`, `.phase-status.json` updated                   | `references/phases/execute.md`           |
+| **Discover** | `.tf` files                                                                   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `.phase-status.json` updated | `{SKILL_DIR}/references/phases/discover/discover.md` |
+| **Clarify**  | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`                   | `clarified.json`, `.phase-status.json` updated                                            | `{SKILL_DIR}/references/phases/clarify.md`           |
+| **Design**   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `clarified.json` | `aws-design.json`, `aws-design-report.md`, `.phase-status.json` updated                   | `{SKILL_DIR}/references/phases/design.md`            |
+| **Estimate** | `aws-design.json`, `clarified.json`                                           | `estimation.json`, `estimation-report.md`, `.phase-status.json` updated                   | `{SKILL_DIR}/references/phases/estimate.md`          |
+| **Execute**  | `aws-design.json`, `estimation.json`                                          | `execution.json`, `execution-timeline.md`, `.phase-status.json` updated                   | `{SKILL_DIR}/references/phases/execute.md`           |
 
 ## MCP Servers
 
@@ -98,7 +95,7 @@ If `.phase-status.json` exists:
 
 1. Call `get_pricing_service_codes()` to detect availability
 2. If success: use live AWS pricing
-3. If timeout/error: fall back to `references/shared/pricing-fallback.json` (includes 2026 on-demand rates for major services)
+3. If timeout/error: fall back to `{SKILL_DIR}/references/shared/pricing-fallback.json` (includes 2026 on-demand rates for major services)
 
 **awsknowledge** (for design validation):
 
@@ -139,10 +136,10 @@ When invoked, the agent **MUST follow this exact sequence**:
    - If status is `in-progress`: Resume that phase (read corresponding reference file)
    - If status is `completed`: Advance to next phase (read next reference file)
    - Phase mapping for advancement:
-     - discover (completed)  Execute clarify (read `references/phases/clarify.md`)
-     - clarify (completed)  Execute design (read `references/phases/design.md`)
-     - design (completed)  Execute estimate (read `references/phases/estimate.md`)
-     - estimate (completed)  Execute execute (read `references/phases/execute.md`)
+     - discover (completed)  Execute clarify (read `{SKILL_DIR}/references/phases/clarify.md`)
+     - clarify (completed)  Execute design (read `{SKILL_DIR}/references/phases/design.md`)
+     - design (completed)  Execute estimate (read `{SKILL_DIR}/references/phases/estimate.md`)
+     - estimate (completed)  Execute execute (read `{SKILL_DIR}/references/phases/execute.md`)
      - execute (completed)  Migration complete
 
 3. **Read phase reference**: Load the full reference file for the target phase.

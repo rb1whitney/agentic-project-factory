@@ -1,177 +1,8 @@
 # =============================================================================
-# Terraform
+# 1. ENVIRONMENT & OS
 # =============================================================================
 
-# Local .terraform directories and plugins
-**/.terraform/*
-**/.terraform.lock.hcl
-
-# State files — NEVER commit these
-*.tfstate
-*.tfstate.*
-*.tfstate.backup
-
-# Plan output files — contain sensitive data
-*.tfplan
-*.tfplan.json
-
-# Crash log files
-crash.log
-crash.*.log
-
-# Override files (local developer overrides)
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Variables files that may contain secrets
-*.tfvars
-*.tfvars.json
-
-# Allow example/template var files to be committed
-!*.tfvars.example
-!*.tfvars.json.example
-
-# =============================================================================
-# Packer
-# =============================================================================
-
-# Packer cache
-packer_cache/
-
-# Packer build artifacts
-*.box
-
-# =============================================================================
-# Ansible
-# =============================================================================
-
-# Retry files
-*.retry
-
-# Vault password files
-.vault_pass
-.vault_password
-vault_pass.txt
-
-# Ansible temporary files
-.ansible/
-
-# Role downloaded via galaxy (should be fetched at runtime)
-roles/galaxy/
-
-# =============================================================================
-# Python
-# =============================================================================
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environments
-.venv/
-venv/
-env/
-.env
-ENV/
-
-# pip
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-*.egg
-MANIFEST
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# Type checkers
-.mypy_cache/
-.dmypy.json
-.pytype/
-
-# =============================================================================
-# Node.js
-# =============================================================================
-
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Build output
-dist/
-.next/
-out/
-
-# Lock files (keep package-lock.json / yarn.lock, but ignore others)
-.pnp
-.pnp.js
-
-# =============================================================================
-# Cloud Credentials & Secrets
-# =============================================================================
-
-# AWS credentials
-.aws/credentials
-aws-credentials.json
-*_credentials.json
-
-# GCP service account keys — NEVER commit
-*-service-account.json
-*-sa-key.json
-service_account*.json
-credentials.json
-gcloud-credentials.json
-application_default_credentials.json
-
-# Generic secret files
-*.pem
-*.key
-*.p12
-*.pfx
-*.crt
-*.cer
-id_rsa
-id_rsa.pub
-id_ed25519
-id_ed25519.pub
-*.der
-secrets.yml
-secrets.yaml
-.secrets
-secrets/
-.env.local
-.env.production
-.env.*.local
-
-# =============================================================================
-# AST Cache & Generated Files
-# =============================================================================
-
-.ast_cache/
-code_map.md
-relationship_graph.json
-symbol_map.json
-
-# =============================================================================
-# macOS
-# =============================================================================
-
+# --- macOS ---
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -185,10 +16,7 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
-# =============================================================================
-# Windows
-# =============================================================================
-
+# --- Windows ---
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
@@ -196,22 +24,16 @@ Desktop.ini
 $RECYCLE.BIN/
 *.lnk
 
-# =============================================================================
-# Linux
-# =============================================================================
-
+# --- Linux ---
 *~
 .nfs*
 
-# =============================================================================
-# Editors & IDEs
-# =============================================================================
-
+# --- Editors & IDEs ---
 # VSCode
 .vscode/
 *.code-workspace
 
-# JetBrains (IntelliJ, PyCharm, etc.)
+# JetBrains
 .idea/
 *.iml
 *.iws
@@ -220,7 +42,6 @@ $RECYCLE.BIN/
 # Vim
 *.swp
 *.swo
-*~
 .netrwhist
 
 # Emacs
@@ -233,83 +54,186 @@ $RECYCLE.BIN/
 *.sublime-workspace
 
 # =============================================================================
-# Temporary & Local Developer Files
+# 2. CLOUD & INFRASTRUCTURE
 # =============================================================================
 
-# Temp directories created during development
-temp_*/
-tmp_*/
-scratch/
-sandbox/
+# --- Terraform ---
+**/.terraform/*
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfplan
+*.tfplan.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!*.tfvars.json.example
 
-# Local notes
-TODO.local.md
-NOTES.local.md
+# --- Packer ---
+packer_cache/
+*.box
 
-# Test output
-test-results/
-coverage/
-
-# Log files
-*.log
-logs/
+# --- Ansible ---
+*.retry
+.ansible/
+roles/galaxy/
 
 # =============================================================================
-# CI / CD Artifacts
+# 3. PROGRAMMING LANGUAGES
 # =============================================================================
 
-.github/artifacts/
-junit-*.xml
-test-report*.xml
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.dmypy.json
+.pytype/
+
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.next/
+out/
+.pnp
+.pnp.js
 
 # =============================================================================
-# Model Context Protocol (MCP)
+# 4. SECURITY & SECRETS (Zero-Trust)
 # =============================================================================
-
-# Unignore the orchestration directory to allow scripts
-!mcp-servers/
-
-# Ignore cloned MCP server repositories (automated via download_mcps.sh)
-mcp-servers/mcp-*/
-
-# Safety: Ignore other misplaced mcp folders in root
-/mcp-*/
-!/mcp-servers/
-bin/kubectl
-
-# --- Swarm Security: Zero-Trust Credentials ---
 # Local secret files are STRICTLY FORBIDDEN.
 # Use ~/.mcp-servers/credentials (outside repo) instead.
-*.env
+
+# --- Environment Variables ---
+.env
 .env.*
+*.env
+
+# --- Cloud Credentials ---
+.aws/credentials
+aws-credentials.json
+*_credentials.json
+*-service-account.json
+*-sa-key.json
+service_account*.json
+credentials.json
+gcloud-credentials.json
+application_default_credentials.json
+
+# --- Certificates & Keys ---
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.der
+
+# --- Generic Secrets & Vaults ---
+secrets.yml
+secrets.yaml
+.secrets
+secrets/
 credentials
+.vault_pass
+.vault_password
+vault_pass.txt
 
-# --- Swarm Automation: Brain & Cache ---
-# Ignore automated discovery artifacts and temporary brain state
-.gemini/antigravity/
+# =============================================================================
+# 5. AGENTIC FRAMEWORK (Swarm, MCP, Automation)
+# =============================================================================
+
+# --- Model Context Protocol (MCP) ---
+# Allow MCP orchestration directory to be versioned
+!mcp-servers/
+!/mcp-servers/
+# Ignore cloned MCP server repositories within it
+mcp-servers/mcp-*/
+# Ignore other misplaced mcp folders
+/mcp-*/
+
+# --- Swarm Automation: Brain, Cache & State ---
+# Ignore automated discovery artifacts and temporary brain state.
+.gemini/
+.claude/
+.cursor/
+.agents/
 .antigravitycli/
-.ast_cache/
-relationship_graph.json
-code_map.md
+.antigravity/
+.opencode/
 
-projects/
-# IDE Specific Rules (Polyfills)
-.cursor/rules/*
-.claude/agents/*
-.gemini/agents/*
-.gemini/skills/*
-.gemini/policies/*
-.github/agents/*
-.github/skills/*
-.vscode/agents/*
-.agents/agents/*
-.agents/skills/*
+# --- AST Cache & Generated Graphs ---
+.ast_cache/
+code_map.md
+relationship_graph.json
+symbol_map.json
 
 # --- Swarm Automation: Always-On Memory Database ---
 /memory.db
 /memory.db-journal
 /memory_v2.db
 
-# opencode
-.opencode/*
-.agents/*
+# =============================================================================
+# 6. TEMPORARY, BUILD & TEST FILES
+# =============================================================================
+
+# --- Build Outputs ---
+dist/
+build/
+
+# --- Temporary & Local Developer Files ---
+temp_*/
+tmp_*/
+scratch/
+sandbox/
+TODO.local.md
+NOTES.local.md
+
+# --- Test Outputs & Artifacts ---
+test-results/
+coverage/
+.github/artifacts/
+junit-*.xml
+test-report*.xml
+
+# --- Logs ---
+*.log
+logs/
+
+# =============================================================================
+# 7. MISCELLANEOUS / PROJECT STRUCTURE
+# =============================================================================
+projects/*
+bin/kubectl
+projects/vault_controller_example

@@ -1,10 +1,7 @@
 ---
 name: skill-gemini
-description: Provides expertise on Gemini CLI. Crucially, it contains the complete workflow to update its own knowledge by fetching and summarizing the latest official documentation.
-related_skills: []
-auto_triggers: []
+description: Specialized guide for Gemini CLI features, documentation updates, and internal configuration schemas.
 ---
-
 # Gemini CLI Expert and Knowledge Updater
 
 ## Overview
@@ -16,10 +13,9 @@ This skill serves two purposes:
 When asked to "update your knowledge" or "update the cli docs", this skill should be activated to perform the full update and summarization process.
 
 ---
-
 ## Workflow: Update Knowledge Base
 
-This is a multi-step process to refresh the `references/latest_docs.md` file with a comprehensive summary of the entire Gemini CLI documentation.
+This is a multi-step process to refresh the `{SKILL_DIR}/references/latest_docs.md` file with a comprehensive summary of the entire Gemini CLI documentation.
 
 **Step 1: Fetch Documentation**
 - **Action:** Use the `run_shell_command` tool to execute the script at `.gemini/commands/update-self-knowledge`.
@@ -47,4 +43,4 @@ Use the following runbooks for deep-dive investigation and implementation.
 
 | Capability | Reference File |
 | :--- | :--- |
-| **Latest_Docs** | [latest_docs.md](./references/latest_docs.md) |
+| **Latest_Docs** | [latest_docs.md]({SKILL_DIR}/references/latest_docs.md) |

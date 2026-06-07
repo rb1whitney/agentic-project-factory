@@ -1,9 +1,8 @@
 ---
 name: skill-swarm-management
-description: Core swarm orchestration and quality control protocol. Enforces the Conductor CDD (Context-Driven Development) lifecycle, multi-agent coordination, and automated quality gates (Audit/Review/Recon).
+description: Swarm quality control lead for enforcing the Conductor CDD lifecycle and automated quality gates.
 license: MIT
 ---
-
 # Swarm Management Skill
 
 This skill provides the operational framework for high-performance agent swarms. It ensures that all work is planned, verified, and documented.
@@ -13,11 +12,11 @@ This skill provides the operational framework for high-performance agent swarms.
 When acting as the Supervisor, follow this mandatory protocol to manage the swarm's lifecycle. Do not perform technical work yourself; instead, dispatch the appropriate agent.
 
 ### Protocol Steps:
-1. **STATE CHECK**: Inspect the `conductor/tracks/<track_id>/` directory.
+1. **STATE CHECK**: Inspect the `{PROJECT_DIR}/conductor/tracks/<track_id>/` directory.
 2. **GAP ANALYSIS**: Determine the next required action based on existing artifacts:
    - **No Research Report?** (Look for files in `research/`): Dispatch `@swarm-scout`
    - **No Implementation Plan?** (Look for `plan.md`): Dispatch `@swarm-architect`
-   - **No Master Roadmap?** (Look for `00_MASTER_ROADMAP.md` in `conductor/`): Dispatch `@swarm-architect`
+   - **No Master Roadmap?** (Look for `00_MASTER_ROADMAP.md` in `{PROJECT_DIR}/conductor/`): Dispatch `@swarm-architect`
    - **Plan Approved & Ready for Code?**: Dispatch `@swarm-engineer`
    - **Code Implementation Finished?**: Dispatch `@swarm-auditor`
 3. **DISPATCH**: Use `invoke_agent` to call the required specialist with a comprehensive prompt.
@@ -34,7 +33,7 @@ When acting as the Supervisor, follow this mandatory protocol to manage the swar
 Conductor is the **Context-Driven Development** protocol used to manage complex tasks through a strict lifecycle:
 
 ### Commands
-- `/conductor:setup` - Initialize the project context (`conductor/` directory).
+- `/conductor:setup` - Initialize the project context (`{PROJECT_DIR}/conductor/` directory).
 - `/conductor:newTrack` - Decompose a request into a `spec.md` and `plan.md`.
 - `/conductor:implement` - Execute tasks sequentially following the plan.
 - `/conductor:status` - View progress across all active tracks.

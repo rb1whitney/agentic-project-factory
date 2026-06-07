@@ -18,15 +18,16 @@
 | Gemini CLI | latest | Primary agent interface, skill runner |
 | Claude Code | latest | Pair programming, code review |
 | GitHub Copilot | latest | IDE autocomplete and inline suggestions |
-| Gemini 1.5 Flash | API | Fast agentic synthesis for code map summaries |
-| Gemini 2.5 Pro | API | Deep reasoning for architecture and planning |
+| Gemini 3.1 Pro | API | High-fidelity reasoning, thinking_level: MEDIUM |
+| Amazon Nova 2 | API | AWS-native reasoning and automation |
+| Claude 4.8 Opus | API | Complex multi-step refactoring |
 
 ## Cloud Platforms
 
 | Platform | Approved Services |
 |---|---|
-| AWS | EC2, EKS, RDS, Aurora, DynamoDB, Lambda, SQS, SNS, S3, IAM, KMS, VPC, Route53, ALB, CloudFront, ECR, ECS, CloudWatch |
-| GCP | GKE, Cloud SQL, Cloud Run, Cloud Storage, IAM, Secret Manager, Artifact Registry, Pub/Sub, Cloud Functions |
+| AWS | EC2, EKS, RDS, Aurora, DynamoDB, Lambda, SQS, SNS, S3, IAM, KMS, VPC, Route53, ALB, CloudFront, ECR, ECS, CloudWatch, **CUR v2 (Data Exports)**, **S3 Tables (Iceberg v3)**, **Athena v4**, **Resource Explorer V2**, **Compute Optimizer Automation Rules** |
+| GCP | GKE, Cloud SQL, Cloud Run, Cloud Storage, IAM, Secret Manager, Artifact Registry, Pub/Sub, Cloud Functions, **BigQuery Detailed Billing Exports**, **Spend Caps API**, **SCC Agentless Scanning** |
 | Azure | AKS, Azure VM, Azure SQL, Blob Storage, Azure AD, Key Vault (via terraform-azure-verified-modules) |
 
 ## Infrastructure as Code

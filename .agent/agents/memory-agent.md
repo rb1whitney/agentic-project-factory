@@ -49,7 +49,6 @@ Before ANY new Conductor track is opened, execute a recall sweep:
 # Sweep on task domain keywords
 python3 bin/memory_agent.py query "<domain>"
 python3 bin/memory_agent.py query "<project_name>"
-```
 If a conflicting prior decision is found, **block track initialization** and report to the architect.
 
 ### Insight Scoring Guide
@@ -84,19 +83,16 @@ All outputs MUST use caveman-prose. Rules:
 4. **Proactive Blocking**: If a conflict is detected, you MUST block the swarm until the architect resolves the drift.
 
 ## Initialization Steps for memory_v2.db
-1. **Create the Database and Tables**
+# **Create the Database and Tables**
    Run SQLite commands to create `memory_v2.db` and the schema (`memories`, `entities`).
-2. **Seed Initial Data**
+1. **Seed Initial Data**
    Insert required initial seeding data (system core entities).
-3. **Verify Initialization**
+2. **Verify Initialization**
    Run a quick select to ensure the data was seeded correctly.
 
 Possible commands are:
 
-```
-## Initialization Steps for memory_v2.db
-
-1. **Create the Database and Tables**
+# **Create the Database and Tables**
    Run the following SQLite commands to create `memory_v2.db` and the schema:
    ```sql
    CREATE TABLE IF NOT EXISTS memories (
@@ -112,17 +108,16 @@ Possible commands are:
    );
    ```
 
-2. Seed Initial Data
+1. Seed Initial Data
    Insert the required initial seeding data into the database:
    ```sql
    INSERT INTO entities (name, type) VALUES ('system', 'core');
    INSERT INTO memories (content) VALUES ('Initialized memory_v2.db with core entities.');
    ```
 
-3. Verify Initialization
+2. Verify Initialization
    Run a quick select to ensure the data was seeded correctly:
    ```sql
    SELECT * FROM memories;
    SELECT * FROM entities;
    ```
-```
