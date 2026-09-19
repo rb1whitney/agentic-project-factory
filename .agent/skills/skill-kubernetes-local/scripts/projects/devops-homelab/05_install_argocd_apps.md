@@ -7,80 +7,80 @@
 5. Copy and push content of `argocd-apps` folder (`values` and `yamls` folders) to gitlab `argocd-apps` repo.
 6. Then run:
 
-```bash
-export KUBECONFIG=~/.kube/vmkube
-kubectl config use-context admin@vmkube-1
-kubectl apply -f argocd-apps/yamls/vmkube-1/root-app.yaml
-```
+   ```bash
+   export KUBECONFIG=~/.kube/vmkube
+   kubectl config use-context admin@vmkube-1
+   kubectl apply -f argocd-apps/yamls/vmkube-1/root-app.yaml
+   ```
 
-Observe sync in ArgoCD UI.
+   Observe sync in ArgoCD UI.
 
 7. DNS settings.
 
-Check `EXTERNAL-IP` of the coredns (external-dns) service:
+   Check `EXTERNAL-IP` of the coredns (external-dns) service:
 
-```bash
-export KUBECONFIG=~/.kube/vmkube
-kubectl config use-context admin@vmkube-1
-kubectl get svc -n external-dns coredns
-kubectl config use-context admin@vmkube-2
-kubectl get svc -n external-dns coredns
-```
+   ```bash
+   export KUBECONFIG=~/.kube/vmkube
+   kubectl config use-context admin@vmkube-1
+   kubectl get svc -n external-dns coredns
+   kubectl config use-context admin@vmkube-2
+   kubectl get svc -n external-dns coredns
+   ```
 
-install `systemd-resolved`:
+   install `systemd-resolved`:
 
-```bash
-sudo apt install -y systemd-resolved
-```
+   ```bash
+   sudo apt install -y systemd-resolved
+   ```
 
-Place a script `/etc/NetworkManager/dispatcher.d/50-set-vmkube-dns` with content:
+   Place a script `/etc/NetworkManager/dispatcher.d/50-set-vmkube-dns` with content:
 
-```bash
-#!/bin/bash
-if [ "$1" = "vmkube-br0" ] && [ "$2" = "up" ]; then
-resolvectl dns "$1" <first dns ip> <second dns ip>
-resolvectl domain "$1" "~homelab.internal"
-fi
-```
+   ```bash
+   #!/bin/bash
+   if [ "$1" = "vmkube-br0" ] && [ "$2" = "up" ]; then
+   resolvectl dns "$1" <first dns ip> <second dns ip>
+   resolvectl domain "$1" "~homelab.internal"
+   fi
+   ```
 
-Make it executable and restart NetworkManager:
+   Make it executable and restart NetworkManager:
 
-```bash
-sudo chmod 755 /etc/NetworkManager/dispatcher.d/50-set-vmkube-dns
-sudo systemctl restart NetworkManager
-```
+   ```bash
+   sudo chmod 755 /etc/NetworkManager/dispatcher.d/50-set-vmkube-dns
+   sudo systemctl restart NetworkManager
+   ```
 
-Check if DNS resolution works:
+   Check if DNS resolution works:
 
-```bash
-nslookup postgres.vmkube-1.homelab.internal
-nslookup postgres.vmkube-2.homelab.internal
-export KUBECONFIG=~/.kube/vmkube
-kubectl config use-context admin@vmkube-1
-kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup postgres.vmkube-2.homelab.internal
-kubectl config use-context admin@vmkube-2
-kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup postgres.vmkube-1.homelab.internal
-```
+   ```bash
+   nslookup postgres.vmkube-1.homelab.internal
+   nslookup postgres.vmkube-2.homelab.internal
+   export KUBECONFIG=~/.kube/vmkube
+   kubectl config use-context admin@vmkube-1
+   kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup postgres.vmkube-2.homelab.internal
+   kubectl config use-context admin@vmkube-2
+   kubectl run busybox --image=mirror.gcr.io/library/busybox --rm  --attach --restart=Never -- nslookup postgres.vmkube-1.homelab.internal
+   ```
 
-It should be resolved to ingress LoadBalancer IP.
+   It should be resolved to ingress LoadBalancer IP.
 
 8. Unseal OpenBao
    Use this [guide](https://openbao.org/docs/platform/k8s/helm/run/#cli-initialize-and-unseal)
 
-```bash
-kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator init
-kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 1>
-kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 2>
-kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 3>
-```
+   ```bash
+   kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator init
+   kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 1>
+   kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 2>
+   kubectl -n openbao  exec -it vmkube-1-openbao-0 -- bao operator unseal <Unseal Key 3>
+   ```
 
 9. Login to ArgoCD, Grafana, OpenBao etc.
 
-```bash
-# get grafana password
-kubectl get secret -n victoria-metrics-k8s-stack vmkube-1-victoria-metrics-k8s-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d
-# if password does not work, just reset it
-kubectl exec -n victoria-metrics-k8s-stack -it $(kubectl get pods -n victoria-metrics-k8s-stack -l "app.kubernetes.io/name=grafana" -o jsonpath="{.items[0].metadata.name}") -- grafana cli admin reset-admin-password 123456
-```
+   ```bash
+   # get grafana password
+   kubectl get secret -n victoria-metrics-k8s-stack vmkube-1-victoria-metrics-k8s-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d
+   # if password does not work, just reset it
+   kubectl exec -n victoria-metrics-k8s-stack -it $(kubectl get pods -n victoria-metrics-k8s-stack -l "app.kubernetes.io/name=grafana" -o jsonpath="{.items[0].metadata.name}") -- grafana cli admin reset-admin-password 123456
+   ```
 
-Step completed!
+   Step completed!
