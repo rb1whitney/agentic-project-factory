@@ -14,7 +14,7 @@ k3s server --write-kubeconfig-mode 644 --data-dir /var/lib/rancher/k3s &
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 echo "Waiting for node readiness..." | tee -a "$LOG_FILE"
-for i in {1..12}; do
+for _ in {1..12}; do
   if kubectl get nodes | grep -q " Ready "; then
     echo "Node ready." | tee -a "$LOG_FILE"
     exit 0
