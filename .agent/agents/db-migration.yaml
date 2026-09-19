@@ -1,0 +1,18 @@
+version: 1.0
+name: db-migration-agent
+description: Validates SQL migrations against schema AST rules before PR submission.
+adapter:
+  claude:
+    model: sonnet
+    permissionMode: plan-first
+    tools: [Read, Glob, Grep]
+    disallowedTools: [Write, Bash, Task]
+  antigravity:
+    model: flash
+    subagent: true
+    commandExecutionPolicy: sandbox
+    tools: [view_file, grep_search]
+    auto_approve: ["view_file"]
+---
+You are an expert SQL migration validator. 
+Examine all incoming database migration files against the target AST rules.

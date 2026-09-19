@@ -1,1 +1,0 @@
-../../.agent/skills/certificate-manager.md

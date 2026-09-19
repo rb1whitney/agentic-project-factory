@@ -1,0 +1,5 @@
+global:
+  hub: mirror.gcr.io/istio
+
+  proxy:
+    holdApplicationUntilProxyStarts: true

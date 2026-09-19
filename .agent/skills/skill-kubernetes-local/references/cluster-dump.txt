@@ -1,0 +1,143 @@
+NAMESPACE           NAME                                                         READY   STATUS             RESTARTS         AGE
+argocd              pod/argo-argocd-application-controller-0                     1/1     Running            0                13h
+argocd              pod/argo-argocd-applicationset-controller-6d94bfcfc9-lqtzs   1/1     Running            0                13h
+argocd              pod/argo-argocd-commit-server-f9984ff69-6nzrc                1/1     Running            0                13h
+argocd              pod/argo-argocd-dex-server-7cd45c69d5-kttw8                  1/1     Running            0                13h
+argocd              pod/argo-argocd-notifications-controller-54b9fc6bf9-f2vbq    1/1     Running            0                13h
+argocd              pod/argo-argocd-redis-749c65d555-v5btn                       1/1     Running            0                13h
+argocd              pod/argo-argocd-repo-server-85694fb457-mp4fj                 1/1     Running            0                13h
+argocd              pod/argo-argocd-server-8659d485c9-jxsdv                      1/1     Running            0                13h
+cert-manager        pod/cert-manager-5b44c9dc6d-vn224                            1/1     Running            0                13h
+cert-manager        pod/cert-manager-cainjector-5f7cff7996-tphl8                 1/1     Running            0                13h
+cert-manager        pod/cert-manager-webhook-5c48bf99d7-z8tlp                    1/1     Running            0                13h
+default             pod/dnstools                                                 1/1     Running            0                68m
+default             pod/postgres-cluster-0                                       1/1     Running            0                13h
+external-secrets    pod/external-secrets-b86785d68-ztd4s                         1/1     Running            0                13h
+external-secrets    pod/external-secrets-cert-controller-65485795f8-kjjz2        1/1     Running            0                13h
+external-secrets    pod/external-secrets-webhook-5bc7b6dbd-g9k5m                 1/1     Running            0                13h
+kargo               pod/kargo-api-5595f948-74dcp                                 1/1     Running            0                13h
+kargo               pod/kargo-controller-84b446df8c-frmz6                        1/1     Running            0                13h
+kargo               pod/kargo-external-webhooks-server-54d56dd9f7-bws75          1/1     Running            0                13h
+kargo               pod/kargo-garbage-collector-29680740-8dtbv                   0/1     Completed          0                132m
+kargo               pod/kargo-garbage-collector-29680800-bpzz5                   0/1     Completed          0                72m
+kargo               pod/kargo-garbage-collector-29680860-wjplt                   0/1     Completed          0                12m
+kargo               pod/kargo-management-controller-66489d84c8-zxwmn             1/1     Running            0                13h
+kargo               pod/kargo-webhooks-server-55c65bc694-gcrzj                   1/1     Running            0                13h
+kube-system         pod/coredns-7cfc47d8c4-fj6lp                                 0/1     CrashLoopBackOff   18 (3m24s ago)   70m
+kube-system         pod/helm-install-traefik-crd-bbbs2                           0/1     Completed          0                13h
+kube-system         pod/helm-install-traefik-qcl6s                               0/1     Completed          1                13h
+kube-system         pod/local-path-provisioner-5d9d9885bc-p7btl                  1/1     Running            0                13h
+kube-system         pod/metrics-server-786d997795-5nwc9                          1/1     Running            0                13h
+kube-system         pod/svclb-traefik-88259c3a-27fn4                             2/2     Running            0                13h
+kube-system         pod/traefik-9bcdbbd9-mmvml                                   1/1     Running            0                13h
+metallb-system      pod/metallb-controller-84c7d4d544-k4blv                      1/1     Running            0                13h
+metallb-system      pod/metallb-speaker-pq68t                                    4/4     Running            0                13h
+openbao             pod/openbao-0                                                1/1     Running            0                13h
+openbao             pod/openbao-agent-injector-79797bc555-n25vm                  1/1     Running            0                13h
+postgres-operator   pod/postgres-operator-56c8c5f9cd-tdz6b                       1/1     Running            0                13h
+
+NAMESPACE           NAME                                            TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
+argocd              service/argo-argocd-applicationset-controller   ClusterIP      10.43.106.215   <none>          7000/TCP                     13h
+argocd              service/argo-argocd-commit-server               ClusterIP      10.43.178.129   <none>          8086/TCP                     13h
+argocd              service/argo-argocd-dex-server                  ClusterIP      10.43.17.10     <none>          5556/TCP,5557/TCP            13h
+argocd              service/argo-argocd-redis                       ClusterIP      10.43.31.187    <none>          6379/TCP                     13h
+argocd              service/argo-argocd-repo-server                 ClusterIP      10.43.63.42     <none>          8081/TCP                     13h
+argocd              service/argo-argocd-server                      ClusterIP      10.43.176.117   <none>          80/TCP,443/TCP               13h
+cert-manager        service/cert-manager                            ClusterIP      10.43.165.204   <none>          9402/TCP                     13h
+cert-manager        service/cert-manager-cainjector                 ClusterIP      10.43.36.215    <none>          9402/TCP                     13h
+cert-manager        service/cert-manager-webhook                    ClusterIP      10.43.53.21     <none>          443/TCP,9402/TCP             13h
+default             service/kubernetes                              ClusterIP      10.43.0.1       <none>          443/TCP                      13h
+default             service/postgres-cluster                        ClusterIP      10.43.93.66     <none>          5432/TCP                     13h
+default             service/postgres-cluster-config                 ClusterIP      None            <none>          <none>                       13h
+default             service/postgres-cluster-repl                   ClusterIP      10.43.166.58    <none>          5432/TCP                     13h
+external-secrets    service/external-secrets-webhook                ClusterIP      10.43.66.216    <none>          443/TCP                      13h
+kargo               service/kargo-api                               ClusterIP      10.43.208.254   <none>          80/TCP                       13h
+kargo               service/kargo-external-webhooks-server          ClusterIP      10.43.52.199    <none>          443/TCP                      13h
+kargo               service/kargo-webhooks-server                   ClusterIP      10.43.24.86     <none>          443/TCP                      13h
+kube-system         service/kube-dns                                ClusterIP      10.43.0.10      <none>          53/UDP,53/TCP,9153/TCP       13h
+kube-system         service/metrics-server                          ClusterIP      10.43.36.143    <none>          443/TCP                      13h
+kube-system         service/traefik                                 LoadBalancer   10.43.217.254   192.168.193.1   80:30127/TCP,443:30811/TCP   13h
+metallb-system      service/metallb-webhook-service                 ClusterIP      10.43.125.90    <none>          443/TCP                      13h
+openbao             service/openbao                                 ClusterIP      10.43.211.14    <none>          8200/TCP,8201/TCP            13h
+openbao             service/openbao-agent-injector-svc              ClusterIP      10.43.96.254    <none>          443/TCP                      13h
+openbao             service/openbao-internal                        ClusterIP      None            <none>          8200/TCP,8201/TCP            13h
+postgres-operator   service/postgres-operator                       ClusterIP      10.43.222.142   <none>          8080/TCP                     13h
+
+NAMESPACE        NAME                                    DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system      daemonset.apps/svclb-traefik-88259c3a   1         1         1       1            1           <none>                   13h
+metallb-system   daemonset.apps/metallb-speaker          1         1         1       1            1           kubernetes.io/os=linux   13h
+
+NAMESPACE           NAME                                                    READY   UP-TO-DATE   AVAILABLE   AGE
+argocd              deployment.apps/argo-argocd-applicationset-controller   1/1     1            1           13h
+argocd              deployment.apps/argo-argocd-commit-server               1/1     1            1           13h
+argocd              deployment.apps/argo-argocd-dex-server                  1/1     1            1           13h
+argocd              deployment.apps/argo-argocd-notifications-controller    1/1     1            1           13h
+argocd              deployment.apps/argo-argocd-redis                       1/1     1            1           13h
+argocd              deployment.apps/argo-argocd-repo-server                 1/1     1            1           13h
+argocd              deployment.apps/argo-argocd-server                      1/1     1            1           13h
+cert-manager        deployment.apps/cert-manager                            1/1     1            1           13h
+cert-manager        deployment.apps/cert-manager-cainjector                 1/1     1            1           13h
+cert-manager        deployment.apps/cert-manager-webhook                    1/1     1            1           13h
+external-secrets    deployment.apps/external-secrets                        1/1     1            1           13h
+external-secrets    deployment.apps/external-secrets-cert-controller        1/1     1            1           13h
+external-secrets    deployment.apps/external-secrets-webhook                1/1     1            1           13h
+kargo               deployment.apps/kargo-api                               1/1     1            1           13h
+kargo               deployment.apps/kargo-controller                        1/1     1            1           13h
+kargo               deployment.apps/kargo-external-webhooks-server          1/1     1            1           13h
+kargo               deployment.apps/kargo-management-controller             1/1     1            1           13h
+kargo               deployment.apps/kargo-webhooks-server                   1/1     1            1           13h
+kube-system         deployment.apps/coredns                                 0/1     1            0           13h
+kube-system         deployment.apps/local-path-provisioner                  1/1     1            1           13h
+kube-system         deployment.apps/metrics-server                          1/1     1            1           13h
+kube-system         deployment.apps/traefik                                 1/1     1            1           13h
+metallb-system      deployment.apps/metallb-controller                      1/1     1            1           13h
+openbao             deployment.apps/openbao-agent-injector                  1/1     1            1           13h
+postgres-operator   deployment.apps/postgres-operator                       1/1     1            1           13h
+
+NAMESPACE           NAME                                                               DESIRED   CURRENT   READY   AGE
+argocd              replicaset.apps/argo-argocd-applicationset-controller-6d94bfcfc9   1         1         1       13h
+argocd              replicaset.apps/argo-argocd-commit-server-f9984ff69                1         1         1       13h
+argocd              replicaset.apps/argo-argocd-dex-server-7cd45c69d5                  1         1         1       13h
+argocd              replicaset.apps/argo-argocd-notifications-controller-54b9fc6bf9    1         1         1       13h
+argocd              replicaset.apps/argo-argocd-redis-749c65d555                       1         1         1       13h
+argocd              replicaset.apps/argo-argocd-repo-server-85694fb457                 1         1         1       13h
+argocd              replicaset.apps/argo-argocd-server-8659d485c9                      1         1         1       13h
+cert-manager        replicaset.apps/cert-manager-5b44c9dc6d                            1         1         1       13h
+cert-manager        replicaset.apps/cert-manager-cainjector-5f7cff7996                 1         1         1       13h
+cert-manager        replicaset.apps/cert-manager-webhook-5c48bf99d7                    1         1         1       13h
+external-secrets    replicaset.apps/external-secrets-b86785d68                         1         1         1       13h
+external-secrets    replicaset.apps/external-secrets-cert-controller-65485795f8        1         1         1       13h
+external-secrets    replicaset.apps/external-secrets-webhook-5bc7b6dbd                 1         1         1       13h
+kargo               replicaset.apps/kargo-api-5595f948                                 1         1         1       13h
+kargo               replicaset.apps/kargo-controller-84b446df8c                        1         1         1       13h
+kargo               replicaset.apps/kargo-external-webhooks-server-54d56dd9f7          1         1         1       13h
+kargo               replicaset.apps/kargo-management-controller-66489d84c8             1         1         1       13h
+kargo               replicaset.apps/kargo-webhooks-server-55c65bc694                   1         1         1       13h
+kube-system         replicaset.apps/coredns-7cfc47d8c4                                 1         1         0       120m
+kube-system         replicaset.apps/local-path-provisioner-5d9d9885bc                  1         1         1       13h
+kube-system         replicaset.apps/metrics-server-786d997795                          1         1         1       13h
+kube-system         replicaset.apps/traefik-9bcdbbd9                                   1         1         1       13h
+metallb-system      replicaset.apps/metallb-controller-84c7d4d544                      1         1         1       13h
+openbao             replicaset.apps/openbao-agent-injector-79797bc555                  1         1         1       13h
+postgres-operator   replicaset.apps/postgres-operator-56c8c5f9cd                       1         1         1       13h
+
+NAMESPACE   NAME                                                  READY   AGE
+argocd      statefulset.apps/argo-argocd-application-controller   1/1     13h
+default     statefulset.apps/postgres-cluster                     1/1     13h
+openbao     statefulset.apps/openbao                              1/1     13h
+
+NAMESPACE   NAME                                    SCHEDULE    TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+kargo       cronjob.batch/kargo-garbage-collector   0 * * * *   <none>     False     0        12m             13h
+
+NAMESPACE     NAME                                         STATUS     COMPLETIONS   DURATION   AGE
+kargo         job.batch/kargo-garbage-collector-29680740   Complete   1/1           6s         132m
+kargo         job.batch/kargo-garbage-collector-29680800   Complete   1/1           4s         72m
+kargo         job.batch/kargo-garbage-collector-29680860   Complete   1/1           4s         12m
+kube-system   job.batch/helm-install-traefik               Complete   1/1           18s        13h
+kube-system   job.batch/helm-install-traefik-crd           Complete   1/1           16s        13h
+
+NAMESPACE           NAME                                                    IMAGE                             CLUSTER-LABEL   SERVICE-ACCOUNT   MIN-INSTANCES   AGE
+postgres-operator   operatorconfiguration.acid.zalan.do/postgres-operator   ghcr.io/zalando/spilo-17:4.0-p3   cluster-name    postgres-pod      -1              13h
+
+NAMESPACE   NAME                                        TEAM   VERSION   PODS   VOLUME   CPU-REQUEST   MEMORY-REQUEST   AGE   STATUS
+default     postgresql.acid.zalan.do/postgres-cluster   acid   17        1      1Gi      100m          100Mi            13h   Running

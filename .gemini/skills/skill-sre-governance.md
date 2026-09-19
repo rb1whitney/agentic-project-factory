@@ -1,1 +1,0 @@
-../../.agent/skills/skill-sre-governance.md

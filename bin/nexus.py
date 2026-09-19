@@ -1,65 +1,62 @@
 #!/usr/bin/env python3
 """
-SWARM NEXUS: Multi-Platform Symlink Engine (Simplified v2.0)
-Codifies the relationship between core agents/skills and AI tool configurations.
+SWARM NEXUS: Multi-Platform Symlink Engine (Targeted v3.0)
+Focused strictly on active harnesses: Antigravity (.agents), Claude (.claude), and GitHub/Codex (.github).
+Decommissioned legacy .gemini, .copilot, .antigravitycli, and .opencode spokes.
 """
 
 import argparse
 import os
 from pathlib import Path
 
-# --- Configuration ---
+# --- Canonical Master Sources ---
 AGENT_SOURCE = Path(".agent/agents")
 SKILL_SOURCE = Path(".agent/skills")
 POLICY_SOURCE = Path(".agent/policies")
 HOOK_SOURCE = Path(".agent/hooks")
 
+# --- Active Local Spokes (Antigravity, Claude, GitHub/Codex) ---
 LOCAL_AGENT_SPOKES = [
     ".claude/agents",
-    ".gemini/agents",
-    ".gemini/antigravity/agents",
     ".github/agents",
-    ".agents/agents",
-    ".antigravitycli/agents",
 ]
 
 LOCAL_SKILL_SPOKES = [
     ".claude/skills",
-    ".gemini/skills",
-    ".gemini/antigravity/skills",
-    ".github/skills",
     ".agents/skills",
-    ".antigravitycli/skills",
+    ".github/skills",
 ]
 
 LOCAL_POLICY_SPOKES = [
     ".claude/policies",
-    ".gemini/policies",
     ".agents/policies",
-    ".antigravitycli/policies",
 ]
 
 LOCAL_HOOK_SPOKES = [
     ".claude/hooks",
-    ".gemini/hooks",
-    ".gemini/antigravity/hooks",
-    ".github/hooks",
     ".agents/hooks",
-    ".antigravitycli/hooks",
-]
-
-GLOBAL_SPOKES = [
-    Path.home() / ".agent",
-    Path.home() / ".claude",
-    Path.home() / ".gemini",
-    Path.home() / ".gemini/antigravity",
-    Path.home() / ".config/github-copilot",
-    Path.home() / ".gemini/antigravity-cli",
-    Path.home() / ".antigravitycli",
-    Path.home() / ".config/opencode",
+    ".github/hooks",
 ]
 
 ROOT_LINKS = {"AGENTS.md": [".github/copilot-instructions.md"]}
+
+CONFIG_LINKS = {
+    "manifest.json": [
+        ".claude/manifest.json",
+        ".agents/manifest.json",
+    ],
+    "mcp_config.json": [
+        ".claude/mcp_config.json",
+        ".agents/mcp_config.json",
+    ],
+    "settings.json": [
+        ".claude/settings.json",
+        ".agents/settings.json",
+    ],
+    "hooks/hooks.json": [
+        ".agents/hooks.json",
+    ],
+}
 
 
 def create_symlink(source: Path, target: Path, verbose=False):
@@ -69,10 +66,7 @@ def create_symlink(source: Path, target: Path, verbose=False):
 
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
-        if str(target).startswith(str(Path.home())):
-            rel_source = str(source.absolute())
-        else:
-            rel_source = os.path.relpath(source, target.parent)
+        rel_source = os.path.relpath(source, target.parent)
 
         if target.is_symlink():
             if target.exists() and os.readlink(target) == rel_source:
@@ -92,38 +86,62 @@ def create_symlink(source: Path, target: Path, verbose=False):
         return False
 
 
+def cleanup_broken_links(verbose=False):
+    """Scans spokes for broken symlinks and removes them."""
+    spokes = LOCAL_AGENT_SPOKES + LOCAL_SKILL_SPOKES + LOCAL_POLICY_SPOKES + LOCAL_HOOK_SPOKES
+    for targets in CONFIG_LINKS.values():
+        spokes.extend(targets)
+    for targets in ROOT_LINKS.values():
+        spokes.extend(targets)
+
+    parent_dirs = set(Path(s).parent for s in spokes)
+    cleaned_count = 0
+
+    for spoke in set(spokes):
+        spoke_path = Path(spoke)
+        if not spoke_path.exists():
+            continue
+
+        if spoke_path.is_dir():
+            for item in spoke_path.glob("**/*"):
+                if item.is_symlink() and not item.exists():
+                    if verbose:
+                        print(f"Removing broken symlink: {item}")
+                    item.unlink()
+                    cleaned_count += 1
+        elif spoke_path.is_symlink() and not spoke_path.exists():
+            if verbose:
+                print(f"Removing broken symlink: {spoke_path}")
+            spoke_path.unlink()
+            cleaned_count += 1
+
+    for parent_dir in parent_dirs:
+        if parent_dir.exists() and parent_dir.is_dir():
+            for item in parent_dir.iterdir():
+                if item.is_symlink() and not item.exists():
+                    if verbose:
+                        print(f"Removing broken symlink: {item}")
+                    item.unlink()
+                    cleaned_count += 1
+
+    if cleaned_count > 0 and verbose:
+        print(f"Nexus Clean: Removed {cleaned_count} broken symlinks")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Swarm Nexus: Sync Agents and Skills")
-    parser.add_argument("--global-sync", action="store_true", help="Sync to $HOME directories")
+    parser = argparse.ArgumentParser(description="Swarm Nexus: Sync Active Harnesses (Claude, AGY, Codex)")
     parser.add_argument("--verbose", action="store_true", help="Show detailed output")
+    parser.add_argument("actions", nargs="*", help="Optional actions")
     args = parser.parse_args()
 
     repo_root = Path(__file__).parent.parent.absolute()
     os.chdir(repo_root)
 
-    counts = {"agents": 0, "skills": 0, "policies": 0, "hooks": 0}
+    cleanup_broken_links(args.verbose)
 
-    # 1. Sync Agents
-    if AGENT_SOURCE.exists():
-        for agent_file in AGENT_SOURCE.glob("*.md"):
-            if agent_file.name == "AGENT.md":
-                continue
-            success = False
-            for spoke in LOCAL_AGENT_SPOKES:
-                target_name = agent_file.name
-                if spoke == ".github/agents" and target_name.endswith(".md") and not target_name.endswith(".agent.md"):
-                    target_name = target_name[:-3] + ".agent.md"
-                if create_symlink(agent_file, Path(spoke) / target_name, args.verbose):
-                    success = True
+    counts = {"skills": 0, "policies": 0, "hooks": 0}
 
-            if args.global_sync:
-                for base in GLOBAL_SPOKES:
-                    if create_symlink(agent_file, base / "agents" / agent_file.name, args.verbose):
-                        success = True
-            if success:
-                counts["agents"] += 1
-
-    # 2. Sync Skills
+    # 1. Sync Skills to active spokes
     if SKILL_SOURCE.exists():
         for skill_item in SKILL_SOURCE.iterdir():
             if skill_item.name.startswith("."):
@@ -133,14 +151,10 @@ def main():
                 for spoke in LOCAL_SKILL_SPOKES:
                     if create_symlink(skill_item, Path(spoke) / skill_item.name, args.verbose):
                         success = True
-                if args.global_sync:
-                    for base in GLOBAL_SPOKES:
-                        if create_symlink(skill_item, base / "skills" / skill_item.name, args.verbose):
-                            success = True
             if success:
                 counts["skills"] += 1
 
-    # 3. Sync Policies
+    # 2. Sync Policies
     if POLICY_SOURCE.exists():
         for policy_file in POLICY_SOURCE.iterdir():
             if policy_file.suffix in [".toml", ".yaml", ".md"]:
@@ -148,18 +162,10 @@ def main():
                 for spoke in LOCAL_POLICY_SPOKES:
                     if create_symlink(policy_file, Path(spoke) / policy_file.name, args.verbose):
                         success = True
-                if args.global_sync:
-                    for base in GLOBAL_SPOKES:
-                        if create_symlink(
-                            policy_file,
-                            base / "policies" / policy_file.name,
-                            args.verbose,
-                        ):
-                            success = True
                 if success:
                     counts["policies"] += 1
 
-    # 4. Sync Hooks
+    # 3. Sync Hooks
     if HOOK_SOURCE.exists():
         for hook_item in HOOK_SOURCE.iterdir():
             if hook_item.name.startswith("."):
@@ -168,26 +174,25 @@ def main():
             for spoke in LOCAL_HOOK_SPOKES:
                 if create_symlink(hook_item, Path(spoke) / hook_item.name, args.verbose):
                     success = True
-            if args.global_sync:
-                for base in GLOBAL_SPOKES:
-                    if create_symlink(
-                        hook_item,
-                        base / "hooks" / hook_item.name,
-                        args.verbose,
-                    ):
-                        success = True
             if success:
                 counts["hooks"] += 1
 
-    # 5. Instruction Bridges
+    # 4. Instruction Bridges (AGENTS.md -> .github/copilot-instructions.md)
     for source_rel, targets in ROOT_LINKS.items():
         source = Path(source_rel)
         for target_rel in targets:
             create_symlink(source, Path(target_rel), args.verbose)
 
+    # 5. Configurations
+    for config_file_name, targets in CONFIG_LINKS.items():
+        config_file = Path(".agent") / config_file_name
+        if config_file.exists():
+            for target in targets:
+                create_symlink(config_file, Path(target), args.verbose)
+
     print(
-        f"Nexus Sync: {counts['agents']} agents, {counts['skills']} skills, "
-        f"{counts['policies']} policies, {counts['hooks']} hooks"
+        f"Nexus Sync: {counts['skills']} skills, {counts['policies']} policies, {counts['hooks']} hooks "
+        f"active across [.claude, .agents, .github]"
     )
 
 

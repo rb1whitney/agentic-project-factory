@@ -1,1 +1,0 @@
-../../.agent/skills/gcp-expert.md

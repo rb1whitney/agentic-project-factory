@@ -128,30 +128,30 @@ npm --version
 
 ---
 
-## 5. Gemini CLI
+## 5. AI Harnesses: Antigravity CLI (agy) & Claude Code
 
-The primary AI agent interface used in this repository.
+The primary AI agent interfaces used in this repository.
 
+### Antigravity CLI (`agy`)
 ```bash
-npm install -g @google/gemini-cli
+# Verify installation
+agy --help
 
-# Verify
-gemini --version
+# List available projected agents
+agy agents
 ```
 
-### Authenticate
-
+### Claude Code
 ```bash
-gemini auth login
+# Verify Claude Code
+claude --version
 ```
 
-This opens a browser window. Authenticate with your Google account that has Gemini API access. The credentials are stored at `~/.gemini/credentials.json`.
-
-### Configure Model
-
+### Hydrate and Synchronize
+Before launching an agent session, compile projections and synchronize metadata:
 ```bash
-# Set your preferred model (edit ~/.gemini/settings.json or use CLI flags)
-export GEMINI_MODEL="gemini-2.5-pro"
+# Compile and hydrate active harnesses
+bash bin/nexus.sh
 ```
 
 ---

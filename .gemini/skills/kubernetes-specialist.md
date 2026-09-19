@@ -1,1 +1,0 @@
-../../.agent/skills/kubernetes-specialist.md

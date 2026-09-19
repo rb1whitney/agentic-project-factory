@@ -1,0 +1,7 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: cluster-pool
+spec:
+  addresses:
+    - "192.168.194.1-192.168.194.254"

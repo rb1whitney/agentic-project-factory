@@ -1,1 +1,0 @@
-../../.agent/skills/nexus-sync.md

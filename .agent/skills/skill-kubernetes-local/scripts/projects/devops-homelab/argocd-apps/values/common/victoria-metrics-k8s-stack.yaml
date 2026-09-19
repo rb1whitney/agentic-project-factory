@@ -1,0 +1,13 @@
+victoria-metrics-operator:
+  global:
+    image:
+      registry: mirror.gcr.io
+  admissionWebhooks:
+    certManager:
+      enabled: true
+      issuer:
+        name: my-ca-issuer
+        kind: ClusterIssuer
+  crds:
+    cleanup:
+      enabled: false # because if enabled it is stuck on Deleting in ArgoCD: https://github.com/argoproj/argo-cd/issues/18355

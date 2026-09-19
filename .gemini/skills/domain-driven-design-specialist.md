@@ -1,1 +1,0 @@
-../../.agent/skills/domain-driven-design-specialist.md

@@ -1,1 +1,0 @@
-../../.agent/skills/docs-specialist.md

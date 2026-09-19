@@ -1,1 +1,0 @@
-../../.agent/skills/skill-cloud-monitoring.md

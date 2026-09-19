@@ -1,0 +1,419 @@
+{
+  "compiled_at": "2026-09-19T19:33:49.226467+00:00",
+  "standard_locations": {
+    "agents": ".agent/agents",
+    "skills": ".agent/skills"
+  },
+  "agents": [
+    {
+      "name": "db-migration-agent",
+      "description": "Validates SQL migrations against schema AST rules before PR submission.",
+      "version": "1.0",
+      "source_file": ".agent/agents/db-migration.yaml"
+    },
+    {
+      "name": "memory-agent",
+      "description": "The Cognitive Memory Specialist. Manages persistent session memory via the local SQLite store (memory.db). Recalls prior decisions, logs insights, and prevents architectural amnesia across all swarm tracks.",
+      "version": "1.0",
+      "source_file": ".agent/agents/memory-agent.yaml"
+    },
+    {
+      "name": "security-reviewer",
+      "description": "Domain Specialist Subagent. Use for: Security Audit, Vulnerability research, Secret exposure, and NIST compliance.",
+      "version": "1.0",
+      "source_file": ".agent/agents/security-reviewer.yaml"
+    },
+    {
+      "name": "specialist-aws",
+      "description": "Domain Specialist Subagent. Use for: AWS Infrastructure, S3, IAM, VPC networking, CloudFormation.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-aws.yaml"
+    },
+    {
+      "name": "specialist-gcp",
+      "description": "Domain Specialist Subagent. Use for: GCP Infrastructure, GKE, Cloud Functions, IAM, Cloud Build.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-gcp.yaml"
+    },
+    {
+      "name": "specialist-github",
+      "description": "Domain Specialist Subagent. Use for: GitHub Actions, PR automation, Branch protection, and Repository health.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-github.yaml"
+    },
+    {
+      "name": "specialist-k8s",
+      "description": "Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-k8s.yaml"
+    },
+    {
+      "name": "specialist-opencode",
+      "description": "Specialist in opencode platform management and local model orchestration.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-opencode.yaml"
+    },
+    {
+      "name": "specialist-sre",
+      "description": "Site Reliability Engineering specialist. Specializes in observability, SLO management, safe production investigations, anomaly detection, and incident postmortems.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-sre.yaml"
+    },
+    {
+      "name": "specialist-terraform",
+      "description": "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.",
+      "version": "1.0",
+      "source_file": ".agent/agents/specialist-terraform.yaml"
+    },
+    {
+      "name": "sre-specialist",
+      "description": "Site Reliability Engineering expert. Specializes in safe production investigations, anomaly detection, observability, SLO management, and incident postmortems.",
+      "version": "1.0",
+      "source_file": ".agent/agents/sre-specialist.yaml"
+    },
+    {
+      "name": "swarm-architect",
+      "description": "The Guardian of Stability. Manages the roadmap, prioritizes campaigns, and creates TDD micro-step plans. Owns Phase 1 & 2.",
+      "version": "1.0",
+      "source_file": ".agent/agents/swarm-architect.yaml"
+    },
+    {
+      "name": "swarm-auditor",
+      "description": "The Quality Assurance Gatekeeper and Code Auditor. Verifies that the work meets the Plan and follows repo standards. Owns the Audit phase.",
+      "version": "1.0",
+      "source_file": ".agent/agents/swarm-auditor.yaml"
+    },
+    {
+      "name": "swarm-engineer",
+      "description": "The Expert Builder. Implements changes using TDD and surgical edits. Follows the plan strictly & maintains progress. Owns Phase 3.",
+      "version": "1.0",
+      "source_file": ".agent/agents/swarm-engineer.yaml"
+    },
+    {
+      "name": "swarm-scout",
+      "description": "The Repository Investigator. Specialized in mapping Blast Radius, structural analysis, and deep repo research.",
+      "version": "1.0",
+      "source_file": ".agent/agents/swarm-scout.yaml"
+    },
+    {
+      "name": "swarm-supervisor",
+      "description": ">",
+      "version": "1.0",
+      "source_file": ".agent/agents/swarm-supervisor.yaml"
+    }
+  ],
+  "skills": [
+    {
+      "name": "skill-agentic-initializer",
+      "description": "Professional bootstrapper for Vercel-style Agentic Repositories using compressed AGENTS.md manifests.",
+      "path": ".agent/skills/skill-agentic-initializer",
+      "references_count": 1
+    },
+    {
+      "name": "skill-always-on-memory",
+      "description": "Persistent SQLite-based cognitive layer for cross-session interaction logging and insight distillation.",
+      "path": ".agent/skills/skill-always-on-memory",
+      "references_count": 0
+    },
+    {
+      "name": "skill-architecture",
+      "description": "Design lead for C4 structural documentation, Mermaid.js diagrams, and Architecture Decision Records (ADRs).",
+      "path": ".agent/skills/skill-architecture",
+      "references_count": 2
+    },
+    {
+      "name": "skill-aws",
+      "description": "Comprehensive AWS Cloud expert focusing on Well-Architected Framework audits and dynamic CLI resource discovery.",
+      "path": ".agent/skills/skill-aws",
+      "references_count": 5
+    },
+    {
+      "name": "skill-aws-foundation",
+      "description": "Specialist in core AWS infrastructure: EC2 compute, IAM identity, VPC networking, and RDS/Aurora databases.",
+      "path": ".agent/skills/skill-aws-foundation",
+      "references_count": 5
+    },
+    {
+      "name": "skill-aws-migration",
+      "description": "5-phase migration engine for transitioning workloads from Google Cloud Platform to AWS architecture.",
+      "path": ".agent/skills/skill-aws-migration",
+      "references_count": 0
+    },
+    {
+      "name": "skill-aws-sagemaker",
+      "description": "AI/ML infrastructure expert for SageMaker fine-tuning, HyperPod cluster management, and dataset evaluation.",
+      "path": ".agent/skills/skill-aws-sagemaker",
+      "references_count": 11
+    },
+    {
+      "name": "skill-aws-serverless",
+      "description": "Developer for event-driven AWS architectures using Lambda, Step Functions, EventBridge, and API Gateway.",
+      "path": ".agent/skills/skill-aws-serverless",
+      "references_count": 49
+    },
+    {
+      "name": "skill-behavioral-evals",
+      "description": "Engineering guide for creating and running behavioral evals to verify agent decision logic and steerage.",
+      "path": ".agent/skills/skill-behavioral-evals",
+      "references_count": 4
+    },
+    {
+      "name": "skill-certificate-manager",
+      "description": "PKI specialist for managing public key infrastructure, ACME protocols, and automated certificate lifecycles.",
+      "path": ".agent/skills/skill-certificate-manager",
+      "references_count": 1
+    },
+    {
+      "name": "skill-ci-replicator",
+      "description": "Automation tool for monitoring GitHub Actions and replicating remote pipeline failures in the local environment.",
+      "path": ".agent/skills/skill-ci-replicator",
+      "references_count": 0
+    },
+    {
+      "name": "skill-codebase-recon",
+      "description": "Git forensics analyst for identifying hotspots, logic churn, and knowledge gaps via commit history.",
+      "path": ".agent/skills/skill-codebase-recon",
+      "references_count": 0
+    },
+    {
+      "name": "skill-compliance-auditor",
+      "description": "Governance lead for enforcing AI engineering standards and least-privilege security patterns across the hub.",
+      "path": ".agent/skills/skill-compliance-auditor",
+      "references_count": 6
+    },
+    {
+      "name": "skill-conductor",
+      "description": "CDD (Context-Driven Development) protocol manager enforcing the Spec-Plan-Implement-Verify lifecycle.",
+      "path": ".agent/skills/skill-conductor",
+      "references_count": 0
+    },
+    {
+      "name": "skill-context-master",
+      "description": "High-precision repository architect for AST-based code mapping and sub-100k token context lensing.",
+      "path": ".agent/skills/skill-context-master",
+      "references_count": 0
+    },
+    {
+      "name": "skill-crossplane",
+      "description": "PaaS builder specializing in Crossplane Compositions and Managed Resources for multi-cloud abstraction.",
+      "path": ".agent/skills/skill-crossplane",
+      "references_count": 0
+    },
+    {
+      "name": "skill-data-ingestion",
+      "description": "Time-series data engineer for fetching and parsing CSV or Cloud Monitoring data into standard JSON.",
+      "path": ".agent/skills/skill-data-ingestion",
+      "references_count": 1
+    },
+    {
+      "name": "skill-ddd",
+      "description": "Strategic implementation lead for Domain-Driven Design workflows using tactical TOML playbooks.",
+      "path": ".agent/skills/skill-ddd",
+      "references_count": 0
+    },
+    {
+      "name": "skill-docs",
+      "description": "Technical writer for enforcing documentation standards, automated changelogs, and README consistency.",
+      "path": ".agent/skills/skill-docs",
+      "references_count": 2
+    },
+    {
+      "name": "skill-episodic-memory",
+      "description": "Swarm context manager for virtual memory paging (paging dense context out and required history in).",
+      "path": ".agent/skills/skill-episodic-memory",
+      "references_count": 0
+    },
+    {
+      "name": "skill-factory-compiler",
+      "description": "Factory agent compiler and hydration engine. Translates canonical multi-adapter agent schemas into runtime dotfiles (.claude/agents/, .agents/) and recompiles standard metadata without drift.",
+      "path": ".agent/skills/skill-factory-compiler",
+      "references_count": 0
+    },
+    {
+      "name": "skill-finops",
+      "description": "Cloud cost analyst for tracking savings, resource optimization, and FinOps Oracle integration.",
+      "path": ".agent/skills/skill-finops",
+      "references_count": 0
+    },
+    {
+      "name": "skill-frontend",
+      "description": "Specialist for modern web development, UI/UX implementation, and component library management.",
+      "path": ".agent/skills/skill-frontend",
+      "references_count": 0
+    },
+    {
+      "name": "skill-gcp",
+      "description": "Holistic Google Cloud expert focusing on production-ready standards and dynamic gcloud discovery.",
+      "path": ".agent/skills/skill-gcp",
+      "references_count": 7
+    },
+    {
+      "name": "skill-gcp-mcp-setup",
+      "description": "Automator for provisioning Google Managed MCP (OneMCP) servers and configuring hub authentication.",
+      "path": ".agent/skills/skill-gcp-mcp-setup",
+      "references_count": 3
+    },
+    {
+      "name": "skill-gcp-playbooks",
+      "description": "SRE investigator for executing established GCP/GKE playbooks for infrastructure discovery and mitigation.",
+      "path": ".agent/skills/skill-gcp-playbooks",
+      "references_count": 2
+    },
+    {
+      "name": "skill-gcp-setup",
+      "description": "Identity manager for initial GCP environment verification and ADC/kubectl authentication alignment.",
+      "path": ".agent/skills/skill-gcp-setup",
+      "references_count": 1
+    },
+    {
+      "name": "skill-gemini",
+      "description": "Specialized guide for Gemini CLI features, documentation updates, and internal configuration schemas.",
+      "path": ".agent/skills/skill-gemini",
+      "references_count": 1
+    },
+    {
+      "name": "skill-github",
+      "description": "Repository manager for GitHub Issue lifecycles, Pull Request operations, and automated code review coordination.",
+      "path": ".agent/skills/skill-github",
+      "references_count": 6
+    },
+    {
+      "name": "skill-graph-memory",
+      "description": "Knowledge Graph engineer for extracting relational triples (entities/predicates) from session interactions.",
+      "path": ".agent/skills/skill-graph-memory",
+      "references_count": 0
+    },
+    {
+      "name": "skill-kubernetes",
+      "description": "Deep-dive K8s operator for managing GKE/EKS clusters and troubleshooting containerized workloads.",
+      "path": ".agent/skills/skill-kubernetes",
+      "references_count": 3
+    },
+    {
+      "name": "skill-kubernetes-local",
+      "description": "Skill to install or managee a local kubernetes cluster using K3S.",
+      "path": ".agent/skills/skill-kubernetes-local",
+      "references_count": 3
+    },
+    {
+      "name": "skill-mcp-manager",
+      "description": "Lifecycle manager for building, configuring, and \"turning on\" Model Context Protocol (MCP) servers.",
+      "path": ".agent/skills/skill-mcp-manager",
+      "references_count": 0
+    },
+    {
+      "name": "skill-msbuild",
+      "description": "MSBuild specialist for long-running build tasks, solution-wide builds, and PowerShell log analysis.",
+      "path": ".agent/skills/skill-msbuild",
+      "references_count": 0
+    },
+    {
+      "name": "skill-network",
+      "description": "Holistic networking architect for VPC design, PrivateLink routing, and Cloud Load Balancing (ELB/ALB).",
+      "path": ".agent/skills/skill-network",
+      "references_count": 2
+    },
+    {
+      "name": "skill-nexus-sync",
+      "description": "Synchronization engine for maintaining consistent agent and skill definitions across all AI IDE platforms.",
+      "path": ".agent/skills/skill-nexus-sync",
+      "references_count": 0
+    },
+    {
+      "name": "skill-observability",
+      "description": "APM specialist for Datadog integration, metric correlation, and telemetry onboarding.",
+      "path": ".agent/skills/skill-observability",
+      "references_count": 0
+    },
+    {
+      "name": "skill-on-prem-provisioning",
+      "description": "Proxmox and Puppet specialist for provisioning bare-metal servers and on-premise infrastructure.",
+      "path": ".agent/skills/skill-on-prem-provisioning",
+      "references_count": 0
+    },
+    {
+      "name": "skill-opencode",
+      "description": "Model server administrator for managing OpenCode providers, GPU optimization, and local LLM endpoints.",
+      "path": ".agent/skills/skill-opencode",
+      "references_count": 0
+    },
+    {
+      "name": "skill-packer",
+      "description": "Infrastructure-as-Artifact (IaA) expert for building immutable machine images with HashiCorp Packer.",
+      "path": ".agent/skills/skill-packer",
+      "references_count": 4
+    },
+    {
+      "name": "skill-platform-admin",
+      "description": "Workspace specialist for SSH/PAT management, Python venvs, and platform-level onboarding.",
+      "path": ".agent/skills/skill-platform-admin",
+      "references_count": 5
+    },
+    {
+      "name": "skill-pr-creator",
+      "description": "Quality gatekeeper for drafting high-resolution GitHub Pull Requests with documentation compliance.",
+      "path": ".agent/skills/skill-pr-creator",
+      "references_count": 0
+    },
+    {
+      "name": "skill-product_blueprint",
+      "description": "Product designer for generating comprehensive specifications, guidelines, and roadmap tracks.",
+      "path": ".agent/skills/skill-product_blueprint",
+      "references_count": 0
+    },
+    {
+      "name": "skill-review-suite",
+      "description": "PR auditor orchestrating high-resolution multi-agent reviews for quality and security compliance.",
+      "path": ".agent/skills/skill-review-suite",
+      "references_count": 0
+    },
+    {
+      "name": "skill-sre-advanced",
+      "description": "Advanced SRE troubleshooter for anomaly detection and behavioral mitigation playbooks.",
+      "path": ".agent/skills/skill-sre-advanced",
+      "references_count": 2
+    },
+    {
+      "name": "skill-sre-governance",
+      "description": "SRE reporting lead for SLO tracking, incident visualization, and Post-Mortem (PoMo) generation.",
+      "path": ".agent/skills/skill-sre-governance",
+      "references_count": 5
+    },
+    {
+      "name": "skill-sre-investigation",
+      "description": "Incident response entrypoint for Cloud Logging analysis and Cloud Monitoring metric deep-dives.",
+      "path": ".agent/skills/skill-sre-investigation",
+      "references_count": 9
+    },
+    {
+      "name": "skill-swarm",
+      "description": "Unified orchestration engine for managing the high-precision multi-agent workflow and state-machine.",
+      "path": ".agent/skills/skill-swarm",
+      "references_count": 0
+    },
+    {
+      "name": "skill-swarm-agents",
+      "description": "Swarm coordinator for initiating the Scout/Architect/Engineer/Auditor agent stack for complex builds.",
+      "path": ".agent/skills/skill-swarm-agents",
+      "references_count": 0
+    },
+    {
+      "name": "skill-swarm-management",
+      "description": "Swarm quality control lead for enforcing the Conductor CDD lifecycle and automated quality gates.",
+      "path": ".agent/skills/skill-swarm-management",
+      "references_count": 0
+    },
+    {
+      "name": "skill-terraform",
+      "description": "IaC specialist for developing reusable Terraform modules, providers, and state management strategies.",
+      "path": ".agent/skills/skill-terraform",
+      "references_count": 0
+    },
+    {
+      "name": "skill-webhook-autoload",
+      "description": "Adapter webhook lifecycle hook that automatically compiles metadata and hydrates canonical agents into active engine dotfiles on session startup.",
+      "path": ".agent/skills/skill-webhook-autoload",
+      "references_count": 0
+    }
+  ]
+}

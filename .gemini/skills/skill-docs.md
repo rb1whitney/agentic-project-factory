@@ -1,1 +1,0 @@
-../../.agent/skills/skill-docs.md

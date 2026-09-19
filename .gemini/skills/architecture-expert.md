@@ -1,1 +1,0 @@
-../../.agent/skills/architecture-expert.md

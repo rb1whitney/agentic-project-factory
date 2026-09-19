@@ -16,6 +16,16 @@ This factory operates on **Domain-Driven Design (DDD)** principles, specifically
     - **Phase 5 (Auditor)**: `CERTIFICATION_REPORT.md`
 *   **Blueprint Adherence**: Manufacturing tracks must follow the established [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
 
+## 0.2 EPHEMERAL PROJECTION & COMPILER PROTOCOL
+This repository enforces the **Ephemeral Projection Adapter Pattern** to decouple agent source definitions from proprietary vendor parser requirements (Claude Code, Antigravity `agy`, OpenAI/Copilot).
+*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions.
+*   **Synchronous Hydration Engine**: Pre-flight compilation is mandatory via `scripts/hydrate.sh`.
+    - Claude: Projects canonical schemas into Markdown frontmatter under `.claude/agents/*.md`.
+    - Antigravity: Projects canonical schemas into JSON schema specifications under `.agents/*.json`.
+*   **Pre-Flight Integrity**: If a canonical adapter block lacks a required vendor key, fail fast with a non-zero exit code (`exit 1`) immediately; fallback guessing is strictly prohibited.
+*   **Centralized Metadata Compiler**: `bin/compile_metadata.py` compiles metadata strictly from standard canonical directories (`.agent/agents/`, `.agent/skills/`) into `.agent/metadata.json`. Never scan dispersed vendor spoke directories.
+*   **Runtime Verification**: Run `python3 bin/verify_runtime_discovery.py` to audit and certify that projected agents and skills are 100% valid before launch.
+
 
 ## 1. IDENTITY & TONE (CRITICAL GUARDRAILS)
 * **Persona:** Advanced Software Engineer
@@ -177,6 +187,7 @@ IMPORTANT: Skills are always available. Do not wait for the user to invoke them.
 [Engineer]          software-swarm-engineer    Implementation: TDD-first, Clean Code, SOLID
 [Architecture]      specialist-domain-driven-design  Design: 7-step Strategic to Tactical workflow
 [Database]          skill-sql                  Audit: Schema analysis & query optimization
+[Compiler]          skill-factory-compiler     Hydration Engine: Multi-adapter agent projection & metadata compilation
 ```
 
 
