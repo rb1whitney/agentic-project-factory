@@ -1,1 +1,0 @@
-../../.agent/skills/aws-migration-specialist.md

@@ -1,1 +1,0 @@
-../../.agent/skills/specialist-observability.md

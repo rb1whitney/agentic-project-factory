@@ -1,1 +1,0 @@
-../../.agent/skills/specialist-on-prem-provisioning.md

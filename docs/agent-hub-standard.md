@@ -22,7 +22,7 @@ To maintain sub-second cognitive response times and minimize token-level operati
 ## 3. Physical Sovereignty: Immutable Truth
 The **April 2026 Shift** established the `.agent/` directory as the **Physical Sovereignty Layer**.
 - **Governance Isolation**: Core logic resides outside the agent's destructive boundary, preventing "Self-Sabotage" feedback loops.
-- **Polyfill Portability**: IDE-native configuration endpoints (e.g., `.cursorrules`, `.gemini/`) are implemented as symlink polyfills pointing back to the sovereign hub.
+- **Ephemeral Projections**: Target harness configurations (e.g., `.claude/`, `.agents/`) are generated and synchronized via `scripts/hydrate.sh` and `bin/nexus.py` pointing back to the sovereign `.agent/` hub.
 
 ## 4. The Risk Management Shield (Lethal Trifecta)
 Systemic risk is managed via deterministic policies located in `.agent/policies/`:

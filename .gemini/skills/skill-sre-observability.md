@@ -1,1 +1,0 @@
-../../.agent/skills/skill-sre-observability.md

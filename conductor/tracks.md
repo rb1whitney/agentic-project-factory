@@ -6,6 +6,12 @@
 
 ## Active Manufacturing Tracks
 
+### Mission: Factory Agent Compiler
+- **Status**: [CERTIFIED]
+- **Track**: [**conductor/tracks/factory-agent-compiler/**](file://./conductor/tracks/factory-agent-compiler/)
+- **Strategic Goal**: Deploy Ephemeral Projection Adapter Pattern via `scripts/hydrate.sh` for zero-drift compilation of canonical agent schemas into vendor runtime dotfiles (.claude/agents/, .agents/).
+- **Impact**: Decoupled canonical source definitions from vendor parsers, preventing syntax drift and schema validation failures.
+
 ### Mission: FinOps Oracle v2
 - **Status**: [PLANNING]
 - **Track**: [**conductor/tracks/finops-oracle-implementation/**](file://./conductor/tracks/finops-oracle-implementation/)

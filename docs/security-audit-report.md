@@ -18,7 +18,7 @@ The repository is currently in a **Zero-Trust Secure** state. All real-world cre
 | **Injection Risk** |  PASS | Audit of [**`mcp_wrapper.sh`**](file://./mcp-servers/mcp_wrapper.sh) confirms safe command handoff via `exec "$@"`. No `eval` risks found. |
 | **Permission Isolation** |  SECURE | [**`bin/setup.sh`**](file://./bin/setup.sh) now enforces `chmod 600` on the external credential hub. |
 | **Git Leakage** |  PASS | Verified [**`.gitignore`**](file://./.gitignore) restricts all `.env` and `credentials` patterns globally. |
-| **Agent Manual Safety** |  PASS | All [**`.gemini/agents/`**](file://./.gemini/agents/) manuals use placeholder variables (e.g., `get_secret`). |
+| **Agent Manual Safety** |  PASS | All [**`.agent/agents/`**](file://./.agent/agents/) manuals use placeholder variables (e.g., `get_secret`). |
 
 ##  Recommendations for the USER
 

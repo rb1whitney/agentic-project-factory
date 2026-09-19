@@ -1,1 +1,0 @@
-../../.agent/skills/finops-specialist.md

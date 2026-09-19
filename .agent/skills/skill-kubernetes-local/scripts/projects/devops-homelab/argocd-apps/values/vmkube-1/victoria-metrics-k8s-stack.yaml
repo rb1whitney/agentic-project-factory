@@ -1,0 +1,116 @@
+vmsingle:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: "traefik"
+    hosts:
+      - vmsingle.vmkube-1.homelab.internal
+    tls:
+      - secretName: vmsingle-ingress-tls
+        hosts:
+          - vmsingle.vmkube-1.homelab.internal
+  spec:
+    retentionPeriod: "1d"
+    storage:
+      resources:
+        requests:
+          storage: 1Gi
+
+vmagent:
+  spec:
+    externalLabels:
+      cluster: "vmkube-1"
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: "traefik"
+    hosts:
+      - vmagent.vmkube-1.homelab.internal
+    tls:
+      - secretName: vmagent-ingress-tls
+        hosts:
+          - vmagent.vmkube-1.homelab.internal
+
+alertmanager:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: "traefik"
+    hosts:
+      - alertmanager.vmkube-1.homelab.internal
+    tls:
+      - secretName: alertmanager-ingress-tls
+        hosts:
+          - alertmanager.vmkube-1.homelab.internal
+
+defaultDashboards:
+  enabled: false
+
+grafana:
+  global:
+    imageRegistry: mirror.gcr.io
+  plugins:
+    - victoriametrics-metrics-datasource
+  sidecar:
+    dashboards:
+      enabled: false
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "grafana-dashboards-kubernetes"
+          orgId: 1
+          folder: "Kubernetes"
+          type: file
+          disableDeletion: true
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes
+  dashboards:
+    grafana-dashboards-kubernetes:
+      k8s-system-api-server:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+        token: ""
+      k8s-system-coredns:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+        token: ""
+      k8s-views-global:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+        token: ""
+      k8s-views-namespaces:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+        token: ""
+      k8s-views-nodes:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+        token: ""
+      k8s-views-pods:
+        url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+        token: ""
+  initChownData:
+    enabled: false
+  persistence:
+    enabled: true
+    size: 1Gi
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: my-ca-issuer
+    ingressClassName: "traefik"
+    hosts:
+      - grafana.vmkube-1.homelab.internal
+    tls:
+      - secretName: grafana-ingress-tls
+        hosts:
+          - grafana.vmkube-1.homelab.internal
+
+  envFromSecret: "grafana.postgres-cluster.credentials.postgresql.acid.zalan.do"
+  env:
+    GF_DATABASE_TYPE: postgres
+    GF_DATABASE_HOST: postgres-cluster:5432
+    GF_DATABASE_NAME: grafana
+    GF_DATABASE_SSL_MODE: require
+    GF_DATABASE_USER: "$(username)"
+    GF_DATABASE_PASSWORD: "$(password)"

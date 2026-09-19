@@ -1,0 +1,12 @@
+{
+  "factory-autoload-webhook": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 bin/autoload_webhook.py",
+        "timeout": 15
+      }
+    ]
+  }
+}

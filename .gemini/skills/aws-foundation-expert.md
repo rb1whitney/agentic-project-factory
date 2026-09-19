@@ -1,1 +1,0 @@
-../../.agent/skills/aws-foundation-expert.md

@@ -1,1 +1,0 @@
-../../.agent/skills/packer-expert.md
