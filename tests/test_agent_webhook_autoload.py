@@ -9,7 +9,6 @@ Tests 3 representative specialist agents across both environments:
 """
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -54,7 +53,7 @@ def verify_claude_loaded():
     assert claude_settings.exists(), "Missing .claude/settings.json"
     with open(claude_settings) as f:
         settings_data = json.load(f)
-    assert "hooks" in settings_data and "SessionStart" in settings_data["hooks"], "Hook missing in .claude/settings.json"
+    assert "SessionStart" in settings_data.get("hooks", {}), "Hook missing in .claude/settings.json"
 
     for agent in TARGET_AGENTS:
         agent_md_path = Path(f".claude/agents/{agent}.md")

@@ -11,6 +11,7 @@ import re
 import sys
 from pathlib import Path
 
+
 def parse_yaml_frontmatter(content: str) -> dict:
     match = re.match(r"^---\s*\n(.*?)\n---\s*(\n|$)", content, re.DOTALL)
     if not match:
@@ -30,11 +31,16 @@ def parse_yaml_frontmatter(content: str) -> dict:
                 meta[k] = v
     return meta
 
+
+def all_valid(agents: list) -> bool:
+    return bool(agents) and all(a.get("valid_frontmatter", a.get("valid_json")) for a in agents)
+
+
 def verify_claude_projection(repo_root: Path):
     claude_agents_dir = repo_root / ".claude/agents"
     if not claude_agents_dir.exists():
         return {"status": "FAIL", "error": f"Missing directory: {claude_agents_dir}", "agents": []}
-    
+
     loaded_agents = []
     for file_path in sorted(claude_agents_dir.glob("*.md")):
         content = file_path.read_text(encoding="utf-8")
@@ -62,7 +68,7 @@ def verify_claude_projection(repo_root: Path):
                 skills.append(meta.get("name", skill_dir.name))
 
     return {
-        "status": "PASS" if loaded_agents and all(a.get("valid_frontmatter", a.get("valid_json")) for a in loaded_agents) else "FAIL",
+        "status": "PASS" if all_valid(loaded_agents) else "FAIL",
         "agent_count": len(loaded_agents),
         "agents": loaded_agents,
         "skill_count": len(skills),
@@ -73,10 +79,17 @@ def verify_antigravity_projection(repo_root: Path):
     agents_dir = repo_root / ".agents"
     if not agents_dir.exists():
         return {"status": "FAIL", "error": f"Missing directory: {agents_dir}", "agents": []}
-    
+
     loaded_agents = []
     for json_path in sorted(agents_dir.glob("*.json")):
-        if json_path.name in ("manifest.json", "mcp_config.json", "settings.json", "skills.json", "plugins.json", "hooks.json"):
+        if json_path.name in (
+            "manifest.json",
+            "mcp_config.json",
+            "settings.json",
+            "skills.json",
+            "plugins.json",
+            "hooks.json",
+        ):
             continue
         try:
             data = json.loads(json_path.read_text(encoding="utf-8"))
@@ -108,7 +121,7 @@ def verify_antigravity_projection(repo_root: Path):
                 skills.append(meta.get("name", skill_dir.name))
 
     return {
-        "status": "PASS" if loaded_agents and all(a.get("valid_frontmatter", a.get("valid_json")) for a in loaded_agents) else "FAIL",
+        "status": "PASS" if all_valid(loaded_agents) else "FAIL",
         "agent_count": len(loaded_agents),
         "agents": loaded_agents,
         "skill_count": len(skills),
@@ -123,7 +136,7 @@ def main():
 
     # 1. Claude Verification
     claude_res = verify_claude_projection(root)
-    print(f"\n[CLAUDE CODE HARNESS]")
+    print("\n[CLAUDE CODE HARNESS]")
     print(f"Status: {claude_res['status']}")
     print(f"Loaded Agents Count: {claude_res.get('agent_count', 0)}")
     print(f"Available Skills Count: {claude_res.get('skill_count', 0)}")
@@ -135,7 +148,7 @@ def main():
 
     # 2. Antigravity Verification
     agy_res = verify_antigravity_projection(root)
-    print(f"\n[ANTIGRAVITY (AGY) HARNESS]")
+    print("\n[ANTIGRAVITY (AGY) HARNESS]")
     print(f"Status: {agy_res['status']}")
     print(f"Loaded Agents Count: {agy_res.get('agent_count', 0)}")
     print(f"Available Skills Count: {agy_res.get('skill_count', 0)}")
@@ -150,7 +163,7 @@ def main():
     if meta_path.exists():
         with open(meta_path) as f:
             catalog = json.load(f)
-        print(f"\n[CANONICAL METADATA]")
+        print("\n[CANONICAL METADATA]")
         print(f"Standard Agents Indexed: {len(catalog.get('agents', []))}")
         print(f"Canonical Adapters Indexed: {len(catalog.get('canonical_agents', []))}")
         print(f"Standard Skills Indexed: {len(catalog.get('skills', []))}")

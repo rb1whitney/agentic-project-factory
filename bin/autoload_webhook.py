@@ -3,7 +3,8 @@
 autoload_webhook.py - Lifecycle hook / adapter webhook for Antigravity, Claude, and Codex.
 Triggered on session start or pre-invocation to:
 1. Ensure standard metadata index is compiled (.agent/metadata.json).
-2. Ensure canonical multi-adapter agents in .agent/agents/*.yaml are hydrated to vendor formats (.claude/agents, .agents).
+2. Ensure canonical multi-adapter agents in .agent/agents/*.yaml are hydrated to vendor formats
+   (.claude/agents, .agents).
 """
 
 import json
@@ -11,6 +12,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
 
 def main():
     repo_root = Path(__file__).resolve().parent.parent

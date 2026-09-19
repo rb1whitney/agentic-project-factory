@@ -8,9 +8,9 @@ where .agent/agents contains universal multi-adapter YAML specifications.
 import argparse
 import json
 import re
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
 
 def parse_frontmatter(file_path: Path) -> dict:
     """Fast regex parser for YAML frontmatter without external dependencies."""
@@ -18,14 +18,14 @@ def parse_frontmatter(file_path: Path) -> dict:
         content = file_path.read_text(encoding="utf-8")
     except Exception:
         return {}
-    
+
     match = re.match(r"^---\s*\n(.*?)\n---\s*(\n|$)", content, re.DOTALL)
     if not match:
         return {}
-    
+
     frontmatter_text = match.group(1)
     metadata = {}
-    
+
     for line in frontmatter_text.splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
@@ -52,7 +52,7 @@ def compile_agents(agents_dir: Path) -> list[dict]:
             content = file_path.read_text(encoding="utf-8")
         except Exception:
             continue
-        
+
         # Read first YAML document up to ---
         parts = content.split("\n---")
         header = parts[0]
