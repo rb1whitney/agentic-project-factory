@@ -6,15 +6,15 @@ containing markdown horizontal rules ('---') without corruption, truncation, or 
 """
 
 import sys
-import unittest
 import tempfile
+import unittest
 from pathlib import Path
 
 # Add project root to sys.path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.hydrate import parse_agent_file, load_map
+from scripts.hydrate import load_map, parse_agent_file  # noqa: E402
 
 
 class TestParserEdgeCases(unittest.TestCase):

@@ -3,16 +3,14 @@
 Test Harness Adapter Invariants:
 1. Orphan pruning: Hydration removes projected files when canonical YAML is removed.
 2. Banner truth: Generated headers reference actual source YAML file path, even when name differs from filename stem.
-3. Antigravity twin parity: .agents/<name>.json and .agents/agents/<name>.md maintain parity on commandExecutionPolicy and auto_approve.
+3. Antigravity twin parity: .agents/<name>.json and .agents/agents/<name>.md maintain parity on
+   commandExecutionPolicy and auto_approve.
 """
 
 import json
-import os
 import re
-import shutil
 import subprocess
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -26,7 +24,7 @@ HYDRATE_SCRIPT = REPO_ROOT / "scripts" / "hydrate.py"
 
 class TestAdapterInvariants(unittest.TestCase):
     def test_banner_source_path_fidelity(self):
-        """Banner must reference actual source file path, specifically checking db-migration.yaml (name: db-migration-agent)."""
+        """Banner must reference actual source file path (e.g. db-migration.yaml vs db-migration-agent)."""
         src_yaml = AGENT_DIR / "db-migration.yaml"
         self.assertTrue(src_yaml.exists(), "db-migration.yaml must exist")
 

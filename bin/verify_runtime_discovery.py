@@ -254,8 +254,19 @@ def main():
                 scenarios_pass = False
                 print(f"Scenario {sf.name}: FAIL\n{res.stderr.strip() or res.stdout.strip()}")
 
-    if claude_res['status'] == "PASS" and agy_res['status'] == "PASS" and codex_res['status'] == "PASS" and reconciled and scenarios_pass:
-        print("\nSUCCESS: Claude, Antigravity, and Codex environments successfully certified, reconciled, and scenario-tested.")
+    all_passed = (
+        claude_res["status"] == "PASS"
+        and agy_res["status"] == "PASS"
+        and codex_res["status"] == "PASS"
+        and reconciled
+        and scenarios_pass
+    )
+
+    if all_passed:
+        print(
+            "\nSUCCESS: Claude, Antigravity, and Codex environments "
+            "successfully certified, reconciled, and scenario-tested."
+        )
         sys.exit(0)
     else:
         print("\nFAILURE: One or more harnesses failed verification, reconciliation, or scenarios.")

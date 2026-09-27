@@ -7,13 +7,12 @@ Translates canonical agent definitions (.agent/agents/*.yaml) into:
 - Codex:         .codex/agents/*.toml
 """
 
-import os
-import sys
-import glob
 import json
 import re
-import yaml
+import sys
 from pathlib import Path
+
+import yaml
 
 CANONICAL_DIR = Path(".agent/agents")
 SKILLS_DIR = Path(".agent/skills")
@@ -72,7 +71,11 @@ def parse_agent_file(path, map_data):
 
     # Strict Fail Loud Invariant: No fallback guessing allowed
     if not capabilities or not tier:
-        print(f"Validation Error: '{path}' missing required 'capabilities' or 'tier'. Fail-loud invariant triggered.", file=sys.stderr)
+        print(
+            f"Validation Error: '{path}' missing required 'capabilities' or 'tier'. "
+            "Fail-loud invariant triggered.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     # Pre-Flight Validation Rules
@@ -120,7 +123,7 @@ def hydrate_claude(agents, map_data):
     for agent in agents:
         tier = agent["tier"]
         model = tier_map.get(tier, "sonnet")
-        
+
         tools = []
         for cap in agent["capabilities"]:
             if cap in cap_map:
@@ -144,7 +147,11 @@ def hydrate_claude(agents, map_data):
 
         body = agent["body"]
         if agent["returns"] and "write" not in agent["capabilities"]:
-            body = f"## Return Contract (Read-Only Subagent)\nDo NOT attempt to write '{agent['returns']}' directly to disk. Return the complete, formatted report as text in your final response so the orchestrator can write it.\n\n" + body
+            body = (
+                "## Return Contract (Read-Only Subagent)\n"
+                f"Do NOT attempt to write '{agent['returns']}' directly to disk. Return the complete, formatted "
+                "report as text in your final response so the orchestrator can write it.\n\n"
+            ) + body
 
         out_path = out_dir / f"{agent['name']}.md"
         with open(out_path, "w") as f:
@@ -155,6 +162,7 @@ def hydrate_claude(agents, map_data):
             f.write(body)
             f.write("\n")
         print(f"Hydrated Claude agent: {out_path}")
+
 
 def hydrate_antigravity(agents, map_data):
     agy_cfg = map_data.get("antigravity", {})
@@ -169,8 +177,16 @@ def hydrate_antigravity(agents, map_data):
 
     # Prune stale output files
     expected_json = {f"{agent['name']}.json" for agent in agents}
+    ignored_json = {
+        "manifest.json",
+        "mcp_config.json",
+        "settings.json",
+        "skills.json",
+        "plugins.json",
+        "hooks.json",
+    }
     for existing in out_dir_json.glob("*.json"):
-        if existing.name in ("manifest.json", "mcp_config.json", "settings.json", "skills.json", "plugins.json", "hooks.json"):
+        if existing.name in ignored_json:
             continue
         if existing.name not in expected_json:
             print(f"Pruning stale Antigravity JSON artifact: {existing}")
@@ -223,7 +239,11 @@ def hydrate_antigravity(agents, map_data):
         }
         body = agent["body"]
         if agent["returns"] and "write" not in agent["capabilities"]:
-            body = f"## Return Contract (Read-Only Subagent)\nDo NOT attempt to write '{agent['returns']}' directly to disk. Return the complete, formatted report as text in your final response so the orchestrator can write it.\n\n" + body
+            body = (
+                "## Return Contract (Read-Only Subagent)\n"
+                f"Do NOT attempt to write '{agent['returns']}' directly to disk. Return the complete, formatted "
+                "report as text in your final response so the orchestrator can write it.\n\n"
+            ) + body
 
         md_out_path = out_dir_md / f"{agent['name']}.md"
         with open(md_out_path, "w") as f:
@@ -272,7 +292,10 @@ def hydrate_codex(agents, map_data):
             instructions.append("ADVISORY (not enforced by Codex): do not delegate or spawn subagents.\n")
 
         if agent["returns"] and "write" not in agent["capabilities"]:
-            instructions.append(f"ADVISORY: You are in read-only sandbox mode. Hand back the '{agent['returns']}' content in your response rather than attempting to write the file directly.\n")
+            instructions.append(
+                f"ADVISORY: You are in read-only sandbox mode. Hand back the '{agent['returns']}' content "
+                "in your response rather than attempting to write the file directly.\n"
+            )
 
         instructions.append(agent["body"])
         dev_instructions_str = "\n".join(instructions)
