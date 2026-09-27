@@ -79,3 +79,19 @@ Bootstrap the factory environment with a single command:
 bash bin/setup.sh
 ```
 This initializes the ACS-2026 hub, rebuilds the code map, and synchronizes all active specialist agents.
+
+## 6. Global Agent Baseline (Cross-Harness Floor)
+
+`templates/GLOBAL_AGENT_BASELINE.md` serves as the single canonical baseline instruction floor for Claude Code, Antigravity, and Codex CLI. Project-level `AGENTS.md` and `CLAUDE.md` always take precedence over this baseline.
+
+To deploy or refresh the global baseline across harnesses:
+```bash
+bash bin/deploy_global_baseline.sh
+```
+
+Targets deployed:
+- **Claude Code**: `~/.claude/CLAUDE.md`
+- **Antigravity**: `~/.gemini/AGENTS.md`
+- **Codex CLI**: `~/.codex/AGENTS.md`
+
+The deployment script checks file equality, skips unchanged targets, and generates timestamped backups (`.bak.<timestamp>`) before overwriting modified files.
