@@ -25,7 +25,6 @@ fi
 
 PROJECT_ID="$1"
 SA_EMAIL="safe-sre-investigator@${PROJECT_ID}.iam.gserviceaccount.com"
-KEY_FILE="${HOME}/.config/gcloud/safe-sre-investigator-${PROJECT_ID}-key.json"
 WRAPPER_DIR="${HOME}/bin"
 WRAPPER_PATH="${WRAPPER_DIR}/safe_gcloud"
 
@@ -61,7 +60,7 @@ if ! gcloud config get-value project > /dev/null 2>&1; then
     echo "🤔 gcloud not initialized. Please run: gcloud init"
     exit 1
 fi
-gcloud config set project ${PROJECT_ID} > /dev/null
+gcloud config set project "${PROJECT_ID}" > /dev/null
 
 # 1. Create Service Account if it doesn't exist
 if ! ${SUDO_GCLOUD} iam service-accounts describe "${SA_EMAIL}" --project "${PROJECT_ID}" > /dev/null 2>&1; then

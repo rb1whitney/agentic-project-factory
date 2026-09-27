@@ -44,7 +44,7 @@ SERVICES=$(curl -s -X GET \
   "https://monitoring.googleapis.com/v3/projects/$PROJECT_ID/services")
 
 # Extract the service ID that matches 'frontend'
-SERVICE_ID=$(echo $SERVICES | grep -o '"name": "projects/[^"]*/services/[^"]*frontend[^"]*"' | head -n 1 | cut -d '"' -f 4 | awk -F'/services/' '{print $2}')
+SERVICE_ID=$(echo "$SERVICES" | grep -o '"name": "projects/[^"]*/services/[^"]*frontend[^"]*"' | head -n 1 | cut -d '"' -f 4 | awk -F'/services/' '{print $2}')
 
 if [ -z "$SERVICE_ID" ]; then
     echo "❌ Error: No 'frontend' Monitoring Service found in project $PROJECT_ID."

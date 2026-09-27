@@ -245,8 +245,14 @@ def main():
     if scenarios_dir.exists():
         print("\n[ACS SCENARIOS EVALUATION]")
         import subprocess
+
+        python_bin = sys.executable
+        repo_venv_python = root / ".venv" / "bin" / "python"
+        if repo_venv_python.exists():
+            python_bin = str(repo_venv_python)
+
         for sf in sorted(scenarios_dir.glob("*.py")):
-            cmd = [sys.executable, str(sf)]
+            cmd = [python_bin, str(sf)]
             res = subprocess.run(cmd, capture_output=True, text=True)
             if res.returncode == 0:
                 print(f"Scenario {sf.name}: PASS")

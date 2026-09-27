@@ -10,18 +10,18 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash|run_shell_command|Write|replace",
+        "matcher": "Bash|Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "bash .agent/hooks/enforce-safety.sh \"$CLAUDE_TOOL_NAME\" \"$CLAUDE_TOOL_INPUT\""
+            "command": "bash .agent/hooks/enforce-safety.sh"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Write|replace",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
