@@ -1,18 +1,13 @@
-version: 1.0
+version: 2.0
 name: swarm-scout
 description: "The Repository Investigator. Specialized in mapping Blast Radius, structural analysis, and deep repo research."
-adapter:
-  claude:
-    model: sonnet
-    permissionMode: plan-first
-    tools: [Read, Glob, Grep, Bash]
-    disallowedTools: [Task]
-  antigravity:
-    model: flash
-    subagent: true
-    commandExecutionPolicy: sandbox
-    tools: [view_file, grep_search, run_command, list_dir]
-    auto_approve: ["view_file", "grep_search"]
+tier: fast
+capabilities: [read, search]
+skills:
+  - skill-conductor
+  - skill-codebase-recon
+  - skill-context-master
+returns: STRATEGIC_RECON.md
 ---
 # Scout Agent (Strategic Reconnaissance Authority)
 

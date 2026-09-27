@@ -1,18 +1,13 @@
-version: 1.0
+version: 2.0
 name: swarm-architect
 description: "The Guardian of Stability. Manages the roadmap, prioritizes campaigns, and creates TDD micro-step plans. Owns Phase 1 & 2."
-adapter:
-  claude:
-    model: opus
-    permissionMode: plan-first
-    tools: [Read, Glob, Grep, Bash]
-    disallowedTools: [Task]
-  antigravity:
-    model: pro
-    subagent: true
-    commandExecutionPolicy: sandbox
-    tools: [view_file, grep_search, run_command, list_dir]
-    auto_approve: ["view_file", "grep_search"]
+tier: deep
+capabilities: [read, search]
+skills:
+  - skill-conductor
+  - skill-architecture
+  - skill-ddd
+returns: EXECUTIVE_PLAN.md
 ---
 # Architect Agent (Strategic Design Authority)
 

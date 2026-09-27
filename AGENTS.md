@@ -3,7 +3,7 @@
 ## 0. ARCHITECTURAL STANDARD (.agent)
 This repository follows the **Unified Agentic Standard**. All infrastructure logic, specialist definitions, and skill modules are centralized within the [**.agent/**](file://./.agent/) directory. 
 *   **Root Operations**: Standardized operations under the `root` user must prioritize discovery within the `.agent/` hub. 
-*   **Logical Centralization**: Legacy vendor directories (`.gemini/`, `.claude/`, etc.) and vendor hub fragments (`google/`, `anthropic/`) have been decommissioned. Any new configuration MUST be integrated into the [**.agent/**](file://./.agent/) structure.
+*   **Logical Centralization**: Proprietary vendor directories as source-of-truth configurations have been decommissioned. All canonical definitions live exclusively within the [**.agent/**](file://./.agent/) hub. Generated harness directories (`.claude/agents/`, `.agents/`, `.codex/agents/`) exist purely as ephemeral compiled projections under §0.2 and must never be treated as source vaults.
 *   **Standard Discovery**: This file serves as the "README for agents" and is the primary boot-strap context for all LLM-led operations.
 
 ## 0.1 DDD & ORCHESTRATION (CONDUCTOR)
