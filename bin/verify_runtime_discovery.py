@@ -128,10 +128,35 @@ def verify_antigravity_projection(repo_root: Path):
         "skills_sample": skills[:5]
     }
 
+def verify_codex_projection(repo_root: Path):
+    codex_agents_dir = repo_root / ".codex/agents"
+    if not codex_agents_dir.exists():
+        return {"status": "FAIL", "error": f"Missing directory: {codex_agents_dir}", "agents": []}
+
+    loaded_agents = []
+    for toml_path in sorted(codex_agents_dir.glob("*.toml")):
+        content = toml_path.read_text(encoding="utf-8")
+        has_name = 'name = "' in content
+        has_model = 'model = "' in content
+        has_sandbox = 'sandbox_mode = "' in content
+        has_instructions = 'developer_instructions = """' in content
+        valid = has_name and has_model and has_sandbox and has_instructions
+        loaded_agents.append({
+            "name": toml_path.stem,
+            "valid_toml": valid,
+            "path": str(toml_path.relative_to(repo_root))
+        })
+
+    return {
+        "status": "PASS" if bool(loaded_agents) and all(a["valid_toml"] for a in loaded_agents) else "FAIL",
+        "agent_count": len(loaded_agents),
+        "agents": loaded_agents
+    }
+
 def main():
     root = Path(".").resolve()
     print("==================================================")
-    print("RUNTIME DISCOVERY VERIFICATION: CLAUDE & ANTIGRAVITY")
+    print("RUNTIME DISCOVERY VERIFICATION: CLAUDE, ANTIGRAVITY & CODEX")
     print("==================================================")
 
     # 1. Claude Verification
@@ -158,7 +183,18 @@ def main():
     else:
         print("All projected Antigravity agent JSON definitions have valid schemas.")
 
-    # 3. Canonical and Metadata Verification
+    # 3. Codex Verification
+    codex_res = verify_codex_projection(root)
+    print("\n[CODEX HARNESS]")
+    print(f"Status: {codex_res['status']}")
+    print(f"Loaded Agents Count: {codex_res.get('agent_count', 0)}")
+    invalid_codex = [a['name'] for a in codex_res.get('agents', []) if not a.get('valid_toml')]
+    if invalid_codex:
+        print(f"Invalid Agents: {invalid_codex}")
+    else:
+        print("All projected Codex agent TOML definitions have valid schemas.")
+
+    # 4. Canonical and Metadata Verification
     meta_path = root / ".agent/metadata.json"
     if meta_path.exists():
         with open(meta_path) as f:
@@ -168,11 +204,61 @@ def main():
         print(f"Canonical Adapters Indexed: {len(catalog.get('canonical_agents', []))}")
         print(f"Standard Skills Indexed: {len(catalog.get('skills', []))}")
 
-    if claude_res['status'] == "PASS" and agy_res['status'] == "PASS":
-        print("\nSUCCESS: Both Claude and Antigravity environments successfully loaded.")
+    # 5. Strict 1:1 Canonical Reconciliation Check
+    canonical_dir = root / ".agent/agents"
+    canonical_names = set()
+    for yf in canonical_dir.glob("*.yaml"):
+        txt = yf.read_text(encoding="utf-8")
+        m = re.search(r"name:\s*([^\s\n]+)", txt)
+        if m:
+            canonical_names.add(m.group(1).strip("'\""))
+
+    claude_names = {a["name"] for a in claude_res.get("agents", [])}
+    agy_names = {a["name"] for a in agy_res.get("agents", []) if a.get("name")}
+    codex_names = {a["name"] for a in codex_res.get("agents", [])}
+
+    print("\n[CANONICAL RECONCILIATION AUDIT]")
+    print(f"Canonical Agent Count: {len(canonical_names)}")
+    reconciled = True
+
+    if claude_names != canonical_names:
+        reconciled = False
+        print(f"Claude Reconciliation FAIL: diff={claude_names.symmetric_difference(canonical_names)}")
+    else:
+        print("Claude Reconciliation: PASS (1:1 with canonical vault)")
+
+    if agy_names != canonical_names:
+        reconciled = False
+        print(f"Antigravity Reconciliation FAIL: diff={agy_names.symmetric_difference(canonical_names)}")
+    else:
+        print("Antigravity Reconciliation: PASS (1:1 with canonical vault)")
+
+    if codex_names != canonical_names:
+        reconciled = False
+        print(f"Codex Reconciliation FAIL: diff={codex_names.symmetric_difference(canonical_names)}")
+    else:
+        print("Codex Reconciliation: PASS (1:1 with canonical vault)")
+
+    # 6. ACS Verification Scenarios
+    scenarios_dir = root / ".agent/scenarios"
+    scenarios_pass = True
+    if scenarios_dir.exists():
+        print("\n[ACS SCENARIOS EVALUATION]")
+        import subprocess
+        for sf in sorted(scenarios_dir.glob("*.py")):
+            cmd = [sys.executable, str(sf)]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            if res.returncode == 0:
+                print(f"Scenario {sf.name}: PASS")
+            else:
+                scenarios_pass = False
+                print(f"Scenario {sf.name}: FAIL\n{res.stderr.strip() or res.stdout.strip()}")
+
+    if claude_res['status'] == "PASS" and agy_res['status'] == "PASS" and codex_res['status'] == "PASS" and reconciled and scenarios_pass:
+        print("\nSUCCESS: Claude, Antigravity, and Codex environments successfully certified, reconciled, and scenario-tested.")
         sys.exit(0)
     else:
-        print("\nFAILURE: One or more harnesses failed verification.")
+        print("\nFAILURE: One or more harnesses failed verification, reconciliation, or scenarios.")
         sys.exit(1)
 
 if __name__ == "__main__":

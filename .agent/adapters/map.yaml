@@ -1,0 +1,64 @@
+version: "2.0"
+harnesses:
+  claude:
+    path: .claude/agents/{name}.md
+    format: markdown-frontmatter
+    capabilities:
+      read: [Read]
+      search: [Grep, Glob]
+      write: [Edit, Write]
+      shell: [Bash]
+      web: [WebFetch, WebSearch]
+      delegate: [Agent]
+    tiers:
+      fast: sonnet
+      deep: opus
+    disallowed_when_no_delegate: [Task, Agent]
+    defaults:
+      tools_omitted: inherit_all         # Fails open
+      unknown_tool: silently_dropped     # Launch fails only if zero tools resolve
+      delegation_depth: 3
+    enforceable: [read, search, write, shell, web, delegate]
+
+  antigravity:
+    path_md: .agents/agents/{name}.md
+    path_json: .agents/{name}.json
+    format: json-and-markdown
+    capabilities:
+      read: [view_file]
+      search: [grep_search, list_dir]
+      write: [replace_file_content, write_to_file]
+      shell: [run_command]
+      web: [read_url_content, search_web]
+      delegate: [invoke_subagent]
+    tiers:
+      fast: flash
+      deep: pro
+    extra_fields:
+      subagent: true
+      commandExecutionPolicy: sandbox
+    auto_approve_capabilities: [read, search]
+    defaults:
+      tools_omitted: empty               # Fails closed
+      unknown_tool: may_hang             # Documented runtime issue
+      delegation_depth: 10
+      commands: ask
+      web: ask
+      mcp: ask
+    enforceable: [read, search, write, shell, web, delegate]
+
+  codex:
+    path: .codex/agents/{name}.toml
+    format: toml
+    name_style: snake_case
+    sandbox_modes:
+      read-only: [read, search]
+      workspace-write: [read, search, write, shell]
+    tiers:
+      fast: gpt-5-turbo
+      deep: gpt-5-pro
+    defaults:
+      tools_omitted: inherit_parent_sandbox
+      unknown_tool: not_applicable       # No tool list in toml
+    enforceable: [write, shell]          # Via sandbox only
+    advisory_only: [web, delegate]

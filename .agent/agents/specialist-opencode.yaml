@@ -1,18 +1,17 @@
-version: 1.0
+version: '2.0'
 name: specialist-opencode
-description: "Specialist in opencode platform management and local model orchestration."
-adapter:
-  claude:
-    model: sonnet
-    permissionMode: plan-first
-    tools: [Read, Glob, Grep, Bash]
-    disallowedTools: [Task]
-  antigravity:
-    model: flash
-    subagent: true
-    commandExecutionPolicy: sandbox
-    tools: [view_file, grep_search, run_command, list_dir]
-    auto_approve: ["view_file", "grep_search"]
+description: Specialist in opencode platform management and local model orchestration.
+role: worker
+tier: fast
+capabilities:
+- read
+- search
+- write
+- shell
+skills:
+- skill-opencode
+- skill-conductor
+- skill-mcp-manager
 ---
 # Opencode Strategic Model Authority
 

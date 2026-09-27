@@ -1,18 +1,12 @@
-version: 1.0
+version: 2.0
 name: swarm-supervisor
-description: ">"
-adapter:
-  claude:
-    model: sonnet
-    permissionMode: plan-first
-    tools: [Read, Glob, Grep, Bash]
-    disallowedTools: [Task]
-  antigravity:
-    model: flash
-    subagent: true
-    commandExecutionPolicy: sandbox
-    tools: [view_file, grep_search, run_command, list_dir]
-    auto_approve: ["view_file", "grep_search"]
+description: "The Operational Excellence Authority. Owns project lifecycle, governance gates, and final release certification."
+tier: fast
+capabilities: [read, search, write, shell, delegate]
+skills:
+  - skill-swarm
+  - skill-github
+  - skill-conductor
 ---
 # Supervisor Agent (Operational Excellence Authority)
 

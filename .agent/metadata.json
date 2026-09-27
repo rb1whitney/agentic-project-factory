@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-09-19T19:33:49.226467+00:00",
+  "compiled_at": "2026-09-27T19:59:19.109989+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills"
@@ -8,97 +8,97 @@
     {
       "name": "db-migration-agent",
       "description": "Validates SQL migrations against schema AST rules before PR submission.",
-      "version": "1.0",
+      "version": "2.0",
       "source_file": ".agent/agents/db-migration.yaml"
     },
     {
       "name": "memory-agent",
-      "description": "The Cognitive Memory Specialist. Manages persistent session memory via the local SQLite store (memory.db). Recalls prior decisions, logs insights, and prevents architectural amnesia across all swarm tracks.",
-      "version": "1.0",
+      "description": "The Cognitive Memory Specialist. Manages persistent session memory via",
+      "version": "2.0",
       "source_file": ".agent/agents/memory-agent.yaml"
     },
     {
       "name": "security-reviewer",
-      "description": "Domain Specialist Subagent. Use for: Security Audit, Vulnerability research, Secret exposure, and NIST compliance.",
-      "version": "1.0",
+      "description": "Domain Specialist Subagent. Use for: Security Audit, Vulnerability research,",
+      "version": "2.0",
       "source_file": ".agent/agents/security-reviewer.yaml"
     },
     {
       "name": "specialist-aws",
-      "description": "Domain Specialist Subagent. Use for: AWS Infrastructure, S3, IAM, VPC networking, CloudFormation.",
-      "version": "1.0",
+      "description": "Domain Specialist Subagent. Use for: AWS Infrastructure, S3, IAM, VPC",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-aws.yaml"
     },
     {
       "name": "specialist-gcp",
-      "description": "Domain Specialist Subagent. Use for: GCP Infrastructure, GKE, Cloud Functions, IAM, Cloud Build.",
-      "version": "1.0",
+      "description": "Domain Specialist Subagent. Use for: GCP Infrastructure, GKE, Cloud",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-gcp.yaml"
     },
     {
       "name": "specialist-github",
-      "description": "Domain Specialist Subagent. Use for: GitHub Actions, PR automation, Branch protection, and Repository health.",
-      "version": "1.0",
+      "description": "Domain Specialist Subagent. Use for: GitHub Actions, PR automation,",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-github.yaml"
     },
     {
       "name": "specialist-k8s",
-      "description": "Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s.",
-      "version": "1.0",
+      "description": "Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-k8s.yaml"
     },
     {
       "name": "specialist-opencode",
       "description": "Specialist in opencode platform management and local model orchestration.",
-      "version": "1.0",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-opencode.yaml"
     },
     {
       "name": "specialist-sre",
-      "description": "Site Reliability Engineering specialist. Specializes in observability, SLO management, safe production investigations, anomaly detection, and incident postmortems.",
-      "version": "1.0",
+      "description": "Site Reliability Engineering specialist. Specializes in observability,",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-sre.yaml"
     },
     {
       "name": "specialist-terraform",
-      "description": "Domain Specialist Subagent. Use for: Terraform Modules, Provider development, Packer images, and Ansible.",
-      "version": "1.0",
+      "description": "Domain Specialist Subagent. Use for: Terraform Modules, Provider development,",
+      "version": "2.0",
       "source_file": ".agent/agents/specialist-terraform.yaml"
     },
     {
       "name": "sre-specialist",
-      "description": "Site Reliability Engineering expert. Specializes in safe production investigations, anomaly detection, observability, SLO management, and incident postmortems.",
-      "version": "1.0",
+      "description": "Site Reliability Engineering expert. Specializes in safe production investigations,",
+      "version": "2.0",
       "source_file": ".agent/agents/sre-specialist.yaml"
     },
     {
       "name": "swarm-architect",
       "description": "The Guardian of Stability. Manages the roadmap, prioritizes campaigns, and creates TDD micro-step plans. Owns Phase 1 & 2.",
-      "version": "1.0",
+      "version": "2.0",
       "source_file": ".agent/agents/swarm-architect.yaml"
     },
     {
       "name": "swarm-auditor",
       "description": "The Quality Assurance Gatekeeper and Code Auditor. Verifies that the work meets the Plan and follows repo standards. Owns the Audit phase.",
-      "version": "1.0",
+      "version": "2.0",
       "source_file": ".agent/agents/swarm-auditor.yaml"
     },
     {
       "name": "swarm-engineer",
       "description": "The Expert Builder. Implements changes using TDD and surgical edits. Follows the plan strictly & maintains progress. Owns Phase 3.",
-      "version": "1.0",
+      "version": "2.0",
       "source_file": ".agent/agents/swarm-engineer.yaml"
     },
     {
       "name": "swarm-scout",
       "description": "The Repository Investigator. Specialized in mapping Blast Radius, structural analysis, and deep repo research.",
-      "version": "1.0",
+      "version": "2.0",
       "source_file": ".agent/agents/swarm-scout.yaml"
     },
     {
       "name": "swarm-supervisor",
-      "description": ">",
-      "version": "1.0",
+      "description": "The Operational Excellence Authority. Owns project lifecycle, governance gates, and final release certification.",
+      "version": "2.0",
       "source_file": ".agent/agents/swarm-supervisor.yaml"
     }
   ],

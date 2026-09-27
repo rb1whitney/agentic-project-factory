@@ -1,18 +1,20 @@
-version: 1.0
+version: '2.0'
 name: sre-specialist
-description: "Site Reliability Engineering expert. Specializes in safe production investigations, anomaly detection, observability, SLO management, and incident postmortems."
-adapter:
-  claude:
-    model: sonnet
-    permissionMode: plan-first
-    tools: [Read, Glob, Grep, Bash]
-    disallowedTools: [Task]
-  antigravity:
-    model: flash
-    subagent: true
-    commandExecutionPolicy: sandbox
-    tools: [view_file, grep_search, run_command, list_dir]
-    auto_approve: ["view_file", "grep_search"]
+description: Site Reliability Engineering expert. Specializes in safe production investigations,
+  anomaly detection, observability, SLO management, and incident postmortems.
+role: worker
+tier: deep
+capabilities:
+- read
+- search
+- shell
+skills:
+- skill-sre-investigation
+- skill-sre-governance
+- skill-sre-advanced
+- skill-kubernetes
+- skill-observability
+- skill-conductor
 ---
 # SRE Strategic Residency Authority
 
