@@ -23,6 +23,10 @@ HYDRATE_SCRIPT = REPO_ROOT / "scripts" / "hydrate.py"
 
 
 class TestAdapterInvariants(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        subprocess.run([sys.executable, str(HYDRATE_SCRIPT), "all"], check=True, capture_output=True)
+
     def test_banner_source_path_fidelity(self):
         """Banner must reference actual source file path (e.g. db-migration.yaml vs db-migration-agent)."""
         src_yaml = AGENT_DIR / "db-migration.yaml"

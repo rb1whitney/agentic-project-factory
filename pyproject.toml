@@ -1,3 +1,19 @@
+[project]
+name = "agentic-project-factory"
+version = "2.0.0"
+description = "Centralized multi-agent infrastructure, AST code mapper, and factory tooling"
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml>=6.0",
+    "tree-sitter==0.20.1",
+    "tree-sitter-languages>=1.10.2",
+    "ruff>=0.4.0",
+]
+
+[tool.uv]
+managed = true
+package = false
+
 [tool.ruff]
 # Target version
 target-version = "py311"
