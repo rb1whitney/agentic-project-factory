@@ -62,3 +62,18 @@ harnesses:
       unknown_tool: not_applicable       # No tool list in toml
     enforceable: [write, shell]          # Via sandbox only
     advisory_only: [web, delegate]
+
+providers:
+  native:
+    description: "Direct vendor model routing"
+  openrouter:
+    description: "Unified inference gateway via OpenRouter"
+    base_url: "https://openrouter.ai/api/v1"
+    claude_base_url: "https://openrouter.ai/api"
+    env_key: "OPENROUTER_API_KEY"
+    wire_api: "responses"
+    tiers:
+      fast: "anthropic/claude-3.5-sonnet"
+      deep: "anthropic/claude-3-opus"
+      cost_optimized: "deepseek/deepseek-coder"
+      fallback: "meta-llama/llama-3.3-70b-instruct"

@@ -24,7 +24,7 @@ def load_map():
         sys.exit(1)
     with open(MAP_FILE, "r") as f:
         data = yaml.safe_load(f)
-    return data.get("harnesses", data)
+    return data
 
 def parse_agent_file(path, map_data):
     with open(path, "r") as f:
@@ -105,8 +105,9 @@ def parse_agent_file(path, map_data):
         "body": body,
     }
 
-def hydrate_claude(agents, map_data):
-    claude_cfg = map_data.get("claude", {})
+def hydrate_claude(agents, map_data, provider="native"):
+    harnesses = map_data.get("harnesses", map_data)
+    claude_cfg = harnesses.get("claude", {})
     out_dir = Path(".claude/agents")
     out_dir.mkdir(parents=True, exist_ok=True)
     cap_map = claude_cfg.get("capabilities", {})
@@ -164,8 +165,9 @@ def hydrate_claude(agents, map_data):
         print(f"Hydrated Claude agent: {out_path}")
 
 
-def hydrate_antigravity(agents, map_data):
-    agy_cfg = map_data.get("antigravity", {})
+def hydrate_antigravity(agents, map_data, provider="native"):
+    harnesses = map_data.get("harnesses", map_data)
+    agy_cfg = harnesses.get("antigravity", {})
     out_dir_md = Path(".agents/agents")
     out_dir_json = Path(".agents")
     out_dir_md.mkdir(parents=True, exist_ok=True)
@@ -256,11 +258,16 @@ def hydrate_antigravity(agents, map_data):
 
         print(f"Hydrated Antigravity agent: {json_out_path}")
 
-def hydrate_codex(agents, map_data):
-    codex_cfg = map_data.get("codex", {})
+def hydrate_codex(agents, map_data, provider="native"):
+    harnesses = map_data.get("harnesses", map_data)
+    providers = map_data.get("providers", {})
+    codex_cfg = harnesses.get("codex", {})
     out_dir = Path(".codex/agents")
     out_dir.mkdir(parents=True, exist_ok=True)
     tier_map = codex_cfg.get("tiers", {})
+
+    provider_cfg = providers.get(provider, {})
+    provider_tiers = provider_cfg.get("tiers", {})
 
     # Prune stale output files
     expected_toml = {f"{agent['name']}.toml" for agent in agents}
@@ -271,7 +278,10 @@ def hydrate_codex(agents, map_data):
 
     for agent in agents:
         tier = agent["tier"]
-        model = tier_map.get(tier, "gpt-5-turbo")
+        if provider != "native" and tier in provider_tiers:
+            model = provider_tiers[tier]
+        else:
+            model = tier_map.get(tier, "gpt-5-turbo")
 
         if "write" in agent["capabilities"] or "shell" in agent["capabilities"]:
             sandbox_mode = "workspace-write"
@@ -307,16 +317,31 @@ def hydrate_codex(agents, map_data):
             f.write(f'name = "{name_snake}"\n')
             f.write(f'description = "{agent["description"]}"\n')
             f.write(f'model = "{model}"\n')
+            if provider != "native":
+                f.write(f'model_provider = "{provider}"\n')
             f.write(f'sandbox_mode = "{sandbox_mode}"\n')
             f.write('developer_instructions = """\n')
             f.write(escaped_instructions)
             f.write('\n"""\n')
         print(f"Hydrated Codex agent: {out_path}")
 
+
 def main():
-    target = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if target not in ["claude", "antigravity", "codex", "all"]:
-        print("Usage: python3 scripts/hydrate.py <claude | antigravity | codex | all>", file=sys.stderr)
+    target = "all"
+    provider = "native"
+
+    for arg in sys.argv[1:]:
+        if arg.startswith("--provider="):
+            provider = arg.split("=", 1)[1]
+        elif not arg.startswith("--"):
+            target = arg
+
+    valid_targets = ["claude", "antigravity", "codex", "all"]
+    if target not in valid_targets:
+        print(
+            "Usage: python3 scripts/hydrate.py [claude | antigravity | codex | all] [--provider=native|openrouter]",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     map_data = load_map()
@@ -328,11 +353,11 @@ def main():
     agents = [parse_agent_file(f, map_data) for f in yaml_files]
 
     if target in ["claude", "all"]:
-        hydrate_claude(agents, map_data)
+        hydrate_claude(agents, map_data, provider=provider)
     if target in ["antigravity", "all"]:
-        hydrate_antigravity(agents, map_data)
+        hydrate_antigravity(agents, map_data, provider=provider)
     if target in ["codex", "all"]:
-        hydrate_codex(agents, map_data)
+        hydrate_codex(agents, map_data, provider=provider)
 
 if __name__ == "__main__":
     main()
