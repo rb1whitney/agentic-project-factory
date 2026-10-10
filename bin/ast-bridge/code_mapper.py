@@ -1,10 +1,12 @@
 import argparse
 import hashlib
+import importlib.util
 import json
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
@@ -19,6 +21,9 @@ class CodeMapper:
         self.cache_dir: Path = self.root_dir / cache_dir
         self.cache_file: Path = self.cache_dir / "context_map.json"
         self.os_cache: Dict[str, Any] = {}
+        self.catalogs: Dict[str, str] = {}
+        self.io_workers: int = 32  # latency-bound syscalls; not CPU parallelism
+        self.graph_files: Optional[List[Path]] = None  # set by map_repo; lets the graph builder skip a second walk
         self.parsers: Dict[str, Optional[Parser]] = {
             "python": self._setup_parser("python"),
             "java": self._setup_parser("java"),
@@ -67,6 +72,40 @@ class CodeMapper:
             logger.error(f"Could not read {file_path} for hashing: {e}")
             return ""
 
+    def _walk_files(self, skip_dirs: set) -> List[Path]:
+        """Breadth-first directory walk, one scandir per directory, run concurrently.
+
+        Mirrors os.walk(followlinks=False) with in-place pruning: symlinked directories are neither
+        descended nor listed as files. Listing latency (not CPU) dominates on WSL /mnt/d mounts.
+        """
+
+        def scan(directory: Path) -> Tuple[List[Path], List[Path]]:
+            files: List[Path] = []
+            subdirs: List[Path] = []
+            try:
+                with os.scandir(directory) as it:
+                    for entry in it:
+                        if entry.is_dir():
+                            if entry.is_symlink() or entry.name in skip_dirs or entry.name.startswith("temp_"):
+                                continue
+                            subdirs.append(Path(entry.path))
+                        else:
+                            files.append(Path(entry.path))
+            except OSError as e:
+                logger.debug(f"Skipping unreadable directory {directory}: {e}")
+            return files, subdirs
+
+        found: List[Path] = []
+        frontier: List[Path] = [self.root_dir]
+        with ThreadPoolExecutor(max_workers=self.io_workers) as pool:
+            while frontier:
+                nxt: List[Path] = []
+                for files, subdirs in pool.map(scan, frontier):
+                    found.extend(files)
+                    nxt.extend(subdirs)
+                frontier = nxt
+        return found
+
     def map_repo(self) -> Dict[str, Any]:
         updated_count = 0
         skip_dirs = {
@@ -83,23 +122,53 @@ class CodeMapper:
             "skills",
         }
         valid_exts = {".java", ".tf", ".hcl", ".rs", ".yaml", ".yml", ".py", ".go"}
+        graph_exts = {".java", ".tf", ".hcl"}
+        self.graph_files = []
 
-        for root, dirs, files in os.walk(self.root_dir):
-            # Prune skipped directories in-place to avoid descending into large trees like .venv
-            dirs[:] = [d for d in dirs if d not in skip_dirs and not d.startswith("temp_")]
+        # Phase 1: walk (directory listing only, no per-file syscalls).
+        candidates: List[Path] = []
+        for path in self._walk_files(skip_dirs):
+            ext = path.suffix.lower()
+            if ext in graph_exts:
+                self.graph_files.append(path)
+            if ext in valid_exts:
+                candidates.append(path)
 
-            for file in files:
-                path = Path(root) / file
-                ext = path.suffix.lower()
-                if ext in valid_exts:
-                    rel_path = str(path.relative_to(self.root_dir))
-                    current_hash = self.get_hash(path)
-                    if not current_hash:
-                        continue
+        # Phase 2: stat everything concurrently. Per-file stat latency (about 2 ms on WSL /mnt/d)
+        # dominated warm runs; it is I/O-bound and releases the GIL, so threads scale here.
+        def safe_stat(path: Path) -> Optional[list]:
+            try:
+                st = path.stat()
+            except OSError:
+                return None
+            return [st.st_mtime_ns, st.st_size]
 
-                    if rel_path not in self.os_cache or self.os_cache[rel_path].get("hash") != current_hash:
-                        self._index_file(path, rel_path, current_hash)
-                        updated_count += 1
+        with ThreadPoolExecutor(max_workers=self.io_workers) as pool:
+            stamps = list(pool.map(safe_stat, candidates))
+
+        # Fast path: unchanged (mtime, size) means no read at all.
+        changed: List[Tuple[Path, str, list]] = []
+        for path, stamp in zip(candidates, stamps):
+            if stamp is None:
+                continue
+            rel_path = str(path.relative_to(self.root_dir))
+            cached = self.os_cache.get(rel_path)
+            if not (cached and cached.get("stat") == stamp):
+                changed.append((path, rel_path, stamp))
+
+        # Phase 3: hash only changed files (also concurrent), then index them serially.
+        with ThreadPoolExecutor(max_workers=self.io_workers) as pool:
+            hashes = list(pool.map(self.get_hash, [c[0] for c in changed]))
+
+        for (path, rel_path, stamp), current_hash in zip(changed, hashes):
+            if not current_hash:
+                continue
+            cached = self.os_cache.get(rel_path)
+            if cached is None or cached.get("hash") != current_hash:
+                self._index_file(path, rel_path, current_hash)
+                updated_count += 1
+            if rel_path in self.os_cache:
+                self.os_cache[rel_path]["stat"] = stamp
 
         self._save_cache()
         logger.info(f"Mapping complete. {updated_count} files re-indexed.")
@@ -255,6 +324,17 @@ class CodeMapper:
             "declarations": symbols["declarations"],
         }
 
+    def attach_catalog(self) -> None:
+        """Populate per-file Java catalogs (routes, injections, resolved calls) from the semantic graph."""
+        spec = importlib.util.spec_from_file_location("graph_builder", str(Path(__file__).with_name("graph_builder.py")))
+        if spec is None or spec.loader is None:
+            logger.error("graph_builder.py not found next to code_mapper.py; catalog skipped")
+            return
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        graph = module.GraphBuilder(str(self.root_dir)).build_graph(files=self.graph_files)
+        self.catalogs = module.render_catalog(graph)
+
     def serialize_markdown(self, output_file: str = "code_map.md") -> None:
         try:
             with open(output_file, "w", encoding="utf-8") as f:
@@ -269,6 +349,10 @@ class CodeMapper:
                         f.write(f"- **Public Functions**: {', '.join(data['public_functions'])}\n")
                     if data.get("declarations"):
                         f.write(f"- **Declarations**: {', '.join(data['declarations'])}\n")
+                    if self.catalogs.get(path):
+                        f.write("- **Catalog**:\n")
+                        for line in self.catalogs[path].splitlines():
+                            f.write(f"    {line}\n")
                     f.write("\n")
             logger.info(f"Serialized markdown map to {output_file}")
         except IOError as e:
@@ -286,6 +370,7 @@ def main() -> None:
 
     mapper = CodeMapper(args.dir)
     mapper.map_repo()
+    mapper.attach_catalog()
     mapper.serialize_markdown(os.path.join(args.dir, "code_map.md"))
 
 
