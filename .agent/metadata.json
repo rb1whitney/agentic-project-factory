@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-09-27T20:46:35.999516+00:00",
+  "compiled_at": "2026-10-10T17:19:09.892370+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills"
@@ -170,6 +170,12 @@
       "references_count": 0
     },
     {
+      "name": "skill-code-map",
+      "description": "Deterministic multi-language AST structural extractor, code mapper, and ast-grep rules engine across Java, Kubernetes, Crossplane, Terraform, and Vault.",
+      "path": ".agent/skills/skill-code-map",
+      "references_count": 0
+    },
+    {
       "name": "skill-codebase-recon",
       "description": "Git forensics analyst for identifying hotspots, logic churn, and knowledge gaps via commit history.",
       "path": ".agent/skills/skill-codebase-recon",
@@ -189,7 +195,7 @@
     },
     {
       "name": "skill-context-master",
-      "description": "High-precision repository architect for AST-based code mapping and sub-100k token context lensing.",
+      "description": "High-precision repository architect for AST-based code mapping, ast-grep structural extraction, and sub-100k token context lensing.",
       "path": ".agent/skills/skill-context-master",
       "references_count": 0
     },
@@ -281,6 +287,12 @@
       "name": "skill-graph-memory",
       "description": "Knowledge Graph engineer for extracting relational triples (entities/predicates) from session interactions.",
       "path": ".agent/skills/skill-graph-memory",
+      "references_count": 0
+    },
+    {
+      "name": "skill-graphify",
+      "description": "Lifecycle manager, knowledge graph generator, and topological dependency visualizer using Graphify (Graphify-Labs/graphify). Supports local AST extraction, LLM semantic inference, interactive D3/Mermaid callflows, and global multi-repo graph linking.",
+      "path": ".agent/skills/skill-graphify",
       "references_count": 0
     },
     {

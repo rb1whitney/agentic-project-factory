@@ -1,0 +1,14 @@
+rules:
+  - id: spring-field-injection
+    message: "Field injection with @Autowired is an anti-pattern. Use constructor injection."
+    severity: WARNING
+    languages: [java]
+    pattern: |
+      @Autowired
+      $TYPE $FIELD;
+
+  - id: id-wrapper-inequality-comparison
+    message: "Comparing wrapper objects or mixed primitives with '!=' can cause identity comparison bugs."
+    severity: ERROR
+    languages: [java]
+    pattern: if ($ID != $DATA.getId()) $STMT;
