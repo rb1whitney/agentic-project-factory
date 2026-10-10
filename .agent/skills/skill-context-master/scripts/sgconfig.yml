@@ -1,6 +1,0 @@
-ruleDirs:
-  - rules/java
-  - rules/kubernetes
-  - rules/crossplane
-  - rules/terraform
-  - rules/vault

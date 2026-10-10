@@ -326,7 +326,8 @@ class CodeMapper:
 
     def attach_catalog(self) -> None:
         """Populate per-file Java catalogs (routes, injections, resolved calls) from the semantic graph."""
-        spec = importlib.util.spec_from_file_location("graph_builder", str(Path(__file__).with_name("graph_builder.py")))
+        builder_path = Path(__file__).with_name("graph_builder.py")
+        spec = importlib.util.spec_from_file_location("graph_builder", str(builder_path))
         if spec is None or spec.loader is None:
             logger.error("graph_builder.py not found next to code_mapper.py; catalog skipped")
             return
