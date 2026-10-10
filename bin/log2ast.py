@@ -7,11 +7,12 @@ Uses ast-grep and ripgrep to find the emission site, enclosing method, and trans
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-AST_GREP_BIN = "/root/.local/bin/ast-grep"
+AST_GREP_BIN = shutil.which("ast-grep") or "/root/.local/bin/ast-grep"
 
 def extract_log_patterns(log_line: str) -> list[str]:
     """

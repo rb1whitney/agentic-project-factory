@@ -237,3 +237,5 @@ logs/
 projects/*
 bin/kubectl
 projects/vault_controller_example
+# Generated live-cluster state (bin/pull_cluster_crd_state.py); environment-specific
+.agent/cluster_crd_state.json
