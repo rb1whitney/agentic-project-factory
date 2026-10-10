@@ -234,8 +234,11 @@ logs/
 # =============================================================================
 # 7. MISCELLANEOUS / PROJECT STRUCTURE
 # =============================================================================
-projects/*
+# projects/ is never tracked in this repo (each project is standalone)
+projects/
 bin/kubectl
-projects/vault_controller_example
 # Generated live-cluster state (bin/pull_cluster_crd_state.py); environment-specific
 .agent/cluster_crd_state.json
+
+# Generated Codex harness projections (scripts/hydrate.py codex); provider-specific
+.codex/agents/*.toml
