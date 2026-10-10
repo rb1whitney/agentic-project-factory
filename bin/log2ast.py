@@ -4,11 +4,11 @@ log2ast.py - Correlate runtime log lines and stack traces to AST code context.
 Uses ast-grep and ripgrep to find the emission site, enclosing method, and transaction/security context.
 """
 
-import sys
+import argparse
+import json
 import re
 import subprocess
-import json
-import argparse
+import sys
 from pathlib import Path
 
 AST_GREP_BIN = "/root/.local/bin/ast-grep"
@@ -44,7 +44,6 @@ def query_ast_grep_logs(search_root: str, message_query: str):
     """
     Runs ast-grep to locate logger calls matching message fragments.
     """
-    pattern = f'log.$METHOD($$$PRE, "{message_query}$$REST", $$$POST)'
     cmd = [
         AST_GREP_BIN,
         "run",
@@ -64,21 +63,13 @@ def query_ast_grep_logs(search_root: str, message_query: str):
             if message_query.lower() in text.lower():
                 matches.append(item)
         return matches
-    except Exception as e:
+    except Exception:
         return []
 
 def get_ast_context(file_path: str, line_no: int):
     """
     Extracts the enclosing method, class, and annotations around a line using ast-grep.
     """
-    cmd = [
-        AST_GREP_BIN,
-        "run",
-        "-l", "java",
-        "--json",
-        "-p", 'class $CLASS { $$$BODY }',
-        file_path
-    ]
     # Simple line window for rapid diagnosis
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -118,7 +109,10 @@ def main():
 
     for cand in candidates:
         if cand["type"] == "stacktrace":
-            print(f"[+] Detected Stack Trace Frame: {cand['class']}.{cand['method']}() at {cand['file']}:{cand['line']}")
+            print(
+                f"[+] Detected Stack Trace Frame: {cand['class']}.{cand['method']}() "
+                f"at {cand['file']}:{cand['line']}"
+            )
             found_files = list(Path(target_src).rglob(cand['file']))
             if found_files:
                 target_file = str(found_files[0])
