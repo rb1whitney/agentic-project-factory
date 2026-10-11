@@ -317,8 +317,6 @@ class CodeMapper:
 
         self.os_cache[rel_path] = {
             "hash": file_hash,
-            "summary": "AI Summary Pending...",  # Placeholder for Agentic Synthesis
-            "when_to_use": "Use Case Pending...",  # Placeholder for Agentic Synthesis
             "public_types": symbols["types"],
             "public_functions": symbols["functions"],
             "declarations": symbols["declarations"],
@@ -342,8 +340,6 @@ class CodeMapper:
                 f.write("# Repository Code Map\n\n")
                 for path, data in self.os_cache.items():
                     f.write(f"### {path}\n")
-                    f.write(f"- **Summary**: {data['summary']}\n")
-                    f.write(f"- **When to Use**: {data['when_to_use']}\n")
                     if data.get("public_types"):
                         f.write(f"- **Public Types**: {', '.join(data['public_types'])}\n")
                     if data.get("public_functions"):

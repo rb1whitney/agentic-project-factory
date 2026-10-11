@@ -71,7 +71,7 @@ Target: **60-98% token reduction**. All five frameworks MANDATORY. No exceptions
 
 ### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
 *   **BANNED**: Loading entire directories without AST gating.
-*   **REQUIRED**: Run `bin/ast-bridge/auto_context.py "<task>" code_map.md` before any multi-file refactor.
+*   **REQUIRED**: Run `bin/ast-bridge/auto_context.py "<task>" --src <dir>` before any multi-file refactor.
 *   **REQUIRED**: Restrict context window strictly to calculated blast radius.
 
 ### 4. Telegraphic Output Compression (Caveman-Prose Ultra)
@@ -211,7 +211,8 @@ skill-github/references/      PR creation, Issue triage, Review guides
 ### AST Tools
 ```
 python3 bin/ast-bridge/code_mapper.py .             Rebuild code_map.md (incremental, skips temp_/skills/)
-python3 bin/ast-bridge/auto_context.py "<task>" code_map.md  Lens to 5-10 relevant files
+python3 bin/ast-bridge/auto_context.py "<task>" --src <dir>   Rank relevant files (seeds, dependents, dependencies)
+python3 bin/ast-bridge/search_map.py <term> code_map.md        Show only the code_map.md blocks mentioning <term>
 python3 bin/ast-bridge/semantic_query.py find-usages <symbol>  Cross-file impact analysis
 ast-grep run -l <lang> -p '<pattern>' <path>                    Structural search (live parse; annotations, call sites, args). Not "sg": /usr/bin/sg is shadow-utils
 ```
