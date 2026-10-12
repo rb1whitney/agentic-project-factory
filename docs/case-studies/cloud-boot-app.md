@@ -16,7 +16,7 @@ We implemented a four-pillar structure that decouples cognitive logic from opera
 ##  The Swarm in Action
 
 ### Phase 1: Strategic Discovery
-The **Swarm Architect** utilized the [**`ast-bridge`**](file://../../bin/ast-bridge/) to build a semantic map of the existing tools. This identified the "Symlink Soup" as the primary technical debt.
+The **Swarm Architect** utilized the [**`ast-bridge`**](file://../../.agent/skills/skill-code-map/scripts/) to build a semantic map of the existing tools. This identified the "Symlink Soup" as the primary technical debt.
 
 ### Phase 2: Hardening & Zero-Trust
 The **Auditor** enforced a radical decoupling of credentials.

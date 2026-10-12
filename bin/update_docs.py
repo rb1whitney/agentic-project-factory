@@ -6,7 +6,7 @@ def main():
     print("Updating documentation...")
     # Rebuild code map
     try:
-        subprocess.run(["python3", "tools/ast-bridge/code_mapper.py", "."], check=True)
+        subprocess.run(["python3", ".agent/skills/skill-code-map/scripts/code_mapper.py", "."], check=True)
         print("Symbol map updated.")
     except Exception as e:
         print(f"Failed to update symbol map: {e}")

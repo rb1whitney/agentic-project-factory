@@ -71,7 +71,7 @@ Target: **60-98% token reduction**. All five frameworks MANDATORY. No exceptions
 
 ### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
 *   **BANNED**: Loading entire directories without AST gating.
-*   **REQUIRED**: Run `bin/ast-bridge/auto_context.py "<task>" --src <dir>` before any multi-file refactor.
+*   **REQUIRED**: Run `.agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir>` before any multi-file refactor.
 *   **REQUIRED**: Restrict context window strictly to calculated blast radius.
 
 ### 4. Telegraphic Output Compression (Caveman-Prose Ultra)
@@ -155,7 +155,7 @@ Programming-Work/
     settings.json Unified backend/MCP configuration
  conductor/       Project lifecycle: product.md, tech-stack.md, workflow.md
  tools/
-    (see bin/ast-bridge/)  code_mapper.py, auto_context.py
+    (see .agent/skills/skill-code-map/scripts/)  code_mapper.py, auto_context.py
  bin/
     nexus.py      Swarm Nexus synchronization engine.
     audit_stubs.sh Quality gate verification script.
@@ -210,10 +210,10 @@ skill-github/references/      PR creation, Issue triage, Review guides
 
 ### AST Tools
 ```
-python3 bin/ast-bridge/code_mapper.py .             Rebuild code_map.md (incremental, skips temp_/skills/)
-python3 bin/ast-bridge/auto_context.py "<task>" --src <dir>   Rank relevant files (seeds, dependents, dependencies)
-python3 bin/ast-bridge/search_map.py <term> code_map.md        Show only the code_map.md blocks mentioning <term>
-python3 bin/ast-bridge/semantic_query.py find-usages <symbol>  Cross-file impact analysis
+python3 .agent/skills/skill-code-map/scripts/code_mapper.py .             Rebuild code_map.md (incremental, skips temp_/skills/)
+python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir>   Rank relevant files (seeds, dependents, dependencies)
+python3 .agent/skills/skill-code-map/scripts/search_map.py <term> code_map.md        Show only the code_map.md blocks mentioning <term>
+python3 .agent/skills/skill-code-map/scripts/semantic_query.py find-usages <symbol>  Cross-file impact analysis
 ast-grep run -l <lang> -p '<pattern>' <path>                    Structural search (live parse; annotations, call sites, args). Not "sg": /usr/bin/sg is shadow-utils
 ```
 

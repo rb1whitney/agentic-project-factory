@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Scenario Test: Java Semantic Graph (class-keyed, typed edges, resolved calls)
-Validates bin/ast-bridge/graph_builder.py and semantic_query.py against a small
+Validates skill-code-map/scripts/graph_builder.py and semantic_query.py against a small
 Spring-style fixture modelled on projects/cloud-boot-app.
 
 Contract under test:
@@ -17,7 +17,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-BRIDGE = REPO_ROOT / "bin" / "ast-bridge"
+BRIDGE = REPO_ROOT / ".agent" / "skills" / "skill-code-map" / "scripts"
 
 
 def _load(name: str):
@@ -648,17 +648,6 @@ class TestSemanticEdit(unittest.TestCase):
     def test_unsupported_extension(self):
         p = self.write("a.txt", "x")
         self.assertFalse(self.edit.semantic_replace(p, "method", "x", "y"))
-
-
-class TestSkillCopiesStayInSync(unittest.TestCase):
-    """bin/ast-bridge is canonical; skill-code-map ships byte-identical copies."""
-
-    def test_copies_identical(self):
-        skill = REPO_ROOT / ".agent" / "skills" / "skill-code-map" / "scripts"
-        for name in ("auto_context", "search_map", "semantic_query", "semantic_edit", "graph_builder", "code_mapper"):
-            self.assertEqual(
-                (BRIDGE / f"{name}.py").read_bytes(), (skill / f"{name}.py").read_bytes(), name
-            )
 
 
 if __name__ == "__main__":
