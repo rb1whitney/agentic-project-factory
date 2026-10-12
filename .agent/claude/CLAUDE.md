@@ -5,7 +5,7 @@ Unified AI Agent and Skills hub following the Unified Agentic Standard (UAS).
 
 ## Essential Commands
 - **Sync Skills**: `python3 bin/nexus.py sync`
-- **Rebuild Map**: `python3 tools/ast-bridge/code_mapper.py .`
+- **Rebuild Map**: `python3 .agent/skills/skill-code-map/scripts/code_mapper.py .`
 - **Safety Audit**: `bash .agent/hooks/audit_stubs.sh`
 - **Scaffold Project**: `bash bin/setup.sh`
 

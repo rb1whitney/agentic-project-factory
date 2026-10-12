@@ -25,6 +25,17 @@ class SemanticQuery:
             logger.error(f"Failed to load graph: {e}")
             sys.exit(1)
 
+    @classmethod
+    def from_dict(cls, graph: Dict[str, Any]) -> "SemanticQuery":
+        """Wrap an in-memory graph (as returned by GraphBuilder.build_graph) without a file round trip."""
+        self = cls.__new__(cls)
+        self.graph = graph
+        return self
+
+    def owner(self, node_id: str) -> str:
+        """Public form of _owner: collapse 'Class.method' to 'Class'."""
+        return self._owner(node_id)
+
     def _matches(self, name: str) -> List[str]:
         """Exact node id, else every 'Class.<name>' method (bare method names are ambiguous)."""
         nodes = self.graph.get("nodes", {})

@@ -400,7 +400,7 @@ ok "Swarm Nexus synchronized across all platforms (Antigravity, Claude, Copilot)
 # AST code map
 log "   Building initial AST code map"
 if command_exists python3; then
-  run python3 "$REPO_ROOT/bin/ast-bridge/code_mapper.py" "$REPO_ROOT"
+  run python3 "$REPO_ROOT/.agent/skills/skill-code-map/scripts/code_mapper.py" "$REPO_ROOT"
   ok "code_map.md generated"
 fi
 

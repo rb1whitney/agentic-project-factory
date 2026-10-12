@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Scenario Test: Multi-Language AST Symbol & Semantic Graph Extraction
-Validates that bin/ast-bridge/code_mapper.py accurately extracts symbols and declarations
+Validates that .agent/skills/skill-code-map/scripts/code_mapper.py accurately extracts symbols and declarations
 across Python, Java, Golang, Terraform (HCL), Kubernetes manifests, and Ansible playbooks.
 """
 
@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-CODE_MAPPER_PATH = REPO_ROOT / "bin" / "ast-bridge" / "code_mapper.py"
+CODE_MAPPER_PATH = REPO_ROOT / ".agent" / "skills" / "skill-code-map" / "scripts" / "code_mapper.py"
 
 spec = importlib.util.spec_from_file_location("code_mapper", str(CODE_MAPPER_PATH))
 code_mapper_module = importlib.util.module_from_spec(spec)

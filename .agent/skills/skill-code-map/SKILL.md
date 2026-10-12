@@ -37,7 +37,7 @@ All scripts, configs, and rule definitions are self-contained within this skill:
     ├── local_extract.py       # Core normalization & token-pruning engine
     ├── code_mapper.py         # Full repo AST symbol & structural mapper
     ├── graph_builder.py       # Inter-file call & import dependency graph
-    ├── auto_context.py        # Task-driven context lensing (<100k tokens)
+    ├── auto_context.py        # Ranks task-relevant files from the semantic graph
     ├── semantic_query.py      # Targeted usage / symbol cross-file queries
     ├── sgconfig.yml           # Self-contained ast-grep engine config
     └── rules/                 # Structural AST rule definitions
@@ -144,8 +144,15 @@ python3 .agent/skills/skill-code-map/scripts/code_mapper.py .
 # 2. Extract AST dependency graph
 python3 .agent/skills/skill-code-map/scripts/graph_builder.py
 
-# 3. Lens into 5-10 relevant files for a specific prompt/task
-python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task_objective>" code_map.md
+# 3. Rank the files relevant to a task (seeds, dependents, dependencies; deterministic, no LLM)
+python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task_objective>" --src <dir>
+#    or reuse the graph from step 2:  --graph relationship_graph.json [--top 5] [--json]
+
+# 4. Show only the code_map.md blocks that mention a symbol
+python3 .agent/skills/skill-code-map/scripts/search_map.py <symbol> code_map.md
+
+# 5. Replace one declaration by AST node (refuses ambiguous/missing names and unparseable results)
+python3 .agent/skills/skill-code-map/scripts/semantic_edit.py <file> method DataService.getData '<full replacement incl. annotations>' --dry-run
 ```
 
 ---

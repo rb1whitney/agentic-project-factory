@@ -42,12 +42,15 @@ python3 .agent/skills/skill-code-map/scripts/code_mapper.py .
 - **Synthesis**: Combines AST skeletons with symbol dependencies.
 
 ### 3. Auto-Context Lensing (Stage 2: Lens)
-Given a task, run `auto_context.py` to identify the most relevant 5-10 files:
+Given a task, run `auto_context.py` to rank the files that matter. It matches symbols named in the task
+to the semantic graph, then adds dependents (break if the seed changes) and dependencies (the seed relies on):
 ```bash
-python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task_description>" code_map.md
+python3 .agent/skills/skill-code-map/scripts/auto_context.py "add a field to DataDTO" --src projects/cloud-boot-app/src
+python3 .agent/skills/skill-code-map/scripts/auto_context.py "fix DataService.createData" --graph relationship_graph.json --top 5 --json
 ```
-- **Precision**: Drastically narrows the repository from 1M+ tokens to <100k tokens of high-signal context.
-- **Efficiency**: Reduces noise and hallucinations by ignoring irrelevant files.
+- **Deterministic**: No LLM call. Name classes, `Class.method`, or `@Annotation` in the task; prose words alone do not anchor.
+- **Exit codes**: `0` ranked files, `1` bad path, `2` no symbol matched the task.
+- **Honest limit**: Matching is lexical over graph symbols; a task that names nothing concrete returns no files rather than a guess.
 
 ## Adding New AST Rules
 To add new structural extractors:

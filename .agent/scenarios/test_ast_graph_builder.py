@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Scenario Test: Java Semantic Graph (class-keyed, typed edges, resolved calls)
-Validates bin/ast-bridge/graph_builder.py and semantic_query.py against a small
+Validates skill-code-map/scripts/graph_builder.py and semantic_query.py against a small
 Spring-style fixture modelled on projects/cloud-boot-app.
 
 Contract under test:
@@ -17,7 +17,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-BRIDGE = REPO_ROOT / "bin" / "ast-bridge"
+BRIDGE = REPO_ROOT / ".agent" / "skills" / "skill-code-map" / "scripts"
 
 
 def _load(name: str):
@@ -435,6 +435,10 @@ class TestCodeMapCatalog(unittest.TestCase):
     def tearDownClass(cls):
         cls._tmp.cleanup()
 
+    def test_no_placeholder_fields(self):
+        self.assertNotIn("Pending", self.text)
+        self.assertNotIn("**Summary**", self.text)
+
     def test_catalog_lists_class_annotations_and_injections(self):
         self.assertIn("DataController @RestController", self.text)
         self.assertIn("injects: DataService", self.text)
@@ -452,6 +456,198 @@ class TestCodeMapCatalog(unittest.TestCase):
         for rel, src in FIXTURE.items():
             catalog = self.catalogs.get(f"src/{rel}", "")
             self.assertLess(len(catalog), len(src), rel)
+
+
+class TestAutoContext(unittest.TestCase):
+    """auto_context must rank files from the graph, not wrap the whole map in a prompt."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._tmp = tempfile.TemporaryDirectory()
+        cls.root = Path(cls._tmp.name)
+        for rel, src in FIXTURE.items():
+            path = cls.root / "src" / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(src, encoding="utf-8")
+        graph = graph_builder.GraphBuilder(str(cls.root / "src")).build_graph()
+        cls.lens = _load("auto_context").ContextLens(graph)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._tmp.cleanup()
+
+    def files(self, task, top=10):
+        return [r["file"] for r in self.lens.rank(task, top)]
+
+    def test_named_class_is_first_and_dependents_follow(self):
+        files = self.files("add a field to DataDTO")
+        self.assertEqual(files[0], "dto/DataDTO.java")
+        self.assertIn("service/DataService.java", files)
+        self.assertIn("controller/DataController.java", files)
+
+    def test_unrelated_files_are_excluded(self):
+        self.assertNotIn("exception/ResourceNotFoundException.java", self.files("add a field to DataDTO"))
+
+    def test_qualified_method_anchors_on_owning_class(self):
+        files = self.files("fix DataService.createData")
+        self.assertEqual(files[0], "service/DataService.java")
+        self.assertIn("repository/DataRepository.java", files)  # dependency of the seed
+
+    def test_plain_lowercase_word_is_not_a_symbol(self):
+        # "getData" is camelCase and anchors; the prose word "validate" must not hit RangeValidator.validate.
+        self.assertEqual(self.files("please validate things"), [])
+
+    def test_annotation_query(self):
+        self.assertEqual(self.files("review @Entity classes")[0], "domain/Data.java")
+
+    def test_top_limits_results(self):
+        self.assertLessEqual(len(self.files("DataService", top=2)), 2)
+
+    def test_no_match_returns_empty(self):
+        self.assertEqual(self.files("rotate the moon"), [])
+
+    def test_reasons_are_reported(self):
+        first = self.lens.rank("add a field to DataDTO")[0]
+        self.assertEqual(first["roles"], ["seed"])
+        self.assertTrue(first["reasons"])
+
+
+class TestAutoContextCli(unittest.TestCase):
+    def run_cli(self, *args):
+        import subprocess
+        import sys
+
+        return subprocess.run(
+            [sys.executable, str(BRIDGE / "auto_context.py"), *args], capture_output=True, text=True
+        )
+
+    def test_src_mode_and_exit_codes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for rel, src in FIXTURE.items():
+                path = Path(tmp) / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(src, encoding="utf-8")
+            ok = self.run_cli("change DataDTO", "--src", tmp, "--json")
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+            import json
+
+            self.assertEqual(json.loads(ok.stdout)[0]["file"], "dto/DataDTO.java")
+            miss = self.run_cli("rotate the moon", "--src", tmp)
+            self.assertEqual(miss.returncode, 2)
+
+    def test_missing_graph_path_fails(self):
+        self.assertEqual(self.run_cli("x", "--graph", "/nonexistent/graph.json").returncode, 1)
+
+
+class TestSearchMap(unittest.TestCase):
+    def search(self, text, query):
+        import contextlib
+        import io
+
+        search_map = _load("search_map")
+        with tempfile.TemporaryDirectory() as tmp:
+            mp = Path(tmp) / "map.md"
+            mp.write_text(text, encoding="utf-8")
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                count = search_map.search_map(query, str(mp))
+        return count, buf.getvalue()
+
+    def test_code_mapper_format_returns_only_matching_blocks(self):
+        text = "# Repository Code Map\n\n### a/A.java\n- Types: Alpha\n\n### b/B.java\n- Types: Beta\n"
+        count, out = self.search(text, "beta")
+        self.assertEqual(count, 1)
+        self.assertIn("b/B.java", out)
+        self.assertNotIn("a/A.java", out)
+        self.assertNotIn("Repository Code Map", out)
+
+    def test_file_format_is_still_supported(self):
+        count, out = self.search("FILE: x.py\ndef run(): pass\n----\nFILE: y.py\nclass Y: pass\n", "run")
+        self.assertEqual(count, 1)
+        self.assertIn("x.py", out)
+
+    def test_no_match(self):
+        self.assertEqual(self.search("### a.java\nx\n", "zzz")[0], 0)
+
+    def test_truncates_at_ten(self):
+        text = "".join(f"### f{i}.java\nmatch\n" for i in range(15))
+        count, out = self.search(text, "match")
+        self.assertEqual(count, 10)
+        self.assertIn("Truncated", out)
+
+
+class TestSemanticEdit(unittest.TestCase):
+    """semantic_edit replaces one AST declaration and never anything else."""
+
+    JAVA = (
+        "public class A {\n  void keep() {}\n  void target() { int x = 1; }\n  void dup() {}\n}\n"
+        "class B { void dup() {} }\n"
+    )
+
+    def setUp(self):
+        self.edit = _load("semantic_edit")
+        self._tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def write(self, name, text):
+        p = self.dir / name
+        p.write_text(text, encoding="utf-8")
+        return str(p)
+
+    def test_replaces_only_the_named_method(self):
+        p = self.write("A.java", self.JAVA)
+        self.assertTrue(self.edit.semantic_replace(p, "method", "A.target", "void target() { int x = 2; }"))
+        self.assertEqual(Path(p).read_text(), self.JAVA.replace("int x = 1", "int x = 2"))
+
+    def test_ambiguous_bare_name_is_refused_and_file_untouched(self):
+        p = self.write("A.java", self.JAVA)
+        self.assertFalse(self.edit.semantic_replace(p, "method", "dup", "void dup() {}"))
+        self.assertEqual(Path(p).read_text(), self.JAVA)
+
+    def test_missing_symbol_is_refused(self):
+        p = self.write("A.java", self.JAVA)
+        self.assertFalse(self.edit.semantic_replace(p, "method", "A.nope", "void nope() {}"))
+        self.assertEqual(Path(p).read_text(), self.JAVA)
+
+    def test_text_in_other_nodes_does_not_match(self):
+        # "int x" appears inside a method body; it must not be treated as a symbol.
+        p = self.write("A.java", self.JAVA)
+        self.assertFalse(self.edit.semantic_replace(p, "method", "x", "void x() {}"))
+
+    def test_unparseable_replacement_is_refused(self):
+        p = self.write("A.java", self.JAVA)
+        self.assertFalse(self.edit.semantic_replace(p, "method", "A.target", "void target( {"))
+        self.assertEqual(Path(p).read_text(), self.JAVA)
+
+    def test_dry_run_does_not_write(self):
+        import contextlib
+        import io
+
+        p = self.write("A.java", self.JAVA)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.assertTrue(self.edit.semantic_replace(p, "method", "A.target", "void target() {}", dry_run=True))
+        self.assertIn("+  void target() {}", buf.getvalue())
+        self.assertEqual(Path(p).read_text(), self.JAVA)
+
+    def test_terraform_resource_by_type_and_name(self):
+        tf = 'resource "aws_vpc" "main" {\n  cidr_block = "10.0.0.0/16"\n}\n\nvariable "env" {}\n'
+        p = self.write("m.tf", tf)
+        new = 'resource "aws_vpc" "main" {\n  cidr_block = "10.1.0.0/16"\n}'
+        self.assertTrue(self.edit.semantic_replace(p, "resource", "aws_vpc.main", new))
+        self.assertEqual(Path(p).read_text(), tf.replace("10.0.0.0", "10.1.0.0"))
+
+    def test_yaml_dotted_key(self):
+        p = self.write("d.yaml", "spec:\n  replicas: 2\n  name: x\n")
+        self.assertTrue(self.edit.semantic_replace(p, "key", "spec.replicas", "replicas: 5"))
+        self.assertEqual(Path(p).read_text(), "spec:\n  replicas: 5\n  name: x\n")
+
+    def test_unsupported_extension(self):
+        p = self.write("a.txt", "x")
+        self.assertFalse(self.edit.semantic_replace(p, "method", "x", "y"))
 
 
 if __name__ == "__main__":

@@ -56,7 +56,7 @@ Hooks are deterministic JSON-defined event triggers. They fire at exact lifecycl
 sequenceDiagram
     participant IDE as IDE or CLI
     participant HOOK as Hook Engine
-    participant AST as bin/ast-bridge/code_mapper.py
+    participant AST as .agent/skills/skill-code-map/scripts/code_mapper.py
     participant MEM as bin/memory_agent.py
     participant DOCS as bin/update_docs.py
 
@@ -84,7 +84,7 @@ sequenceDiagram
 {
   "event": "sessionStart",
   "actions": [
-    { "execute": "python3 bin/ast-bridge/code_mapper.py ." },
+    { "execute": "python3 .agent/skills/skill-code-map/scripts/code_mapper.py ." },
     { "execute": "python3 bin/memory_agent.py start default_session" },
     { "message": "ACS Hub Loaded. Symbol Map Refreshed." }
   ]
@@ -148,7 +148,7 @@ graph TD
     SK_SWARM["skill-swarm"]
     SK_RECON["skill-codebase-recon"]
     SK_CTX["skill-context-master"]
-    SK_AST["bin/ast-bridge AST Engine"]
+    SK_AST["skill-code-map AST Engine"]
 
     MEM_A --> SK_MEM
     MEM_A --> SK_COND
