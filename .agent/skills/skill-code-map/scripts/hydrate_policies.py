@@ -154,12 +154,16 @@ def transpile_semgrep_rule(raw_rule: Dict[str, Any]) -> Optional[Dict[str, Any]]
         return None
 
     ast_rule: Optional[Dict[str, Any]] = None
-    if "pattern" in raw_rule and isinstance(raw_rule["pattern"], str):
-        p = _convert_semgrep_pattern_str(raw_rule["pattern"])
-        if p:
-            ast_rule = {"pattern": p}
-    elif "pattern-either" in raw_rule and isinstance(raw_rule["pattern-either"], list):
-        ast_rule = _convert_semgrep_clause({"pattern-either": raw_rule["pattern-either"]})
+    top_clause_keys = ("pattern", "pattern-either", "pattern-not", "pattern-inside", "pattern-not-inside")
+    present_top_keys = [k for k in top_clause_keys if k in raw_rule]
+    if present_top_keys:
+        top_clauses = []
+        for k in present_top_keys:
+            conv = _convert_semgrep_clause({k: raw_rule[k]})
+            if not conv:
+                return None
+            top_clauses.append(conv)
+        ast_rule = top_clauses[0] if len(top_clauses) == 1 else {"all": top_clauses}
     elif "patterns" in raw_rule and isinstance(raw_rule["patterns"], list):
         all_clauses = []
         for cl in raw_rule["patterns"]:
@@ -181,11 +185,8 @@ def transpile_semgrep_rule(raw_rule: Dict[str, Any]) -> Optional[Dict[str, Any]]
     raw_sev = str(raw_rule.get("severity", "WARNING")).upper()
     severity = SEVERITY_MAP.get(raw_sev, "MEDIUM")
     msg = " ".join(str(raw_rule.get("message", rid)).split())
-    fix = str(
-        raw_rule.get("fix") or meta.get("references", ["Follow language security & reliability best practices."])[0]
-        if isinstance(meta.get("references"), list) and meta.get("references")
-        else "Refactor pattern to comply with Well-Architected policy."
-    )
+    ref_fix = meta["references"][0] if isinstance(meta.get("references"), list) and meta["references"] else None
+    fix = str(raw_rule.get("fix") or ref_fix or "Refactor pattern to comply with Well-Architected policy.")
 
     clean_id = re.sub(r"[^a-zA-Z0-9_-]", "-", f"sg-{target_lang}-{rid}").lower()
     return {
@@ -2050,10 +2051,10 @@ def verify_well_hydrated(policies_dir: str = str(DEFAULT_POLICIES_DIR), min_per_
         (bad_dir / "Bad.java").write_text(
             "public class Bad {\n"
             "    void f( java.util.List<String> items ) throws Exception {\n"
-            "        Runtime.getRuntime().exec(\"ls\");\n"
+            '        Runtime.getRuntime().exec("ls");\n'
             "        new RestTemplate();\n"
             "        Thread.sleep(100);\n"
-            "        System.err.println(\"err\");\n"
+            '        System.err.println("err");\n'
             "        System.gc();\n"
             "    }\n"
             "}\n",
@@ -2063,8 +2064,8 @@ def verify_well_hydrated(policies_dir: str = str(DEFAULT_POLICIES_DIR), min_per_
             "package main\n"
             "func f() {\n"
             "    _ = md5.New()\n"
-            "    panic(\"boom\")\n"
-            "    for i := 0; i < 3; i++ { _ = regexp.Compile(\"a+\") }\n"
+            '    panic("boom")\n'
+            '    for i := 0; i < 3; i++ { _ = regexp.Compile("a+") }\n'
             "    _ = context.TODO()\n"
             "    _, _ = io.ReadAll(r)\n"
             "}\n",
@@ -2089,18 +2090,9 @@ def verify_well_hydrated(policies_dir: str = str(DEFAULT_POLICIES_DIR), min_per_
 
     fired_pillars = sorted({f["pillar"] for f in pos_findings})
     fired_exts = sorted({Path(f["path"]).suffix for f in pos_findings})
-    canary_passed = (
-        len(fired_pillars) == 6
-        and set(fired_exts) == {".py", ".java", ".go"}
-        and len(neg_findings) == 0
-    )
+    canary_passed = len(fired_pillars) == 6 and set(fired_exts) == {".py", ".java", ".go"} and len(neg_findings) == 0
 
-    certified = (
-        not missing_quotas
-        and not missing_cells
-        and len(quarantined) == 0
-        and canary_passed
-    )
+    certified = not missing_quotas and not missing_cells and len(quarantined) == 0 and canary_passed
     return {
         "status": "CERTIFIED_WELL_HYDRATED" if certified else "FAILED",
         "certified": certified,
@@ -2156,4 +2148,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

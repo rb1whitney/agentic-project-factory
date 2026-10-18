@@ -303,9 +303,18 @@ class RuleTests(unittest.TestCase):
                 "    languages: [python]\n"
                 "    severity: ERROR\n"
                 "    message: Avoid pickle.loads on untrusted data\n"
+                "    fix: json.loads(data)\n"
                 "    metadata:\n"
                 "      category: security\n"
                 "    pattern: pickle.loads(...)\n"
+                '    pattern-inside: "def $F(...): ..."\n'
+                "  - id: simple-md5\n"
+                "    languages: [python]\n"
+                "    severity: WARNING\n"
+                "    message: Avoid md5\n"
+                "    fix: hashlib.sha256()\n"
+                "    pattern: hashlib.md5(...)\n"
+                "    pattern-not: hashlib.md5(usedforsecurity=False)\n"
                 "  - id: unsupported-taint-rule\n"
                 "    mode: taint\n"
                 "    languages: [python]\n"
@@ -313,10 +322,13 @@ class RuleTests(unittest.TestCase):
                 "    message: Taint rule should be skipped\n"
             )
             transpiled = hp.import_semgrep_dir(str(sg_dir))
+            # `avoid-pickle-loads` has `...` in `pattern-inside: def $F(...): ...` so top-level
+            # clause filter rejects it rather than dropping pattern-inside!
+            # `simple-md5` has valid top-level `pattern` + `pattern-not` and explicit `fix` without `references`.
             self.assertEqual(len(transpiled), 1)
-            self.assertEqual(transpiled[0]["id"], "sg-python-avoid-pickle-loads")
-            self.assertEqual(transpiled[0]["pillar"], "SEC")
-            self.assertEqual(transpiled[0]["rule"], {"pattern": "pickle.loads($$$ARGS)"})
+            self.assertEqual(transpiled[0]["id"], "sg-python-simple-md5")
+            self.assertEqual(transpiled[0]["fix"], "hashlib.sha256()")
+            self.assertIn("all", transpiled[0]["rule"])
             valid, quarantined = hp.validate_policies_with_ast_grep(transpiled)
             self.assertEqual(len(valid), 1)
             self.assertEqual(len(quarantined), 0)
@@ -324,4 +336,3 @@ class RuleTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

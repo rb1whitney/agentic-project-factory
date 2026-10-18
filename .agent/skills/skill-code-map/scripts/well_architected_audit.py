@@ -13,7 +13,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -105,8 +105,7 @@ RULE_TO_PILLAR_AND_FIX: Dict[str, Dict[str, str]] = {
         "pillar": "PERF",
         "severity": "HIGH",
         "problem": (
-            "Synchronous HTTP request executed inside a `for`/`while` loop "
-            "(N+1 network latency & egress multiplier)."
+            "Synchronous HTTP request executed inside a `for`/`while` loop (N+1 network latency & egress multiplier)."
         ),
         "fix": "Batch the API request or use `asyncio.gather` / `httpx.AsyncClient` with bounded concurrency.",
     },
@@ -123,8 +122,7 @@ RULE_TO_PILLAR_AND_FIX: Dict[str, Dict[str, str]] = {
         "pillar": "PERF",
         "severity": "HIGH",
         "problem": (
-            "`defer` inside a `for` loop retains file descriptors/locks/sockets "
-            "until the enclosing function exits."
+            "`defer` inside a `for` loop retains file descriptors/locks/sockets until the enclosing function exits."
         ),
         "fix": (
             "Close the resource explicitly at the end of each loop iteration "
@@ -199,6 +197,7 @@ def load_markdown_policies(policies_dir: str) -> List[Dict[str, Any]]:
 
 def evaluate_markdown_policies(target_dir: str, policies_dir: str) -> List[Dict[str, Any]]:
     """Compile Kodus-style Markdown policies into temporary multi-doc ast-grep rules and scan target_dir."""
+    import subprocess
     import tempfile
 
     try:
@@ -209,12 +208,16 @@ def evaluate_markdown_policies(target_dir: str, policies_dir: str) -> List[Dict[
     if not policies:
         return []
     by_id = {p["id"]: p for p in policies}
-    with tempfile.TemporaryDirectory() as tmp:
-        troot = Path(tmp)
+
+    def _write_and_scan(active_pols: List[Dict[str, Any]], troot: Path) -> Tuple[int, str, List[Dict[str, Any]]]:
         rules_sub = troot / "rules"
-        rules_sub.mkdir()
+        if rules_sub.exists():
+            for f in rules_sub.glob("*.yml"):
+                f.unlink()
+        else:
+            rules_sub.mkdir()
         by_lang_docs: Dict[str, List[Dict[str, Any]]] = {}
-        for pol in policies:
+        for pol in active_pols:
             rule_doc: Dict[str, Any] = {
                 "id": pol["id"],
                 "language": pol["language"],
@@ -227,7 +230,35 @@ def evaluate_markdown_policies(target_dir: str, policies_dir: str) -> List[Dict[
             (rules_sub / f"{lang}.yml").write_text(yaml.safe_dump_all(docs, sort_keys=False), encoding="utf-8")
         sg_cfg = troot / "sgconfig.yml"
         sg_cfg.write_text("ruleDirs:\n  - rules\n", encoding="utf-8")
-        matches = le.run_ast_grep_scan(sg_cfg, [str(target_dir)])
+        proc = subprocess.run(
+            ["ast-grep", "scan", "--config", str(sg_cfg), "--json=stream", str(target_dir)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        parsed: List[Dict[str, Any]] = []
+        for line in (proc.stdout or "").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                parsed.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+        return proc.returncode, (proc.stderr or ""), parsed
+
+    with tempfile.TemporaryDirectory() as tmp:
+        troot = Path(tmp)
+        rc, stderr_txt, matches = _write_and_scan(policies, troot)
+        if rc != 0 or "Cannot parse rule" in stderr_txt:
+            import hydrate_policies as hp
+
+            valid_pols, _ = hp.validate_policies_with_ast_grep(policies)
+            if valid_pols:
+                _, _, matches = _write_and_scan(valid_pols, troot)
+            else:
+                matches = []
+
     findings: List[Dict[str, Any]] = []
     for m in matches:
         rid = m.get("ruleId", "")
@@ -275,21 +306,24 @@ def audit_directory(
     if diff_text is not None:
         q = sq.SemanticQuery.from_dict(graph)
         diff_scope = q.diff_impact(diff_text)
-        allowed_rel_files = set(diff_scope.get("modified_files", []))
+        allowed_rel_files = {f.replace("\\", "/").lstrip("./") for f in diff_scope.get("modified_files", [])}
         for sym in diff_scope.get("modified_symbols", []) + diff_scope.get("impacted_production", []):
             sfile = nodes.get(sym, {}).get("file", "")
             if sfile:
-                allowed_rel_files.add(sfile)
+                allowed_rel_files.add(sfile.replace("\\", "/").lstrip("./"))
+
+    def _norm_rel(fpath: str) -> str:
+        p_obj = Path(fpath)
+        resolved = p_obj.resolve() if p_obj.is_absolute() else (root / p_obj).resolve()
+        try:
+            return str(resolved.relative_to(root)).replace("\\", "/")
+        except ValueError:
+            return fpath.replace("\\", "/").lstrip("./")
 
     def _in_diff_scope(fpath: str) -> bool:
         if allowed_rel_files is None:
             return True
-        norm_p = fpath.replace("\\", "/")
-        try:
-            rel = str(Path(fpath).resolve().relative_to(root)).replace("\\", "/")
-        except ValueError:
-            rel = norm_p
-        return any(rel == af or norm_p.endswith("/" + af) or norm_p == af for af in allowed_rel_files)
+        return _norm_rel(fpath) in allowed_rel_files
 
     # 1. Engine 1: Relational ast-grep rule scan + Kodus-style Markdown Policies
     raw_matches = le.run_ast_grep_scan(le.DEFAULT_CONFIG, [str(root)])
@@ -308,6 +342,7 @@ def audit_directory(
             or name.endswith("tests.java")
         )
 
+    seen_pillar_locs: set = set()
     for rec in records:
         rtype = rec.get("record_type", "")
         rpath = str(rec.get("path", ""))
@@ -319,10 +354,15 @@ def audit_directory(
         if not spec:
             continue
         pillar_key = spec["pillar"]
+        line_no = int(rec.get("line", 1))
+        loc_key = (pillar_key, _norm_rel(rpath), line_no)
+        if loc_key in seen_pillar_locs:
+            continue
+        seen_pillar_locs.add(loc_key)
         finding = {
             "rule": rtype,
             "severity": spec["severity"],
-            "location": f"{rpath}:{rec.get('line', 1)}",
+            "location": f"{rpath}:{line_no}",
             "symbol": rec.get("source_name", ""),
             "problem": spec["problem"],
             "fix": spec["fix"],
@@ -330,6 +370,8 @@ def audit_directory(
         pillars[pillar_key]["findings"].append(finding)
         # Dual-pillar model: N+1 loop patterns get primary HIGH in PERF and secondary MEDIUM in COST
         if rtype in ("wa_py_http_in_loop", "wa_java_repo_in_loop", "wa_go_defer_in_loop"):
+            cost_key = ("COST", _norm_rel(rpath), line_no)
+            seen_pillar_locs.add(cost_key)
             pillars["COST"]["findings"].append(
                 {
                     **finding,
@@ -342,6 +384,10 @@ def audit_directory(
     for pf in evaluate_markdown_policies(str(root), active_pol_dir):
         if not _in_diff_scope(pf["path"]) or _is_test_path(pf["path"]):
             continue
+        loc_key = (pf["pillar"], _norm_rel(pf["path"]), int(pf["line"]))
+        if loc_key in seen_pillar_locs:
+            continue
+        seen_pillar_locs.add(loc_key)
         pillars[pf["pillar"]]["findings"].append(
             {
                 "rule": pf["rule"],
@@ -517,12 +563,21 @@ def main() -> None:
     if not Path(args.dir).is_dir():
         sys.stderr.write(f"Error: target path is not a directory: {args.dir}\n")
         sys.exit(1)
+    if args.diff_file and not Path(args.diff_file).is_file():
+        sys.stderr.write(f"Error: diff file does not exist: {args.diff_file}\n")
+        sys.exit(1)
+    if args.policies and not Path(args.policies).is_dir():
+        sys.stderr.write(f"Error: policies directory does not exist: {args.policies}\n")
+        sys.exit(1)
 
     diff_text: Optional[str] = None
     if args.diff_file:
         diff_text = Path(args.diff_file).read_text(encoding="utf-8")
     elif args.diff:
         res = subprocess.run(["git", "-C", args.dir, "diff", "HEAD"], capture_output=True, text=True)
+        if res.returncode != 0:
+            sys.stderr.write(f"Error running git diff in {args.dir}: {res.stderr}\n")
+            sys.exit(1)
         diff_text = res.stdout
 
     report = audit_directory(args.dir, diff_text=diff_text, policies_dir=args.policies)
