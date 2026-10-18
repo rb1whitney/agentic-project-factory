@@ -1,0 +1,11 @@
+id: extract-py-subprocess-shell
+language: python
+rule:
+  any:
+    - pattern: subprocess.$FN($$$A, shell=True)
+    - pattern: subprocess.$FN(shell=True, $$$B)
+metadata:
+  record_type: python_subprocess_shell
+  source_scope: python_process_exec
+  extract:
+    fn: FN

@@ -42,3 +42,13 @@ description = "Allow the provisioner specifically to check for key existence (no
 action = "allow"
 toolName = "run_command"
 commandPrefix = "ls ~/.ssh/"
+
+# Shell bypass guard: view_file denies above do not cover run_command (cat/head/tail are allowlisted).
+[[rules]]
+name = "Deny Shell Reads of Credential Paths"
+description = "Block run_command access to SSH keys, cloud creds, agent OAuth tokens and .env files."
+action = "deny"
+decision = "deny"
+priority = 300
+toolName = "run_command"
+commandRegex = '(\.ssh/|\.aws/|\.config/gcloud/|\.gemini/(oauth_creds|antigravity-cli/antigravity-oauth|config/config\.json)|/\.env(\.|\s|$)|\s\.env(\.|\s|$))'

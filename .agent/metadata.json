@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-10-10T17:19:09.892370+00:00",
+  "compiled_at": "2026-10-18T18:35:46.193957+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills"
@@ -171,7 +171,7 @@
     },
     {
       "name": "skill-code-map",
-      "description": "Deterministic multi-language AST structural extractor, code mapper, and ast-grep rules engine across Java, Kubernetes, Crossplane, Terraform, and Vault.",
+      "description": "Deterministic multi-language AST structural extractor, code mapper, and ast-grep rules engine across Java, Go, Python, Kubernetes, Crossplane, Terraform, and Vault, plus read-only IaC-vs-live drift for Kubernetes and Vault.",
       "path": ".agent/skills/skill-code-map",
       "references_count": 0
     },

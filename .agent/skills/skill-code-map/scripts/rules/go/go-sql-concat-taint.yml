@@ -1,0 +1,20 @@
+id: go-sql-concat-taint
+language: go
+rule:
+  any:
+    - pattern:
+        context: "package p; func f() { $DB.Query(fmt.Sprintf($$$ARGS)) }"
+        selector: call_expression
+    - pattern:
+        context: "package p; func f() { $DB.Exec(fmt.Sprintf($$$ARGS)) }"
+        selector: call_expression
+  inside:
+    any:
+      - kind: function_declaration
+      - kind: method_declaration
+    stopBy: end
+metadata:
+  record_type: go_sql_concat_taint
+  source_scope: taint_sink
+  extract:
+    name: DB

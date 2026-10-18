@@ -61,6 +61,7 @@ def split_words(identifier: str) -> List[str]:
 def task_terms(task: str) -> Tuple[Set[str], Set[str]]:
     """Return (identifiers named verbatim, meaningful lowercase words)."""
     identifiers = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*", task))
+    identifiers |= set(re.findall(r"[A-Za-z_][A-Za-z0-9_./:-]*[A-Za-z0-9_]", task))
     words = {w for ident in identifiers for w in split_words(ident)}
     return identifiers, {w for w in words if w not in STOPWORDS and len(w) > 1}
 
@@ -69,8 +70,8 @@ class ContextLens:
     def __init__(self, graph: Dict[str, Any]) -> None:
         sq_module = _load_sibling("semantic_query")
         self.query = sq_module.SemanticQuery.from_dict(graph)
-        self.nodes: Dict[str, Dict[str, Any]] = graph.get("nodes", {})
-        self.edges: List[Dict[str, Any]] = graph.get("edges", [])
+        self.nodes: Dict[str, Dict[str, Any]] = self.query.graph.get("nodes", {})
+        self.edges: List[Dict[str, Any]] = self.query.graph.get("edges", [])
 
     def _owner_file(self, owner: str) -> Optional[str]:
         node = self.nodes.get(owner)
@@ -84,20 +85,31 @@ class ContextLens:
         scored: Dict[str, Tuple[int, List[str]]] = {}
         for node_id, node in self.nodes.items():
             score, why = 0, []
-            simple = node_id.split(".")[-1]
+            stripped_id = node_id.split(":", 1)[-1] if ":" in node_id else node_id
+            if "/" in stripped_id:
+                simple = stripped_id.rsplit("/", 1)[-1]
+                symbol_words = set(split_words("/".join(stripped_id.split("/")[-2:])))
+            else:
+                simple = stripped_id.split(".")[-1]
+                symbol_words = set(split_words(stripped_id))
             is_method = node.get("type") in ("method", "constructor")
             # A plain lowercase word ("validate") is prose, not a symbol; only treat a bare method name as
             # named when it is camelCase, otherwise require the qualified Class.method form.
             named_simple = simple in identifiers and (not is_method or simple != simple.lower())
-            if node_id in identifiers or named_simple:
+            if node_id in identifiers or stripped_id in identifiers or named_simple:
                 score, why = SCORE_EXACT, [f"named in task: {node_id}"]
-            elif node_id.lower() in lowered or (not is_method and simple.lower() in lowered):
+            elif (
+                node_id.lower() in lowered
+                or stripped_id.lower() in lowered
+                or (not is_method and simple.lower() in lowered)
+            ):
                 score, why = SCORE_CASE_INSENSITIVE, [f"matches symbol (case-insensitive): {node_id}"]
             else:
-                shared = words & set(split_words(simple))
+                shared = words & symbol_words
                 if shared:
                     score = SCORE_WORD * len(shared)
                     why = [f"shares words {sorted(shared)} with {node_id}"]
+
             ann = {a.lower() for a in node.get("annotations", [])}
             written = ann & annotation_refs
             if written:  # "@Transactional" in the task is an explicit structural query
@@ -128,12 +140,16 @@ class ContextLens:
 
         by_file: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"score": 0, "reasons": [], "roles": set()})
 
-        def add(owner: str, score: int, role: str, reason: str) -> None:
+        def add(owner: str, score: float, role: str, reason: str) -> None:
             file = self._owner_file(owner)
             if not file:
                 return
             entry = by_file[file]
-            entry["score"] += score
+            if role == "seed" and "seed" in entry["roles"]:
+                # Dampen multi-symbol seed accumulation within the same file
+                entry["score"] = max(entry["score"], score) + 1
+            else:
+                entry["score"] += score
             entry["roles"].add(role)
             if reason not in entry["reasons"]:
                 entry["reasons"].append(reason)
@@ -141,36 +157,151 @@ class ContextLens:
         for owner, (score, why) in seeds.items():
             add(owner, score, "seed", why[0])
 
-        # One typed hop in each direction, then a second hop of dependents.
-        forward: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(list))
-        reverse: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(list))
+        # Symmetric 2-hop BFS expansion weighted by edge confidence_score * weight.
+        forward: Dict[str, Dict[str, List[Tuple[str, float]]]] = defaultdict(lambda: defaultdict(list))
+        reverse: Dict[str, Dict[str, List[Tuple[str, float]]]] = defaultdict(lambda: defaultdict(list))
         for e in self.edges:
             src, dst = self.query.owner(str(e.get("from"))), self.query.owner(str(e.get("to")))
             if src == dst:
                 continue
             via = f"{e.get('type')} via {e.get('from')}"
-            forward[src][dst].append(via)
-            reverse[dst][src].append(via)
+            ew = float(e.get("confidence_score", 1.0)) * float(e.get("weight", 1.0))
+            forward[src][dst].append((via, ew))
+            reverse[dst][src].append((via, ew))
 
-        first_hop: Set[str] = set()
+        first_hop_rev: Set[str] = set()
+        first_hop_fwd: Set[str] = set()
         for seed in seeds:
             for dep, vias in reverse.get(seed, {}).items():
                 if dep not in seeds:
-                    first_hop.add(dep)
-                    add(dep, SCORE_DEPENDENT, "dependent", f"depends on {seed} ({vias[0]})")
+                    first_hop_rev.add(dep)
+                    best_via, best_w = max(vias, key=lambda vw: vw[1])
+                    add(dep, round(SCORE_DEPENDENT * best_w, 2), "dependent", f"depends on {seed} ({best_via})")
             for used, vias in forward.get(seed, {}).items():
                 if used not in seeds:
-                    add(used, SCORE_DEPENDENCY, "dependency", f"used by {seed} ({vias[0]})")
-        for mid in first_hop:
+                    first_hop_fwd.add(used)
+                    best_via, best_w = max(vias, key=lambda vw: vw[1])
+                    add(used, round(SCORE_DEPENDENCY * best_w, 2), "dependency", f"used by {seed} ({best_via})")
+        for mid in first_hop_rev:
             for dep, vias in reverse.get(mid, {}).items():
-                if dep not in seeds and dep not in first_hop:
-                    add(dep, SCORE_TRANSITIVE, "dependent", f"depends on {mid} ({vias[0]})")
+                if dep not in seeds and dep not in first_hop_rev:
+                    best_via, best_w = max(vias, key=lambda vw: vw[1])
+                    add(dep, round(SCORE_TRANSITIVE * best_w, 2), "dependent", f"depends on {mid} ({best_via})")
+        for mid in first_hop_fwd:
+            for used, vias in forward.get(mid, {}).items():
+                if used not in seeds and used not in first_hop_fwd:
+                    best_via, best_w = max(vias, key=lambda vw: vw[1])
+                    add(used, round(SCORE_TRANSITIVE * best_w, 2), "dependency", f"used by {mid} ({best_via})")
+
+        # Blend Personalized PageRank probability mass into discovered non-seed nodes
+        ppr_scores = self.ppr(set(seeds.keys()))
+        for owner, mass in ppr_scores.items():
+            if owner not in seeds and mass > 0.01:
+                file = self._owner_file(owner)
+                if file and file in by_file:
+                    by_file[file]["score"] = round(by_file[file]["score"] + mass * 2.0, 2)
 
         ranked = sorted(by_file.items(), key=lambda kv: (-kv[1]["score"], kv[0]))[:top]
         return [
-            {"file": f, "score": v["score"], "roles": sorted(v["roles"]), "reasons": v["reasons"]}
+            {
+                "file": f,
+                "score": int(v["score"]) if float(v["score"]).is_integer() else round(v["score"], 2),
+                "roles": sorted(v["roles"]),
+                "reasons": v["reasons"],
+                "ppr": round(
+                    max((ppr_scores.get(o, 0.0) for o in ppr_scores if self._owner_file(o) == f), default=0.0), 4
+                ),
+            }
             for f, v in ranked
         ]
+
+    def ppr(self, seed_owners: Set[str], alpha: float = 0.85, max_iter: int = 30) -> Dict[str, float]:
+        """Degree-normalized Personalized PageRank (biased random walk restarting at seed_owners)."""
+        owners: Set[str] = {self.query.owner(nid) for nid in self.nodes}
+        for e in self.edges:
+            owners.add(self.query.owner(str(e.get("from", ""))))
+            owners.add(self.query.owner(str(e.get("to", ""))))
+        valid_seeds = {s for s in seed_owners if s in owners} or set(seed_owners)
+        if not valid_seeds:
+            return {}
+        owners |= valid_seeds
+
+        adj: Dict[str, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+        for e in self.edges:
+            u = self.query.owner(str(e.get("from", "")))
+            v = self.query.owner(str(e.get("to", "")))
+            if u == v or not u or not v:
+                continue
+            w = float(e.get("confidence_score", 1.0)) * float(e.get("weight", 1.0))
+            adj[u][v] += w
+            adj[v][u] += w * 0.8
+
+        p: Dict[str, float] = {o: (1.0 / len(valid_seeds) if o in valid_seeds else 0.0) for o in owners}
+        restart = dict(p)
+
+        for _ in range(max_iter):
+            nxt: Dict[str, float] = {o: (1.0 - alpha) * restart.get(o, 0.0) for o in owners}
+            dangling = 0.0
+            for u, mass in p.items():
+                if not mass:
+                    continue
+                nbrs = adj.get(u)
+                if not nbrs:
+                    dangling += mass
+                    continue
+                total_w = sum(nbrs.values())
+                for v, w in nbrs.items():
+                    nxt[v] = nxt.get(v, 0.0) + alpha * mass * (w / total_w)
+            if dangling:
+                share = alpha * dangling / len(valid_seeds)
+                for s in valid_seeds:
+                    nxt[s] += share
+            p = nxt
+        return p
+
+    def pack_context(self, task: str, max_tokens: int = 2000) -> Dict[str, Any]:
+        """Binary-search token-budget packer over ranked files and their AST symbol signatures."""
+        ranked = self.rank(task, top=50)
+        if not ranked or max_tokens <= 0:
+            return {"packed_text": "", "estimated_tokens": 0, "included_files": []}
+
+        by_file_symbols: Dict[str, List[str]] = defaultdict(list)
+        for nid, info in sorted(self.nodes.items()):
+            f = info.get("file")
+            if f:
+                by_file_symbols[f].append(f"  - {info.get('type', 'symbol')} {nid} (L{info.get('line', 1)})")
+
+        def render_k(k: int) -> str:
+            if k <= 0:
+                return ""
+            blocks = []
+            for item in ranked[:k]:
+                f = item["file"]
+                hdr = f"## {f} [score={item['score']}; roles={','.join(item['roles'])}]"
+                syms = by_file_symbols.get(f, [])[:8]
+                blocks.append("\n".join([hdr] + syms))
+            return "\n".join(blocks)
+
+        def est_tokens(txt: str) -> int:
+            return max(1, (len(txt) + 3) // 4) if txt else 0
+
+        lo, hi, best_k = 1, len(ranked), 0
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if est_tokens(render_k(mid)) <= max_tokens:
+                best_k = mid
+                lo = mid + 1
+            else:
+                hi = mid - 1
+
+        if best_k == 0:
+            return {"packed_text": "", "estimated_tokens": 0, "included_files": []}
+        packed_text = render_k(best_k)
+        return {
+            "packed_text": packed_text,
+            "estimated_tokens": est_tokens(packed_text),
+            "included_files": [r["file"] for r in ranked[:best_k]],
+        }
 
 
 def load_graph(graph_path: Optional[str], src: Optional[str]) -> Dict[str, Any]:
@@ -196,6 +327,7 @@ def main() -> int:
     source.add_argument("--graph", help="Graph JSON written by graph_builder.py")
     source.add_argument("--src", help="Source directory; the graph is built in memory")
     parser.add_argument("--top", type=int, default=10, help="Maximum files to return (default 10)")
+    parser.add_argument("--max-tokens", type=int, default=None, help="Binary-search pack context into token budget")
     parser.add_argument("--json", action="store_true", help="Emit JSON instead of text")
     args = parser.parse_args()
 
@@ -204,7 +336,12 @@ def main() -> int:
             logger.error(f"{label} path not found: {value}")
             return 1
 
-    results = ContextLens(load_graph(args.graph, args.src)).rank(args.task, args.top)
+    lens = ContextLens(load_graph(args.graph, args.src))
+    if args.max_tokens:
+        packed = lens.pack_context(args.task, max_tokens=args.max_tokens)
+        print(json.dumps(packed, indent=2) if args.json else packed["packed_text"])
+        return 0
+    results = lens.rank(args.task, args.top)
     if not results:
         logger.error("No graph symbol matches the task. Name a class or method (e.g. DataService.createData).")
         return 2

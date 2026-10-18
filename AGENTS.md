@@ -70,9 +70,9 @@ Target: **60-98% token reduction**. All five frameworks MANDATORY. No exceptions
 *   **REQUIRED**: Run local scripts (Python/SQLite/CLI) to query data. Return derived counts/matches only.
 
 ### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
-*   **BANNED**: Loading entire directories without AST gating.
-*   **REQUIRED**: Run `.agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir>` before any multi-file refactor.
-*   **REQUIRED**: Restrict context window strictly to calculated blast radius.
+*   **BANNED**: Loading entire directories without AST gating or running root-wide `code_mapper.py .` on startup.
+*   **REQUIRED (ASK AT TASK START)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Engine Selection Protocol) and ask the USER (`ask_question`) which target `<dir>` and engine (`auto_context.py` / `code_mapper.py`, `ast-grep`, `state_graph.py`, or `skill-graphify`) to run.
+*   **REQUIRED**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir> --max-tokens 8000` (or selected engine) and restrict context window strictly to calculated blast radius.
 
 ### 4. Telegraphic Output Compression (Caveman-Prose Ultra)
 *   **BANNED**: "I'm happy to help", "Here is the corrected file", "Great question", all preambles.
@@ -188,12 +188,15 @@ IMPORTANT: Skills are always available. Do not wait for the user to invoke them.
 [Architecture]      specialist-domain-driven-design  Design: 7-step Strategic to Tactical workflow
 [Database]          skill-sql                  Audit: Schema analysis & query optimization
 [Compiler]          skill-factory-compiler     Hydration Engine: Multi-adapter agent projection & metadata compilation
+[AST/CodeMap]       skill-code-map             AST Mapper & Rules Engine: Ask user engine/scope at start; PPR context lens, diff-impact, ast-grep taint/arch rules
+[Graph]             skill-graphify             Knowledge Graph Engine: Local AST/K8s/CRD/ADR Graphify graphs, D3/Mermaid callflows, community & cycle reports
 ```
 
 
 ### Reference Library (per-skill `references/` folders)
 Each specialist skill has a `references/` directory with specialized reference guides and runbooks. Agents auto-index on activation.
 ```
+skill-code-map/resources/         RULE_AUTHORING_GUIDE.md, sgconfig.yml, ast-grep rule packs
 skill-aws-foundation/references/  EC2, RDS, IAM, VPC connectivity
 skill-aws-serverless/references/  Lambda, SQS, SNS patterns
 skill-aws/references/             Location Service, Amplify, DSQL guides
@@ -208,13 +211,17 @@ skill-github/references/      PR creation, Issue triage, Review guides
 ```
 
 
-### AST Tools
+### AST Tools (Always Scope to `<dir>` After Asking User Engine & Target)
 ```
-python3 .agent/skills/skill-code-map/scripts/code_mapper.py .             Rebuild code_map.md (incremental, skips temp_/skills/)
-python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir>   Rank relevant files (seeds, dependents, dependencies)
-python3 .agent/skills/skill-code-map/scripts/search_map.py <term> code_map.md        Show only the code_map.md blocks mentioning <term>
-python3 .agent/skills/skill-code-map/scripts/semantic_query.py find-usages <symbol>  Cross-file impact analysis
-ast-grep run -l <lang> -p '<pattern>' <path>                    Structural search (live parse; annotations, call sites, args). Not "sg": /usr/bin/sg is shadow-utils
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/code_mapper.py <dir>                                  Build/refresh code_map.md + relationship_graph.json (instant no-op when cache warm)
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir> --max-tokens 8000  PPR-ranked context lens packed to token budget
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/search_map.py <term> <dir>/code_map.md                Show only code_map.md blocks mentioning <term>
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py find-usages <symbol> --graph <path> Cross-file impact analysis
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py diff-impact --src <dir>             PR / git diff hunk blast-radius & impacted tests
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py shortest-path <src> <dst>           Directed dependency path between two symbols
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/graph_builder.py <dir> --cochanges --report <md>      Build graph with git co-change coupling + Tarjan SCC & community report
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/well_architected_audit.py <dir>                       6-Pillar Well-Architected Code Review (SEC, REL, OPS, PERF, COST, SUS) for Python/Java/Go
+ast-grep run -l <lang> -p '<pattern>' <dir>                                                                 Structural search (live parse; annotations, call sites, args). Not "sg": /usr/bin/sg is shadow-utils
 ```
 
 - `conductor/workflow.md`  CI/CD and deployment flow

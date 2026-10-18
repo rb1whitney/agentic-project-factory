@@ -1,0 +1,20 @@
+id: wa-rel-http-default-client
+language: go
+rule:
+  any:
+    - pattern:
+        context: "package p; func f() { http.Get($$$ARGS) }"
+        selector: call_expression
+    - pattern:
+        context: "package p; func f() { http.Post($$$ARGS) }"
+        selector: call_expression
+    - pattern:
+        context: "package p; func f() { http.Head($$$ARGS) }"
+        selector: call_expression
+    - pattern:
+        context: "package p; func f() { http.PostForm($$$ARGS) }"
+        selector: call_expression
+metadata:
+  record_type: wa_go_http_no_timeout
+  source_scope: wa_reliability
+  pillar: REL

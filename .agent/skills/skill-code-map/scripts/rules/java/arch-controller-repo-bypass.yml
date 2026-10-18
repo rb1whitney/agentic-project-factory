@@ -1,0 +1,28 @@
+id: arch-controller-repo-bypass
+language: java
+rule:
+  kind: field_declaration
+  has:
+    field: type
+    regex: '.*Repository$'
+  inside:
+    kind: class_declaration
+    stopBy: end
+    has:
+      any:
+        - kind: marker_annotation
+          regex: '^@(Rest)?Controller$'
+        - kind: annotation
+          regex: '^@(Rest)?Controller\b'
+      stopBy: end
+  all:
+    - has:
+        kind: variable_declarator
+        has:
+          field: name
+          pattern: $NAME
+metadata:
+  record_type: architecture_violation
+  source_scope: architecture_boundary
+  extract:
+    name: NAME

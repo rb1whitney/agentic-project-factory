@@ -1,0 +1,12 @@
+id: extract-go-feature-gate-check
+language: go
+rule:
+  any:
+    - pattern: $A.$B.Enabled($PKG.$GATE)
+    - pattern: $A.Enabled($PKG.$GATE)
+metadata:
+  record_type: go_feature_gate_check
+  source_scope: go_feature_flags
+  extract:
+    gate: GATE
+    pkg: PKG
