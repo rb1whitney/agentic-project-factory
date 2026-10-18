@@ -220,7 +220,8 @@ skill-github/references/      PR creation, Issue triage, Review guides
 /usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py diff-impact --src <dir>             PR / git diff hunk blast-radius & impacted tests
 /usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py shortest-path <src> <dst>           Directed dependency path between two symbols
 /usr/bin/python3 .agent/skills/skill-code-map/scripts/graph_builder.py <dir> --cochanges --report <md>      Build graph with git co-change coupling + Tarjan SCC & community report
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/well_architected_audit.py <dir>                       6-Pillar Well-Architected Code Review (SEC, REL, OPS, PERF, COST, SUS) for Python/Java/Go
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/well_architected_audit.py <dir> --diff                6-Pillar Well-Architected Code Review (SEC, REL, OPS, PERF, COST, SUS; --diff for PR scope)
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/hydrate_policies.py --fetch-upstream                  Hydrate 230+ Semgrep/ast-grep policies into resources/policies/ (--verify for 4-gate check)
 ast-grep run -l <lang> -p '<pattern>' <dir>                                                                 Structural search (live parse; annotations, call sites, args). Not "sg": /usr/bin/sg is shadow-utils
 ```
 

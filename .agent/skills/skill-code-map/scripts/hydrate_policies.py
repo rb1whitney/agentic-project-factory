@@ -1898,7 +1898,9 @@ def write_policy_packs(policies: List[Dict[str, Any]], out_dir: Path) -> List[Pa
             "| :--- | :--- | :--- | :--- |",
         ]
         for it in items:
-            body_lines.append(f"| `{it['id']}` | `{it['severity']}` | {it['problem']} | {it['fix']} |")
+            prob = " ".join(str(it["problem"]).split()).replace("|", "\\|")
+            fix = " ".join(str(it["fix"]).split()).replace("|", "\\|")
+            body_lines.append(f"| `{it['id']}` | `{it['severity']}` | {prob} | {fix} |")
         content = "---\n" + yaml.safe_dump(front, sort_keys=False) + "---\n\n" + "\n".join(body_lines) + "\n"
         md_path.write_text(content, encoding="utf-8")
         written.append(md_path)
@@ -1995,6 +1997,129 @@ def hydrate(
     }
 
 
+def verify_well_hydrated(policies_dir: str = str(DEFAULT_POLICIES_DIR), min_per_lang: int = 50) -> Dict[str, Any]:
+    """
+    Certify whether a policies directory is 'Well-Hydrated' across 4 deterministic gates:
+    1. Language Quota Gate (>= min_per_lang rules for each of python, java, go).
+    2. 3x6 Language x Pillar Matrix Gate (all 18 (lang, pillar) cells populated).
+    3. Zero-Quarantine Syntax Gate (0 rules rejected by `ast-grep scan`).
+    4. Positive & Negative Behavioral Canary Gate (fires across all 3 languages & 6 pillars on bad code;
+       0 false positives on clean code).
+    """
+    import well_architected_audit as waa
+
+    policies = waa.load_markdown_policies(policies_dir)
+    valid, quarantined = validate_policies_with_ast_grep(policies)
+
+    langs = ("python", "java", "go")
+    pillars = ("SEC", "REL", "PERF", "OPS", "COST", "SUS")
+    by_lang: Dict[str, int] = {lang: 0 for lang in langs}
+    by_pillar: Dict[str, int] = {p: 0 for p in pillars}
+    matrix: Dict[str, int] = {}
+
+    for pol in valid:
+        lang = pol.get("language", "")
+        p = pol.get("pillar", "")
+        if lang in by_lang:
+            by_lang[lang] += 1
+        if p in by_pillar:
+            by_pillar[p] += 1
+        matrix[f"{lang}:{p}"] = matrix.get(f"{lang}:{p}", 0) + 1
+
+    missing_quotas = [lang for lang in langs if by_lang.get(lang, 0) < min_per_lang]
+    missing_cells = [f"{lang}:{p}" for lang in langs for p in pillars if matrix.get(f"{lang}:{p}", 0) < 1]
+
+    # Behavioral canary gate: positive bad code + negative clean code
+    with tempfile.TemporaryDirectory() as tmp:
+        troot = Path(tmp)
+        bad_dir = troot / "bad"
+        clean_dir = troot / "clean"
+        bad_dir.mkdir()
+        clean_dir.mkdir()
+
+        (bad_dir / "bad.py").write_text(
+            "from os import *\n"
+            "async def f(items, table):\n"
+            "    eval('1+1')\n"
+            "    requests.get('https://example.com')\n"
+            "    time.sleep(1)\n"
+            "    breakpoint()\n"
+            "    table.scan()\n",
+            encoding="utf-8",
+        )
+        (bad_dir / "Bad.java").write_text(
+            "public class Bad {\n"
+            "    void f( java.util.List<String> items ) throws Exception {\n"
+            "        Runtime.getRuntime().exec(\"ls\");\n"
+            "        new RestTemplate();\n"
+            "        Thread.sleep(100);\n"
+            "        System.err.println(\"err\");\n"
+            "        System.gc();\n"
+            "    }\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        (bad_dir / "bad.go").write_text(
+            "package main\n"
+            "func f() {\n"
+            "    _ = md5.New()\n"
+            "    panic(\"boom\")\n"
+            "    for i := 0; i < 3; i++ { _ = regexp.Compile(\"a+\") }\n"
+            "    _ = context.TODO()\n"
+            "    _, _ = io.ReadAll(r)\n"
+            "}\n",
+            encoding="utf-8",
+        )
+
+        (clean_dir / "clean.py").write_text(
+            "def add(a: int, b: int) -> int:\n    return a + b\n",
+            encoding="utf-8",
+        )
+        (clean_dir / "Clean.java").write_text(
+            "public class Clean {\n    public int add(int a, int b) { return a + b; }\n}\n",
+            encoding="utf-8",
+        )
+        (clean_dir / "clean.go").write_text(
+            "package main\nfunc add(a int, b int) int { return a + b }\n",
+            encoding="utf-8",
+        )
+
+        pos_findings = waa.evaluate_markdown_policies(str(bad_dir), policies_dir)
+        neg_findings = waa.evaluate_markdown_policies(str(clean_dir), policies_dir)
+
+    fired_pillars = sorted({f["pillar"] for f in pos_findings})
+    fired_exts = sorted({Path(f["path"]).suffix for f in pos_findings})
+    canary_passed = (
+        len(fired_pillars) == 6
+        and set(fired_exts) == {".py", ".java", ".go"}
+        and len(neg_findings) == 0
+    )
+
+    certified = (
+        not missing_quotas
+        and not missing_cells
+        and len(quarantined) == 0
+        and canary_passed
+    )
+    return {
+        "status": "CERTIFIED_WELL_HYDRATED" if certified else "FAILED",
+        "certified": certified,
+        "total_valid_policies": len(valid),
+        "by_language": by_lang,
+        "by_pillar": by_pillar,
+        "missing_language_quotas": missing_quotas,
+        "missing_matrix_cells": missing_cells,
+        "quarantined_ids": quarantined,
+        "canary": {
+            "passed": canary_passed,
+            "positive_findings_count": len(pos_findings),
+            "fired_pillars": fired_pillars,
+            "fired_file_extensions": fired_exts,
+            "negative_false_positives": len(neg_findings),
+        },
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Hydrate Kodus-style Well-Architected Policy Packs from curated + Semgrep/ast-grep sources."
@@ -2008,7 +2133,15 @@ def main() -> int:
     parser.add_argument(
         "--cache-dir", default="/tmp/codemap-upstream-rules", help="Cache directory for upstream rule repos."
     )
+    parser.add_argument(
+        "--verify", action="store_true", help="Run 4-gate Well-Hydrated Certification check on --out-dir."
+    )
     args = parser.parse_args()
+
+    if args.verify:
+        cert = verify_well_hydrated(policies_dir=args.out_dir)
+        print(json.dumps(cert, indent=2))
+        return 0 if cert.get("certified") else 1
 
     summary = hydrate(
         out_dir=args.out_dir,
@@ -2023,3 +2156,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

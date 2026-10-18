@@ -287,6 +287,12 @@ class RuleTests(unittest.TestCase):
         self.assertGreaterEqual(by_lang.get("java", 0), 50)
         self.assertGreaterEqual(by_lang.get("go", 0), 50)
 
+        cert = hp.verify_well_hydrated(str(waa.DEFAULT_POLICIES_DIR))
+        self.assertTrue(cert["certified"])
+        self.assertEqual(cert["status"], "CERTIFIED_WELL_HYDRATED")
+        self.assertEqual(cert["canary"]["negative_false_positives"], 0)
+        self.assertEqual(len(cert["canary"]["fired_pillars"]), 6)
+
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             sg_dir = root / "semgrep_in"
