@@ -1,0 +1,8 @@
+id: extract-vault-hvac-client
+language: python
+rule:
+  pattern: hvac.Client($$$ARGS)
+metadata:
+  record_type: vault_hvac_client
+  source_scope: vault_security
+  extract: {}

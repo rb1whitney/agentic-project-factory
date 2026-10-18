@@ -1,0 +1,16 @@
+id: wa-ops-sysout
+language: java
+rule:
+  kind: method_invocation
+  regex: '^System\.(out|err)\.print'
+  inside:
+    any:
+      - kind: class_declaration
+      - kind: enum_declaration
+      - kind: record_declaration
+      - kind: interface_declaration
+    stopBy: end
+metadata:
+  record_type: wa_java_sysout
+  source_scope: wa_operations
+  pillar: OPS

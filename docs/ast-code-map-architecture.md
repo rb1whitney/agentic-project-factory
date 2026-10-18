@@ -4,7 +4,7 @@
 
 Modern AI coding agents suffer from a fundamental signal-to-noise problem. A repository of 500 files may contain 2 million tokens. Loading all of it into a context window has never been the right answer, even as context limits expanded to 1 million tokens. The real breakthrough comes from semantic compression: understanding what code means, not just what it says, and presenting only the signal that is relevant to a specific task.
 
-This document describes the full architecture of the Code Map system implemented in `bin/ast-bridge/`. It draws on two complementary techniques discussed in the engineering community: the agentic summary strategy pioneered by jeremychone in his `aipack` and `pro@coder` tools, and the deterministic skeleton extraction approach implemented by tontinton in the `maki` agent using `tree-sitter`. Together, these form a two-layer indexing system that consistently reduces context from millions of tokens to under 80,000 while increasing task accuracy.
+This document describes the full architecture of the Code Map system implemented in `.agent/skills/skill-code-map/scripts/`. It draws on two complementary techniques discussed in the engineering community: the agentic summary strategy pioneered by jeremychone in his `aipack` and `pro@coder` tools, and the deterministic skeleton extraction approach implemented by tontinton in the `maki` agent using `tree-sitter`. Together, these form a two-layer indexing system that consistently reduces context from millions of tokens to under 80,000 while increasing task accuracy.
 
 ---
 

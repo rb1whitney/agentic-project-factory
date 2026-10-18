@@ -582,7 +582,7 @@ After the environment is ready, initialize the repository tools:
 cd /path/to/Programming-Work
 
 # Build the initial AST code map
-python3 tools/ast-bridge/code_mapper.py .
+python3 .agent/skills/skill-code-map/scripts/code_mapper.py .
 
 # Verify skills are available
 ls skills/

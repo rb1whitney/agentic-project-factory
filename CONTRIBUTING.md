@@ -111,7 +111,7 @@ The `conductor/` files define project-level context that agents read before arch
 After significant changes to source code in `tools/`, regenerate the code map:
 
 ```bash
-python3 tools/ast-bridge/code_mapper.py .
+python3 .agent/skills/skill-code-map/scripts/code_mapper.py .
 ```
 
 The `code_map.md` and `.ast_cache/context_map.json` are in `.gitignore`  they are generated at runtime and not committed.

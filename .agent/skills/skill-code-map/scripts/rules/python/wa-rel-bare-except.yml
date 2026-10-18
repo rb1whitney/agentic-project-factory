@@ -1,0 +1,9 @@
+id: wa-rel-bare-except
+language: python
+rule:
+  kind: except_clause
+  regex: '^except\s*:'
+metadata:
+  record_type: wa_py_bare_except
+  source_scope: wa_reliability
+  pillar: REL

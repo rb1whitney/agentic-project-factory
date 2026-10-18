@@ -55,7 +55,15 @@ aws ec2 describe-vpcs --query 'Vpcs[*].{ID:VpcId,CIDR:CidrBlock,Name:Tags[?Key==
 
 ## Working with Conductor
 - **Implement Phase**: Use the AWS CLI to "Spot Check" resources after creation to ensure they align with the plan.
-- **Review Phase**: Perform a "Well-Architected Audit" on the new infrastructure using CLI discovery results.
+- **Review Phase**: Perform a "Well-Architected Audit" on the new infrastructure using CLI discovery results and the 6-Pillar Code Auditor:
+  ```bash
+  # 1. Source-code 6-Pillar Well-Architected Review (Python / Java / Go)
+  /usr/bin/python3 .agent/skills/skill-code-map/scripts/well_architected_audit.py <target_dir>
+
+  # 2. AWS Labs Well-Architected & IaC MCP Servers (Shift-Left IaC / Security Pillar)
+  uvx awslabs.well-architected-security-mcp-server@latest
+  uvx awslabs.aws-iac-mcp-server@latest
+  ```
 
 
 ##  Capability Reference Guide
