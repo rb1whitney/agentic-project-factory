@@ -22,6 +22,23 @@ CANONICAL_DIR = Path(".agent/agents")
 SKILLS_DIR = Path(".agent/skills")
 MAP_FILE = Path(".agent/adapters/map.yaml")
 SETTINGS_DIR = Path(".agent/adapters/settings")
+SCHEMA_DIR = Path(".agent/adapters/schemas")
+
+
+def validate_json(data, schema_name, label):
+    """Fail loud: harnesses silently drop or hang on malformed config (see adapter pattern #3)."""
+    try:
+        import jsonschema
+    except ImportError:
+        print(f"Warning: jsonschema not installed; skipping schema validation of {label}", file=sys.stderr)
+        return
+    schema = json.loads((SCHEMA_DIR / schema_name).read_text())
+    errors = sorted(jsonschema.Draft7Validator(schema).iter_errors(data), key=lambda e: list(e.path))
+    if errors:
+        for e in errors:
+            loc = "/".join(str(x) for x in e.path) or "<root>"
+            print(f"Schema error in {label} at {loc}: {e.message}", file=sys.stderr)
+        sys.exit(1)
 
 
 def drop_symlinks(directory, pattern):
@@ -37,6 +54,7 @@ def hydrate_settings(harness, dest):
         print(f"Error: missing canonical settings '{src}'", file=sys.stderr)
         sys.exit(1)
     data = json.loads(src.read_text())
+    validate_json(data, "claude-code-settings.schema.json", str(src))
     dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.is_symlink():
         dest.unlink()
@@ -221,7 +239,9 @@ def hydrate_antigravity(agents, map_data, provider="native"):
     out_dir_md.mkdir(parents=True, exist_ok=True)
     out_dir_json.mkdir(parents=True, exist_ok=True)
     drop_symlinks(out_dir_md, "*.md")
-    hydrate_settings("antigravity", Path(".agents/settings.json"))
+    # agy CLI settings.json is user-scope only (~/.gemini/antigravity-cli); project scope is hooks.json.
+    hooks_src = Path(".agent/hooks/hooks.json")
+    validate_json(json.loads(hooks_src.read_text()), "antigravity-hooks.schema.json", str(hooks_src))
     hydrate_skills(Path(".agents/skills"))
     hooks_link = Path(".agents/hooks.json")
     if hooks_link.is_symlink() or hooks_link.exists():

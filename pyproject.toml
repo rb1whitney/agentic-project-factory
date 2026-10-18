@@ -5,6 +5,7 @@ description = "Centralized multi-agent infrastructure, AST code mapper, and fact
 requires-python = ">=3.10"
 dependencies = [
     "pyyaml>=6.0",
+    "jsonschema>=4.0",
     "tree-sitter==0.20.1",
     "tree-sitter-languages>=1.10.2",
     "ruff>=0.4.0",
