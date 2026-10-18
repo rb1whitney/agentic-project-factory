@@ -186,9 +186,11 @@ mcp-servers/mcp-*/
 # --- Swarm Automation: Brain, Cache & State ---
 # Ignore automated discovery artifacts and temporary brain state.
 .gemini/
-.claude/
+.claude/*
+!.claude/settings.json
 .cursor/
-.agents/
+.agents/*
+!.agents/hooks.json
 .antigravitycli/
 .antigravity/
 .opencode/

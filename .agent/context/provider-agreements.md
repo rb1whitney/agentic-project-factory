@@ -11,7 +11,7 @@ This repository opt-in to the following advanced context sharing standards for A
 - **Protocol**: Utilizes [`.agent/agents/`](file://./.agent/agents/) for expert system prompts.
 
 ## Google / Antigravity
-- **Discovery**: Native integration via [`.agent/settings.json`](file://./.agent/settings.json).
+- **Discovery**: Native integration via [`.agent/adapters/settings/<harness>.json`](file://./.agent/adapters/settings/).
 - **Protocol**: Standardized [`SYSTEM.md`](file://./.agent/agents/*/SYSTEM.md) ingestion.
 
 ## Standard Optimization (2026)
