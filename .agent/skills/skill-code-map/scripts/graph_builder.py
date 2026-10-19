@@ -128,6 +128,7 @@ class GraphBuilder:
         imp_q = self._query("go", "(import_spec path: (interpreted_string_literal) @imp)")
         type_q = self._query("go", "(type_spec name: (type_identifier) @name type: _ @kind)")
         pkg_imports: Dict[str, Set[str]] = {}
+        cobra_pending: List[Tuple[str, str, str, str]] = []  # (parent func id, qualifier, callee name, file)
         for path in go_files:
             try:
                 src = path.read_bytes()
@@ -171,6 +172,7 @@ class GraphBuilder:
                     elif kind == "struct_type":
                         node["structs"].append(name)
             pkg_imports.setdefault(nid, set()).update(self._txt(n, src).strip('"`') for n, _ in imp_q.captures(root))
+            self._go_functions(root, src, nid, str(path.relative_to(self.root_dir)), cobra_pending)
         by_ipath = {
             n["import_path"]: nid
             for nid, n in self.symbol_table.items()
@@ -181,6 +183,88 @@ class GraphBuilder:
                 target = by_ipath.get(imp)
                 if target and target != nid:
                     self._add_edge(nid, target, "imports", self.symbol_table[nid]["file"])
+        self._link_cobra(cobra_pending)
+
+    # Exported functions/methods become nodes (public API surface); `parent.AddCommand(NewXCmd(...))` inside a
+    # function emits parent-func -> NewXCmd "adds-command" edges. Call sites in general are not tracked.
+    def _go_functions(
+        self, root: Any, src: bytes, pkg_id: str, rel_file: str, cobra_pending: List[Tuple[str, str, str, str]]
+    ) -> None:
+        stack = [root]
+        while stack:
+            n = stack.pop()
+            stack.extend(reversed(n.children))
+            if n.type not in ("function_declaration", "method_declaration"):
+                continue
+            name_node = n.child_by_field_name("name")
+            if name_node is None:
+                continue
+            name = self._txt(name_node, src)
+            recv = ""
+            if n.type == "method_declaration":
+                rn = n.child_by_field_name("receiver")
+                m = re.search(r"([A-Za-z_][A-Za-z0-9_]*)\s*\)?\s*$", self._txt(rn, src)) if rn is not None else None
+                recv = m.group(1) if m else ""
+            has_add = b"AddCommand" in src[n.start_byte : n.end_byte]
+            if not name[:1].isupper() and not has_add:
+                continue
+            fid = f"{pkg_id}#{recv + '.' if recv else ''}{name}"
+            self.symbol_table[fid] = {
+                "file": rel_file,
+                "line": n.start_point[0] + 1,
+                "type": "go-method" if recv else "go-func",
+                "package": pkg_id,
+            }
+            self._add_edge(pkg_id, fid, "defines", rel_file)
+            if has_add:
+                self._collect_add_command(n, src, fid, rel_file, cobra_pending)
+
+    def _collect_add_command(
+        self, fn: Any, src: bytes, fid: str, rel_file: str, out: List[Tuple[str, str, str, str]]
+    ) -> None:
+        stack = [fn]
+        while stack:
+            n = stack.pop()
+            stack.extend(n.children)
+            if n.type != "call_expression":
+                continue
+            f = n.child_by_field_name("function")
+            if f is None or f.type != "selector_expression":
+                continue
+            fld = f.child_by_field_name("field")
+            if fld is None or self._txt(fld, src) != "AddCommand":
+                continue
+            args = n.child_by_field_name("arguments")
+            for a in args.named_children if args is not None else []:
+                if a.type != "call_expression":
+                    continue
+                cf = a.child_by_field_name("function")
+                if cf is None:
+                    continue
+                if cf.type == "selector_expression":
+                    q, c = cf.child_by_field_name("operand"), cf.child_by_field_name("field")
+                    if q is not None and c is not None:
+                        out.append((fid, self._txt(q, src), self._txt(c, src), rel_file))
+                elif cf.type == "identifier":
+                    out.append((fid, "", self._txt(cf, src), rel_file))
+
+    def _link_cobra(self, pending: List[Tuple[str, str, str, str]]) -> None:
+        by_name: Dict[str, List[str]] = {}
+        for nid, node in self.symbol_table.items():
+            if node.get("type") == "go-func":
+                by_name.setdefault(nid.split("#", 1)[1], []).append(nid)
+        for parent, qual, callee, rel_file in pending:
+            cands = by_name.get(callee, [])
+            if qual:
+                pkgs = {nid: self.symbol_table[self.symbol_table[nid]["package"]] for nid in cands}
+                cands = [
+                    n for n in cands if pkgs[n].get("package") == qual or pkgs[n]["file"].rsplit("/", 1)[-1] == qual
+                ]
+            else:
+                same = [n for n in cands if self.symbol_table[n]["package"] == self.symbol_table[parent]["package"]]
+                cands = same or cands
+            if len(cands) == 1:
+                self._add_edge(parent, cands[0], "adds-command", rel_file)
 
     # --- Python: module-level graph (nodes = modules, edges = in-repo imports / inheritance) ----
     # Imports are matched against the repo's own module table. Absolute imports that carry a prefix

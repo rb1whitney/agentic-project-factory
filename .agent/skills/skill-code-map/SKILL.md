@@ -280,3 +280,20 @@ Every record returned by `local_extract.py` conforms to this contract:
 3. `record_type` / `source_scope` are read from the rule's `metadata` automatically (the `scope_map` in `local_extract.py` is only a legacy fallback). `source_name` is the first of `path, class, name, kind, gate, use, route, key, cmd, fn` that the rule extracts.
 4. Quirks: `$$$B` after a keyword argument matches nothing, so write `any:` with `f($$$A, kw=V)` and `f(kw=V, $$$B)`; `$X.Method()` does not match a nested selector receiver in Go, so spell out `$A.$B.Method()`.
 5. Test with: `python3 .agent/skills/skill-code-map/scripts/local_extract.py <test-path>`.
+
+## Query, lineage, env-diff and MCP additions
+
+```bash
+SC=.agent/skills/skill-code-map/scripts
+/usr/bin/python3 $SC/semantic_query.py --graph graph.json query grafana            # breakdown + evidence boundary + matches
+/usr/bin/python3 $SC/semantic_query.py --graph graph.json lineage Service/grafana --depth 2 --mermaid
+/usr/bin/python3 $SC/state_graph.py env-diff dev prod --root <repo> [--format json]  # tfvars, Helm values-<env>, Kustomize overlays, Hiera appenv
+```
+
+- `_matches` accepts exact id, `Class.method`, `Kind/name`, `ns/name`, or a substring of `k8s:`/`vault:`/`py:`/`go:` ids. Code symbols are never substring-matched.
+- `env-diff` redacts values under sensitive keys and lists layers that exist in only one environment.
+- Terraform: `graph_builder.py` emits `resource:<type>/<name>`, `module:`, `provider:` (alias aware), `variable:` and `tfvar:<file>:<key>` nodes. Literal attribute values only; `${...}` interpolations stay unresolved. `.terraform/modules/modules.json` adds `resolved_source` and `resolved_version`. `*.tfvars` secrets are `[REDACTED]`.
+- Go: exported functions and methods become `go:<dir>#Func` / `go:<dir>#Recv.Method` nodes with `defines` edges; `parent.AddCommand(NewXCmd())` gives `adds-command` edges (unique-name resolution only). Call sites in general are still not tracked.
+- MCP tools: `graph_lineage`, `graph_query_symbol`, `graph_env_diff`, `graph_state_drift` (offline snapshot only), `graph_k8s_extract` (offline snapshot or cache only). MCP never contacts a cluster.
+- `repo_analyzer.py` is a deprecated alias that forwards to `code_mapper.py`.
+

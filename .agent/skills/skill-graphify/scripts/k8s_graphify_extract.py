@@ -178,31 +178,19 @@ def run_kubectl(
         return res.stdout.strip()
 
 
-class SecretLeakError(RuntimeError):
-    """Raised when a secret-shaped value survives redaction before disk write."""
-
-
-NEVER_LIST = {"secrets", "configmaps", "tokenreviews", "tokenrequests", "serviceaccounts/token"}
-WORKLOAD_KINDS = {"Deployment", "StatefulSet", "DaemonSet", "ReplicaSet", "Job", "Pod"}
-CLUSTER_SCOPED_KINDS = {
-    "Namespace",
-    "Node",
-    "PersistentVolume",
-    "StorageClass",
-    "ClusterRole",
-    "ClusterRoleBinding",
-    "CustomResourceDefinition",
-    "Composition",
-    "CompositeResourceDefinition",
-}
-
-
-def check_prod_context(context: Optional[str], allow_prod_read: bool = False) -> None:
-    """Refuses read access to a kubectl context containing 'prod' unless explicitly permitted."""
-    if context and "prod" in context.lower() and not allow_prod_read:
-        sys.exit(
-            f"refusing: kubectl context '{context}' looks like production; pass --allow-prod-read for read-only access"
-        )
+# One definition of the cluster-safety constants and guards lives in skill-code-map's k8s_catalog.
+# Redaction is deliberately NOT shared: the two extractors use different, separately tested policies.
+_CATALOG_DIR = Path(__file__).resolve().parents[2] / "skill-code-map" / "scripts"
+if str(_CATALOG_DIR) not in sys.path:
+    sys.path.insert(0, str(_CATALOG_DIR))
+from k8s_catalog import (  # noqa: E402
+    CLUSTER_SCOPED_KINDS,
+    NEVER_LIST,
+    WORKLOAD_KINDS,
+    SecretLeakError,
+    check_prod_context,
+    discover_catalog,
+)
 
 
 def write_graph_atomic(path: Path, data: Dict[str, Any]) -> None:
@@ -973,6 +961,86 @@ def bridge_terraform(nodes: Dict[str, Dict[str, Any]]) -> List[Tuple[str, str]]:
     return pairs
 
 
+def _ref_values(val: Any) -> List[Tuple[str, str, str]]:
+    """(name, kind, namespace) triples from a reference-shaped value: string, {name,kind,namespace}, or a list."""
+    if isinstance(val, str):
+        return [(val, "", "")]
+    if isinstance(val, dict) and isinstance(val.get("name"), str):
+        return [(val["name"], str(val.get("kind", "")), str(val.get("namespace", "")))]
+    if isinstance(val, list):
+        return [t for v in val for t in _ref_values(v)]
+    return []
+
+
+def _get_path(obj: Any, path: str) -> List[Any]:
+    cur = [obj]
+    for part in path.split("."):
+        nxt: List[Any] = []
+        for c in cur:
+            if isinstance(c, list):
+                c = [x.get(part) for x in c if isinstance(x, dict)]
+                nxt.extend(v for v in c if v is not None)
+            elif isinstance(c, dict) and part in c:
+                nxt.append(c[part])
+        cur = nxt
+    return cur
+
+
+def schema_ref_edges(graph: Dict[str, Any], objects: List[Dict[str, Any]], catalog: Dict[str, Any]) -> Dict[str, Any]:
+    """Adds `references` links from CRD/OpenAPI-discovered reference fields (k8s_catalog ref_fields) to existing nodes.
+
+    Targets are matched by name (+ kind and namespace when the field carries them) among nodes already in the graph;
+    nothing is invented, so an unresolved reference adds no edge."""
+    out = copy.deepcopy(graph)
+    by_name: Dict[str, List[Dict[str, Any]]] = {}
+    for n in out["nodes"]:
+        p = n.get("properties") or {}
+        if n["id"].startswith("k8s:") and p.get("name"):
+            by_name.setdefault(p["name"], []).append(n)
+    have = {(lk["source"], lk["relation"], lk["target"]) for lk in out["links"]}
+    for o in objects:
+        meta = o.get("metadata", {})
+        api = o.get("apiVersion", "v1")
+        group = api.rsplit("/", 1)[0] if "/" in api else "core"
+        fields = (catalog.get(f"{group}/{o.get('kind')}") or {}).get("ref_fields", [])
+        src = canonical_node_id(api, o.get("kind", ""), meta.get("namespace"), meta.get("name", ""))
+        if src not in {n["id"] for n in out["nodes"]}:
+            continue
+        for fpath in fields:
+            for raw in _get_path(o, fpath):
+                for name, kind, ns in _ref_values(raw):
+                    for cand in by_name.get(name, []):
+                        cp = cand["properties"]
+                        if cand["id"] == src or (kind and cp.get("kind") != kind):
+                            continue
+                        if ns and cp.get("namespace") != ns:
+                            continue
+                        if not ns and cp.get("namespace") not in (None, meta.get("namespace")):
+                            continue
+                        key = (src, "references", cand["id"])
+                        if key not in have:
+                            have.add(key)
+                            out["links"].append(
+                                {
+                                    "source": src,
+                                    "target": cand["id"],
+                                    "relation": "references",
+                                    "_origin": "schema_ref_field",
+                                    "confidence": "INFERRED",
+                                    "confidence_score": 0.7,
+                                    "weight": 1.0,
+                                    "field": fpath,
+                                }
+                            )
+    out["graph"]["edge_count"] = len(out["links"])
+    return out
+
+
+def _write_private(path: Path, data: Any) -> None:
+    """Cache files hold redacted objects only; still 0600 and secret-scanned like every graph write."""
+    write_graph_atomic(path, data)
+
+
 def merge_graphify_graphs(
     base_graph: Dict[str, Any],
     k8s_graph: Dict[str, Any],
@@ -1133,7 +1201,25 @@ def main():
         "--export-html", action="store_true", help="Automatically generate Graphify interactive HTML visualization"
     )
 
+    parser.add_argument(
+        "--cache-dir",
+        default=None,
+        help="Directory for redacted objects.json and schema catalog.json; reused by --no-live",
+    )
+    parser.add_argument(
+        "--no-live", action="store_true", help="Never call the cluster: build from --cache-dir (objects + catalog)"
+    )
+    parser.add_argument("--catalog", default=None, help="k8s_catalog catalog JSON for schema-driven reference edges")
+    parser.add_argument(
+        "--discover-schema", action="store_true", help="Read OpenAPI v3 + CRDs (no instances) for reference fields"
+    )
+
     args = parser.parse_args()
+    cache = Path(args.cache_dir) if args.cache_dir else None
+    if args.no_live and not (cache and (cache / "objects.json").is_file()):
+        sys.exit("--no-live needs --cache-dir containing objects.json from a previous live run")
+    if args.no_live:
+        args.live_k8s = str(cache / "objects.json")
 
     if not args.live_k8s:
         ctx = args.context
@@ -1156,8 +1242,25 @@ def main():
             context=args.context,
         )
     print(f"[*] Fetched and redacted {len(objects)} live Kubernetes objects.")
+    if cache and not args.no_live:
+        _write_private(cache / "objects.json", objects)
+
+    catalog: Dict[str, Any] = {}
+    if args.catalog and os.path.exists(args.catalog):
+        raw_cat = json.loads(Path(args.catalog).read_text(encoding="utf-8"))
+        catalog = raw_cat.get("catalog", raw_cat)
+    elif cache and (cache / "catalog.json").is_file() and not args.discover_schema:
+        catalog = json.loads((cache / "catalog.json").read_text(encoding="utf-8"))
+    elif args.discover_schema and not args.no_live:
+        from k8s_catalog import _ctx_args
+
+        catalog = discover_catalog(_ctx_args(args.context, args.kubeconfig))
+        if cache:
+            _write_private(cache / "catalog.json", catalog)
 
     k8s_graph = build_graphify_k8s_graph(objects)
+    if catalog:
+        k8s_graph = schema_ref_edges(k8s_graph, objects, catalog)
     print(
         f"[*] Generated Kubernetes knowledge graph: {len(k8s_graph['nodes'])} nodes, {len(k8s_graph['links'])} links."
     )

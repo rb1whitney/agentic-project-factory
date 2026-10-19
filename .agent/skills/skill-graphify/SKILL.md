@@ -17,6 +17,14 @@ Pick the mode from the request (live cluster/CRD -> Live K8s row; drift -> IaC-v
 | **Live K8s + CRD + Code Bridge** | Dynamic cluster/CRD topology, secret-redacted graph, YAML `manifest-of` bridging, and `ast-grep` rule overlays | `k8s_graphify_extract.py`, `k8s_catalog.py --format graphify` |
 | **IaC-vs-Live Drift Graph** | Visualizing `drifted`, `missing`, `unmanaged` K8s/Vault resources and `cross_check` bindings | `state_graph.py report ... --format graphify` |
 
+### Extractor options (k8s_graphify_extract.py)
+
+- Fetch is scoped and batched: `-n <ns>` server-side, 12 kinds per `kubectl get`, 15s timeout, per-kind retry when a batch fails.
+- `--cache-dir DIR` writes redacted `objects.json` (and `catalog.json` with `--discover-schema`) at 0600; `--no-live --cache-dir DIR` rebuilds the graph with no cluster calls.
+- `--catalog PATH` / `--discover-schema` add `references` edges from OpenAPI/CRD reference fields (`k8s_catalog.py` is the shared schema, constants and prod-context guard; redaction policies stay separate and separately tested).
+- Graph output carries `diagnostics[]`: `missing-target` (`MISSING_TARGET` nodes for absent ServiceAccount/Role/ClusterRole/Composition/Service/PVC) and `service-no-ready-endpoints`. Secret/ConfigMap references are `Unverified (Redacted Kind)`, never reported missing.
+- `--merge-with` also bridges Terraform `helm_release` and `kubernetes_*` resource nodes to live nodes with `provisions-k8s` links.
+
 ### Safety & Runtime Caveats
 
 - `k8s_graphify_extract.py` never lists `secrets`, `configmaps`, or `tokenreviews` during dynamic `api-resources` discovery, strips sensitive keys/env literals, and writes output atomically at `0600` via `write_graph_atomic` (raises `SecretLeakError` if any secret-shaped token survives).

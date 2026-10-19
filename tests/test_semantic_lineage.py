@@ -91,3 +91,30 @@ class McpTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class McpExtraToolTests(unittest.TestCase):
+    def test_env_diff_and_k8s_extract_offline(self) -> None:
+        import json
+        import tempfile
+
+        srv = mcp.CodeMapGraphifyMCP(graph={"nodes": {}, "edges": []})
+        self.assertTrue(
+            {"graph_env_diff", "graph_state_drift", "graph_k8s_extract"} <= {t["name"] for t in srv.list_tools()}
+        )
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "vars").mkdir()
+            (root / "vars" / "dev.tfvars").write_text("n = 1\n")
+            (root / "vars" / "prod.tfvars").write_text("n = 2\n")
+            res = srv.call_tool("graph_env_diff", {"root": d, "env_a": "dev", "env_b": "prod"})
+            self.assertEqual(res["layers"]["vars/{env}.tfvars"]["differ"]["n"], {"dev": "1", "prod": "2"})
+            snap = root / "live.json"
+            snap.write_text(
+                json.dumps([{"apiVersion": "v1", "kind": "Service", "metadata": {"name": "s", "namespace": "n"}}])
+            )
+            out = srv.call_tool("graph_k8s_extract", {"live_k8s": str(snap)})
+            self.assertEqual(out["nodes"], 1)
+            self.assertIn("k8s:core/Service/n/s", srv.call_tool("graph_lineage", {"target": "s"})["targets"])
+            with self.assertRaises(ValueError):
+                srv.call_tool("graph_k8s_extract", {})
