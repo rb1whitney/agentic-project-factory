@@ -58,7 +58,8 @@ class TestAstCodeMapper(unittest.TestCase):
         entry = cache.get("handler.go", {})
         self.assertIn("UserStore", entry.get("public_types", []))
         self.assertIn("AuthManager", entry.get("public_types", []))
-        self.assertIn("GetUser", entry.get("public_functions", []))
+        # Methods carry their receiver type (see tests/test_code_mapper.py::test_methods_carry_receiver_type)
+        self.assertIn("UserStore.GetUser", entry.get("public_functions", []))
         self.assertIn("InitializeServer", entry.get("public_functions", []))
 
     def test_java_ast_extraction(self):
