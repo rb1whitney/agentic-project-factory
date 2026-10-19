@@ -7,10 +7,10 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$REPO_ROOT"
 
-if [[ "$TARGET" != "claude" && "$TARGET" != "antigravity" && "$TARGET" != "codex" && "$TARGET" != "all" ]]; then
-  echo "Error: Unknown target '$TARGET' (expected: claude | antigravity | codex | all)" >&2
+if [[ "$TARGET" != "claude" && "$TARGET" != "antigravity" && "$TARGET" != "codex" && "$TARGET" != "all" && "$TARGET" != "models" ]]; then
+  echo "Error: Unknown target '$TARGET' (expected: claude | antigravity | codex | all | models)" >&2
   exit 1
 fi
 
 PY=python3; [[ -x "$REPO_ROOT/.venv/bin/python" ]] && PY="$REPO_ROOT/.venv/bin/python"
-exec "$PY" "$SCRIPT_DIR/hydrate.py" "$TARGET"
+exec "$PY" "$SCRIPT_DIR/hydrate.py" "$TARGET" "${@:2}"

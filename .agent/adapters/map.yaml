@@ -32,8 +32,11 @@ harnesses:
       web: [read_url_content, search_web]
       delegate: [invoke_subagent]
     tiers:
-      fast: flash
-      deep: pro
+      fast: gemini-3.8-flash-medium
+      deep: gemini-4-argon-high
+    tier_rules:                # regex over `agy models` ids; highest version wins
+      fast: '^gemini-[0-9.]+-flash-medium$'
+      deep: '^gemini-[0-9]+-argon-high$'
     extra_fields:
       subagent: true
       commandExecutionPolicy: sandbox
@@ -55,8 +58,11 @@ harnesses:
       read-only: [read, search]
       workspace-write: [read, search, write, shell]
     tiers:
-      fast: gpt-6-luna
-      deep: gpt-6-sol
+      fast: gpt-5.6-luna
+      deep: gpt-5.6-sol
+    tier_rules:                # regex over `codex debug models` (visibility=list)
+      fast: '^gpt-[0-9.]+-luna$'
+      deep: '^gpt-[0-9.]+-sol$'
     defaults:
       tools_omitted: inherit_parent_sandbox
       unknown_tool: not_applicable       # No tool list in toml

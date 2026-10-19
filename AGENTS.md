@@ -188,6 +188,7 @@ IMPORTANT: Skills are always available. Do not wait for the user to invoke them.
 [Architecture]      specialist-domain-driven-design  Design: 7-step Strategic to Tactical workflow
 [Database]          skill-sql                  Audit: Schema analysis & query optimization
 [Compiler]          skill-factory-compiler     Hydration Engine: Multi-adapter agent projection & metadata compilation
+[Compiler]          skill-harness-models       Model drift check/update for Claude, agy, Codex tiers: `scripts/hydrate.sh models [--write]`
 [AST/CodeMap]       skill-code-map             AST Mapper & Rules Engine: Ask user engine/scope at start; PPR context lens, diff-impact, ast-grep taint/arch rules
 [Graph]             skill-graphify             Knowledge Graph Engine: Local AST/K8s/CRD/ADR Graphify graphs, D3/Mermaid callflows, community & cycle reports
 ```
