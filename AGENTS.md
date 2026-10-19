@@ -211,20 +211,9 @@ skill-github/references/      PR creation, Issue triage, Review guides
 ```
 
 
-### AST Tools (Always Scope to `<dir>` After Asking User Engine & Target)
-```
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/code_mapper.py <dir>                                  Build/refresh code_map.md + relationship_graph.json (instant no-op when cache warm)
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir> --max-tokens 8000  PPR-ranked context lens packed to token budget
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/search_map.py <term> <dir>/code_map.md                Show only code_map.md blocks mentioning <term>
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py find-usages <symbol> --graph <path> Cross-file impact analysis
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py diff-impact --src <dir>             PR / git diff hunk blast-radius & impacted tests
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py shortest-path <src> <dst>           Directed dependency path between two symbols
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/graph_builder.py <dir> --cochanges --report <md>      Build graph with git co-change coupling + Tarjan SCC & community report
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/well_architected_audit.py <dir> --diff                6-Pillar Well-Architected Code Review (SEC, REL, OPS, PERF, COST, SUS; --diff for PR scope)
-/usr/bin/python3 .agent/skills/skill-code-map/scripts/hydrate_policies.py --fetch-upstream                  Hydrate 230+ Semgrep/ast-grep policies into resources/policies/ (--verify for 4-gate check)
-ast-grep run -l <lang> -p '<pattern>' <dir>                                                                 Structural search (live parse; annotations, call sites, args). Not "sg": /usr/bin/sg is shadow-utils
-```
-
+### AST & Knowledge Graph Layer (Thin Routing — Read Skill Before Running)
+- **AST & Policy Engine**: Read [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Engine Selection) -> ask USER `<dir>` & engine (`auto_context.py` PPR lens, `semantic_query.py` diff-impact, `well_architected_audit.py` 6-pillar review, `state_graph.py` K8s/Vault drift, or `ast-grep`).
+- **Graphify Topology**: Read [**.agent/skills/skill-graphify/SKILL.md**](file://./.agent/skills/skill-graphify/SKILL.md) for D3/Mermaid callflows, Tarjan SCC/community reports, and live K8s/Crossplane extraction (`k8s_graphify_extract.py`).
 - `conductor/workflow.md`  CI/CD and deployment flow
 
 ## 5. Security Hardening & Privacy Shield (MANDATORY)
