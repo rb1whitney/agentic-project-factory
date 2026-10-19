@@ -18,7 +18,7 @@ This factory operates on **Domain-Driven Design (DDD)** principles, specifically
 
 ## 0.2 EPHEMERAL PROJECTION & COMPILER PROTOCOL
 This repository enforces the **Ephemeral Projection Adapter Pattern** to decouple agent source definitions from proprietary vendor parser requirements (Claude Code, Antigravity `agy`, OpenAI/Copilot).
-*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions.
+*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions. Each file is a single valid YAML document (`prompt: |` holds the Markdown body), validated against `.agent/adapters/schemas/agent.schema.json`; the file stem must equal `name`.
 *   **Synchronous Hydration Engine**: Pre-flight compilation is mandatory via `scripts/hydrate.sh`.
     - Claude: Projects canonical schemas into Markdown frontmatter under `.claude/agents/*.md`.
     - Antigravity: Projects canonical schemas into JSON schema specifications under `.agents/*.json`.
@@ -188,6 +188,7 @@ IMPORTANT: Skills are always available. Do not wait for the user to invoke them.
 [Architecture]      specialist-domain-driven-design  Design: 7-step Strategic to Tactical workflow
 [Database]          skill-sql                  Audit: Schema analysis & query optimization
 [Compiler]          skill-factory-compiler     Hydration Engine: Multi-adapter agent projection & metadata compilation
+[Compiler]          skill-harness-models       Model drift check/update for Claude, agy, Codex tiers: `scripts/hydrate.sh models [--write]`
 [AST/CodeMap]       skill-code-map             AST Mapper & Rules Engine: Ask user engine/scope at start; PPR context lens, diff-impact, ast-grep taint/arch rules
 [Graph]             skill-graphify             Knowledge Graph Engine: Local AST/K8s/CRD/ADR Graphify graphs, D3/Mermaid callflows, community & cycle reports
 ```
