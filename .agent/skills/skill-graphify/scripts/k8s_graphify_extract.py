@@ -229,6 +229,46 @@ def _walk_spec(obj: Any):
             yield from _walk_spec(v)
 
 
+BATCH_SIZE = 12
+REQUEST_TIMEOUT = "--request-timeout=15s"
+
+
+def _filter_api_names(out: Any) -> List[str]:
+    if not isinstance(out, str):
+        return []
+    return [r.strip() for r in out.splitlines() if r.strip() and r.strip().split(".")[0] not in NEVER_LIST]
+
+
+def plan_queries(
+    namespaced: List[str],
+    cluster_scoped: List[str],
+    namespace: Optional[str],
+    all_namespaces: bool,
+    batch_size: int = BATCH_SIZE,
+) -> List[List[str]]:
+    """Builds `kubectl get` argv lists: namespaced kinds batched with -n/-A, cluster-scoped kinds batched bare.
+
+    Scoping with -n at the API server (instead of -A then filtering in Python) avoids cluster-wide lists."""
+    scope = ["-A"] if (all_namespaces or not namespace) else ["-n", namespace]
+    queries: List[List[str]] = []
+    for names, args in ((namespaced, scope), (cluster_scoped, [])):
+        for i in range(0, len(names), batch_size):
+            chunk = ",".join(names[i : i + batch_size])
+            queries.append(["get", chunk] + args + ["-o", "json", "--ignore-not-found", REQUEST_TIMEOUT])
+    return queries
+
+
+def _run_batch(q: List[str], kubeconfig: Optional[str], context: Optional[str]) -> List[Any]:
+    """Runs one batched get; on failure (one forbidden/unknown kind fails the whole call) retries per kind."""
+    data = run_kubectl(q, kubeconfig, context=context)
+    if isinstance(data, dict):
+        return [data]
+    kinds = q[1].split(",")
+    if len(kinds) == 1:
+        return []
+    return [d for k in kinds for d in _run_batch([q[0], k] + q[2:], kubeconfig, context)]
+
+
 def fetch_cluster_resources(
     namespace: Optional[str] = "cloud-boot-app",
     all_namespaces: bool = False,
@@ -240,18 +280,14 @@ def fetch_cluster_resources(
     raw_objects: List[Dict[str, Any]] = []
     ns_args = ["-A"] if (all_namespaces or not namespace) else ["-n", namespace]
 
-    discovered_resources: List[str] = []
+    queries: List[List[str]] = []
     if dynamic_discovery:
-        api_out = run_kubectl(["api-resources", "--verbs=list", "-o", "name"], kubeconfig, context=context)
-        if isinstance(api_out, str) and api_out.strip():
-            discovered_resources = [
-                r.strip() for r in api_out.splitlines() if r.strip() and r.strip().split(".")[0] not in NEVER_LIST
-            ]
+        base = ["api-resources", "--verbs=list", "-o", "name"]
+        namespaced = _filter_api_names(run_kubectl(base + ["--namespaced=true"], kubeconfig, context=context))
+        cluster_scoped = _filter_api_names(run_kubectl(base + ["--namespaced=false"], kubeconfig, context=context))
+        queries = plan_queries(namespaced, cluster_scoped, namespace, all_namespaces)
 
-    if discovered_resources:
-        # Query core + discovered CRD groups safely without ever listing secrets/configmaps
-        queries = [["get", r, "-A", "-o", "json", "--ignore-not-found"] for r in discovered_resources]
-    else:
+    if not queries:
         queries = [
             ["get", "all"] + ns_args + ["-o", "json"],
             ["get", "ingress,pvc,serviceaccount"] + ns_args + ["-o", "json"],
@@ -263,8 +299,7 @@ def fetch_cluster_resources(
         ]
 
     for q in queries:
-        data = run_kubectl(q, kubeconfig, context=context)
-        if isinstance(data, dict):
+        for data in _run_batch(q, kubeconfig, context):
             if data.get("kind") == "List":
                 for item in data.get("items", []):
                     item_ns = item.get("metadata", {}).get("namespace")
@@ -322,18 +357,37 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
                 }
             )
 
-    def ensure_phantom_node(nid: str, kind: str, ns: Optional[str], name: str, community: int = 10) -> None:
-        if nid not in nodes:
-            nodes[nid] = {
-                "id": nid,
-                "label": f"{kind}: {name}",
-                "file_type": "k8s_resource",
-                "source_file": f"k8s://{ns or 'cluster'}/{kind.lower()}/{name}",
-                "source_location": "k8s-api",
-                "community": community,
-                "_origin": "k8s_api",
-                "properties": {"kind": kind, "namespace": ns, "name": name, "status": "Referenced"},
-            }
+    diagnostics: List[Dict[str, Any]] = []
+    # Kinds we list: absence from the fetched state means the target is genuinely missing.
+    LISTED_KINDS = {"ServiceAccount", "Role", "ClusterRole", "Composition", "Service", "PersistentVolumeClaim"}
+    # Kinds NEVER_LIST blocks: existence is unknown, never claim missing.
+    REDACTED_KINDS = {"Secret", "ConfigMap"}
+
+    def ensure_phantom_node(
+        nid: str, kind: str, ns: Optional[str], name: str, community: int = 10, referrer: Optional[str] = None
+    ) -> None:
+        if nid in nodes:
+            return
+        if kind in LISTED_KINDS:
+            status = "MISSING_TARGET"
+            diagnostics.append(
+                {"code": "missing-target", "severity": "error", "node": nid, "referrer": referrer,
+                 "message": f"{kind} {ns + '/' if ns else ''}{name} is referenced but not present"}
+            )
+        elif kind in REDACTED_KINDS:
+            status = "Unverified (Redacted Kind)"
+        else:
+            status = "Referenced"
+        nodes[nid] = {
+            "id": nid,
+            "label": f"{kind}: {name}",
+            "file_type": "k8s_resource",
+            "source_file": f"k8s://{ns or 'cluster'}/{kind.lower()}/{name}",
+            "source_location": "k8s-api",
+            "community": community,
+            "_origin": "k8s_api",
+            "properties": {"kind": kind, "namespace": ns, "name": name, "status": status},
+        }
 
     deployments = []
     services = []
@@ -369,6 +423,7 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
 
         status = obj.get("status", {})
         status_summary = "Active"
+        pod_extra: Dict[str, Any] = {}
         if kind == "Pod":
             phase = status.get("phase", "Unknown")
             container_statuses = status.get("containerStatuses", [])
@@ -381,6 +436,14 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
                 status_summary = f"{phase} ({', '.join(filter(None, waiting_reasons))})"
             else:
                 status_summary = phase
+            pod_extra = {
+                "containers_ready": f"{sum(1 for c in container_statuses if c.get('ready'))}/{len(container_statuses)}",
+                "restart_count": sum(int(c.get("restartCount", 0)) for c in container_statuses),
+            }
+            init_statuses = status.get("initContainerStatuses") or []
+            if init_statuses:
+                done = all((c.get("state") or {}).get("terminated", {}).get("exitCode") == 0 for c in init_statuses)
+                pod_extra["init"] = "ok" if done else "pending"
         elif "conditions" in status:
             conds = status.get("conditions", [])
             for c in conds:
@@ -401,6 +464,7 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
                 "namespace": ns,
                 "name": name,
                 "status": status_summary,
+                **pod_extra,
             },
         }
 
@@ -483,7 +547,7 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
             if k == "compositionRef" and isinstance(v, dict) and v.get("name"):
                 comp_name = v["name"]
                 comp_id = canonical_node_id("apiextensions.crossplane.io/v1", "Composition", None, comp_name)
-                ensure_phantom_node(comp_id, "Composition", None, comp_name, community=11)
+                ensure_phantom_node(comp_id, "Composition", None, comp_name, community=11, referrer=src_id)
                 add_link(src_id, "uses-composition", comp_id)
             elif k == "resourceRefs" and isinstance(v, list):
                 for r in v:
@@ -500,12 +564,12 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
             ):
                 sec_ns = v.get("namespace") or ns or "default"
                 sec_id = canonical_node_id("v1", "Secret", sec_ns, v["name"])
-                ensure_phantom_node(sec_id, "Secret", sec_ns, v["name"], community=10)
+                ensure_phantom_node(sec_id, "Secret", sec_ns, v["name"], community=10, referrer=src_id)
                 add_link(src_id, "references-secret", sec_id)
             elif k in ("secretName", "tlsSecretName") and isinstance(v, str) and v != REDACTED:
                 sec_ns = ns or "default"
                 sec_id = canonical_node_id("v1", "Secret", sec_ns, v)
-                ensure_phantom_node(sec_id, "Secret", sec_ns, v, community=10)
+                ensure_phantom_node(sec_id, "Secret", sec_ns, v, community=10, referrer=src_id)
                 add_link(src_id, "references-secret", sec_id)
 
     # 4. Postgres CRD -> StatefulSet / Service
@@ -551,16 +615,108 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
         sa_name = spec.get("template", {}).get("spec", {}).get("serviceAccountName") or spec.get("serviceAccountName")
         if sa_name:
             sa_id = canonical_node_id("v1", "ServiceAccount", wl_ns or "default", sa_name)
-            ensure_phantom_node(sa_id, "ServiceAccount", wl_ns or "default", sa_name, community=10)
+            ensure_phantom_node(sa_id, "ServiceAccount", wl_ns or "default", sa_name, community=10, referrer=wl_id)
             add_link(wl_id, "uses-serviceaccount", sa_id)
 
-    for dep in deployments:
-        dep_id = canonical_node_id(
-            dep["apiVersion"], dep["kind"], dep["metadata"].get("namespace"), dep["metadata"]["name"]
-        )
-        db_svc_id = canonical_node_id("v1", "Service", dep["metadata"].get("namespace"), "cloud-boot-db")
-        if db_svc_id in nodes:
-            add_link(dep_id, "connects-db", db_svc_id)
+    # 6b. Service -> Endpoints/EndpointSlice -> Pod (routes-to-pod), with ready/not-ready counts
+    for obj in objects:
+        if obj.get("kind") != "Endpoints":
+            continue
+        em = obj.get("metadata", {})
+        ens = em.get("namespace")
+        svc_id = canonical_node_id("v1", "Service", ens, em.get("name", ""))
+        if svc_id not in nodes:
+            continue
+        ready = notready = 0
+        for sub in obj.get("subsets") or []:
+            for addr_key in ("addresses", "notReadyAddresses"):
+                for addr in sub.get(addr_key) or []:
+                    if addr_key == "addresses":
+                        ready += 1
+                    else:
+                        notready += 1
+                    ref = addr.get("targetRef") or {}
+                    if ref.get("kind") == "Pod" and ref.get("name"):
+                        pod_id = canonical_node_id("v1", "Pod", ref.get("namespace") or ens, ref["name"])
+                        if pod_id in nodes:
+                            add_link(svc_id, "routes-to-pod", pod_id)
+        nodes[svc_id]["properties"]["endpoints_ready"] = ready
+        nodes[svc_id]["properties"]["endpoints_not_ready"] = notready
+        if ready == 0:
+            diagnostics.append(
+                {"code": "service-no-ready-endpoints", "severity": "warning", "node": svc_id, "referrer": None,
+                 "message": f"Service has 0 ready endpoints ({notready} not ready)"}
+            )
+
+    # 6c. Workload -> ConfigMap / PVC mounts and envFrom
+    for wl in workloads:
+        wl_meta = wl.get("metadata", {})
+        wl_ns = wl_meta.get("namespace")
+        wl_id = canonical_node_id(wl["apiVersion"], wl["kind"], wl_ns, wl_meta.get("name", ""))
+        pod_spec = (wl.get("spec", {}).get("template", {}).get("spec") if wl["kind"] != "Pod" else wl.get("spec")) or {}
+        for vol in pod_spec.get("volumes") or []:
+            cm = (vol.get("configMap") or {}).get("name")
+            pvc = (vol.get("persistentVolumeClaim") or {}).get("claimName")
+            if cm:
+                cm_id = canonical_node_id("v1", "ConfigMap", wl_ns, cm)
+                ensure_phantom_node(cm_id, "ConfigMap", wl_ns, cm, community=10, referrer=wl_id)
+                add_link(wl_id, "mounts-configmap", cm_id)
+            if pvc:
+                pvc_id = canonical_node_id("v1", "PersistentVolumeClaim", wl_ns, pvc)
+                ensure_phantom_node(pvc_id, "PersistentVolumeClaim", wl_ns, pvc, community=10, referrer=wl_id)
+                add_link(wl_id, "mounts-pvc", pvc_id)
+        for ctr in (pod_spec.get("containers") or []) + (pod_spec.get("initContainers") or []):
+            for ef in ctr.get("envFrom") or []:
+                cm = (ef.get("configMapRef") or {}).get("name")
+                if cm:
+                    cm_id = canonical_node_id("v1", "ConfigMap", wl_ns, cm)
+                    ensure_phantom_node(cm_id, "ConfigMap", wl_ns, cm, community=10, referrer=wl_id)
+                    add_link(wl_id, "mounts-configmap", cm_id)
+
+    # 6d. Admission webhook configs -> backing Service (intercepts-workloads)
+    for obj in objects:
+        if obj.get("kind") not in ("MutatingWebhookConfiguration", "ValidatingWebhookConfiguration"):
+            continue
+        wm = obj.get("metadata", {})
+        wh_id = canonical_node_id(obj.get("apiVersion", "v1"), obj["kind"], None, wm.get("name", ""))
+        for hook in obj.get("webhooks") or []:
+            svc = (hook.get("clientConfig") or {}).get("service") or {}
+            if svc.get("name"):
+                svc_id = canonical_node_id("v1", "Service", svc.get("namespace"), svc["name"])
+                ensure_phantom_node(svc_id, "Service", svc.get("namespace"), svc["name"], community=14, referrer=wh_id)
+                add_link(wh_id, "intercepts-workloads", svc_id)
+
+    # 6e. Service mesh / Gateway API -> Service
+    for obj in objects:
+        kind = obj.get("kind", "")
+        om = obj.get("metadata", {})
+        ons = om.get("namespace")
+        spec = obj.get("spec", {}) or {}
+        if kind not in ("VirtualService", "DestinationRule", "HTTPRoute"):
+            continue
+        src = canonical_node_id(obj.get("apiVersion", "v1"), kind, ons, om.get("name", ""))
+        targets: List[Tuple[str, str]] = []  # (service name, namespace)
+        if kind == "DestinationRule" and spec.get("host"):
+            targets.append((str(spec["host"]), ons or ""))
+            rel = "applies-mtls-policy" if (spec.get("trafficPolicy") or {}).get("tls") else "mesh-routes-to"
+        elif kind == "VirtualService":
+            rel = "mesh-routes-to"
+            for http in spec.get("http") or []:
+                for route in http.get("route") or []:
+                    if (route.get("destination") or {}).get("host"):
+                        targets.append((str(route["destination"]["host"]), ons or ""))
+        else:
+            rel = "mesh-routes-to"
+            for rule in spec.get("rules") or []:
+                for ref in rule.get("backendRefs") or []:
+                    if ref.get("name"):
+                        targets.append((str(ref["name"]), ref.get("namespace") or ons or ""))
+        for host, tns in targets:
+            parts = host.split(".")  # 'svc', 'svc.ns', 'svc.ns.svc.cluster.local'
+            sname, sns = parts[0], (parts[1] if len(parts) > 1 else tns)
+            svc_id = canonical_node_id("v1", "Service", sns or None, sname)
+            if svc_id in nodes:
+                add_link(src, rel, svc_id)
 
     # 7. RBAC RoleBinding / ClusterRoleBinding -> Role/ClusterRole & ServiceAccount
     for obj in objects:
@@ -576,13 +732,13 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
             r_ns = None if r_kind == "ClusterRole" else ns
             r_api = role_ref.get("apiGroup") or "rbac.authorization.k8s.io"
             r_id = canonical_node_id(f"{r_api}/v1", r_kind, r_ns, role_ref["name"])
-            ensure_phantom_node(r_id, r_kind, r_ns, role_ref["name"], community=10)
+            ensure_phantom_node(r_id, r_kind, r_ns, role_ref["name"], community=10, referrer=rb_id)
             add_link(rb_id, "grants-role", r_id)
         for subj in obj.get("subjects") or []:
             if isinstance(subj, dict) and subj.get("kind") == "ServiceAccount" and subj.get("name"):
                 s_ns = subj.get("namespace") or ns or "default"
                 sa_id = canonical_node_id("v1", "ServiceAccount", s_ns, subj["name"])
-                ensure_phantom_node(sa_id, "ServiceAccount", s_ns, subj["name"], community=10)
+                ensure_phantom_node(sa_id, "ServiceAccount", s_ns, subj["name"], community=10, referrer=rb_id)
                 add_link(rb_id, "binds-subject", sa_id)
 
     # 8. NetworkPolicy -> Workload isolation and ingress reachability
@@ -643,6 +799,7 @@ def build_graphify_k8s_graph(objects: List[Dict[str, Any]], repo_dir: Optional[s
         "nodes": list(nodes.values()),
         "links": links,
         "hyperedges": [],
+        "diagnostics": diagnostics,
     }
 
 

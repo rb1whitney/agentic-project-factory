@@ -28,27 +28,27 @@ class TestAdapterInvariants(unittest.TestCase):
         subprocess.run([sys.executable, str(HYDRATE_SCRIPT), "all"], check=True, capture_output=True)
 
     def test_banner_source_path_fidelity(self):
-        """Banner must reference actual source file path (e.g. db-migration.yaml vs db-migration-agent)."""
-        src_yaml = AGENT_DIR / "db-migration.yaml"
-        self.assertTrue(src_yaml.exists(), "db-migration.yaml must exist")
+        """Banner must reference actual source file path (e.g. db-migration-agent.yaml)."""
+        src_yaml = AGENT_DIR / "db-migration-agent.yaml"
+        self.assertTrue(src_yaml.exists(), "db-migration-agent.yaml must exist")
 
         # Claude projection check
         claude_file = CLAUDE_DIR / "db-migration-agent.md"
         self.assertTrue(claude_file.exists(), f"{claude_file} must exist")
         content = claude_file.read_text(encoding="utf-8")
-        self.assertIn(".agent/agents/db-migration.yaml", content)
+        self.assertIn(".agent/agents/db-migration-agent.yaml", content)
 
         # Codex projection check
         codex_file = CODEX_DIR / "db-migration-agent.toml"
         self.assertTrue(codex_file.exists(), f"{codex_file} must exist")
         content = codex_file.read_text(encoding="utf-8")
-        self.assertIn(".agent/agents/db-migration.yaml", content)
+        self.assertIn(".agent/agents/db-migration-agent.yaml", content)
 
         # Antigravity MD projection check
         ag_md_file = AGENTS_DIR / "agents" / "db-migration-agent.md"
         self.assertTrue(ag_md_file.exists(), f"{ag_md_file} must exist")
         content = ag_md_file.read_text(encoding="utf-8")
-        self.assertIn(".agent/agents/db-migration.yaml", content)
+        self.assertIn(".agent/agents/db-migration-agent.yaml", content)
 
     def test_antigravity_twin_parity(self):
         """Antigravity JSON and MD twins must declare identical commandExecutionPolicy and auto_approve."""
@@ -96,13 +96,14 @@ class TestAdapterInvariants(unittest.TestCase):
         dummy_name = "test-dummy-ephemeral"
         dummy_yaml = AGENT_DIR / f"{dummy_name}.yaml"
 
-        dummy_content = f"""name: {dummy_name}
+        dummy_content = f"""version: '2.1'
+name: {dummy_name}
 description: Ephemeral test agent for pruning invariant
-tier: small
+tier: fast
 capabilities:
   - read
   - search
-system_prompt: |
+prompt: |
   Ephemeral test prompt for orphan pruning test.
 """
         try:
