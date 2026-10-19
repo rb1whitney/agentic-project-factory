@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "antigravity-cli-settings.schema.json",
+  "title": "Antigravity CLI settings.json (user scope)",
+  "description": "Hand-written from https://antigravity.google/docs/settings?tab=cli. Lives at ~/.gemini/antigravity-cli/settings.json only; the CLI has no project-scoped settings, so the factory does not project it. Types are inferred; docs state none.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "toolPermission": {"enum": ["request-review", "proceed-in-sandbox", "strict", "always-proceed"]},
+    "artifactReviewPolicy": {"enum": ["asks-for-review", "agent-decides", "always-proceed"]},
+    "enableTerminalSandbox": {"enum": ["on", "off", true, false]},
+    "allowNonWorkspaceAccess": {"enum": ["on", "off", true, false]},
+    "altScreenMode": {"enum": ["default", "always", "never"]},
+    "runningLightSpeed": {"enum": ["fast", "medium", "slow", "off"]},
+    "verbosity": {"enum": ["high", "low"]},
+    "editorMode": {"enum": ["default", "vim"]},
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allow": {"type": "array", "items": {"type": "string"}},
+        "ask": {"type": "array", "items": {"type": "string"}},
+        "deny": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

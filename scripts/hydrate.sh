@@ -12,4 +12,5 @@ if [[ "$TARGET" != "claude" && "$TARGET" != "antigravity" && "$TARGET" != "codex
   exit 1
 fi
 
-exec python3 "$SCRIPT_DIR/hydrate.py" "$TARGET"
+PY=python3; [[ -x "$REPO_ROOT/.venv/bin/python" ]] && PY="$REPO_ROOT/.venv/bin/python"
+exec "$PY" "$SCRIPT_DIR/hydrate.py" "$TARGET"

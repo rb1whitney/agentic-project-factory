@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "antigravity-hooks.schema.json",
+  "title": "Antigravity hooks.json",
+  "description": "Hand-written from https://antigravity.google/docs/hooks?tab=ide (no official JSON Schema published). Workspace path: .agents/hooks.json.",
+  "type": "object",
+  "additionalProperties": {"$ref": "#/definitions/hook"},
+  "definitions": {
+    "handler": {
+      "type": "object",
+      "required": ["command"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {"const": "command"},
+        "command": {"type": "string", "minLength": 1},
+        "timeout": {"type": "integer", "minimum": 1}
+      }
+    },
+    "matcherGroup": {
+      "type": "object",
+      "required": ["hooks"],
+      "additionalProperties": false,
+      "properties": {
+        "matcher": {"type": "string"},
+        "hooks": {"type": "array", "items": {"$ref": "#/definitions/handler"}}
+      }
+    },
+    "hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "PreToolUse": {"type": "array", "items": {"$ref": "#/definitions/matcherGroup"}},
+        "PostToolUse": {"type": "array", "items": {"$ref": "#/definitions/matcherGroup"}},
+        "SessionStart": {"type": "array", "items": {"$ref": "#/definitions/handler"}},
+        "PreInvocation": {"type": "array", "items": {"$ref": "#/definitions/handler"}},
+        "PostInvocation": {"type": "array", "items": {"$ref": "#/definitions/handler"}},
+        "Stop": {"type": "array", "items": {"$ref": "#/definitions/handler"}}
+      }
+    }
+  }
+}

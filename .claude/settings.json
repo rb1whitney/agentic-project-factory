@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 bin/autoload_webhook.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/bin/autoload_webhook.py"
           }
         ]
       }

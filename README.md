@@ -14,7 +14,7 @@ graph TD
     HUB --> SKILLS[".agent/skills/ — Industrial Skill Modules"]
     HUB --> HOOKS[".agent/hooks/ — Deterministic Lifecycle Hooks"]
     HUB --> POLICIES[".agent/policies/ — Safety & Privacy Shield"]
-    HUB --> SETTINGS[".agent/settings.json — MCP Service Registry"]
+    HUB --> SETTINGS[".agent/adapters/settings/<harness>.json — per-harness settings source"]
 
     subgraph "Execution Layer"
         AGENTS --> SCOUT["Swarm Scout"]

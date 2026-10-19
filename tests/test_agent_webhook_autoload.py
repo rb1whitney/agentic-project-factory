@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-TARGET_AGENTS = ["db-migration", "specialist-aws", "memory-agent"]
+TARGET_AGENTS = ["db-migration-agent", "specialist-aws", "memory-agent"]
 
 def simulate_webhook_execution():
     print("[1/4] Simulating adapter webhook trigger (bin/autoload_webhook.py)...")
@@ -62,7 +62,7 @@ def verify_claude_loaded():
         assert content.startswith("---"), f"Agent {agent} missing YAML frontmatter boundary"
         assert f"name: {agent}" in content or f"name: {agent}-agent" in content, f"Agent {agent} name mismatch"
         assert "model: " in content, f"Agent {agent} missing model"
-        assert "tools: " in content, f"Agent {agent} missing tools"
+        assert "tools:" in content, f"Agent {agent} missing tools"
         print(f"      [CLAUDE] Verified loaded: {agent} with valid frontmatter.")
 
 def verify_skills_available():

@@ -5,9 +5,13 @@ Translates canonical agent definitions (.agent/agents/*.yaml) into:
 - Claude Code:   .claude/agents/*.md
 - Antigravity:   .agents/agents/*.md & .agents/*.json
 - Codex:         .codex/agents/*.toml
+Also projects per-harness settings (.agent/adapters/settings/<harness>.json) and
+skill symlinks (.agent/skills/* -> .claude/skills, .agents/skills). Everything
+outside .agent/ is a generated build artifact; .agent/ is the only source.
 """
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -17,6 +21,66 @@ import yaml
 CANONICAL_DIR = Path(".agent/agents")
 SKILLS_DIR = Path(".agent/skills")
 MAP_FILE = Path(".agent/adapters/map.yaml")
+SETTINGS_DIR = Path(".agent/adapters/settings")
+SCHEMA_DIR = Path(".agent/adapters/schemas")
+
+
+def validate_json(data, schema_name, label):
+    """Fail loud: harnesses silently drop or hang on malformed config (see adapter pattern #3)."""
+    try:
+        import jsonschema
+    except ImportError:
+        print(f"Warning: jsonschema not installed; skipping schema validation of {label}", file=sys.stderr)
+        return
+    schema = json.loads((SCHEMA_DIR / schema_name).read_text())
+    errors = sorted(jsonschema.Draft7Validator(schema).iter_errors(data), key=lambda e: list(e.path))
+    if errors:
+        for e in errors:
+            loc = "/".join(str(x) for x in e.path) or "<root>"
+            print(f"Schema error in {label} at {loc}: {e.message}", file=sys.stderr)
+        sys.exit(1)
+
+
+def drop_symlinks(directory, pattern):
+    # open(..., "w") follows symlinks; a legacy link into .agent/agents would
+    # write generated output into the source vault.
+    for existing in directory.glob(pattern):
+        if existing.is_symlink():
+            existing.unlink()
+
+
+def hydrate_settings(harness, dest):
+    src = SETTINGS_DIR / f"{harness}.json"
+    if not src.exists():
+        print(f"Error: missing canonical settings '{src}'", file=sys.stderr)
+        sys.exit(1)
+    data = json.loads(src.read_text())
+    validate_json(data, "claude-code-settings.schema.json", str(src))
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.is_symlink():
+        dest.unlink()
+    dest.write_text(json.dumps(data, indent=2) + "\n")
+    print(f"Hydrated {harness} settings: {dest}")
+
+
+def hydrate_skills(skill_dir):
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    sources = {d.name for d in SKILLS_DIR.iterdir() if d.is_dir() and (d / "SKILL.md").exists()}
+    for existing in skill_dir.iterdir():
+        if existing.is_symlink() and existing.name not in sources:
+            print(f"Pruning stale skill link: {existing}")
+            existing.unlink()
+    for name in sorted(sources):
+        link = skill_dir / name
+        rel = os.path.relpath(SKILLS_DIR / name, skill_dir)
+        if link.is_symlink() and os.readlink(link) == rel:
+            continue
+        if link.is_symlink():
+            link.unlink()
+        elif link.exists():
+            print(f"Error: {link} exists and is not a symlink", file=sys.stderr)
+            sys.exit(1)
+        link.symlink_to(rel)
 
 def load_map():
     if not MAP_FILE.exists():
@@ -110,6 +174,9 @@ def hydrate_claude(agents, map_data, provider="native"):
     claude_cfg = harnesses.get("claude", {})
     out_dir = Path(".claude/agents")
     out_dir.mkdir(parents=True, exist_ok=True)
+    drop_symlinks(out_dir, "*.md")
+    hydrate_settings("claude", Path(".claude/settings.json"))
+    hydrate_skills(Path(".claude/skills"))
     cap_map = claude_cfg.get("capabilities", {})
     tier_map = claude_cfg.get("tiers", {})
     disallowed_default = claude_cfg.get("disallowed_when_no_delegate", ["Task", "Agent"])
@@ -172,6 +239,15 @@ def hydrate_antigravity(agents, map_data, provider="native"):
     out_dir_json = Path(".agents")
     out_dir_md.mkdir(parents=True, exist_ok=True)
     out_dir_json.mkdir(parents=True, exist_ok=True)
+    drop_symlinks(out_dir_md, "*.md")
+    # agy CLI settings.json is user-scope only (~/.gemini/antigravity-cli); project scope is hooks.json.
+    hooks_src = Path(".agent/hooks/hooks.json")
+    validate_json(json.loads(hooks_src.read_text()), "antigravity-hooks.schema.json", str(hooks_src))
+    hydrate_skills(Path(".agents/skills"))
+    hooks_link = Path(".agents/hooks.json")
+    if hooks_link.is_symlink() or hooks_link.exists():
+        hooks_link.unlink()
+    hooks_link.symlink_to("../.agent/hooks/hooks.json")
 
     cap_map = agy_cfg.get("capabilities", {})
     tier_map = agy_cfg.get("tiers", {})
