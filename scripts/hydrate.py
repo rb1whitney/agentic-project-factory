@@ -42,7 +42,8 @@ def validate_json(data, schema_name, label):
 
 
 def drop_symlinks(directory, pattern):
-    # open(..., "w") follows symlinks; a legacy link into .agent/agents would write generated output into the source vault.
+    # open(..., "w") follows symlinks; a legacy link into .agent/agents would
+    # write generated output into the source vault.
     for existing in directory.glob(pattern):
         if existing.is_symlink():
             existing.unlink()
