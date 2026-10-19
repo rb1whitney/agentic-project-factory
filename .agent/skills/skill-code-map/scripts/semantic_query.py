@@ -8,6 +8,9 @@ from typing import Any, Dict, List, Optional, Tuple
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("semantic_query")
 
+# Id namespaces that are path-style (k8s:<group>/<Kind>/<ns>/<name>), never dotted Class.method.
+INFRA_PREFIXES = ("k8s:", "py:", "go:", "vault:")
+
 
 def _normalize_graph_schema(raw: Dict[str, Any]) -> Dict[str, Any]:
     """Accept both skill-code-map {nodes: dict, edges: list} and Graphify {nodes: list, links: list}."""
@@ -74,12 +77,35 @@ class SemanticQuery:
         """Public form of _owner: collapse 'Class.method' to 'Class'."""
         return self._owner(node_id)
 
+    @staticmethod
+    def _is_infra_id(node_id: str) -> bool:
+        return node_id.startswith(INFRA_PREFIXES)
+
+    @staticmethod
+    def _kind_or_ns_name(node_id: str, first: str, last: str) -> bool:
+        parts = node_id[4:].split("/")
+        return len(parts) >= 3 and parts[-1] == last and first in (parts[1], parts[-2])
+
     def _matches(self, name: str) -> List[str]:
-        """Exact node id, else every 'Class.<name>' method (bare method names are ambiguous)."""
+        """Exact id, else 'Class.<name>' methods, else 'Kind/name', else substring over infra ids (k8s:/vault:/py:/go:),
+        else path suffix; code symbols are never substring-matched."""
         nodes = self.graph.get("nodes", {})
         if name in nodes:
             return [name]
-        return sorted(k for k in nodes if k.endswith("." + name))
+        found = sorted(k for k in nodes if k.endswith("." + name))
+        if found:
+            return found
+        if name.count("/") == 1:
+            # 'Kind/name' or 'ns/name' against k8s:<group>/<Kind>/<ns>/<name>
+            first, last = name.split("/")
+            found = sorted(k for k in nodes if k.startswith("k8s:") and self._kind_or_ns_name(k, first, last))
+            if found:
+                return found
+        needle = name.lower()
+        infra = sorted(k for k in nodes if self._is_infra_id(k) and needle in k.lower())
+        if infra:
+            return infra
+        return sorted(k for k in nodes if k.endswith(("/" + name, ":" + name)))
 
     def _owner(self, node_id: str) -> str:
         """Collapse 'Class.method' to 'Class' via rightmost dot so package/module prefixes stay intact."""
@@ -87,7 +113,7 @@ class SemanticQuery:
         node = nodes.get(node_id)
         if node and node.get("type") in ("method", "constructor"):
             return node_id.rsplit(".", 1)[0]
-        if node is None and "." in node_id and not node_id.startswith(("k8s:", "py:", "go:", "vault:")):
+        if node is None and "." in node_id and not node_id.startswith(INFRA_PREFIXES):
             prefix = node_id.rsplit(".", 1)[0]
             if prefix in nodes or "." not in prefix:
                 return prefix
@@ -141,6 +167,109 @@ class SemanticQuery:
             origin = "" if d.get("from") == target else f" [from {d.get('from')}]"
             res.append(f"- Depends on {d.get('to')} (Type: {d.get('type')}){origin}")
         return "\n".join(res)
+
+    def breakdown(self) -> str:
+        """Node/edge type counts plus evidence boundary: schema-only vs live instances."""
+        nodes = self.graph.get("nodes", {})
+        edges = self.graph.get("edges", [])
+        by_type: Dict[str, int] = {}
+        status: Dict[str, int] = {}
+        for info in nodes.values():
+            by_type[str(info.get("type", "?"))] = by_type.get(str(info.get("type", "?")), 0) + 1
+            if info.get("status"):
+                status[str(info["status"])] = status.get(str(info["status"]), 0) + 1
+        by_edge: Dict[str, int] = {}
+        for e in edges:
+            by_edge[str(e.get("type"))] = by_edge.get(str(e.get("type")), 0) + 1
+        fmt = lambda d: ", ".join(f"{k}={v}" for k, v in sorted(d.items(), key=lambda kv: -kv[1])) or "none"  # noqa: E731
+        k8s_nodes = [i for i in nodes if i.startswith("k8s:")]
+        if k8s_nodes:
+            live = sum(1 for i in k8s_nodes if nodes[i].get("status") not in (None, "Referenced", "Schema"))
+            boundary = "live cluster state" if live else "schema/manifest only (no live instances)"
+        else:
+            boundary = "static AST"
+        return "\n".join(
+            [
+                f"Nodes ({len(nodes)}): {fmt(by_type)}",
+                f"Edges ({len(edges)}): {fmt(by_edge)}",
+                f"Status: {fmt(status)}",
+                f"Evidence boundary: {boundary}",
+            ]
+        )
+
+    def query(self, keyword: str, limit: int = 25) -> str:
+        found = self._matches(keyword)
+        nodes = self.graph.get("nodes", {})
+        lines = [self.breakdown(), "", f"Matches for '{keyword}': {len(found)}"]
+        for m in found[:limit]:
+            info = nodes[m]
+            extra = f" status={info['status']}" if info.get("status") else ""
+            lines.append(f"- {m} (type={info.get('type')}){extra}")
+        if len(found) > limit:
+            lines.append(f"... {len(found) - limit} more")
+        return "\n".join(lines)
+
+    def lineage(self, target: str, depth: int = 2) -> Dict[str, Any]:
+        """Bidirectional BFS: upstream = who points at target, downstream = what target points at."""
+        starts = self._matches(target)
+        nodes = self.graph.get("nodes", {})
+        out: Dict[str, List[str]] = {}
+        inc: Dict[str, List[str]] = {}
+        for e in self.graph.get("edges", []):
+            u, v = str(e.get("from", "")), str(e.get("to", ""))
+            out.setdefault(u, []).append(v)
+            inc.setdefault(v, []).append(u)
+
+        def walk(adj: Dict[str, List[str]]) -> Dict[str, int]:
+            seen = {s: 0 for s in starts}
+            frontier = list(starts)
+            for d in range(1, depth + 1):
+                nxt = []
+                for cur in frontier:
+                    for nb in sorted(set(adj.get(cur, []))):
+                        if nb not in seen:
+                            seen[nb] = d
+                            nxt.append(nb)
+                frontier = nxt
+            return seen
+
+        up, down = walk(inc), walk(out)
+        keep = set(up) | set(down)
+        edges = [
+            e
+            for e in self.graph.get("edges", [])
+            if str(e.get("from")) in keep and str(e.get("to")) in keep
+            and (str(e.get("from")) in up and str(e.get("to")) in up
+                 or str(e.get("from")) in down and str(e.get("to")) in down)
+        ]
+        return {
+            "targets": starts,
+            "upstream": sorted(n for n in up if n not in starts),
+            "downstream": sorted(n for n in down if n not in starts),
+            "edges": [{"from": e["from"], "to": e["to"], "type": e.get("type")} for e in edges],
+            "statuses": {n: nodes.get(n, {}).get("status") for n in keep if nodes.get(n, {}).get("status")},
+        }
+
+    def lineage_mermaid(self, target: str, depth: int = 2) -> str:
+        lin = self.lineage(target, depth)
+        ids: Dict[str, str] = {}
+
+        def nid(n: str) -> str:
+            return ids.setdefault(n, f"n{len(ids)}")
+
+        lines = ["flowchart TD"]
+        for e in lin["edges"]:
+            lines.append(f"  {nid(e['from'])} -->|{e['type']}| {nid(e['to'])}")
+        if not lin["edges"]:
+            for t in lin["targets"]:
+                nid(t)
+        for n, i in ids.items():
+            st = lin["statuses"].get(n)
+            label = (n + (f" [{st}]" if st else "")).replace('"', "'")
+            lines.append(f'  {i}["{label}"]')
+            if n in lin["targets"]:
+                lines.append(f"  style {i} stroke-width:3px")
+        return "\n".join(lines)
 
     def impact(self, name: str) -> str:
         """Transitive blast radius: every class that reaches `name` through any edge, nearest first."""
@@ -342,6 +471,16 @@ def main() -> None:
     p_impact = subparsers.add_parser("impact")
     p_impact.add_argument("name", help="Class or Class.method; lists transitive dependents")
 
+    # query
+    p_q = subparsers.add_parser("query")
+    p_q.add_argument("keyword", help="Node id, suffix, Kind/name, or substring (k8s:/vault: ids)")
+
+    # lineage
+    p_l = subparsers.add_parser("lineage")
+    p_l.add_argument("target")
+    p_l.add_argument("--depth", type=int, default=2)
+    p_l.add_argument("--mermaid", action="store_true", help="Emit a Mermaid flowchart TD block")
+
     # shortest-path
     p_sp = subparsers.add_parser("shortest-path")
     p_sp.add_argument("src")
@@ -367,6 +506,13 @@ def main() -> None:
         print(query.trace_dependencies(args.file))
     elif args.command == "impact":
         print(query.impact(args.name))
+    elif args.command == "query":
+        print(query.query(args.keyword))
+    elif args.command == "lineage":
+        if args.mermaid:
+            print(query.lineage_mermaid(args.target, args.depth))
+        else:
+            print(json.dumps(query.lineage(args.target, args.depth), indent=2))
     elif args.command == "shortest-path":
         p = query.shortest_path(args.src, args.dst, directed=not args.undirected)
         print(" -> ".join(p) if p else f"No path between '{args.src}' and '{args.dst}'.")

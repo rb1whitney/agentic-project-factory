@@ -124,6 +124,32 @@ class CodeMapGraphifyMCP:
                 },
             },
             {
+                "name": "graph_lineage",
+                "description": (
+                    "Bidirectional N-hop lineage of a node (id, suffix, Kind/name or keyword) with statuses, "
+                    "Mermaid flowchart and evidence boundary."
+                ),
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "target": {"type": "string"},
+                        "depth": {"type": "integer", "default": 2},
+                    },
+                    "required": ["target"],
+                },
+            },
+            {
+                "name": "graph_query_symbol",
+                "description": (
+                    "Symbol lookup: definition, usages, outbound dependencies and impact, plus node/edge breakdown."
+                ),
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {"name": {"type": "string"}},
+                    "required": ["name"],
+                },
+            },
+            {
                 "name": "well_architected_audit",
                 "description": (
                     "Run 6-Pillar Well-Architected Code Audit (SEC, REL, OPS, PERF, COST, SUS) over a Python/Java/Go "
@@ -158,6 +184,23 @@ class CodeMapGraphifyMCP:
             q = sq.SemanticQuery.from_dict(self.graph)
             path = q.shortest_path(arguments["source"], arguments["target"])
             return {"path": path, "hops": max(0, len(path) - 1)}
+        if name == "graph_lineage":
+            q = sq.SemanticQuery.from_dict(self.graph)
+            depth = int(arguments.get("depth", 2))
+            res = q.lineage(arguments["target"], depth)
+            res["mermaid"] = q.lineage_mermaid(arguments["target"], depth)
+            res["breakdown"] = q.breakdown()
+            return res
+        if name == "graph_query_symbol":
+            q = sq.SemanticQuery.from_dict(self.graph)
+            sym = arguments["name"]
+            return {
+                "breakdown": q.breakdown(),
+                "definition": q.find_definition(sym),
+                "usages": q.find_usages(sym),
+                "dependencies": q.trace_dependencies(sym),
+                "impact": q.impact(sym),
+            }
         if name == "graph_architecture_report":
             norm = gb.from_graphify(self.graph)
             return {

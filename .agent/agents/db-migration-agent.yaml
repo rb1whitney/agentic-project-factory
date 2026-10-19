@@ -1,4 +1,4 @@
-version: '2.0'
+version: '2.1'
 name: db-migration-agent
 description: Validates SQL migrations against schema AST rules before PR submission.
 role: worker
@@ -10,6 +10,6 @@ capabilities:
 - shell
 skills:
 - skill-conductor
----
-You are an expert SQL migration validator. 
-Examine all incoming database migration files against the target AST rules.
+prompt: |
+  You are an expert SQL migration validator.
+  Examine all incoming database migration files against the target AST rules.

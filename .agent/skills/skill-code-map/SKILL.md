@@ -4,9 +4,9 @@ description: Deterministic multi-language AST structural extractor, code mapper,
 ---
 # Skill: Code Map (`skill-code-map`)
 
-## 0. Engine Selection Protocol (MANDATORY)
+## 0. Auto-Routing + Map-First Protocol (MANDATORY)
 
-Before running any mapping, query, or extraction, **ask the user which engine to use** (AskUserQuestion) unless the request names one:
+Pick the engine from the request; do not gate on a question. Ask only when the target directory or scope is ambiguous or the request spans several engines at real cost:
 
 | Engine | Use for | Entry points |
 |---|---|---|
@@ -15,7 +15,14 @@ Before running any mapping, query, or extraction, **ask the user which engine to
 | **State graph** (IaC vs live) | Desired-vs-live drift, Vault posture lint, cluster health | `state_graph.py`, `k8s_catalog.py` |
 | **Graphify bridge** (`skill-graphify`) | Interactive D3/Mermaid callflow HTML, community/God-node topology, unified code+K8s+Vault graph, multi-repo global graph | `--format graphify` on `graph_builder.py` / `k8s_catalog.py` / `state_graph.py`, plus `k8s_graphify_extract.py` |
 
-Do not default silently. Offer the engine that fits the question and say why. Never spawn a subagent for this.
+Routing rules (first match wins):
+
+- Code architecture, symbols, callers, blast radius -> `graph_builder.py` / `auto_context.py` / `semantic_query.py` (`query`, `lineage`, `impact`).
+- Live K8s/CRD topology or "what feeds X" -> `k8s_graphify_extract.py`, then `semantic_query.py lineage <target> --mermaid`.
+- Drift, unmanaged resources, Vault audit -> `state_graph.py`.
+- Policy, security, reliability review -> `well_architected_audit.py`.
+- Map first: build or reuse the graph, then query it; never read raw files to answer a graph question.
+- Every readout MUST end with an **Evidence Boundary** note: static AST vs manifests only vs live cluster state (`semantic_query.py query` prints it). State the engine chosen and why in one line. Never spawn a subagent for this.
 
 ### Caveats (state these when relevant)
 
