@@ -150,6 +150,53 @@ class CodeMapGraphifyMCP:
                 },
             },
             {
+                "name": "graph_env_diff",
+                "description": (
+                    "Compare two environment layers (Terraform tfvars, Helm values-<env>, Kustomize overlays, Hiera "
+                    "appenv): keys only in A, only in B, and differing values. Sensitive values are redacted."
+                ),
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "root": {"type": "string"},
+                        "env_a": {"type": "string"},
+                        "env_b": {"type": "string"},
+                    },
+                    "required": ["root", "env_a", "env_b"],
+                },
+            },
+            {
+                "name": "graph_state_drift",
+                "description": (
+                    "IaC-vs-live drift report via state_graph.py. Offline only: pass live_k8s (JSON snapshot path); "
+                    "never contacts a cluster from MCP."
+                ),
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "k8s_dirs": {"type": "array", "items": {"type": "string"}},
+                        "live_k8s": {"type": "string"},
+                        "format": {"type": "string", "enum": ["json", "graphify"], "default": "json"},
+                    },
+                    "required": ["k8s_dirs", "live_k8s"],
+                },
+            },
+            {
+                "name": "graph_k8s_extract",
+                "description": (
+                    "Build a Graphify K8s graph with k8s_graphify_extract.py from an offline object snapshot "
+                    "(live_k8s) or a --cache-dir (no_live). Output graph becomes this server's active graph."
+                ),
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "live_k8s": {"type": "string"},
+                        "cache_dir": {"type": "string"},
+                        "catalog": {"type": "string"},
+                    },
+                },
+            },
+            {
                 "name": "well_architected_audit",
                 "description": (
                     "Run 6-Pillar Well-Architected Code Audit (SEC, REL, OPS, PERF, COST, SUS) over a Python/Java/Go "
@@ -200,6 +247,40 @@ class CodeMapGraphifyMCP:
                 "usages": q.find_usages(sym),
                 "dependencies": q.trace_dependencies(sym),
                 "impact": q.impact(sym),
+            }
+        if name == "graph_env_diff":
+            import state_graph as sgm
+
+            return sgm.env_diff(Path(arguments["root"]), arguments["env_a"], arguments["env_b"])
+        if name == "graph_state_drift":
+            cmd = [sys.executable, str(SCRIPT_DIR / "state_graph.py"), "drift", "--no-live-vault"]
+            cmd += ["--k8s", *arguments["k8s_dirs"], "--live-k8s", arguments["live_k8s"]]
+            cmd += ["--format", arguments.get("format", "json")]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            if res.returncode != 0:
+                return {"error": res.stderr.strip()[-2000:]}
+            return json.loads(res.stdout)
+        if name == "graph_k8s_extract":
+            script = SCRIPT_DIR.parent.parent / "skill-graphify" / "scripts" / "k8s_graphify_extract.py"
+            with tempfile.TemporaryDirectory() as d:
+                out = Path(d) / "graph.json"
+                cmd = [sys.executable, str(script), "--out", str(out)]
+                if arguments.get("live_k8s"):
+                    cmd += ["--live-k8s", arguments["live_k8s"]]
+                elif arguments.get("cache_dir"):
+                    cmd += ["--no-live", "--cache-dir", arguments["cache_dir"]]
+                else:
+                    raise ValueError("graph_k8s_extract needs live_k8s or cache_dir (MCP never queries a cluster)")
+                if arguments.get("catalog"):
+                    cmd += ["--catalog", arguments["catalog"]]
+                res = subprocess.run(cmd, capture_output=True, text=True)
+                if res.returncode != 0:
+                    return {"error": (res.stderr or res.stdout).strip()[-2000:]}
+                self.graph = json.loads(out.read_text(encoding="utf-8"))
+            return {
+                "nodes": len(self.graph.get("nodes", [])),
+                "links": len(self.graph.get("links", [])),
+                "diagnostics": self.graph.get("diagnostics", []),
             }
         if name == "graph_architecture_report":
             norm = gb.from_graphify(self.graph)
