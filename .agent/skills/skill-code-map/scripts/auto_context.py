@@ -271,6 +271,17 @@ class ContextLens:
             if f:
                 by_file_symbols[f].append(f"  - {info.get('type', 'symbol')} {nid} (L{info.get('line', 1)})")
 
+        def live_summary(f: str) -> List[str]:
+            """Compact property summary for virtual k8s:// and vault:// files (no file on disk to read)."""
+            out = []
+            for nid, info in sorted(self.nodes.items()):
+                if info.get("file") != f:
+                    continue
+                skip = {"file", "line", "type"}
+                props = ", ".join(f"{k}={v}" for k, v in sorted(info.items()) if k not in skip and v not in (None, ""))
+                out.append(f"  - {info.get('type', 'resource')} {nid}" + (f" ({props})" if props else ""))
+            return out[:8]
+
         def render_k(k: int) -> str:
             if k <= 0:
                 return ""
@@ -278,7 +289,7 @@ class ContextLens:
             for item in ranked[:k]:
                 f = item["file"]
                 hdr = f"## {f} [score={item['score']}; roles={','.join(item['roles'])}]"
-                syms = by_file_symbols.get(f, [])[:8]
+                syms = live_summary(f) if f.startswith(("k8s://", "vault://")) else by_file_symbols.get(f, [])[:8]
                 blocks.append("\n".join([hdr] + syms))
             return "\n".join(blocks)
 

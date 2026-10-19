@@ -680,6 +680,17 @@ def cross_check(
     return [f for f in out if not (f["message"] in seen or seen.add(f["message"]))]
 
 
+def _live_uri(canonical_id: str) -> str:
+    """k8s:<group>/<Kind>/<ns>/<name> -> k8s://<ns>/<kind>/<name> (matches k8s_graphify_extract source_file).
+
+    Unique per resource so context ranking can score unmanaged objects individually instead of one bucket."""
+    parts = canonical_id[4:].split("/") if canonical_id.startswith("k8s:") else []
+    if len(parts) < 4:
+        return "k8s://unknown/" + canonical_id.replace(":", "/")
+    ns = "cluster" if parts[-2] == "_cluster_" else parts[-2]
+    return f"k8s://{ns}/{parts[-3].lower()}/{parts[-1]}"
+
+
 def _canonical_graphify_k8s_id(raw_id: str) -> str:
     """Convert state_graph _k8s_id into canonical k8s:<group>/<Kind>/<ns_or__cluster_>/<name>."""
     if raw_id.startswith("k8s:"):
@@ -752,7 +763,7 @@ def report_to_graphify(
                 "id": cuid,
                 "label": f"Unmanaged: {parts[-1]}",
                 "file_type": "k8s_resource",
-                "source_file": "k8s-live",
+                "source_file": _live_uri(cuid),
                 "community": 23,
                 "_origin": "state_graph",
                 "properties": {"drift_status": "unmanaged"},
@@ -800,7 +811,7 @@ def report_to_graphify(
                 "id": vuid,
                 "label": f"Unmanaged Vault: {vuid.split(':')[-1]}",
                 "file_type": "vault_resource",
-                "source_file": "vault-live",
+                "source_file": "vault://" + vuid.split(":", 1)[-1].replace(":", "/"),
                 "community": 23,
                 "_origin": "state_graph",
                 "properties": {"drift_status": "unmanaged"},
