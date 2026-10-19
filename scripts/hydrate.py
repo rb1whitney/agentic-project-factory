@@ -12,7 +12,6 @@ outside .agent/ is a generated build artifact; .agent/ is the only source.
 
 import json
 import os
-import re
 import sys
 from pathlib import Path
 
@@ -94,38 +93,26 @@ def parse_agent_file(path, map_data):
     with open(path, "r") as f:
         content = f.read()
 
-    header_str = ""
-    body = ""
-    if content.startswith("---"):
-        match = re.match(r"^---\s*\n(.*?)\n---\s*(\n|$)(.*)$", content, re.DOTALL)
-        if match:
-            header_str = match.group(1)
-            body = match.group(3).strip()
-    else:
-        match = re.match(r"^(.*?)\n---\s*(\n|$)(.*)$", content, re.DOTALL)
-        if match:
-            header_str = match.group(1)
-            body = match.group(3).strip()
-
-    if not header_str:
-        header_str = content
-        body = ""
-
     try:
-        header = yaml.safe_load(header_str) or {}
+        header = yaml.safe_load(content)
     except Exception as e:
-        print(f"Validation Error: '{path}' has malformed YAML header: {e}", file=sys.stderr)
+        print(f"Validation Error: '{path}' is not valid YAML: {e}", file=sys.stderr)
         sys.exit(1)
+    if not isinstance(header, dict) or "prompt" not in header:
+        print(
+            f"Validation Error: '{path}' must be a single YAML document with a 'prompt' field "
+            "(legacy '---' + Markdown body format is no longer supported).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    validate_json(header, "agent.schema.json", str(path))
+    body = header["prompt"].strip()
 
-    name = header.get("name")
-    if not name:
-        print(f"Validation Error: '{path}' missing required 'name' field.", file=sys.stderr)
+    name = header["name"]
+    if Path(path).stem != name:
+        print(f"Validation Error: '{path}' stem must equal name '{name}'.", file=sys.stderr)
         sys.exit(1)
-
-    description = header.get("description", "")
-    if not description:
-        print(f"Validation Error: '{path}' missing required 'description' field.", file=sys.stderr)
-        sys.exit(1)
+    description = header["description"]
 
     tier = header.get("tier")
     capabilities = header.get("capabilities")
@@ -357,7 +344,7 @@ def hydrate_codex(agents, map_data, provider="native"):
         if provider != "native" and tier in provider_tiers:
             model = provider_tiers[tier]
         else:
-            model = tier_map.get(tier, "gpt-5-turbo")
+            model = tier_map.get(tier, "gpt-6-luna")
 
         if "write" in agent["capabilities"] or "shell" in agent["capabilities"]:
             sandbox_mode = "workspace-write"
