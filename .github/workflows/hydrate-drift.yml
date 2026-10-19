@@ -1,0 +1,34 @@
+name: Hydration Drift
+on:
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - '.agent/agents/**'
+      - '.agent/skills/**/SKILL.md'
+      - '.agent/adapters/**'
+      - '.agent/hooks/**'
+      - 'scripts/hydrate.*'
+      - '.claude/settings.json'
+      - '.agents/hooks.json'
+      - '.github/workflows/hydrate-drift.yml'
+permissions:
+  contents: read
+jobs:
+  drift:
+    name: Hydrate and diff tracked projections
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyyaml jsonschema
+      # Fails on schema violations or missing vendor keys (hydrate exits 1).
+      - run: ./scripts/hydrate.sh all
+      - name: Tracked projections match canonical source
+        run: git diff --exit-code -- .claude/settings.json .agents/hooks.json
+      - name: Source vault holds no generated files
+        run: |
+          bad=$(git ls-files .agent/agents | grep -v '\.yaml$' || true)
+          [ -z "$bad" ] || { echo "Non-yaml files tracked in .agent/agents:"; echo "$bad"; exit 1; }
+          [ -z "$(git status --porcelain -- .agent)" ] || { git status --porcelain -- .agent; exit 1; }
