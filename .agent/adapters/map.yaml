@@ -55,8 +55,8 @@ harnesses:
       read-only: [read, search]
       workspace-write: [read, search, write, shell]
     tiers:
-      fast: gpt-5-turbo
-      deep: gpt-5-pro
+      fast: gpt-6-luna
+      deep: gpt-6-sol
     defaults:
       tools_omitted: inherit_parent_sandbox
       unknown_tool: not_applicable       # No tool list in toml

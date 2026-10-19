@@ -18,7 +18,7 @@ This factory operates on **Domain-Driven Design (DDD)** principles, specifically
 
 ## 0.2 EPHEMERAL PROJECTION & COMPILER PROTOCOL
 This repository enforces the **Ephemeral Projection Adapter Pattern** to decouple agent source definitions from proprietary vendor parser requirements (Claude Code, Antigravity `agy`, OpenAI/Copilot).
-*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions.
+*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions. Each file is a single valid YAML document (`prompt: |` holds the Markdown body), validated against `.agent/adapters/schemas/agent.schema.json`; the file stem must equal `name`.
 *   **Synchronous Hydration Engine**: Pre-flight compilation is mandatory via `scripts/hydrate.sh`.
     - Claude: Projects canonical schemas into Markdown frontmatter under `.claude/agents/*.md`.
     - Antigravity: Projects canonical schemas into JSON schema specifications under `.agents/*.json`.
