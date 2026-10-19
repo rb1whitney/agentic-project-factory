@@ -71,7 +71,7 @@ Target: **60-98% token reduction**. All five frameworks MANDATORY. No exceptions
 
 ### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
 *   **BANNED**: Loading entire directories without AST gating or running root-wide `code_mapper.py .` on startup.
-*   **REQUIRED (ASK AT TASK START)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Engine Selection Protocol) and ask the USER (`ask_question`) which target `<dir>` and engine (`auto_context.py` / `code_mapper.py`, `ast-grep`, `state_graph.py`, or `skill-graphify`) to run.
+*   **REQUIRED (AUTO-ROUTE)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Auto-Routing + Map-First Protocol). Engine is chosen from the request; ask the USER only when target `<dir>` or scope is ambiguous. State the Evidence Boundary in every readout.
 *   **REQUIRED**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir> --max-tokens 8000` (or selected engine) and restrict context window strictly to calculated blast radius.
 
 ### 4. Telegraphic Output Compression (Caveman-Prose Ultra)
@@ -213,7 +213,7 @@ skill-github/references/      PR creation, Issue triage, Review guides
 
 
 ### AST & Knowledge Graph Layer (Thin Routing — Read Skill Before Running)
-- **AST & Policy Engine**: Read [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Engine Selection) -> ask USER `<dir>` & engine (`auto_context.py` PPR lens, `semantic_query.py` diff-impact, `well_architected_audit.py` 6-pillar review, `state_graph.py` K8s/Vault drift, or `ast-grep`).
+- **AST & Policy Engine**: Read [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Auto-Routing) -> pick engine from request; ask USER only if `<dir>` ambiguous: (`auto_context.py` PPR lens, `semantic_query.py` diff-impact, `well_architected_audit.py` 6-pillar review, `state_graph.py` K8s/Vault drift, or `ast-grep`).
 - **Graphify Topology**: Read [**.agent/skills/skill-graphify/SKILL.md**](file://./.agent/skills/skill-graphify/SKILL.md) for D3/Mermaid callflows, Tarjan SCC/community reports, and live K8s/Crossplane extraction (`k8s_graphify_extract.py`).
 - `conductor/workflow.md`  CI/CD and deployment flow
 

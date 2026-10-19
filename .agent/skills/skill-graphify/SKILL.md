@@ -6,9 +6,9 @@ description: Lifecycle manager, knowledge graph generator, and topological depen
 
 Operational manual and lifecycle manager for **Graphify** ([Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify)), integrated with `skill-code-map` for deterministic AST extraction, `ast-grep` rule overlays, and IaC-vs-live drift graphs.
 
-## 0. Engine Selection Protocol (MANDATORY)
+## 0. Auto-Routing Protocol (MANDATORY)
 
-Before running graph extraction or export, **ask the user which mode/engine to use** unless specified:
+Pick the mode from the request (live cluster/CRD -> Live K8s row; drift -> IaC-vs-Live; code topology -> Local AST; cross-modal docs -> Deep Semantic). Ask only if the target or scope is ambiguous. Every readout MUST state its **Evidence Boundary** (static AST, manifests only, or live cluster state):
 
 | Mode / Engine | Use for | Entry points |
 |---|---|---|
