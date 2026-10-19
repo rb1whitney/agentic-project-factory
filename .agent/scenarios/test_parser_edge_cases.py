@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Scenario Test: Frontmatter Parser & Horizontal Rule (---) Body Edge Cases
-Verifies that scripts/hydrate.py correctly isolates YAML headers from prompt bodies
-containing markdown horizontal rules ('---') without corruption, truncation, or silent fallback.
+Verifies that scripts/hydrate.py parses single-document agent YAML whose `prompt: |` block contains
+markdown horizontal rules ('---') without corruption or truncation, and rejects the legacy
+'---' + Markdown body format and schema violations (fail loud).
 """
 
 import sys
@@ -22,115 +23,86 @@ class TestParserEdgeCases(unittest.TestCase):
     def setUpClass(cls):
         cls.map_data = load_map()
 
-    def test_horizontal_rules_inside_body_unboxed_header(self):
-        """Test unboxed YAML header with multiple '---' horizontal rules in prompt body."""
-        content = """version: 2.0
+    def _parse(self, name, content):
+        # File stem must equal `name` (schema rule), so write into a private temp dir.
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / f"{name}.yaml"
+            path.write_text(content, encoding="utf-8")
+            return parse_agent_file(str(path), self.map_data)
+
+    def test_horizontal_rules_inside_prompt(self):
+        content = """version: '2.1'
 name: test-hr-agent
 description: Test agent with horizontal rules in prompt body.
-role: worker
 tier: fast
 capabilities: [read, search]
 skills: [skill-conductor]
----
-# Primary Section
+prompt: |
+  # Primary Section
 
-Some introductory text.
+  Some introductory text.
 
----
+  ---
 
-## Secondary Section Separated By Horizontal Rule
+  ## Secondary Section Separated By Horizontal Rule
 
-Here is an example code block or text:
----
-Key-Value: Not-A-Header
----
+  | A | B |
+  |---|---|
+  | 1 | 2 |
 
-Final concluding notes.
+  ---
+  Key-Value: Not-A-Header
+  ---
+
+  Final concluding notes.
 """
-        with tempfile.NamedTemporaryFile("w+", suffix=".yaml", delete=False) as tf:
-            tf.write(content)
-            tf.flush()
-            temp_path = tf.name
+        parsed = self._parse("test-hr-agent", content)
+        self.assertEqual(parsed["name"], "test-hr-agent")
+        self.assertEqual(parsed["tier"], "fast")
+        self.assertEqual(parsed["capabilities"], ["read", "search"])
+        self.assertIn("## Secondary Section Separated By Horizontal Rule", parsed["body"])
+        self.assertIn("Key-Value: Not-A-Header", parsed["body"])
+        self.assertIn("Final concluding notes.", parsed["body"])
+        self.assertGreaterEqual(parsed["body"].count("---"), 3)
 
-        try:
-            parsed = parse_agent_file(temp_path, self.map_data)
-            self.assertEqual(parsed["name"], "test-hr-agent")
-            self.assertEqual(parsed["tier"], "fast")
-            self.assertEqual(parsed["capabilities"], ["read", "search"])
-            self.assertIn("## Secondary Section Separated By Horizontal Rule", parsed["body"])
-            self.assertIn("Key-Value: Not-A-Header", parsed["body"])
-            self.assertIn("Final concluding notes.", parsed["body"])
-            # Ensure the body retained its internal '---' markers
-            self.assertGreaterEqual(parsed["body"].count("---"), 2)
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
-
-    def test_horizontal_rules_inside_body_boxed_header(self):
-        """Test boxed YAML header (starting with line 1 '---') with '---' in prompt body."""
-        content = """---
-version: 2.0
-name: test-boxed-agent
-description: Test agent with boxed frontmatter and internal horizontal rules.
-role: worker
-tier: deep
-capabilities: [read, search, shell]
-skills: [skill-conductor]
----
-# Architectural Evaluation
-
-Overview text.
-
----
-
-### Matrix Section
-| A | B |
-|---|---|
-| 1 | 2 |
-
----
-
-End of report.
-"""
-        with tempfile.NamedTemporaryFile("w+", suffix=".yaml", delete=False) as tf:
-            tf.write(content)
-            tf.flush()
-            temp_path = tf.name
-
-        try:
-            parsed = parse_agent_file(temp_path, self.map_data)
-            self.assertEqual(parsed["name"], "test-boxed-agent")
-            self.assertEqual(parsed["tier"], "deep")
-            self.assertEqual(parsed["capabilities"], ["read", "search", "shell"])
-            self.assertIn("### Matrix Section", parsed["body"])
-            self.assertIn("| A | B |", parsed["body"])
-            self.assertIn("End of report.", parsed["body"])
-            self.assertGreaterEqual(parsed["body"].count("---"), 2)
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
-
-    def test_fail_loud_on_missing_capabilities(self):
-        """Test that missing capabilities halts execution and does not fallback to guessing."""
-        content = """version: 2.0
-name: test-invalid-agent
-description: Agent missing capabilities.
-role: worker
+    def test_legacy_multi_document_rejected(self):
+        content = """version: '2.1'
+name: test-legacy-agent
+description: Legacy header plus markdown body.
 tier: fast
-skills: [skill-conductor]
+capabilities: [read]
 ---
 # Prompt
-Test prompt.
+Body.
 """
-        with tempfile.NamedTemporaryFile("w+", suffix=".yaml", delete=False) as tf:
-            tf.write(content)
-            tf.flush()
-            temp_path = tf.name
+        with self.assertRaises(SystemExit) as cm:
+            self._parse("test-legacy-agent", content)
+        self.assertEqual(cm.exception.code, 1)
 
-        try:
-            with self.assertRaises(SystemExit) as cm:
-                parse_agent_file(temp_path, self.map_data)
-            self.assertEqual(cm.exception.code, 1)
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
+    def test_fail_loud_on_missing_capabilities(self):
+        content = """version: '2.1'
+name: test-invalid-agent
+description: Agent missing capabilities.
+tier: fast
+prompt: |
+  Test prompt.
+"""
+        with self.assertRaises(SystemExit) as cm:
+            self._parse("test-invalid-agent", content)
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_stem_must_equal_name(self):
+        content = """version: '2.1'
+name: other-name
+description: Stem mismatch.
+tier: fast
+capabilities: [read]
+prompt: |
+  x
+"""
+        with self.assertRaises(SystemExit) as cm:
+            self._parse("test-stem-agent", content)
+        self.assertEqual(cm.exception.code, 1)
 
 
 if __name__ == "__main__":

@@ -82,6 +82,7 @@ def hydrate_skills(skill_dir):
             sys.exit(1)
         link.symlink_to(rel)
 
+
 def load_map():
     if not MAP_FILE.exists():
         print(f"Configuration Error: Adapter map '{MAP_FILE}' not found.", file=sys.stderr)
@@ -90,42 +91,31 @@ def load_map():
         data = yaml.safe_load(f)
     return data
 
+
 def parse_agent_file(path, map_data):
     with open(path, "r") as f:
         content = f.read()
 
-    header_str = ""
-    body = ""
-    if content.startswith("---"):
-        match = re.match(r"^---\s*\n(.*?)\n---\s*(\n|$)(.*)$", content, re.DOTALL)
-        if match:
-            header_str = match.group(1)
-            body = match.group(3).strip()
-    else:
-        match = re.match(r"^(.*?)\n---\s*(\n|$)(.*)$", content, re.DOTALL)
-        if match:
-            header_str = match.group(1)
-            body = match.group(3).strip()
-
-    if not header_str:
-        header_str = content
-        body = ""
-
     try:
-        header = yaml.safe_load(header_str) or {}
+        header = yaml.safe_load(content)
     except Exception as e:
-        print(f"Validation Error: '{path}' has malformed YAML header: {e}", file=sys.stderr)
+        print(f"Validation Error: '{path}' is not valid YAML: {e}", file=sys.stderr)
         sys.exit(1)
+    if not isinstance(header, dict) or "prompt" not in header:
+        print(
+            f"Validation Error: '{path}' must be a single YAML document with a 'prompt' field "
+            "(legacy '---' + Markdown body format is no longer supported).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    validate_json(header, "agent.schema.json", str(path))
+    body = header["prompt"].strip()
 
-    name = header.get("name")
-    if not name:
-        print(f"Validation Error: '{path}' missing required 'name' field.", file=sys.stderr)
+    name = header["name"]
+    if Path(path).stem != name:
+        print(f"Validation Error: '{path}' stem must equal name '{name}'.", file=sys.stderr)
         sys.exit(1)
-
-    description = header.get("description", "")
-    if not description:
-        print(f"Validation Error: '{path}' missing required 'description' field.", file=sys.stderr)
-        sys.exit(1)
+    description = header["description"]
 
     tier = header.get("tier")
     capabilities = header.get("capabilities")
@@ -136,8 +126,7 @@ def parse_agent_file(path, map_data):
     # Strict Fail Loud Invariant: No fallback guessing allowed
     if not capabilities or not tier:
         print(
-            f"Validation Error: '{path}' missing required 'capabilities' or 'tier'. "
-            "Fail-loud invariant triggered.",
+            f"Validation Error: '{path}' missing required 'capabilities' or 'tier'. Fail-loud invariant triggered.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -168,6 +157,7 @@ def parse_agent_file(path, map_data):
         "returns": returns,
         "body": body,
     }
+
 
 def hydrate_claude(agents, map_data, provider="native"):
     harnesses = map_data.get("harnesses", map_data)
@@ -296,7 +286,7 @@ def hydrate_antigravity(agents, map_data, provider="native"):
             "subagent": True,
             "commandExecutionPolicy": "sandbox",
             "tools": tools,
-            "auto_approve": auto_approve
+            "auto_approve": auto_approve,
         }
 
         json_out_path = out_dir_json / f"{agent['name']}.json"
@@ -313,7 +303,7 @@ def hydrate_antigravity(agents, map_data, provider="native"):
             "commandExecutionPolicy": "sandbox",
             "tools": tools,
             "auto_approve": auto_approve,
-            "skills": [f"skills/{s}" if not s.startswith("skills/") else s for s in agent["skills"]]
+            "skills": [f"skills/{s}" if not s.startswith("skills/") else s for s in agent["skills"]],
         }
         body = agent["body"]
         if agent["returns"] and "write" not in agent["capabilities"]:
@@ -333,6 +323,7 @@ def hydrate_antigravity(agents, map_data, provider="native"):
             f.write("\n")
 
         print(f"Hydrated Antigravity agent: {json_out_path}")
+
 
 def hydrate_codex(agents, map_data, provider="native"):
     harnesses = map_data.get("harnesses", map_data)
@@ -357,7 +348,7 @@ def hydrate_codex(agents, map_data, provider="native"):
         if provider != "native" and tier in provider_tiers:
             model = provider_tiers[tier]
         else:
-            model = tier_map.get(tier, "gpt-5-turbo")
+            model = tier_map.get(tier, "gpt-6-luna")
 
         if "write" in agent["capabilities"] or "shell" in agent["capabilities"]:
             sandbox_mode = "workspace-write"
@@ -389,7 +380,7 @@ def hydrate_codex(agents, map_data, provider="native"):
 
         out_path = out_dir / f"{agent['name']}.toml"
         with open(out_path, "w") as f:
-            f.write(f'# GENERATED from {agent["path"]} by harness adapter. Do not edit.\n')
+            f.write(f"# GENERATED from {agent['path']} by harness adapter. Do not edit.\n")
             f.write(f'name = "{name_snake}"\n')
             f.write(f'description = "{agent["description"]}"\n')
             f.write(f'model = "{model}"\n')
@@ -402,6 +393,139 @@ def hydrate_codex(agents, map_data, provider="native"):
         print(f"Hydrated Codex agent: {out_path}")
 
 
+# --- Model discovery (hydrate.sh models [--write]) ---------------------------
+# Compares map.yaml tier models with what each installed harness reports, and
+# optionally rewrites stale tier values using tier_rules (regex, highest version).
+
+
+def _run(cmd, timeout=40):
+    import subprocess
+
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return None, f"{cmd[0]}: {e}"
+    if res.returncode != 0:
+        return None, f"{' '.join(cmd)} exited {res.returncode}: {res.stderr.strip()[:120]}"
+    return res.stdout, None
+
+
+def parse_agy_models(text):
+    """`agy models` prints `<id>\\t<display name>` lines plus a status line."""
+    return [ln.split("\t", 1)[0].strip() for ln in text.splitlines() if "\t" in ln]
+
+
+def parse_codex_models(text):
+    """`codex debug models` prints the catalog as JSON; only visibility=list is user-selectable."""
+    return [m["slug"] for m in json.loads(text).get("models", []) if m.get("visibility") == "list"]
+
+
+def parse_claude_lines(payload):
+    """Active model `line` values (sonnet, opus, ...) from GET /v1/models."""
+    return {m["line"] for m in payload.get("data", []) if m.get("lifecycle") == "active" and m.get("line")}
+
+
+def fetch_models(harness):
+    """Return (available, error). available: list of ids, or set of lines for claude."""
+    if harness == "antigravity":
+        out, err = _run(["agy", "models"])
+        return (parse_agy_models(out), None) if out is not None else (None, err)
+    if harness == "codex":
+        out, err = _run(["codex", "debug", "models"])
+        if out is None:
+            return None, err
+        try:
+            return parse_codex_models(out), None
+        except (ValueError, KeyError) as e:
+            return None, f"codex debug models: unparseable ({e})"
+    if harness == "claude":
+        key = os.environ.get("ANTHROPIC_API_KEY")
+        if not key:
+            return None, "ANTHROPIC_API_KEY not set (Claude Code has no offline model list; source it via gopass)"
+        import urllib.request
+
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/models?limit=1000",
+            headers={"x-api-key": key, "anthropic-version": "2023-06-01"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                return parse_claude_lines(json.loads(r.read())), None
+        except Exception as e:  # network/auth failures are reported, never fatal
+            return None, f"models API: {e}"
+    return None, f"unknown harness {harness}"
+
+
+def pick_best(candidates, pattern):
+    """Highest-version id matching pattern; version = first dotted number in the id."""
+    rx = re.compile(pattern)
+
+    def ver(slug):
+        m = re.search(r"\d+(?:\.\d+)*", slug)
+        return tuple(int(x) for x in m.group(0).split(".")) if m else ()
+
+    matches = [c for c in candidates if rx.search(c)]
+    return max(matches, key=lambda c: (ver(c), c)) if matches else None
+
+
+def rewrite_tier(map_text, harness, tier, new_value):
+    """Edit only the `<tier>:` line inside harnesses.<harness>.tiers; keeps comments and layout."""
+    lines = map_text.split("\n")
+    start = next((i for i, ln in enumerate(lines) if ln == f"  {harness}:"), None)
+    if start is None:
+        raise KeyError(harness)
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"^\S|^  \S", lines[i])), len(lines))
+    in_tiers = False
+    for i in range(start + 1, end):
+        if lines[i].strip() == "tiers:":
+            in_tiers = True
+            continue
+        if in_tiers:
+            m = re.match(rf"^(\s+{re.escape(tier)}:\s*)\S+(.*)$", lines[i])
+            if m:
+                lines[i] = f"{m.group(1)}{new_value}{m.group(2)}"
+                return "\n".join(lines)
+            if not lines[i].startswith("      "):
+                break
+    raise KeyError(f"{harness}.tiers.{tier}")
+
+
+def check_models(map_data, write=False):
+    harnesses = map_data.get("harnesses", map_data)
+    stale, rewrites = 0, []
+    for harness in ("claude", "antigravity", "codex"):
+        cfg = harnesses.get(harness, {})
+        tiers = cfg.get("tiers", {})
+        rules = cfg.get("tier_rules", {})
+        available, err = fetch_models(harness)
+        if available is None:
+            print(f"[{harness}] UNVERIFIED: {err}")
+            continue
+        for tier, current in tiers.items():
+            if harness == "claude":
+                ok = current in available
+                best = None
+            else:
+                ok = current in available
+                best = pick_best(available, rules[tier]) if tier in rules else None
+            if ok:
+                print(f"[{harness}] {tier}: {current} OK")
+                continue
+            stale += 1
+            hint = f"; rule picks {best}" if best else "; no matching model"
+            print(f"[{harness}] {tier}: {current} NOT AVAILABLE{hint}")
+            if best:
+                rewrites.append((harness, tier, best))
+    if write and rewrites:
+        text = MAP_FILE.read_text()
+        for harness, tier, best in rewrites:
+            text = rewrite_tier(text, harness, tier, best)
+            print(f"Rewrote {harness}.tiers.{tier} -> {best}")
+        MAP_FILE.write_text(text)
+        stale -= len(rewrites)
+    return stale
+
+
 def main():
     target = "all"
     provider = "native"
@@ -412,10 +536,14 @@ def main():
         elif not arg.startswith("--"):
             target = arg
 
+    if target == "models":
+        sys.exit(1 if check_models(load_map(), write="--write" in sys.argv) else 0)
+
     valid_targets = ["claude", "antigravity", "codex", "all"]
     if target not in valid_targets:
         print(
-            "Usage: python3 scripts/hydrate.py [claude | antigravity | codex | all] [--provider=native|openrouter]",
+            "Usage: python3 scripts/hydrate.py "
+            "[claude | antigravity | codex | all | models [--write]] [--provider=native|openrouter]",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -434,6 +562,7 @@ def main():
         hydrate_antigravity(agents, map_data, provider=provider)
     if target in ["codex", "all"]:
         hydrate_codex(agents, map_data, provider=provider)
+
 
 if __name__ == "__main__":
     main()
