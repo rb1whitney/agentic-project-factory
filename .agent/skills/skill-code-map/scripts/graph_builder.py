@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -72,6 +73,7 @@ class GraphBuilder:
                 files.extend(Path(dirpath) / n for n in names)
         java_files = [p for p in files if p.suffix.lower() == ".java"]
         hcl_files = [p for p in files if p.suffix.lower() in (".tf", ".hcl")]
+        tfvars_files = [p for p in files if p.suffix.lower() == ".tfvars"]
 
         files = [f for f in files if not SKIP_DIRS.intersection(f.relative_to(self.root_dir).parts[:-1])]
         self._build_go(files)
@@ -85,10 +87,14 @@ class GraphBuilder:
         for unit in hcl_units:
             self._index_hcl(unit)
 
+        self._index_tf_modules_json(hcl_files)
+
         # Pass 2: link usages
         self._link_java_units(java_units)
         for unit in hcl_units:
             self._link_hcl(unit)
+        for p in tfvars_files:
+            self._index_tfvars(p)
 
         # `throw new X()` is already a throws edge; drop the redundant uses-type twin.
         thrown = {(e["from"], e["to"]) for e in self.edges if e["type"] == "throws"}
@@ -721,6 +727,117 @@ class GraphBuilder:
                 }
             except UnicodeDecodeError:
                 continue
+        self._index_hcl_typed(unit)
+
+    # --- Terraform: typed resource/module/provider/variable nodes -------------------------------
+    # Literal attribute values only; interpolations (var.x, local.y) are left unresolved on purpose.
+    _TF_ATTR = r'(?m)^\s*{key}\s*=\s*"([^"$]*)"\s*$'
+    _SECRET_KEY = re.compile(r"(?i)(secret|password|passwd|token|api_?key|private_?key|credential)")
+
+    @staticmethod
+    def _iter_hcl_blocks(root: Any):
+        stack = [root]
+        while stack:
+            n = stack.pop()
+            if n.type == "block":
+                yield n
+            stack.extend(reversed(n.children))
+
+    def _tf_attr(self, text: str, key: str) -> Optional[str]:
+        m = re.search(self._TF_ATTR.format(key=re.escape(key)), text)
+        return m.group(1) if m else None
+
+    def _index_hcl_typed(self, unit: Dict[str, Any]) -> None:
+        content, rel = unit["src"], unit["rel"]
+        for blk in self._iter_hcl_blocks(unit["root"]):
+            try:
+                text = content[blk.start_byte : blk.end_byte].decode("utf-8")
+            except UnicodeDecodeError:
+                continue
+            kind = next((c for c in blk.children if c.type == "identifier"), None)
+            if kind is None:
+                continue
+            kname = content[kind.start_byte : kind.end_byte].decode("utf-8")
+            labels = [
+                content[c.start_byte : c.end_byte].decode("utf-8").strip('"')
+                for c in blk.children
+                if c.type == "string_lit"
+            ]
+            line = blk.start_point[0] + 1
+            if kname == "resource" and len(labels) == 2:
+                rtype, rname = labels
+                node: Dict[str, Any] = {
+                    "file": rel,
+                    "line": line,
+                    "type": "tf_resource",
+                    "tf_type": rtype,
+                    "tf_name": rname,
+                }
+                meta = re.search(r"metadata\s*\{(.*?)\n\s*\}", text, re.DOTALL)
+                scope = meta.group(1) if meta else text
+                for key in ("name", "namespace", "chart", "repository", "version"):
+                    val = self._tf_attr(scope if key in ("name", "namespace") and meta else text, key)
+                    if val:
+                        node[f"k8s_{key}" if rtype.startswith("kubernetes_") else key] = val
+                self.symbol_table[f"resource:{rtype}/{rname}"] = node
+            elif kname == "module" and labels:
+                node = {"file": rel, "line": line, "type": "tf_module", "tf_name": labels[0]}
+                for key in ("source", "version"):
+                    val = self._tf_attr(text, key)
+                    if val:
+                        node[key] = val
+                self.symbol_table[f"module:{labels[0]}"] = node
+            elif kname == "provider" and labels:
+                alias = self._tf_attr(text, "alias")
+                pid = f"provider:{labels[0]}" + (f".{alias}" if alias else "")
+                self.symbol_table[pid] = {"file": rel, "line": line, "type": "tf_provider", "alias": alias or ""}
+            elif kname == "variable" and labels:
+                node = {"file": rel, "line": line, "type": "tf_variable"}
+                default = self._tf_attr(text, "default")
+                if default is not None and not self._SECRET_KEY.search(labels[0]):
+                    node["default"] = default
+                self.symbol_table[f"variable:{labels[0]}"] = node
+
+    def _index_tf_modules_json(self, hcl_files: List[Path]) -> None:
+        """Resolved module sources/versions from `terraform init` (.terraform/modules/modules.json), when present."""
+        seen = set()
+        for d in {p.parent for p in hcl_files} | {self.root_dir}:
+            mj = d / ".terraform" / "modules" / "modules.json"
+            if mj in seen or not mj.is_file():
+                continue
+            seen.add(mj)
+            try:
+                mods = json.loads(mj.read_text(encoding="utf-8")).get("Modules", [])
+            except (OSError, ValueError):
+                continue
+            for m in mods:
+                key = m.get("Key")
+                if not key:
+                    continue
+                node = self.symbol_table.get(f"module:{key}")
+                if node is None:
+                    continue
+                node["resolved_source"] = m.get("Source", "")
+                if m.get("Version"):
+                    node["resolved_version"] = m["Version"]
+
+    def _index_tfvars(self, path: Path) -> None:
+        """vars/*.tfvars bindings: one tf_var_binding node per key with a binds-variable edge; secrets redacted."""
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            return
+        rel = str(path.relative_to(self.root_dir))
+        for i, raw in enumerate(lines, 1):
+            m = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*=\s*(.+?)\s*$", raw)
+            if not m:
+                continue
+            key, val = m.group(1), m.group(2)
+            if self._SECRET_KEY.search(key):
+                val = "[REDACTED]"
+            nid = f"tfvar:{rel}:{key}"
+            self.symbol_table[nid] = {"file": rel, "line": i, "type": "tf_var_binding", "value": val[:200]}
+            self._add_edge(nid, f"variable:{key}", "binds-variable", rel)
 
     def _link_hcl(self, unit: Dict[str, Any]) -> None:
         content = unit["src"]

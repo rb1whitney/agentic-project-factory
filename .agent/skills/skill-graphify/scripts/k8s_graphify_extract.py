@@ -909,6 +909,70 @@ def _parse_manifest_targets(file_path: Path) -> List[str]:
     return targets
 
 
+# Terraform kubernetes provider resource type -> (api group in canonical ids, Kind)
+TF_K8S_KINDS = {
+    "kubernetes_namespace": ("core", "Namespace"),
+    "kubernetes_namespace_v1": ("core", "Namespace"),
+    "kubernetes_deployment": ("apps", "Deployment"),
+    "kubernetes_deployment_v1": ("apps", "Deployment"),
+    "kubernetes_stateful_set": ("apps", "StatefulSet"),
+    "kubernetes_stateful_set_v1": ("apps", "StatefulSet"),
+    "kubernetes_daemon_set_v1": ("apps", "DaemonSet"),
+    "kubernetes_service": ("core", "Service"),
+    "kubernetes_service_v1": ("core", "Service"),
+    "kubernetes_service_account": ("core", "ServiceAccount"),
+    "kubernetes_service_account_v1": ("core", "ServiceAccount"),
+    "kubernetes_config_map": ("core", "ConfigMap"),
+    "kubernetes_config_map_v1": ("core", "ConfigMap"),
+    "kubernetes_persistent_volume_claim": ("core", "PersistentVolumeClaim"),
+    "kubernetes_persistent_volume_claim_v1": ("core", "PersistentVolumeClaim"),
+    "kubernetes_ingress_v1": ("networking.k8s.io", "Ingress"),
+    "kubernetes_cluster_role": ("rbac.authorization.k8s.io", "ClusterRole"),
+    "kubernetes_cluster_role_v1": ("rbac.authorization.k8s.io", "ClusterRole"),
+    "kubernetes_role_v1": ("rbac.authorization.k8s.io", "Role"),
+}
+HELM_OWNED_KINDS = {"Deployment", "StatefulSet", "DaemonSet", "Service"}
+
+
+def bridge_terraform(nodes: Dict[str, Dict[str, Any]]) -> List[Tuple[str, str]]:
+    """Returns (terraform node id, k8s node id) pairs for `provisions-k8s` links.
+
+    helm_release -> its Namespace plus workloads/Services named <release> or <release>-*; kubernetes_* -> the
+    exact canonical resource when name (and namespace) are literal in HCL. Unresolved interpolations never link."""
+    pairs: List[Tuple[str, str]] = []
+    for nid, n in nodes.items():
+        p = n.get("properties") or {}
+        tf_type = p.get("tf_type", "")
+        if not nid.startswith("resource:") or not tf_type:
+            continue
+        if tf_type == "helm_release":
+            rel, ns = p.get("name"), p.get("namespace")
+            if not rel or not ns:
+                continue
+            ns_id = canonical_node_id("v1", "Namespace", None, ns)
+            if ns_id in nodes:
+                pairs.append((nid, ns_id))
+            for kid, kn in nodes.items():
+                kp = kn.get("properties") or {}
+                if (
+                    kid.startswith("k8s:")
+                    and kp.get("namespace") == ns
+                    and kp.get("kind") in HELM_OWNED_KINDS
+                    and (kp.get("name") == rel or str(kp.get("name", "")).startswith(rel + "-"))
+                ):
+                    pairs.append((nid, kid))
+        elif tf_type in TF_K8S_KINDS:
+            group, kind = TF_K8S_KINDS[tf_type]
+            name = p.get("k8s_name")
+            if not name:
+                continue
+            ns = None if kind in CLUSTER_SCOPED_KINDS else (p.get("k8s_namespace") or "default")
+            kid = f"k8s:{group}/{kind}/{ns or '_cluster_'}/{name}"
+            if kid in nodes:
+                pairs.append((nid, kid))
+    return pairs
+
+
 def merge_graphify_graphs(
     base_graph: Dict[str, Any],
     k8s_graph: Dict[str, Any],
@@ -972,6 +1036,9 @@ def merge_graphify_graphs(
         for tid in matched_targets:
             if tid in merged_nodes:
                 add_merged_link(nid, "manifest-of", tid)
+
+    for tf_id, k_id in bridge_terraform(merged_nodes):
+        add_merged_link(tf_id, "provisions-k8s", k_id, origin="terraform_bridge")
 
     return {
         "directed": True,

@@ -27,13 +27,13 @@ Routing rules (first match wins):
 ### Caveats (state these when relevant)
 
 - Run Python tooling with `/usr/bin/python3`. The linuxbrew `python3` has no `tree_sitter`.
-- Always scope `code_mapper.py <dir>` and `graph_builder.py <dir>` to the target project/subsystem directory after asking the user; `code_mapper.py` persists both `code_map.md` and `relationship_graph.json` and short-circuits on a warm cache (`0 files changed`), unless `--force` is passed.
+- Always scope `code_mapper.py <dir>` and `graph_builder.py <dir>` to the target project/subsystem directory after asking the user; `code_mapper.py` persists both `code_map.md` and `relationship_graph.json` (external cache dir by default) and short-circuits on a warm cache (`0 files changed`), unless `--force` is passed.
 - The Go graph is package-level imports only. It has no call graph. Use ast-grep for call sites.
 - Bundled tree-sitter Go grammar predates Go 1.26 `new(expr)`. Affected files (159 in kubernetes) keep most symbols but are reported as syntax errors.
 - YAML syntax errors are not reported (helm templates and negative fixtures fail by design). Helm and kustomize output must be rendered before `state_graph.py` can see it.
 - ast-grep quirks: `$$$B` after a keyword argument matches nothing (use `any:` with both forms); `$X.Method()` does not match a nested Go selector receiver (write `$A.$B.Method()`).
 - `go_feature_gate_check` can over-match (`$A.Enabled($PKG.$GATE)`); treat counts as an upper bound.
-- Mapping writes `code_map.md` and `.ast_cache` into the target directory.
+- `code_mapper.py` writes `code_map.md`, `relationship_graph.json` and `.ast_cache` to `~/.cache/skill-code-map/<repo-hash>/` (falls back to `/tmp` when `~/.cache` is read-only), so the target repo stays `git status` clean. The path is logged as `Artifacts:`. Pass `--in-repo` for the old in-repo layout or `--out-dir <dir>` to choose one.
 - Live reads (`state_graph.py`) were verified only against fixtures and recorded JSON. No cluster or Vault was reachable when the module was written. Verify against a lower environment before trusting live output.
 
 Unified operational manual and deterministic CLI workflow for structural code extraction, symbol mapping, and AST rules engine using `ast-grep` and `tree-sitter`.
