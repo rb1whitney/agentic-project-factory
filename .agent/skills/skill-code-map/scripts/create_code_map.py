@@ -3,7 +3,8 @@ import argparse
 import logging
 import os
 import sys
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 from pathlib import Path
 
 import read_code_map as repo_mapper
@@ -44,10 +45,23 @@ def main():
 
     output_path = root / 'repository_skeleton.txt'
     with open(output_path, 'w', encoding='utf-8') as f:
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            results = list(executor.map(process_file, files_to_index))
-            for result in results:
-                f.write(result)
+        # Processes, not threads: a tree-sitter C-level crash (exit 139) kills only the worker.
+        # On a broken pool, redo the remaining files one-by-one in fresh single-use pools.
+        done = []
+        try:
+            with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+                for result in executor.map(process_file, files_to_index):
+                    done.append(result)
+        except BrokenProcessPool:
+            logger.warning("Worker crashed; retrying remaining files with isolation.")
+            for fp in files_to_index[len(done):]:
+                try:
+                    with ProcessPoolExecutor(max_workers=1) as one:
+                        done.append(one.submit(process_file, fp).result())
+                except BrokenProcessPool:
+                    logger.warning(f"Skipping {fp}: parser crashed")
+                    done.append(f"ERROR: {fp} | parser crashed\n\n")
+        f.writelines(done)
 
     logger.info(f"Repository skeleton generated at {output_path}")
 

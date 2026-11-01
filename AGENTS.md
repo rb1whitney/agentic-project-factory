@@ -18,7 +18,7 @@ This factory operates on **Domain-Driven Design (DDD)** principles, specifically
 
 ## 0.2 EPHEMERAL PROJECTION & COMPILER PROTOCOL
 This repository enforces the **Ephemeral Projection Adapter Pattern** to decouple agent source definitions from proprietary vendor parser requirements (Claude Code, Antigravity `agy`, OpenAI/Copilot).
-*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions.
+*   **Canonical Source Purity**: All agent definitions live exclusively as universal multi-adapter YAML inside `.agent/agents/<agent-name>.yaml`. Never generate, edit, or commit raw harness-specific frontmatter directly into source definitions. Each file is a single valid YAML document (`prompt: |` holds the Markdown body), validated against `.agent/adapters/schemas/agent.schema.json`; the file stem must equal `name`.
 *   **Synchronous Hydration Engine**: Pre-flight compilation is mandatory via `scripts/hydrate.sh`.
     - Claude: Projects canonical schemas into Markdown frontmatter under `.claude/agents/*.md`.
     - Antigravity: Projects canonical schemas into JSON schema specifications under `.agents/*.json`.
@@ -71,7 +71,7 @@ Target: **60-98% token reduction**. All five frameworks MANDATORY. No exceptions
 
 ### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
 *   **BANNED**: Loading entire directories without AST gating or running root-wide `code_mapper.py .` on startup.
-*   **REQUIRED (ASK AT TASK START)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Engine Selection Protocol) and ask the USER (`ask_question`) which target `<dir>` and engine (`auto_context.py` / `code_mapper.py`, `ast-grep`, `state_graph.py`, or `skill-graphify`) to run.
+*   **REQUIRED (AUTO-ROUTE)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Auto-Routing + Map-First Protocol). Engine is chosen from the request; ask the USER only when target `<dir>` or scope is ambiguous. State the Evidence Boundary in every readout.
 *   **REQUIRED**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir> --max-tokens 8000` (or selected engine) and restrict context window strictly to calculated blast radius.
 
 ### 4. Telegraphic Output Compression (Caveman-Prose Ultra)
@@ -188,6 +188,7 @@ IMPORTANT: Skills are always available. Do not wait for the user to invoke them.
 [Architecture]      specialist-domain-driven-design  Design: 7-step Strategic to Tactical workflow
 [Database]          skill-sql                  Audit: Schema analysis & query optimization
 [Compiler]          skill-factory-compiler     Hydration Engine: Multi-adapter agent projection & metadata compilation
+[Compiler]          skill-harness-models       Model drift check/update for Claude, agy, Codex tiers: `scripts/hydrate.sh models [--write]`
 [AST/CodeMap]       skill-code-map             AST Mapper & Rules Engine: Ask user engine/scope at start; PPR context lens, diff-impact, ast-grep taint/arch rules
 [Graph]             skill-graphify             Knowledge Graph Engine: Local AST/K8s/CRD/ADR Graphify graphs, D3/Mermaid callflows, community & cycle reports
 ```
@@ -212,7 +213,7 @@ skill-github/references/      PR creation, Issue triage, Review guides
 
 
 ### AST & Knowledge Graph Layer (Thin Routing — Read Skill Before Running)
-- **AST & Policy Engine**: Read [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Engine Selection) -> ask USER `<dir>` & engine (`auto_context.py` PPR lens, `semantic_query.py` diff-impact, `well_architected_audit.py` 6-pillar review, `state_graph.py` K8s/Vault drift, or `ast-grep`).
+- **AST & Policy Engine**: Read [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Auto-Routing) -> pick engine from request; ask USER only if `<dir>` ambiguous: (`auto_context.py` PPR lens, `semantic_query.py` diff-impact, `well_architected_audit.py` 6-pillar review, `state_graph.py` K8s/Vault drift, or `ast-grep`).
 - **Graphify Topology**: Read [**.agent/skills/skill-graphify/SKILL.md**](file://./.agent/skills/skill-graphify/SKILL.md) for D3/Mermaid callflows, Tarjan SCC/community reports, and live K8s/Crossplane extraction (`k8s_graphify_extract.py`).
 - `conductor/workflow.md`  CI/CD and deployment flow
 

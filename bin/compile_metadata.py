@@ -11,6 +11,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+import yaml
+
 
 def parse_frontmatter(file_path: Path) -> dict:
     """Fast regex parser for YAML frontmatter without external dependencies."""
@@ -53,22 +55,15 @@ def compile_agents(agents_dir: Path) -> list[dict]:
         except Exception:
             continue
 
-        # Read first YAML document up to ---
-        parts = content.split("\n---")
-        header = parts[0]
-        meta = {}
-        for line in header.splitlines():
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if ":" in line and not line.startswith(" "):
-                k, v = line.split(":", 1)
-                meta[k.strip()] = v.strip().strip('"').strip("'")
+        try:
+            meta = yaml.safe_load(content) or {}
+        except yaml.YAMLError:
+            continue
 
         agents.append({
             "name": meta.get("name", file_path.stem),
             "description": meta.get("description", ""),
-            "version": meta.get("version", "1.0"),
+            "version": str(meta.get("version", "1.0")),
             "source_file": str(file_path.relative_to(agents_dir.parent.parent))
         })
     return agents

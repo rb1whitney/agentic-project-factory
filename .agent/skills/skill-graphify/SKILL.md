@@ -6,9 +6,9 @@ description: Lifecycle manager, knowledge graph generator, and topological depen
 
 Operational manual and lifecycle manager for **Graphify** ([Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify)), integrated with `skill-code-map` for deterministic AST extraction, `ast-grep` rule overlays, and IaC-vs-live drift graphs.
 
-## 0. Engine Selection Protocol (MANDATORY)
+## 0. Auto-Routing Protocol (MANDATORY)
 
-Before running graph extraction or export, **ask the user which mode/engine to use** unless specified:
+Pick the mode from the request (live cluster/CRD -> Live K8s row; drift -> IaC-vs-Live; code topology -> Local AST; cross-modal docs -> Deep Semantic). Ask only if the target or scope is ambiguous. Every readout MUST state its **Evidence Boundary** (static AST, manifests only, or live cluster state):
 
 | Mode / Engine | Use for | Entry points |
 |---|---|---|
@@ -16,6 +16,14 @@ Before running graph extraction or export, **ask the user which mode/engine to u
 | **Deep Semantic (`--mode deep`)** | Cross-modal inference across code, Markdown docs, PDFs, and SQL schemas via LLM | `graphify extract <dir> --mode deep` |
 | **Live K8s + CRD + Code Bridge** | Dynamic cluster/CRD topology, secret-redacted graph, YAML `manifest-of` bridging, and `ast-grep` rule overlays | `k8s_graphify_extract.py`, `k8s_catalog.py --format graphify` |
 | **IaC-vs-Live Drift Graph** | Visualizing `drifted`, `missing`, `unmanaged` K8s/Vault resources and `cross_check` bindings | `state_graph.py report ... --format graphify` |
+
+### Extractor options (k8s_graphify_extract.py)
+
+- Fetch is scoped and batched: `-n <ns>` server-side, 12 kinds per `kubectl get`, 15s timeout, per-kind retry when a batch fails.
+- `--cache-dir DIR` writes redacted `objects.json` (and `catalog.json` with `--discover-schema`) at 0600; `--no-live --cache-dir DIR` rebuilds the graph with no cluster calls.
+- `--catalog PATH` / `--discover-schema` add `references` edges from OpenAPI/CRD reference fields (`k8s_catalog.py` is the shared schema, constants and prod-context guard; redaction policies stay separate and separately tested).
+- Graph output carries `diagnostics[]`: `missing-target` (`MISSING_TARGET` nodes for absent ServiceAccount/Role/ClusterRole/Composition/Service/PVC) and `service-no-ready-endpoints`. Secret/ConfigMap references are `Unverified (Redacted Kind)`, never reported missing.
+- `--merge-with` also bridges Terraform `helm_release` and `kubernetes_*` resource nodes to live nodes with `provisions-k8s` links.
 
 ### Safety & Runtime Caveats
 

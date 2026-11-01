@@ -81,3 +81,35 @@ class GoGraphTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GoCobraTests(unittest.TestCase):
+    def test_functions_methods_and_addcommand(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            write(root, "go.mod", "module example.com/cli\n\ngo 1.22\n")
+            write(
+                root,
+                "cmd/root.go",
+                'package cmd\n\nimport "example.com/cli/cmd/get"\n\n'
+                "func NewRootCmd() *Cmd {\n\troot := &Cmd{}\n\troot.AddCommand(NewVersionCmd())\n"
+                "\troot.AddCommand(get.NewGetCmd())\n\treturn root\n}\n\n"
+                "func NewVersionCmd() *Cmd { return &Cmd{} }\n"
+                "func helper() {}\n",
+            )
+            write(
+                root,
+                "cmd/get/get.go",
+                "package get\n\ntype Opts struct{}\n\nfunc NewGetCmd() *Cmd { return &Cmd{} }\n"
+                "func (o *Opts) Run() error { return nil }\nfunc (o *Opts) hidden() {}\n",
+            )
+            files = [p for p in root.rglob("*") if p.is_file()]
+            g = gb.GraphBuilder(str(root)).build_graph(files=files)
+        nodes, edges = g["nodes"], {(e["from"], e["type"], e["to"]) for e in g["edges"]}
+        self.assertEqual(nodes["go:cmd#NewRootCmd"]["type"], "go-func")
+        self.assertEqual(nodes["go:cmd/get#Opts.Run"]["type"], "go-method")
+        self.assertNotIn("go:cmd#helper", nodes)
+        self.assertNotIn("go:cmd/get#Opts.hidden", nodes)
+        self.assertIn(("go:cmd", "defines", "go:cmd#NewRootCmd"), edges)
+        self.assertIn(("go:cmd#NewRootCmd", "adds-command", "go:cmd#NewVersionCmd"), edges)
+        self.assertIn(("go:cmd#NewRootCmd", "adds-command", "go:cmd/get#NewGetCmd"), edges)

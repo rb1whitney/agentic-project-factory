@@ -680,6 +680,17 @@ def cross_check(
     return [f for f in out if not (f["message"] in seen or seen.add(f["message"]))]
 
 
+def _live_uri(canonical_id: str) -> str:
+    """k8s:<group>/<Kind>/<ns>/<name> -> k8s://<ns>/<kind>/<name> (matches k8s_graphify_extract source_file).
+
+    Unique per resource so context ranking can score unmanaged objects individually instead of one bucket."""
+    parts = canonical_id[4:].split("/") if canonical_id.startswith("k8s:") else []
+    if len(parts) < 4:
+        return "k8s://unknown/" + canonical_id.replace(":", "/")
+    ns = "cluster" if parts[-2] == "_cluster_" else parts[-2]
+    return f"k8s://{ns}/{parts[-3].lower()}/{parts[-1]}"
+
+
 def _canonical_graphify_k8s_id(raw_id: str) -> str:
     """Convert state_graph _k8s_id into canonical k8s:<group>/<Kind>/<ns_or__cluster_>/<name>."""
     if raw_id.startswith("k8s:"):
@@ -752,7 +763,7 @@ def report_to_graphify(
                 "id": cuid,
                 "label": f"Unmanaged: {parts[-1]}",
                 "file_type": "k8s_resource",
-                "source_file": "k8s-live",
+                "source_file": _live_uri(cuid),
                 "community": 23,
                 "_origin": "state_graph",
                 "properties": {"drift_status": "unmanaged"},
@@ -800,7 +811,7 @@ def report_to_graphify(
                 "id": vuid,
                 "label": f"Unmanaged Vault: {vuid.split(':')[-1]}",
                 "file_type": "vault_resource",
-                "source_file": "vault-live",
+                "source_file": "vault://" + vuid.split(":", 1)[-1].replace(":", "/"),
                 "community": 23,
                 "_origin": "state_graph",
                 "properties": {"drift_status": "unmanaged"},
@@ -866,6 +877,114 @@ def _load_json(path: Optional[str]) -> Any:
         sys.exit(f"cannot read live snapshot {path}: {e}")
 
 
+# --- Environment overlay diff (envA vs envB) ----------------------------------------------------
+_TFVAR_LINE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*=\s*(.+?)\s*$")
+
+
+def _flatten(obj: Any, prefix: str = "") -> Dict[str, Any]:
+    """Dotted-key view of nested YAML; lists are indexed so positional drift is visible."""
+    out: Dict[str, Any] = {}
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out.update(_flatten(v, f"{prefix}.{k}" if prefix else str(k)))
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            out.update(_flatten(v, f"{prefix}[{i}]"))
+    else:
+        out[prefix] = obj
+    return out
+
+
+def _load_layer_file(path: Path) -> Dict[str, Any]:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return {}
+    if path.suffix == ".tfvars":
+        return {m.group(1): m.group(2) for m in map(_TFVAR_LINE.match, text.splitlines()) if m}
+    try:
+        docs = [d for d in yaml.safe_load_all(text) if d is not None]
+    except yaml.YAMLError:
+        return {}
+    flat: Dict[str, Any] = {}
+    for i, d in enumerate(docs):
+        flat.update(_flatten(d, f"[doc{i}]" if len(docs) > 1 else ""))
+    return flat
+
+
+def _layer_files(root: Path, env: str) -> Dict[str, Path]:
+    """Map logical layer key (path with the env name replaced by {env}) to the file for `env`.
+
+    Recognized layouts: Terraform `<env>.tfvars` / `<env>.auto.tfvars`, Helm `values-<env>.yaml`,
+    Kustomize `overlays/<env>/**`, Hiera `hieradata/appenv/<env>.yaml` or `hieradata/appenv/<env>/**`."""
+    found: Dict[str, Path] = {}
+    names = {f"{env}.tfvars", f"{env}.auto.tfvars"}
+    for dirpath, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for fn in files:
+            p = Path(dirpath) / fn
+            rel = p.relative_to(root).as_posix()
+            parts = p.relative_to(root).parts
+            hit = (
+                fn in names
+                or re.fullmatch(rf"values[-_.]{re.escape(env)}\.ya?ml", fn) is not None
+                or (len(parts) >= 3 and parts[-3] == "overlays" and parts[-2] == env)
+                or (
+                    "overlays" in parts
+                    and env in parts[parts.index("overlays") + 1 : -1]
+                    and fn.endswith((".yaml", ".yml"))
+                )
+                or (
+                    "appenv" in parts
+                    and (fn in (f"{env}.yaml", f"{env}.yml") or env in parts[parts.index("appenv") + 1 : -1])
+                )
+            )
+            if hit and fn.endswith((".yaml", ".yml", ".tfvars")):
+                found[re.sub(rf"(?<![A-Za-z0-9]){re.escape(env)}(?![A-Za-z0-9])", "{env}", rel)] = p
+    return found
+
+
+def env_diff(root: Path, env_a: str, env_b: str) -> Dict[str, Any]:
+    """Keys only in A, only in B, and with differing values per logical layer. Sensitive values are redacted."""
+    la, lb = _layer_files(root, env_a), _layer_files(root, env_b)
+    layers: Dict[str, Any] = {}
+
+    def show(key: str, val: Any) -> Any:
+        return REDACTED if SENSITIVE_KEY.search(key) else val
+
+    for layer in sorted(set(la) | set(lb)):
+        fa = _load_layer_file(la[layer]) if layer in la else None
+        fb = _load_layer_file(lb[layer]) if layer in lb else None
+        if fa is None or fb is None:
+            layers[layer] = {"only_in": env_a if fb is None else env_b}
+            continue
+        only_a = {k: show(k, fa[k]) for k in sorted(set(fa) - set(fb))}
+        only_b = {k: show(k, fb[k]) for k in sorted(set(fb) - set(fa))}
+        differ = {
+            k: {env_a: show(k, fa[k]), env_b: show(k, fb[k])} for k in sorted(set(fa) & set(fb)) if fa[k] != fb[k]
+        }
+        if only_a or only_b or differ:
+            layers[layer] = {f"only_in_{env_a}": only_a, f"only_in_{env_b}": only_b, "differ": differ}
+    return {"env_a": env_a, "env_b": env_b, "layers": layers}
+
+
+def env_diff_table(res: Dict[str, Any]) -> str:
+    a, b = res["env_a"], res["env_b"]
+    lines: List[str] = []
+    for layer, d in res["layers"].items():
+        lines.append(f"## {layer}")
+        if "only_in" in d:
+            lines.append(f"  layer exists only in {d['only_in']}")
+            continue
+        for k, v in d[f"only_in_{a}"].items():
+            lines.append(f"  only {a}: {k} = {v}")
+        for k, v in d[f"only_in_{b}"].items():
+            lines.append(f"  only {b}: {k} = {v}")
+        for k, v in d["differ"].items():
+            lines.append(f"  differ: {k}: {a}={v[a]} | {b}={v[b]}")
+    return "\n".join(lines) or "no differences"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="IaC vs live state for Kubernetes and Vault (read-only).")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -882,7 +1001,17 @@ def main() -> None:
         p.add_argument("--live-vault", help="offline: JSON live Vault snapshot instead of the vault CLI")
         p.add_argument("--no-live-vault", action="store_true", help="skip live Vault reads (needs no token)")
         p.add_argument("--format", choices=("json", "graphify"), default="json", help="output schema format")
+    ed = sub.add_parser("env-diff", help="compare two environment layers (tfvars, Helm values, Kustomize, Hiera)")
+    ed.add_argument("env_a")
+    ed.add_argument("env_b")
+    ed.add_argument("--root", default=".", help="repo root to scan")
+    ed.add_argument("--format", choices=("table", "json"), default="table")
     args = ap.parse_args()
+
+    if args.cmd == "env-diff":
+        res = env_diff(Path(args.root), args.env_a, args.env_b)
+        print(json.dumps(res, indent=2, default=str) if args.format == "json" else env_diff_table(res))
+        return
 
     offline_k8s = args.live_k8s is not None
     ctx = args.context or ("" if offline_k8s else _current_context())

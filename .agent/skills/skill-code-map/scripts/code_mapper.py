@@ -19,6 +19,23 @@ CACHE_SCHEMA = 2
 MAX_FILE_BYTES = 5 * 1024 * 1024  # generated blobs above this add parse time and no structure
 
 
+def external_cache_root(repo_dir: str) -> Path:
+    """Per-repo artifact dir under ~/.cache/skill-code-map/<hash>/, falling back to /tmp when ~/.cache is read-only.
+
+    Keeps .ast_cache, code_map.md and relationship_graph.json out of the target repo so `git status` stays clean."""
+    digest = hashlib.blake2b(str(Path(repo_dir).resolve()).encode(), digest_size=8).hexdigest()
+    base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+    for root in (base / "skill-code-map", Path("/tmp") / f"skill-code-map-{os.getuid()}"):
+        target = root / digest
+        try:
+            target.mkdir(parents=True, exist_ok=True)
+            if os.access(target, os.W_OK):
+                return target
+        except OSError:
+            continue
+    raise OSError("no writable cache location (tried ~/.cache and /tmp)")
+
+
 class CodeMapper:
     def __init__(self, root_dir: str, cache_dir: str = ".ast_cache") -> None:
         self.root_dir: Path = Path(root_dir)
@@ -444,15 +461,31 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Map a repository to AST representations.")
     parser.add_argument("dir", help="Directory to map")
     parser.add_argument("--force", action="store_true", help="Force graph and markdown rebuild even when cache is warm")
+    parser.add_argument(
+        "--in-repo",
+        action="store_true",
+        help="Write artifacts into <dir> instead of ~/.cache/skill-code-map/<hash>/",
+    )
+    parser.add_argument("--out-dir", default=None, help="Explicit artifact directory (overrides default and --in-repo)")
     args = parser.parse_args()
 
     if not os.path.isdir(args.dir):
         logger.error(f"Provided path is not a directory: {args.dir}")
         exit(1)
 
-    md_out = os.path.join(args.dir, "code_map.md")
-    graph_out = os.path.join(args.dir, "relationship_graph.json")
-    mapper = CodeMapper(args.dir)
+    if args.out_dir:
+        out_root = Path(args.out_dir)
+        out_root.mkdir(parents=True, exist_ok=True)
+    elif args.in_repo:
+        out_root = Path(args.dir)
+    else:
+        out_root = external_cache_root(args.dir)
+    md_out = str(out_root / "code_map.md")
+    graph_out = str(out_root / "relationship_graph.json")
+    logger.info(f"Artifacts: {out_root}")
+    mapper = CodeMapper(
+        args.dir, cache_dir=str(out_root / ".ast_cache") if out_root != Path(args.dir) else ".ast_cache"
+    )
     mapper.map_repo()
     if not args.force and mapper.is_warm_noop(md_out, graph_out):
         logger.info("Cache warm (0 files changed); skipping graph rebuild and markdown serialization.")
