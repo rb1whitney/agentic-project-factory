@@ -15,7 +15,17 @@ HYDRATE_SCRIPT = REPO_ROOT / "scripts" / "hydrate.py"
 CODEX_DIR = REPO_ROOT / ".codex" / "agents"
 
 
+sys.path.insert(0, str(REPO_ROOT))
+from scripts.hydrate import load_map  # noqa: E402
+
+
 class TestOpenRouterProvider(unittest.TestCase):
+    @staticmethod
+    def _scout_tier():
+        import yaml
+
+        return yaml.safe_load((REPO_ROOT / ".agent" / "agents" / "swarm-scout.yaml").read_text())["tier"]
+
     def test_openrouter_codex_projection(self):
         res = subprocess.run(
             [sys.executable, str(HYDRATE_SCRIPT), "codex", "--provider=openrouter"],
@@ -48,8 +58,10 @@ class TestOpenRouterProvider(unittest.TestCase):
         scout_toml = CODEX_DIR / "swarm-scout.toml"
         content = scout_toml.read_text(encoding="utf-8")
 
-        # Native provider defaults to native model and omits api_base
-        self.assertIn('model = "gpt-5-turbo"', content)
+        # Native provider uses the codex tier model from adapters/map.yaml (kept current by `hydrate.sh models`)
+        scout_tier = {"fast": "fast", "deep": "deep"}[self._scout_tier()]
+        expected = load_map()["harnesses"]["codex"]["tiers"][scout_tier]
+        self.assertIn(f'model = "{expected}"', content)
         self.assertNotIn("api_base", content)
 
 
