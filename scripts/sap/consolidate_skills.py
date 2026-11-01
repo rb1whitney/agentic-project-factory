@@ -89,6 +89,24 @@ CONSOLIDATION_MAP = {
 }
 
 
+def _copy_non_overwriting(src_root: Path, dst_root: Path, skip_pycache: bool = False) -> int:
+    if not src_root.is_dir():
+        return 0
+    dst_root.mkdir(parents=True, exist_ok=True)
+    copied = 0
+    files = [f for f in sorted(src_root.rglob("*")) if f.is_file()]
+    for sf in files:
+        if skip_pycache and "__pycache__" in str(sf):
+            continue
+        rel = sf.relative_to(src_root)
+        target = dst_root / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not target.exists():
+            shutil.copy2(sf, target)
+            copied += 1
+    return copied
+
+
 def merge_child_into_parent(parent_name: str, child_name: str) -> dict:
     parent_dir = SKILLS_DIR / parent_name
     child_dir = SKILLS_DIR / child_name
@@ -111,30 +129,14 @@ def merge_child_into_parent(parent_name: str, child_name: str) -> dict:
         moved_refs += 1
 
     # 2. Copy all child references/* into {parent}/references/
-    child_refs = child_dir / "references"
-    if child_refs.is_dir():
-        for rf in sorted(child_refs.rglob("*")):
-            if rf.is_file():
-                rel = rf.relative_to(child_refs)
-                target = parent_refs / rel
-                target.parent.mkdir(parents=True, exist_ok=True)
-                if not target.exists():
-                    shutil.copy2(rf, target)
-                    moved_refs += 1
+    moved_refs += _copy_non_overwriting(child_dir / "references", parent_refs)
 
     # 3. Copy all child scripts/* into {parent}/scripts/
-    child_scripts = child_dir / "scripts"
-    if child_scripts.is_dir():
-        parent_scripts = parent_dir / "scripts"
-        parent_scripts.mkdir(parents=True, exist_ok=True)
-        for sf in sorted(child_scripts.rglob("*")):
-            if sf.is_file() and "__pycache__" not in str(sf):
-                rel = sf.relative_to(child_scripts)
-                target = parent_scripts / rel
-                target.parent.mkdir(parents=True, exist_ok=True)
-                if not target.exists():
-                    shutil.copy2(sf, target)
-                    moved_scripts += 1
+    moved_scripts += _copy_non_overwriting(
+        child_dir / "scripts",
+        parent_dir / "scripts",
+        skip_pycache=True,
+    )
 
     # 4. Remove absorbed child skill directory
     shutil.rmtree(child_dir)

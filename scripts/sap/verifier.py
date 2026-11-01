@@ -56,6 +56,13 @@ def _tokens(text: str) -> set[str]:
     return {t for t in TOKEN_RE.findall(text.lower()) if t not in STOPWORDS}
 
 
+def _expand_snake_tokens(toks: set[str]) -> set[str]:
+    expanded = set(toks)
+    parts = [part for t in toks for part in t.split("_") if len(part) >= 3]
+    expanded.update(parts)
+    return expanded
+
+
 def compute_coverage(cluster_units: list[dict], contract: dict) -> float:
     """Token recall of contract trigger + input_schema + output_schema keys against each parent's unit text."""
     if not cluster_units:
@@ -75,13 +82,7 @@ def compute_coverage(cluster_units: list[dict], contract: dict) -> float:
     recalls = []
     for u in cluster_units:
         u_str = f"{u.get('heading', '')} {u.get('text', '')} {' '.join(u.get('code_blocks', []))}"
-        u_toks = _tokens(u_str)
-        # Also include sub-parts of snake_case tokens in unit
-        expanded_u = set(u_toks)
-        for t in list(u_toks):
-            for part in t.split("_"):
-                if len(part) >= 3:
-                    expanded_u.add(part)
+        expanded_u = _expand_snake_tokens(_tokens(u_str))
         hit = len(contract_toks & expanded_u)
         recalls.append(hit / len(contract_toks))
     return sum(recalls) / len(recalls)

@@ -82,6 +82,12 @@ def _build_unit(parent_name: str, idx: int, heading: str, text: str) -> dict:
     }
 
 
+def _list_relative_files(root_dir: Path, sub_dir: Path) -> list[str]:
+    if not sub_dir.is_dir():
+        return []
+    return sorted(str(p.relative_to(root_dir)) for p in sub_dir.rglob("*") if p.is_file())
+
+
 def parse_skill_library(skills_dir: Path) -> list[dict]:
     parents = []
     for skill_dir in sorted(skills_dir.iterdir()):
@@ -96,11 +102,7 @@ def parse_skill_library(skills_dir: Path) -> list[dict]:
         units = split_procedural_units(parent_name, body)
 
         scripts_dir = skill_dir / "scripts"
-        bundled_scripts = (
-            sorted(str(p.relative_to(skill_dir)) for p in scripts_dir.rglob("*") if p.is_file())
-            if scripts_dir.is_dir()
-            else []
-        )
+        bundled_scripts = _list_relative_files(skill_dir, scripts_dir)
         refs_dir = skill_dir / "references"
         bundled_refs = (
             sorted(str(p.relative_to(skill_dir)) for p in refs_dir.glob("*.md"))
