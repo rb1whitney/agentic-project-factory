@@ -18,8 +18,37 @@
       "uniqueItems": true,
       "items": {"enum": ["read", "search", "write", "shell", "web", "delegate"]}
     },
-    "skills": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9-]+$"}},
+    "skills": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9_-]+$"}},
     "returns": {"type": "string"},
+    "contract": {
+      "type": "object",
+      "required": ["trigger", "input_schema", "output_schema", "preconditions", "postconditions", "side_effects"],
+      "additionalProperties": false,
+      "properties": {
+        "trigger": {"type": "string", "minLength": 1},
+        "input_schema": {
+          "type": "object",
+          "required": ["required"],
+          "additionalProperties": false,
+          "properties": {
+            "required": {"type": "object", "additionalProperties": {"type": "string"}},
+            "optional": {"type": "object", "additionalProperties": {"type": "string"}}
+          }
+        },
+        "output_schema": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}},
+        "preconditions": {"type": "array", "items": {"type": "string"}},
+        "postconditions": {"type": "array", "items": {"type": "string"}},
+        "side_effects": {
+          "type": "object",
+          "required": ["filesystem", "network"],
+          "additionalProperties": {"type": "string"},
+          "properties": {
+            "filesystem": {"type": "string"},
+            "network": {"type": "string"}
+          }
+        }
+      }
+    },
     "prompt": {"type": "string", "minLength": 1}
   }
 }

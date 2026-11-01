@@ -1,0 +1,10 @@
+id: extract-go-cobra-command
+language: go
+rule:
+  pattern: |
+    &cobra.Command{Use: $USE, $$$REST}
+metadata:
+  record_type: go_cobra_command
+  source_scope: go_cli_entrypoint
+  extract:
+    use: USE

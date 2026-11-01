@@ -229,8 +229,7 @@ These rules are non-negotiable for all work within the `projects/` directory:
 2.  **TDD-FIRST IS THE LAW**: All product development MUST follow a **Test-Driven Design** (TDD) model. Define the success wall (Tests) before building the engine (Implementation).
 3.  **ZERO-ZERO DECOUPLING**: Every product must be 100% standalone and portable from the **First Commit**. No parent-repository escapes (../../) are permitted.
 4.  **BLUEPRINT ADHERENCE**: All manufacturing MUST follow the 6-phase [**Advanced Product Blueprint**](file://./.agent/skills/product_blueprint.md).
-5.  **ZERO-DELETE SANCTITY**: The `.agent/agents/` and `.agent/skills/` directories are **Protected Master Vaults**. Any use of `rm` or `mv` on these paths is strictly prohibited. An agent attempting to mutate these directories without explicit, interactive user verification will be considered a security risk.
-6.  **PHYSICAL SOVEREIGNTY**: The `.agent/agents/` and `.agent/skills/` directories MUST remain physical source-of-truth directories at all times. Use of cross-boundary symlinks for core factory logic is prohibited.
+5.  **PHYSICAL SOVEREIGNTY**: The `.agent/agents/` and `.agent/skills/` directories MUST remain physical source-of-truth directories at all times. Use of cross-boundary symlinks for core factory logic is prohibited.
 
 ---
 

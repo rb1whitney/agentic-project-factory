@@ -4,6 +4,42 @@ description: Deep-dive K8s operator for managing GKE/EKS clusters and troublesho
 ---
 # Kubernetes Expert
 
+<!-- SAP_BUNDLE_START -->
+> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
+
+## 1. Action Templates (Concrete How — Read First)
+```bash
+# [κ: k8s-workload-triage] parent=skill-kubernetes required_inputs=['namespace', 'pod_name']
+ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk
+kubectl get pods -n {namespace} | bin/rtk
+kubectl logs {pod_name} -n {namespace} --tail=100 | bin/rtk
+kubectl describe pod {pod_name} -n {namespace} | bin/rtk
+bash .agent/skills/skill-kubernetes/scripts/verify-cluster.sh 2>/dev/null | bin/rtk
+```
+
+## 2. Procedural Skeleton (Where Calls Fit)
+```text
+PROCEDURE run_skill_kubernetes_workflow(namespace, pod_name):
+  1. PRE-CHECK: kubectl context verified; Reference runbooks indexed in {SKILL_DIR}/references/
+  2. result <- invoke(k8s-workload-triage, {namespace: "<namespace>", pod_name: "<pod_name>"})
+  3. POST-CHECK: Failure isolated to image, crashloop, probe, resource limit, or network before mutation
+  4. RETURN {Location, Problem, Fix, outputs: ['root_cause_category', 'evidence_log_span', 'remediation_cmd']}
+```
+
+## 3. Inlined Child Contracts (Abstract Guarantees)
+- **`κ: k8s-workload-triage`**
+  - `trigger`: Diagnose Kubernetes pod status, container logs, events, local k3s cluster state, and service mesh routing
+  - `inputs`: required `['namespace', 'pod_name']`, optional `['container_name', 'kubeconfig']`
+  - `outputs`: `['root_cause_category', 'evidence_log_span', 'remediation_cmd']`
+  - `preconditions`: kubectl context verified; Reference runbooks indexed in {SKILL_DIR}/references/
+  - `postconditions`: Failure isolated to image, crashloop, probe, resource limit, or network before mutation
+  - `side_effects`: filesystem=none, network=read-only K8s API GET/LIST
+
+## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
+- **Bundled Scripts (58)**: `scripts/cluster-dump.sh`, `scripts/install_k3s.sh`, `scripts/k3s-orchestrator.sh`, `scripts/maintenance-cleanup.sh`, `scripts/projects/devops-homelab/01_install_k8s.md`, `scripts/projects/devops-homelab/02_create_ca_and_cert.md`, `scripts/projects/devops-homelab/03_install_gitlab.md`, `scripts/projects/devops-homelab/04_install_argocd.md`, `scripts/projects/devops-homelab/05_install_argocd_apps.md`, `scripts/projects/devops-homelab/06_connect_eso_to_openbao.md`, `scripts/projects/devops-homelab/07_install_kargo_apps.md`, `scripts/projects/devops-homelab/README.md` (+46 more)
+- **Reference Runbooks (7)**: `references/istio-specialist.md`, `references/k9s-specialist.md`, `references/kubernetes-local.md`, `references/migration-cloud-boot.md`, `references/provisioning-guide.md`, `references/service-management.md`, `references/troubleshooting-deep-dive.md`
+<!-- SAP_BUNDLE_END -->
+
 You are a Senior Kubernetes Engineer specializing in multi-cloud cluster orchestration and reliability.
 
 ##  Capability Reference Guide

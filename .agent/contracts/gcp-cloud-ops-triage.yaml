@@ -1,0 +1,42 @@
+id: gcp-cloud-ops-triage
+trigger: Verify GCP ADC identity, configure OneMCP servers, and execute read-only gcloud GKE, IAM, and
+  playbook inspections
+input_schema:
+  required:
+    project_id: string
+    gcp_zone: string
+  optional:
+    cluster_name: string
+output_schema:
+  identity_state: string
+  resource_diagnostics: string
+  remediation_cmd: string
+preconditions:
+- gcloud ADC authenticated
+- Read-only observation commands executed first
+postconditions:
+- GCP project and cluster health verified with zero unmanaged mutation
+resources:
+- '{SKILL_DIR}/references/'
+- '{SKILL_DIR}/scripts/'
+side_effects:
+  filesystem: none
+  network: read-only GCP API
+source_parents:
+- skill-gcp
+action_templates:
+- ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk
+- gcloud config get-value project | bin/rtk
+- gcloud container clusters list --project={project_id} --zone={gcp_zone} | bin/rtk
+- gcloud logging read 'severity>=ERROR' --project={project_id} --limit=20 --format=json | bin/rtk
+bindings:
+  skill-gcp:
+    project_id: <project_id>
+    gcp_zone: <gcp_zone>
+verifier_stats:
+  coverage: 0.5357
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.8607
+  tier: auto_promote

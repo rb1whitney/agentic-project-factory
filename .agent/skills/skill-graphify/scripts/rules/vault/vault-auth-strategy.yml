@@ -1,0 +1,11 @@
+id: extract-vault-auth-strategy
+language: python
+rule:
+  pattern: |
+    class $NAME(BaseAuthStrategy):
+        $$$BODY
+metadata:
+  record_type: vault_auth_strategy
+  source_scope: vault_security
+  extract:
+    name: NAME

@@ -1,0 +1,45 @@
+id: ast-blast-radius-gate
+trigger: Extract AST symbol map, call/import graph, git forensics hotspots, and PPR blast-radius context
+  for source code directory
+input_schema:
+  required:
+    target_dir: path
+    task_query: string
+  optional:
+    max_tokens: integer
+    format: string
+output_schema:
+  ranked_context: string
+  relationship_graph: path
+  evidence_boundary: string
+preconditions:
+- Run with /usr/bin/python3 (system python with tree_sitter)
+- Scope target_dir to subsystem
+postconditions:
+- Context window restricted to AST blast radius
+- Evidence Boundary stated
+resources:
+- .agent/skills/skill-code-map/scripts/auto_context.py
+- .agent/skills/skill-code-map/scripts/graph_builder.py
+- .agent/skills/skill-code-map/scripts/semantic_query.py
+side_effects:
+  filesystem: writes cache to ~/.cache/skill-code-map/
+  network: none
+source_parents:
+- skill-code-map
+action_templates:
+- /usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "{task_query}" --src {target_dir}
+  --max-tokens 8000 | bin/rtk
+- /usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py query --src {target_dir} | bin/rtk
+- git log --stat -n 20 -- {target_dir} | bin/rtk
+bindings:
+  skill-code-map:
+    target_dir: <target_dir>
+    task_query: <task_query>
+verifier_stats:
+  coverage: 0.7812
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.9344
+  tier: auto_promote

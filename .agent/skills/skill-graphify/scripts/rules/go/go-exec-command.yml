@@ -1,0 +1,11 @@
+id: extract-go-exec-command
+language: go
+rule:
+  any:
+    - pattern: exec.Command($CMD, $$$ARGS)
+    - pattern: exec.CommandContext($CTX, $CMD, $$$ARGS)
+metadata:
+  record_type: go_exec_command
+  source_scope: go_process_exec
+  extract:
+    cmd: CMD

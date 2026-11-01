@@ -1,0 +1,13 @@
+id: extract-py-typer-command
+language: python
+rule:
+  pattern: |
+    @$APP.command($$$OPTS)
+    def $NAME($$$PARAMS):
+        $$$BODY
+metadata:
+  record_type: python_cli_command
+  source_scope: python_cli_entrypoint
+  extract:
+    name: NAME
+    app: APP

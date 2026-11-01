@@ -1,0 +1,14 @@
+id: py-unsanitized-eval-taint
+language: python
+rule:
+  any:
+    - pattern: eval($EXPR)
+    - pattern: exec($EXPR)
+  inside:
+    kind: function_definition
+    stopBy: end
+metadata:
+  record_type: python_dynamic_exec_taint
+  source_scope: taint_sink
+  extract:
+    name: EXPR

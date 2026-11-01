@@ -1,0 +1,37 @@
+id: runtime-tooling-platform-ops
+trigger: Expert skill name and description capability for runtime platform, MCP servers, OpenCode, Gemini
+  CLI, MSBuild, and Frontend
+input_schema:
+  required:
+    expert_name: string
+    skill_dir: path
+  optional: {}
+output_schema:
+  skill_description: string
+  expert_capability: string
+preconditions:
+- Secrets sourced from gopass or ~/.mcp-servers/credentials
+- Sandbox execution verified
+postconditions:
+- Tooling endpoint or build artifact verified non-destructively
+resources:
+- '{SKILL_DIR}/references/'
+side_effects:
+  filesystem: local build/venv artifacts
+  network: local model/MCP healthcheck
+source_parents:
+- skill-platform-admin
+action_templates:
+- ls {skill_dir}/references/ 2>/dev/null | bin/rtk
+- python3 -m unittest discover -s tests -p 'test_*.py' | bin/rtk
+bindings:
+  skill-platform-admin:
+    expert_name: <expert_name>
+    skill_dir: <skill_dir>
+verifier_stats:
+  coverage: 0.5263
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.8579
+  tier: auto_promote

@@ -1,0 +1,40 @@
+id: iac-infra-provisioning
+trigger: Infrastructure capability implementation and specific skill description validation for Terraform,
+  Packer, Network, PKI, and On-Prem
+input_schema:
+  required:
+    infrastructure_dir: path
+    specific_target: string
+  optional:
+    var_file: path
+output_schema:
+  implementation_status: string
+  capability_report: string
+preconditions:
+- No terraform destroy without explicit user confirmation
+- State backend locked/verified
+postconditions:
+- Declarative IaC validated and drift checked before apply
+resources:
+- .agent/skills/skill-code-map/scripts/state_graph.py
+side_effects:
+  filesystem: local .terraform cache only
+  network: provider schema/state read
+source_parents:
+- skill-terraform
+action_templates:
+- ls .agent/skills/skill-terraform/references/ 2>/dev/null | bin/rtk
+- terraform -chdir={infrastructure_dir} fmt -check && terraform -chdir={infrastructure_dir} validate |
+  bin/rtk
+- /usr/bin/python3 .agent/skills/skill-code-map/scripts/state_graph.py lint {infrastructure_dir} | bin/rtk
+bindings:
+  skill-terraform:
+    infrastructure_dir: <infrastructure_dir>
+    specific_target: <specific_target>
+verifier_stats:
+  coverage: 0.4545
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.8364
+  tier: auto_promote

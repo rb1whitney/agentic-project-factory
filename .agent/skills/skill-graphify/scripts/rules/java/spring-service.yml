@@ -1,0 +1,13 @@
+id: extract-spring-service
+language: java
+rule:
+  pattern: |
+    @Service
+    class $CLASS {
+      $$$
+    }
+metadata:
+  record_type: service_declaration
+  source_scope: service_layer
+  extract:
+    name: CLASS

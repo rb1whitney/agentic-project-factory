@@ -1,0 +1,11 @@
+id: extract-py-tls-verify-disabled
+language: python
+rule:
+  any:
+    - pattern: $FN($$$A, verify=False)
+    - pattern: $FN(verify=False, $$$B)
+metadata:
+  record_type: python_tls_verify_disabled
+  source_scope: python_transport_security
+  extract:
+    fn: FN

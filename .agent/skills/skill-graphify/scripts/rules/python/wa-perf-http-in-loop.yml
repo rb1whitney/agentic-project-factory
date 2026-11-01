@@ -1,0 +1,27 @@
+id: wa-perf-http-in-loop
+language: python
+rule:
+  any:
+    - pattern: requests.get($$$ARGS)
+    - pattern: requests.post($$$ARGS)
+    - pattern: requests.put($$$ARGS)
+    - pattern: requests.delete($$$ARGS)
+    - pattern: requests.patch($$$ARGS)
+    - pattern: requests.request($$$ARGS)
+    - pattern: httpx.get($$$ARGS)
+    - pattern: httpx.post($$$ARGS)
+    - pattern: httpx.put($$$ARGS)
+    - pattern: httpx.delete($$$ARGS)
+    - pattern: httpx.patch($$$ARGS)
+    - pattern: httpx.request($$$ARGS)
+  inside:
+    any:
+      - kind: for_statement
+      - kind: while_statement
+      - kind: for_in_clause
+      - kind: list_comprehension
+    stopBy: end
+metadata:
+  record_type: wa_py_http_in_loop
+  source_scope: wa_performance
+  pillar: PERF

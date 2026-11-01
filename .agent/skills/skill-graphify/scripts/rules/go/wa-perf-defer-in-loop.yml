@@ -1,0 +1,12 @@
+id: wa-perf-defer-in-loop
+language: go
+rule:
+  kind: defer_statement
+  inside:
+    kind: for_statement
+    stopBy:
+      kind: func_literal
+metadata:
+  record_type: wa_go_defer_in_loop
+  source_scope: wa_performance
+  pillar: PERF

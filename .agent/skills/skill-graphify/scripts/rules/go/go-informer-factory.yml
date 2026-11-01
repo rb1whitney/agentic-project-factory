@@ -1,0 +1,10 @@
+id: extract-go-informer-factory
+language: go
+rule:
+  pattern: $PKG.NewSharedInformerFactory($CLIENT, $RESYNC)
+metadata:
+  record_type: go_informer_factory
+  source_scope: go_controller_runtime
+  extract:
+    client: CLIENT
+    resync: RESYNC

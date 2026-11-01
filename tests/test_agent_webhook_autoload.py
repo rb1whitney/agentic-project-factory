@@ -76,8 +76,8 @@ def verify_skills_available():
     agy_count = len([s for s in agy_skills.iterdir() if s.is_dir() and not s.name.startswith(".")])
     print(f"      Claude Skills: {claude_count} loaded")
     print(f"      Antigravity Skills: {agy_count} loaded")
-    assert claude_count >= 50, f"Claude skills count low: {claude_count}"
-    assert agy_count >= 50, f"Antigravity skills count low: {agy_count}"
+    assert claude_count == 13, f"Expected 13 consolidated Core Parent skills in Claude, got {claude_count}"
+    assert agy_count == 13, f"Expected 13 consolidated Core Parent skills in Antigravity, got {agy_count}"
 
 def main():
     print("==================================================")

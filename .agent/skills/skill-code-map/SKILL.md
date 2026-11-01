@@ -4,6 +4,40 @@ description: Deterministic multi-language AST structural extractor, code mapper,
 ---
 # Skill: Code Map (`skill-code-map`)
 
+<!-- SAP_BUNDLE_START -->
+> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
+
+## 1. Action Templates (Concrete How — Read First)
+```bash
+# [κ: ast-blast-radius-gate] parent=skill-code-map required_inputs=['target_dir', 'task_query']
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "{task_query}" --src {target_dir} --max-tokens 8000 | bin/rtk
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py query --src {target_dir} | bin/rtk
+git log --stat -n 20 -- {target_dir} | bin/rtk
+```
+
+## 2. Procedural Skeleton (Where Calls Fit)
+```text
+PROCEDURE run_skill_code_map_workflow(target_dir, task_query):
+  1. PRE-CHECK: Run with /usr/bin/python3 (system python with tree_sitter); Scope target_dir to subsystem
+  2. result <- invoke(ast-blast-radius-gate, {target_dir: "<target_dir>", task_query: "<task_query>"})
+  3. POST-CHECK: Context window restricted to AST blast radius; Evidence Boundary stated
+  4. RETURN {Location, Problem, Fix, outputs: ['ranked_context', 'relationship_graph', 'evidence_boundary']}
+```
+
+## 3. Inlined Child Contracts (Abstract Guarantees)
+- **`κ: ast-blast-radius-gate`**
+  - `trigger`: Extract AST symbol map, call/import graph, git forensics hotspots, and PPR blast-radius context for source code directory
+  - `inputs`: required `['target_dir', 'task_query']`, optional `['max_tokens', 'format']`
+  - `outputs`: `['ranked_context', 'relationship_graph', 'evidence_boundary']`
+  - `preconditions`: Run with /usr/bin/python3 (system python with tree_sitter); Scope target_dir to subsystem
+  - `postconditions`: Context window restricted to AST blast radius; Evidence Boundary stated
+  - `side_effects`: filesystem=writes cache to ~/.cache/skill-code-map/, network=none
+
+## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
+- **Bundled Scripts (47)**: `scripts/auto_context.py`, `scripts/code_mapper.py`, `scripts/codemap_graphify_mcp.py`, `scripts/create_code_map.py`, `scripts/graph_builder.py`, `scripts/hcl_queries.scm`, `scripts/hydrate_policies.py`, `scripts/java_queries.scm`, `scripts/k8s_catalog.py`, `scripts/k8s_graphify_extract.py`, `scripts/local_extract.py`, `scripts/read_code_map.py` (+35 more)
+- **Reference Runbooks (2)**: `references/codebase-recon.md`, `references/context-master.md`
+<!-- SAP_BUNDLE_END -->
+
 ## 0. Auto-Routing + Map-First Protocol (MANDATORY)
 
 Pick the engine from the request; do not gate on a question. Ask only when the target directory or scope is ambiguous or the request spans several engines at real cost:

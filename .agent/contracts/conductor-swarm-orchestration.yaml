@@ -1,0 +1,40 @@
+id: conductor-swarm-orchestration
+trigger: Define conductor phase implementation and TDD skill description workflow across Swarm, DDD, Architecture,
+  and Blueprints
+input_schema:
+  required:
+    phase_name: string
+    implementation_scope: string
+  optional:
+    template_name: string
+output_schema:
+  phase_implementation_path: path
+  conductor_tdd_status: string
+preconditions:
+- Active track registered in conductor/tracks/
+- Mandatory template selected from conductor/templates/
+postconditions:
+- Phase artifact verified before specialist hand-off
+resources:
+- conductor/templates/STRATEGIC_RECON.md
+- conductor/templates/EXECUTIVE_PLAN.md
+- conductor/templates/CERTIFICATION_REPORT.md
+side_effects:
+  filesystem: writes track markdown in conductor/tracks/
+  network: none
+source_parents:
+- skill-conductor
+action_templates:
+- ls conductor/tracks/ conductor/templates/ .agent/skills/skill-conductor/references/ 2>/dev/null | bin/rtk
+- python3 bin/nexus.py status 2>/dev/null | bin/rtk
+bindings:
+  skill-conductor:
+    phase_name: <phase_name>
+    implementation_scope: <implementation_scope>
+verifier_stats:
+  coverage: 0.4762
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.8429
+  tier: auto_promote

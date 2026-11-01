@@ -4,6 +4,40 @@ description: Comprehensive AWS Cloud expert focusing on Well-Architected Framewo
 ---
 # AWS Expert (Holistic 2026 Edition)
 
+<!-- SAP_BUNDLE_START -->
+> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
+
+## 1. Action Templates (Concrete How — Read First)
+```bash
+# [κ: aws-cloud-architecture-audit] parent=skill-aws required_inputs=['skill_dir', 'aws_service']
+ls {skill_dir}/references/ 2>/dev/null | bin/rtk
+aws sts get-caller-identity | bin/rtk
+aws {aws_service} help 2>/dev/null | head -n 30 | bin/rtk
+```
+
+## 2. Procedural Skeleton (Where Calls Fit)
+```text
+PROCEDURE run_skill_aws_workflow(skill_dir, aws_service):
+  1. PRE-CHECK: AWS credentials sourced via environment or gopass; Read-only describe/list calls first
+  2. result <- invoke(aws-cloud-architecture-audit, {skill_dir: "<skill_dir>", aws_service: "<aws_service>"})
+  3. POST-CHECK: Blast radius and cost delta documented before state mutation
+  4. RETURN {Location, Problem, Fix, outputs: ['reference_file', 'aws_management_plan']}
+```
+
+## 3. Inlined Child Contracts (Abstract Guarantees)
+- **`κ: aws-cloud-architecture-audit`**
+  - `trigger`: AWS capability reference guide and skill_dir references management for foundation, serverless, sagemaker, migration, and finops
+  - `inputs`: required `['skill_dir', 'aws_service']`, optional `['aws_region']`
+  - `outputs`: `['reference_file', 'aws_management_plan']`
+  - `preconditions`: AWS credentials sourced via environment or gopass; Read-only describe/list calls first
+  - `postconditions`: Blast radius and cost delta documented before state mutation
+  - `side_effects`: filesystem=none, network=read-only AWS API describe/list
+
+## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
+- **Bundled Scripts (1)**: `scripts/aws_discovery.sh`
+- **Reference Runbooks (135)**: `references/amplify-workflow/backend.md`, `references/amplify-workflow/deploy.md`, `references/amplify-workflow/frontend.md`, `references/amplify-workflow/guide.md`, `references/api-gateway-architecture-patterns.md`, `references/api-gateway-authentication.md`, `references/api-gateway-custom-domains-routing.md`, `references/api-gateway-deployment.md`, `references/api-gateway-governance.md`, `references/api-gateway-guide.md`, `references/api-gateway-observability-analytics.md`, `references/api-gateway-observability-logging.md`, `references/api-gateway-observability-metrics-alarms.md`, `references/api-gateway-performance-scaling.md`, `references/api-gateway-pitfalls.md` (+120 more)
+<!-- SAP_BUNDLE_END -->
+
 ## Scripts & Automation
 Use these scripts to ground your reasoning in the current environment:
 - `{SKILL_DIR}/scripts/aws_discovery.sh`: Run this first to identify active identity, region, and resources.

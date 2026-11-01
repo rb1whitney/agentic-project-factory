@@ -1,0 +1,12 @@
+id: extract-go-controller-constructor
+language: go
+rule:
+  pattern: func $NAME($$$PARAMS) $RET { $$$BODY }
+constraints:
+  NAME:
+    regex: '^New[A-Za-z0-9]*Controller$'
+metadata:
+  record_type: go_controller_constructor
+  source_scope: go_controller_runtime
+  extract:
+    name: NAME

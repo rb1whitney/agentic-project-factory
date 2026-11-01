@@ -20,9 +20,26 @@ import yaml
 
 CANONICAL_DIR = Path(".agent/agents")
 SKILLS_DIR = Path(".agent/skills")
+CONTRACTS_DIR = Path(".agent/contracts")
 MAP_FILE = Path(".agent/adapters/map.yaml")
 SETTINGS_DIR = Path(".agent/adapters/settings")
 SCHEMA_DIR = Path(".agent/adapters/schemas")
+
+
+def validate_contracts():
+    """Validate SaP child contracts in .agent/contracts/*.yaml against contract.schema.json."""
+    if not CONTRACTS_DIR.exists():
+        return
+    for cf in sorted(CONTRACTS_DIR.glob("*.yaml")):
+        try:
+            data = yaml.safe_load(cf.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"Validation Error: '{cf}' is not valid YAML: {e}", file=sys.stderr)
+            sys.exit(1)
+        validate_json(data, "contract.schema.json", str(cf))
+        if cf.stem != data.get("id"):
+            print(f"Validation Error: '{cf}' stem must equal contract id '{data.get('id')}'.", file=sys.stderr)
+            sys.exit(1)
 
 
 def validate_json(data, schema_name, label):
@@ -549,6 +566,7 @@ def main():
         sys.exit(1)
 
     map_data = load_map()
+    validate_contracts()
     yaml_files = sorted(CANONICAL_DIR.glob("*.yaml"))
     if not yaml_files:
         print(f"Error: No agent definition files found in '{CANONICAL_DIR}'", file=sys.stderr)
