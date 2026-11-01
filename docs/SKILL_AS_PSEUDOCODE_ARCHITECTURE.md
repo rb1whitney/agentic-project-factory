@@ -84,6 +84,53 @@ flowchart TD
 | **3. Reference Runbook** | `.agent/skills/<parent>/references/*.md` | Deep-dive domain documentation, architecture patterns, or failure-mode tables loaded conditionally on symptom match. | `istio-expert.md`, `PodCrashLoopBackOff.md`, `ddd.md`, `review-suite.md`, `finops.md` |
 | **4. Script Subcommand** | `.agent/skills/<parent>/scripts/*` + `Action Templates` | Deterministic CLI execution wrapping 1–3 commands. Exposed as a line-item in Block 1 (`Action Templates`), never as a separate `SKILL.md`. | `./scripts/hydrate.sh models`, `detect_zscore.py`, `verify-cluster.sh`, `gh run list` |
 
+### 3.1 Architectural Deep Dive: Why `.agent/contracts/*.yaml` Is Separate From `.agent/skills/` and `.agent/agents/`
+
+A common question when inspecting `.agent/` is: **"Why does `.agent/contracts/*.yaml` exist as a separate folder instead of living inside `.agent/skills/` or only inside `.agent/agents/`?"**
+
+The answer rests on separating **Compile-Time Source Schemas** (`.agent/contracts/*.yaml`) from **Runtime Substituted Bundles** (`.agent/skills/*/SKILL.md` and `.agent/agents/*.yaml`):
+
+```mermaid
+flowchart LR
+    subgraph Source["1. Compile-Time Schema (.agent/contracts/*.yaml)"]
+        C["κ: ast-blast-radius-gate.yaml\n(Structured YAML + Verifier Scores)"]
+    end
+
+    subgraph Compiler["2. SaP Compiler (scripts/sap/compile_corpus.py)"]
+        V["4-Check Deterministic Verifier\n(Coverage, Binding, Replacement, Risk)"]
+    end
+
+    subgraph Runtime["3. Runtime Substituted Bundles (What the LLM Actually Reads)"]
+        S[".agent/skills/skill-code-map/SKILL.md\n(Inlined Block 1 + Block 2 + Block 3)"]
+        A1[".agent/agents/swarm-scout.yaml\n(contract: + prompt: |)"]
+        A2[".agent/agents/swarm-engineer.yaml\n(contract: + prompt: |)"]
+    end
+
+    C --> V
+    V -->|Inlines into| S
+    V -->|Inlines into| A1
+    V -->|Inlines into| A2
+```
+
+#### 1. At Runtime, Contracts ARE Already Inlined Inside Skills and Agents
+At task execution time, the LLM agent **never reads `.agent/contracts/*.yaml` directly**. Instead, [`scripts/sap/compile_corpus.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/scripts/sap/compile_corpus.py) compiles and inlines each verified contract directly into:
+- **Parent Skills (`.agent/skills/*/SKILL.md`)**: Injected at the top of `SKILL.md` inside `<!-- SAP_BUNDLE_START --> ... <!-- SAP_BUNDLE_END -->` as `## 1. Action Templates`, `## 2. Procedural Skeleton`, and `## 3. Inlined Child Contracts`.
+- **Canonical Agents (`.agent/agents/*.yaml`)**: Injected both as the structured `contract:` YAML object and inside the literal `prompt: |` Markdown body hydrated to `.claude/agents/*.md`, `.agents/*.json`, and `.codex/agents/*.toml`.
+
+#### 2. Why Contracts Must NEVER Be Top-Level Folders Inside `.agent/skills/` (The `-27%` Flat-Pool Trap)
+Agent harnesses (Claude Code, Antigravity `agy`, and Codex) automatically scan every directory matching `.agent/skills/*/SKILL.md` and expose that list as the top-level skill selection menu.
+- In the SaP paper (§3.5 & §5.6, *Retrieval-Pool Ablation*), when extracted child contracts ($\kappa$) were placed directly into the top-level skill folder alongside parent skills (`flat` pool: 6 parents + 11 children = 17 entries), **agent win rate dropped by 27%** (`30/134` wins fell to `22/134` wins).
+- **Why**: A child contract (`k8s-workload-triage` or `ast-blast-radius-gate`) is a narrow sub-procedure. If it appears in `.agent/skills/` as a peer of its parent skill (`skill-kubernetes` or `skill-code-map`), the LLM router selects the narrow child contract *instead of* the parent skill—losing access to the parent skill's `scripts/` directory, `references/` runbooks, and multi-step orchestration context. Keeping contracts in [`.agent/contracts/`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/contracts/) hides them from the top-level skill picker while allowing parent skills and agents to inline them.
+
+#### 3. Why Keep `.agent/contracts/*.yaml` at All (Think `.h` Header Files / OpenAPI Specs)
+Even though contracts are inlined into `SKILL.md` and `agents/*.yaml` for runtime consumption, [`.agent/contracts/*.yaml`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/contracts/) serves three critical compile-time engineering roles:
+
+| Compile-Time Role | How `.agent/contracts/*.yaml` Solves It | What Breaks If Contracts Only Exist as Prose Inside `SKILL.md` / `agents/` |
+| :--- | :--- | :--- |
+| **1. One-to-Many Reuse (DRY Single Source of Truth)** | A single contract is shared across **multiple consumers**: [`ast-blast-radius-gate.yaml`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/contracts/ast-blast-radius-gate.yaml) is bound by `skill-code-map`, `swarm-scout`, and `swarm-engineer`; [`iac-infra-provisioning.yaml`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/contracts/iac-infra-provisioning.yaml) is bound by `skill-terraform`, `specialist-terraform`, and `db-migration-agent`; [`ast-policy-compliance-audit.yaml`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/contracts/ast-policy-compliance-audit.yaml) is bound by `skill-compliance-auditor`, `security-reviewer`, and `swarm-auditor`. | Changing a CLI flag or required input requires hand-editing 3–4 separate Markdown and YAML files, causing immediate drift across agents and skills. |
+| **2. Machine-Checkable CI Schema Gate** | Every `.agent/contracts/*.yaml` file stores structured `input_schema`, `output_schema`, `action_templates`, and deterministic verifier scores (`coverage`, `binding`, `replacement`, `risk`) audited on every CI run by [`bin/verify_runtime_discovery.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/bin/verify_runtime_discovery.py#L229-L263) against [`.agent/adapters/schemas/contract.schema.json`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/adapters/schemas/contract.schema.json). | Free-form Markdown inside `SKILL.md` cannot be validated by `jsonschema` without brittle regex scraping. |
+| **3. Non-Circular Verifier Grading** | [`scripts/sap/verifier.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/scripts/sap/verifier.py) grades the standalone `.agent/contracts/<id>.yaml` definition against the un-injected parent `SKILL.md` text *before* compilation. | If the contract only exists inside `SKILL.md`, the verifier ends up grading its own injected text (inflating `coverage` and `binding` to a circular `1.0`). |
+
 ---
 
 ## 4. Consolidation Ledger: 55 Skills $\rightarrow$ 13 Core Parent Skills & 15 Agents
