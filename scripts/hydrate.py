@@ -256,6 +256,12 @@ def hydrate_antigravity(agents, map_data, provider="native"):
         hooks_link.unlink()
     hooks_link.symlink_to("../.agent/hooks/hooks.json")
 
+    bin_link = Path(".agents/bin")
+    if bin_link.is_symlink():
+        bin_link.unlink()
+    if not bin_link.exists():
+        bin_link.symlink_to("../bin")
+
     cap_map = agy_cfg.get("capabilities", {})
     tier_map = agy_cfg.get("tiers", {})
     auto_approve_caps = agy_cfg.get("auto_approve_capabilities", ["read", "search"])
@@ -316,6 +322,7 @@ def hydrate_antigravity(agents, map_data, provider="native"):
             "name": agent["name"],
             "description": agent["description"],
             "model": model,
+            "mainAgent": True,
             "subagent": True,
             "commandExecutionPolicy": "sandbox",
             "tools": tools,
@@ -329,6 +336,8 @@ def hydrate_antigravity(agents, map_data, provider="native"):
                 f"Do NOT attempt to write '{agent['returns']}' directly to disk. Return the complete, formatted "
                 "report as text in your final response so the orchestrator can write it.\n\n"
             ) + body
+        if not body.lstrip().startswith("# Agent System Instructions"):
+            body = "# Agent System Instructions\n\n" + body
 
         md_out_path = out_dir_md / f"{agent['name']}.md"
         with open(md_out_path, "w") as f:

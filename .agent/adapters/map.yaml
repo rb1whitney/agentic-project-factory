@@ -32,11 +32,11 @@ harnesses:
       web: [read_url_content, search_web]
       delegate: [invoke_subagent]
     tiers:
-      fast: gemini-3.8-flash-medium
-      deep: gemini-4-argon-high
-    tier_rules:                # regex over `agy models` ids; highest version wins
-      fast: '^gemini-[0-9.]+-flash-medium$'
-      deep: '^gemini-[0-9]+-argon-high$'
+      fast: flash
+      deep: pro
+    tier_rules:                # valid agy CustomAgent model tier aliases (flash, pro, flash_lite, inherit)
+      fast: '^flash$'
+      deep: '^pro$'
     extra_fields:
       subagent: true
       commandExecutionPolicy: sandbox

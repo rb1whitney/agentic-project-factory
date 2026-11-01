@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-01T20:40:24.438349+00:00",
+  "compiled_at": "2026-11-01T21:03:39.229632+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -150,6 +150,15 @@
       "references_count": 5,
       "invoked_contracts": [
         "factory-hydration-compiler"
+      ]
+    },
+    {
+      "name": "skill-factory-creator",
+      "description": "Create, classify, and audit skills in this agentic factory so they follow the Skill-as-Pseudocode (SaP) format and the 4-tier taxonomy. Use when asked to add a skill, agent capability, contract, reference runbook, or script subcommand, or to check whether a proposed skill belongs in .agent/skills, .agent/contracts, references/, or scripts/.",
+      "path": ".agent/skills/skill-factory-creator",
+      "references_count": 2,
+      "invoked_contracts": [
+        "skill-authoring-taxonomy-gate"
       ]
     },
     {
@@ -355,6 +364,16 @@
       "tier": "auto_promote",
       "promotion_score": 0.8579,
       "path": ".agent/contracts/runtime-tooling-platform-ops.yaml"
+    },
+    {
+      "id": "skill-authoring-taxonomy-gate",
+      "trigger": "Skill factory creator operating contract hard rules from docs skill_as_pseudocode_architecture output format and reference index",
+      "source_parents": [
+        "skill-factory-creator"
+      ],
+      "tier": "auto_promote",
+      "promotion_score": 0.8962,
+      "path": ".agent/contracts/skill-authoring-taxonomy-gate.yaml"
     },
     {
       "id": "sre-telemetry-incident-response",

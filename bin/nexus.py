@@ -125,11 +125,6 @@ def sync_global_harnesses(repo_root: Path, valid_skills: list[Path], verbose: bo
 
     valid_skill_names = {s.name for s in valid_skills}
     expected_agent_mds = {p.name for p in (repo_root / CLAUDE_HYDRATED_AGENTS).glob("*.md")}
-    expected_agent_jsons = {
-        p.name
-        for p in (repo_root / AGY_HYDRATED_AGENTS_JSON).glob("*.json")
-        if p.name not in {"manifest.json", "mcp_config.json", "settings.json", "hooks.json"}
-    }
 
     # Prune stale repo-linked skills in global skill dirs
     for g_skill_dir in (global_claude_skills, global_agy_skills):
@@ -148,7 +143,7 @@ def sync_global_harnesses(repo_root: Path, valid_skills: list[Path], verbose: bo
             for item in list(g_agent_dir.iterdir()):
                 if item.is_symlink():
                     target_str = os.readlink(item)
-                    if str(repo_root) in target_str and item.name not in (expected_agent_mds | expected_agent_jsons):
+                    if str(repo_root) in target_str and item.name not in expected_agent_mds:
                         if verbose:
                             print(f"Pruning stale global agent symlink: {item}")
                         item.unlink()
@@ -167,12 +162,19 @@ def sync_global_harnesses(repo_root: Path, valid_skills: list[Path], verbose: bo
         if create_symlink(md_file, global_claude_agents / md_file.name, use_absolute=True, verbose=verbose):
             g_counts["global_agents"] += 1
 
-    # Link hydrated Antigravity agents (.agents/agents/*.md & .agents/*.json) -> ~/.gemini/config/agents/
+    # Link hydrated Antigravity agents (.agents/agents/*.md) -> ~/.gemini/config/agents/*.md
     for md_file in sorted((repo_root / AGY_HYDRATED_AGENTS_MD).glob("*.md")):
         create_symlink(md_file, global_agy_agents / md_file.name, use_absolute=True, verbose=verbose)
-    for json_file in sorted((repo_root / AGY_HYDRATED_AGENTS_JSON).glob("*.json")):
-        if json_file.name in expected_agent_jsons:
-            create_symlink(json_file, global_agy_agents / json_file.name, use_absolute=True, verbose=verbose)
+
+    # Ensure autoload_webhook.py is reachable for global agy hooks
+    agy_cli_bin = home / ".gemini/antigravity-cli/bin"
+    if agy_cli_bin.is_dir():
+        create_symlink(
+            repo_root / "bin/autoload_webhook.py",
+            agy_cli_bin / "autoload_webhook.py",
+            use_absolute=True,
+            verbose=verbose,
+        )
 
     return g_counts
 

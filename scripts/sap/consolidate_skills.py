@@ -87,6 +87,7 @@ CONSOLIDATION_MAP = {
         "skill-frontend",
     ],
     "skill-presentation-architect": [],
+    "skill-factory-creator": [],
 }
 
 
