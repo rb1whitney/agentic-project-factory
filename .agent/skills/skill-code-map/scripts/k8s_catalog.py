@@ -375,14 +375,8 @@ def _wanted(group: str, groups: List[str]) -> bool:
     return not groups or any(group == g or group.endswith("." + g) for g in groups)
 
 
-def collect(
-    groups: List[str],
-    namespaces: List[str],
-    context: Optional[str] = None,
-    kubeconfig: Optional[str] = None,
-) -> Dict[str, Any]:
-    """Catalog (OpenAPI v3 + CRDs) plus redacted instances and edges. Read-only."""
-    extra = _ctx_args(context, kubeconfig)
+def discover_catalog(extra: Sequence[str] = ()) -> Dict[str, Dict[str, Any]]:
+    """Schema layer only: OpenAPI v3 ref-field discovery plus CRD overlay. No instances are read."""
     index = _raw_json("/openapi/v3", extra) or {"paths": {}}
     parts = []
     for rel, meta in index["paths"].items():
@@ -395,6 +389,18 @@ def collect(
         catalog,
         _raw_json("/apis/apiextensions.k8s.io/v1/customresourcedefinitions", extra) or {"items": []},
     )
+    return catalog
+
+
+def collect(
+    groups: List[str],
+    namespaces: List[str],
+    context: Optional[str] = None,
+    kubeconfig: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Catalog (OpenAPI v3 + CRDs) plus redacted instances and edges. Read-only."""
+    extra = _ctx_args(context, kubeconfig)
+    catalog = discover_catalog(extra)
 
     inventory = (_kubectl(*extra, "api-resources", "--verbs=list", "-o", "name") or "").split()
     objs: List[Dict[str, Any]] = []
