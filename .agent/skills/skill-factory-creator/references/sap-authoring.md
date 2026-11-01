@@ -58,5 +58,5 @@ Validate against `.agent/adapters/schemas/contract.schema.json`. `bindings` and 
 | Over-wide clustering | Trigger from shared tokens only |
 | Retrieval pollution | Children in contracts/, never skills/ |
 | invoke() vs shell | Keep guard header |
-| Rewrite cleanup | `/usr/bin/python3` and `| bin/rtk` everywhere |
+| Rewrite cleanup | `/usr/bin/python3` and a trailing `bin/rtk` pipe everywhere |
 | Deterministic risk | Declare side effects + confirm precondition |
