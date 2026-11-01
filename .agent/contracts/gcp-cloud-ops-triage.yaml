@@ -34,9 +34,9 @@ bindings:
     project_id: <project_id>
     gcp_zone: <gcp_zone>
 verifier_stats:
-  coverage: 0.5357
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.8607
+  promotion_score: 1.0
   tier: auto_promote

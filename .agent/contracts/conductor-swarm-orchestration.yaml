@@ -32,9 +32,9 @@ bindings:
     phase_name: <phase_name>
     implementation_scope: <implementation_scope>
 verifier_stats:
-  coverage: 0.4762
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.8429
+  promotion_score: 1.0
   tier: auto_promote

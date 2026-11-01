@@ -2,7 +2,7 @@
 name: skill-platform-admin
 description: Workspace specialist for SSH/PAT management, Python venvs, and platform-level onboarding.
 ---
-# Platform Admin
+# Skill: Runtime Tooling & Platform Administration (`skill-platform-admin`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -31,44 +31,31 @@ PROCEDURE run_skill_platform_admin_workflow(expert_name, skill_dir):
   - `preconditions`: Secrets sourced from gopass or ~/.mcp-servers/credentials; Sandbox execution verified
   - `postconditions`: Tooling endpoint or build artifact verified non-destructively
   - `side_effects`: filesystem=local build/venv artifacts, network=local model/MCP healthcheck
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Bundled Scripts (1)**: `scripts/security.yaml`
-- **Reference Runbooks (11)**: `references/cli-discovery.md`, `references/frontend.md`, `references/gemini.md`, `references/latest_docs.md`, `references/mcp-manager.md`, `references/msbuild.md`, `references/opencode.md`, `references/platform-guide.md`, `references/sdk-manager.md`, `references/symlink-config.md`, `references/workspace-guide.md`
 <!-- SAP_BUNDLE_END -->
 
-You are an expert Platform Engineer and Workspace Architect. Your goal is to ensure that the development environment is correctly configured, all Cloud SDKs are functional, and the repository's instruction-symlink architecture (AGENT.md) is maintained.
+## Operating Protocol & Domain Guardrails
 
-##  Capability Reference Guide
-Use the following runbooks for deep-dive investigation and implementation.
+Execute expert skill name and description capability workflows for `expert_name` and `skill_dir` across runtime platform administration, MCP servers, OpenCode, Gemini CLI, MSBuild, and Frontend tooling to produce `skill_description` and `expert_capability`.
 
-| Capability | Reference File |
-| :--- | :--- |
-| **Cli Discovery** | [cli-discovery.md]({SKILL_DIR}/references/cli-discovery.md) |
-| **Platform** | [platform-guide.md]({SKILL_DIR}/references/platform-guide.md) |
-| **Sdk Manager** | [sdk-manager.md]({SKILL_DIR}/references/sdk-manager.md) |
-| **Symlink Config** | [symlink-config.md]({SKILL_DIR}/references/symlink-config.md) |
-| **Workspace** | [workspace-guide.md]({SKILL_DIR}/references/workspace-guide.md) |
+### 1. Zero-Trust Credential & Environment Rules
+- Source all credentials and PATs exclusively from `gopass`, `rbw`, or `~/.mcp-servers/credentials`; never hardcode secrets or prompt for plaintext passwords.
+- Prefer repo `.venv/bin/python` for Python package/YAML tooling and `/usr/bin/python3` for `tree_sitter` AST scripts.
+- Maintain symlink integrity across `.claude/`, `.agents/`, and `.codex/` via `bash bin/nexus.sh | bin/rtk`; never overwrite unmanaged raw files without warning the user.
 
-## Knowledge Bootstrap (MANDATORY)
+### 2. Tooling & SDK Verification
+- Verify CLI and SDK versions non-destructively before modifying workspace configurations:
+  ```bash
+  .venv/bin/python --version | bin/rtk
+  /usr/bin/python3 -c "import tree_sitter; print('tree_sitter OK')" | bin/rtk
+  bash bin/nexus.sh | bin/rtk
+  ```
 
-Upon activation, you MUST immediately list and index the `{SKILL_DIR}/references/` directory to identify the specific setup protocols or onboarding requirements for the current task.
+## Reference & Script Routing Index
 
-1. **List References**: `ls {SKILL_DIR}/references/`
-2. **Select Protocol**: Identify if the task maps to `onboarding-guide.md`, `platform-guide.md`, `sdk-manager.md`, `workspace-guide.md`, or `symlink-config.md`.
-3. **Ingest & Execute**: Read the selected reference and follow its specific instructions.
-
----
-## Administrative Domains
-
-### 1. Workspace Onboarding & SDKs
-- Guiding new users through platform prerequisites and service creation.
-- Managing the lifecycle of `gcloud`, `aws`, `kubectl`, and `helm` installations.
-- Troubleshooting authentication (SSO, SSH, PAT) and service connections.
-
-### 2. Environment Configuration
-- Maintaining Python virtual environments (`venv`) and dependency consistency.
-- Managing the symlink-based distribution of `AGENT.md` across various AI tool config folders (.gemini, .claude, .copilot).
-
-### 3. CLI Reconnaissance
-- Dynamic discovery of Cloud resources and API schemas to update tracks and specs.
+| Platform Capability | Trigger / Scope | Reference Runbooks & Configs (`{SKILL_DIR}/`) |
+| :--- | :--- | :--- |
+| **Workspace & Symlink Architecture** | Onboarding, venv setup, `AGENTS.md` & spoke symlink configuration | `references/workspace-guide.md`, `references/platform-guide.md`, `references/symlink-config.md`, `scripts/security.yaml` |
+| **Cloud SDK & CLI Discovery** | Managing `gcloud`, `aws`, `kubectl`, `helm`, `gh`, and dynamic CLI schema discovery | `references/sdk-manager.md`, `references/cli-discovery.md`, `references/latest_docs.md` |
+| **MCP Server Lifecycle** | Configuring, testing, and troubleshooting Model Context Protocol servers | `references/mcp-manager.md` |
+| **AI Harnesses (OpenCode & Gemini CLI)** | Local model orchestration, provider routing, Gemini CLI & Antigravity setup | `references/opencode.md`, `references/gemini.md` |
+| **Build Systems (MSBuild & Frontend)** | .NET/MSBuild compilation pipelines and modern frontend (React/Vite/TS) builds | `references/msbuild.md`, `references/frontend.md` |

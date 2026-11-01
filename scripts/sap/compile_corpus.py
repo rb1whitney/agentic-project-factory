@@ -148,8 +148,8 @@ CONTRACTS_CATALOG = [
             "Failure isolated to image, crashloop, probe, resource limit, or network before mutation"
         ],
         "resources": [
-            "{SKILL_DIR}/references/istio-expert.md",
-            "{SKILL_DIR}/references/k9s-expert.md",
+            "{SKILL_DIR}/references/istio-specialist.md",
+            "{SKILL_DIR}/references/k9s-specialist.md",
             "{SKILL_DIR}/references/service-management.md",
         ],
         "side_effects": {"filesystem": "none", "network": "read-only K8s API GET/LIST"},
@@ -721,32 +721,6 @@ def render_skill_sap_block(skill_dir: Path, contract: dict) -> str:
     se = contract["side_effects"]
     se_str = f"filesystem={se.get('filesystem', 'none')}, network={se.get('network', 'none')}"
 
-    scripts_list = []
-    if (skill_dir / "scripts").is_dir():
-        scripts_list = sorted(
-            str(p.relative_to(skill_dir))
-            for p in (skill_dir / "scripts").rglob("*")
-            if p.is_file() and "__pycache__" not in str(p)
-        )
-    refs_list = []
-    if (skill_dir / "references").is_dir():
-        refs_list = sorted(
-            str(p.relative_to(skill_dir)) for p in (skill_dir / "references").rglob("*.md") if p.is_file()
-        )
-
-    assets_lines = []
-    if scripts_list:
-        sample_s = ", ".join(f"`{s}`" for s in scripts_list[:12])
-        if len(scripts_list) > 12:
-            sample_s += f" (+{len(scripts_list) - 12} more)"
-        assets_lines.append(f"- **Bundled Scripts ({len(scripts_list)})**: {sample_s}")
-    if refs_list:
-        sample_r = ", ".join(f"`{r}`" for r in refs_list[:15])
-        if len(refs_list) > 15:
-            sample_r += f" (+{len(refs_list) - 15} more)"
-        assets_lines.append(f"- **Reference Runbooks ({len(refs_list)})**: {sample_r}")
-    assets_block = "\n".join(assets_lines) if assets_lines else "- **Bundled Assets**: Core CLI templates above."
-
     note_hdr = (
         "> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, "
         "not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first."
@@ -778,9 +752,6 @@ PROCEDURE run_{skill_name.replace("-", "_")}_workflow({", ".join(req_keys)}):
   - `preconditions`: {pre_str}
   - `postconditions`: {post_str}
   - `side_effects`: {se_str}
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-{assets_block}
 {SAP_SKILL_END}"""
 
 

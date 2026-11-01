@@ -29,9 +29,9 @@ bindings:
     memory_action: <memory_action>
     query_topic: <query_topic>
 verifier_stats:
-  coverage: 0.6667
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.9
+  promotion_score: 1.0
   tier: auto_promote

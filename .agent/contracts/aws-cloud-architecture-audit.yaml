@@ -31,9 +31,9 @@ bindings:
     skill_dir: <skill_dir>
     aws_service: <aws_service>
 verifier_stats:
-  coverage: 0.7143
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.9143
+  promotion_score: 1.0
   tier: auto_promote

@@ -36,9 +36,6 @@ PROCEDURE run_skill_factory_creator_workflow(capability_name, capability_summary
   - `preconditions`: Duplicate scan done; USER approval; feature branch
   - `postconditions`: Artifact at correct tier path; contract not surfaced under .agent/skills/; no orphan skill
   - `side_effects`: filesystem=writes under .agent/skills/ or .agent/contracts/, network=none
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Reference Runbooks (2)**: `references/skill-anatomy.md`, `references/taxonomy-decision.md`
 <!-- SAP_BUNDLE_END -->
 
 ## Operating Contract

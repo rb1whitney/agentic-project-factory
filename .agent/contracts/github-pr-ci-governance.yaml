@@ -34,9 +34,9 @@ bindings:
     current_branch: <current_branch>
     specific_scope: <specific_scope>
 verifier_stats:
-  coverage: 0.5417
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.8625
+  promotion_score: 1.0
   tier: auto_promote

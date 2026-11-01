@@ -2,7 +2,7 @@
 name: skill-compliance-auditor
 description: Governance lead for enforcing AI engineering standards and least-privilege security patterns across the hub.
 ---
-# Compliance Auditor
+# Skill: Compliance & Governance Auditor (`skill-compliance-auditor`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -31,42 +31,27 @@ PROCEDURE run_skill_compliance_auditor_workflow(target_dir, pillar_scope):
   - `preconditions`: ast-grep binary installed; Read-only static analysis mode
   - `postconditions`: Zero secret leak or policy violation unflagged
   - `side_effects`: filesystem=none, network=none
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Bundled Scripts (2)**: `scripts/assets/interactive_eval.ts.txt`, `scripts/assets/standard_eval.ts.txt`
-- **Reference Runbooks (11)**: `references/ai-standards-guide.md`, `references/behavioral-evals.md`, `references/compliance-guide.md`, `references/creating.md`, `references/fixing.md`, `references/governance-guide.md`, `references/identity-guide.md`, `references/knowledge-validation.md`, `references/promoting.md`, `references/readiness-checklist.md`, `references/running.md`
 <!-- SAP_BUNDLE_END -->
 
-You are an specialist in enforcing engineering standards, security compliance, and organizational governance across technical systems and AI microservices.
+## Operating Protocol & Domain Guardrails
 
+Execute 6-Pillar Well-Architected AST rules, compliance security checks, and behavioral evaluations across `target_dir` and `pillar_scope` (`SEC`, `REL`, `OPS`, `PERF`, `COST`, `SUS`, or `ALL`) using `rule_pack` definitions to emit `findings_json`, `compliance_status`, and `remediation_diff`.
 
-##  Compliance Reference Guide
-Use the following runbooks to perform specialized audits and verification checks.
+### 1. Static AST & Policy Audit Workflow
+- Run `well_architected_audit.py` and `local_extract.py` in read-only static analysis mode before certifying any track or PR.
+- Cross-check findings against the governance and readiness runbooks in `{SKILL_DIR}/references/`.
+- Verify zero unflagged secret exposure, wildcard IAM permissions, or unsafe execution sinks (`shell=True`, `eval`, unpinned images).
 
-| Capability | Reference File |
-| :--- | :--- |
-| **AI Standards** | [ai-standards-guide.md]({SKILL_DIR}/references/ai-standards-guide.md) |
-| **Identity & Access** | [identity-guide.md]({SKILL_DIR}/references/identity-guide.md) |
-| **Governance** | [governance-guide.md]({SKILL_DIR}/references/governance-guide.md) |
-| **Production Readiness** | [readiness-checklist.md]({SKILL_DIR}/references/readiness-checklist.md) |
-| **Regulatory Compliance** | [compliance-guide.md]({SKILL_DIR}/references/compliance-guide.md) |
+### 2. Behavioral & Release Readiness Gate
+- Validate agent and microservice behavioral evaluations using the evaluation templates in `{SKILL_DIR}/scripts/assets/` and `{SKILL_DIR}/references/behavioral-evals.md`.
+- Block promotion when `compliance_status` reports `HIGH` or `CRITICAL` findings or when `readiness-checklist.md` gates fail.
 
-##  Capability Reference Guide
-Use the following runbooks for deep-dive investigation and implementation.
+## Reference & Script Routing Index
 
-| Capability | Reference File |
-| :--- | :--- |
-| **Ai Standards** | [ai-standards-guide.md]({SKILL_DIR}/references/ai-standards-guide.md) |
-| **Compliance** | [compliance-guide.md]({SKILL_DIR}/references/compliance-guide.md) |
-| **Governance** | [governance-guide.md]({SKILL_DIR}/references/governance-guide.md) |
-| **Identity** | [identity-guide.md]({SKILL_DIR}/references/identity-guide.md) |
-| **Knowledge Validation** | [knowledge-validation.md]({SKILL_DIR}/references/knowledge-validation.md) |
-| **Readiness Checklist** | [readiness-checklist.md]({SKILL_DIR}/references/readiness-checklist.md) |
-
-## Knowledge Bootstrap (MANDATORY)
-
-Upon activation, you MUST immediately list and index the `{SKILL_DIR}/references/` directory to identify the specific audit checklists or compliance frameworks required for the current task.
-
-1. **List References**: `ls {SKILL_DIR}/references/`
-2. **Select Protocol**: Identify if the task maps to `compliance-guide.md`, `governance-guide.md`, `identity-guide.md`, or `ai-standards-guide.md`.
-3. **Ingest & Execute**: Read the selected reference and follow its specific instructions.
+| Audit Capability | Trigger / Scope | Reference Runbooks & Assets (`{SKILL_DIR}/`) |
+| :--- | :--- | :--- |
+| **AI & Agent Standards** | Agentic safety, prompt/contract standards, knowledge validation | `references/ai-standards-guide.md`, `references/knowledge-validation.md` |
+| **Behavioral Evaluations** | Creating, running, fixing, and promoting behavioral eval suites | `references/behavioral-evals.md`, `references/creating.md`, `references/running.md`, `references/fixing.md`, `references/promoting.md`, `scripts/assets/standard_eval.ts.txt`, `scripts/assets/interactive_eval.ts.txt` |
+| **Identity & Least Privilege** | IAM boundaries, zero-trust credentials, RBAC/ABAC review | `references/identity-guide.md` |
+| **Regulatory & Hub Governance** | Policy enforcement, branch/PR governance, audit trails | `references/compliance-guide.md`, `references/governance-guide.md` |
+| **Production Readiness** | Pre-release certification gate (`CERTIFICATION_REPORT.md`) | `references/readiness-checklist.md` |

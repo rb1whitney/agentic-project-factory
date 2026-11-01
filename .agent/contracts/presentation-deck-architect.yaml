@@ -36,9 +36,9 @@ bindings:
     storyboard_path: <storyboard_path>
     narrative_brief_path: <narrative_brief_path>
 verifier_stats:
-  coverage: 0.8095
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.9429
+  promotion_score: 1.0
   tier: auto_promote

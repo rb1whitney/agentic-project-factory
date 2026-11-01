@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-01T21:21:17.960896+00:00",
+  "compiled_at": "2026-11-01T21:31:44.427974+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -242,7 +242,7 @@
         "skill-code-map"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.9344,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/ast-blast-radius-gate.yaml"
     },
     {
@@ -252,7 +252,7 @@
         "skill-compliance-auditor"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.844,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/ast-policy-compliance-audit.yaml"
     },
     {
@@ -262,7 +262,7 @@
         "skill-aws"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.9143,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/aws-cloud-architecture-audit.yaml"
     },
     {
@@ -272,7 +272,7 @@
         "skill-always-on-memory"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.9,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/cognitive-memory-archivist.yaml"
     },
     {
@@ -282,7 +282,7 @@
         "skill-conductor"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.8429,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/conductor-swarm-orchestration.yaml"
     },
     {
@@ -292,7 +292,7 @@
         "skill-factory-compiler"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.9069,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/factory-hydration-compiler.yaml"
     },
     {
@@ -302,7 +302,7 @@
         "skill-gcp"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.8607,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/gcp-cloud-ops-triage.yaml"
     },
     {
@@ -312,7 +312,7 @@
         "skill-github"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.8625,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/github-pr-ci-governance.yaml"
     },
     {
@@ -322,7 +322,7 @@
         "skill-terraform"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.8364,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/iac-infra-provisioning.yaml"
     },
     {
@@ -332,7 +332,7 @@
         "skill-graphify"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.9348,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/k8s-graphify-topology.yaml"
     },
     {
@@ -342,7 +342,7 @@
         "skill-kubernetes"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.87,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/k8s-workload-triage.yaml"
     },
     {
@@ -352,7 +352,7 @@
         "skill-presentation-architect"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.9429,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/presentation-deck-architect.yaml"
     },
     {
@@ -362,7 +362,7 @@
         "skill-platform-admin"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.8579,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/runtime-tooling-platform-ops.yaml"
     },
     {
@@ -382,7 +382,7 @@
         "skill-sre-investigation"
       ],
       "tier": "auto_promote",
-      "promotion_score": 0.8571,
+      "promotion_score": 1.0,
       "path": ".agent/contracts/sre-telemetry-incident-response.yaml"
     }
   ]

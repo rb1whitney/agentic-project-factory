@@ -18,8 +18,8 @@ preconditions:
 postconditions:
 - Failure isolated to image, crashloop, probe, resource limit, or network before mutation
 resources:
-- '{SKILL_DIR}/references/istio-expert.md'
-- '{SKILL_DIR}/references/k9s-expert.md'
+- '{SKILL_DIR}/references/istio-specialist.md'
+- '{SKILL_DIR}/references/k9s-specialist.md'
 - '{SKILL_DIR}/references/service-management.md'
 side_effects:
   filesystem: none
@@ -37,9 +37,9 @@ bindings:
     namespace: <namespace>
     pod_name: <pod_name>
 verifier_stats:
-  coverage: 0.5667
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.87
+  promotion_score: 1.0
   tier: auto_promote
