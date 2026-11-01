@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-01T21:03:39.229632+00:00",
+  "compiled_at": "2026-11-01T21:21:17.960896+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -156,7 +156,7 @@
       "name": "skill-factory-creator",
       "description": "Create, classify, and audit skills in this agentic factory so they follow the Skill-as-Pseudocode (SaP) format and the 4-tier taxonomy. Use when asked to add a skill, agent capability, contract, reference runbook, or script subcommand, or to check whether a proposed skill belongs in .agent/skills, .agent/contracts, references/, or scripts/.",
       "path": ".agent/skills/skill-factory-creator",
-      "references_count": 2,
+      "references_count": 5,
       "invoked_contracts": [
         "skill-authoring-taxonomy-gate"
       ]
