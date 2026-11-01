@@ -4,6 +4,39 @@ description: CDD (Context-Driven Development) protocol manager enforcing the Spe
 ---
 # Gemini Conductor Skill
 
+<!-- SAP_BUNDLE_START -->
+> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
+
+## 1. Action Templates (Concrete How — Read First)
+```bash
+# [κ: conductor-swarm-orchestration] parent=skill-conductor required_inputs=['phase_name', 'implementation_scope']
+ls conductor/tracks/ conductor/templates/ .agent/skills/skill-conductor/references/ 2>/dev/null | bin/rtk
+python3 bin/nexus.py status 2>/dev/null | bin/rtk
+```
+
+## 2. Procedural Skeleton (Where Calls Fit)
+```text
+PROCEDURE run_skill_conductor_workflow(phase_name, implementation_scope):
+  1. PRE-CHECK: Active track registered in conductor/tracks/; Mandatory template selected from conductor/templates/
+  2. result <- invoke(conductor-swarm-orchestration, {phase_name: "<phase_name>", implementation_scope: "<implementation_scope>"})
+  3. POST-CHECK: Phase artifact verified before specialist hand-off
+  4. RETURN {Location, Problem, Fix, outputs: ['phase_implementation_path', 'conductor_tdd_status']}
+```
+
+## 3. Inlined Child Contracts (Abstract Guarantees)
+- **`κ: conductor-swarm-orchestration`**
+  - `trigger`: Define conductor phase implementation and TDD skill description workflow across Swarm, DDD, Architecture, and Blueprints
+  - `inputs`: required `['phase_name', 'implementation_scope']`, optional `['template_name']`
+  - `outputs`: `['phase_implementation_path', 'conductor_tdd_status']`
+  - `preconditions`: Active track registered in conductor/tracks/; Mandatory template selected from conductor/templates/
+  - `postconditions`: Phase artifact verified before specialist hand-off
+  - `side_effects`: filesystem=writes track markdown in conductor/tracks/, network=none
+
+## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
+- **Bundled Scripts (4)**: `scripts/templates/IMPLEMENTATION_PLAN.md`, `scripts/templates/LADR.md`, `scripts/templates/LOGICAL_ARCHITECTURE.md`, `scripts/templates/PHYSICAL_ARCHITECTURE.md`
+- **Reference Runbooks (22)**: `references/architecture.md`, `references/aws-diagrams/aws4-shapes-resources.md`, `references/aws-diagrams/aws4-shapes-services.md`, `references/aws-diagrams/cli-export.md`, `references/aws-diagrams/diagram-templates-advanced.md`, `references/aws-diagrams/diagram-templates-basic.md`, `references/aws-diagrams/drawing-guide.md`, `references/aws-diagrams/general-icons.md`, `references/aws-diagrams/group-styles.md`, `references/aws-diagrams/layout-guidelines.md`, `references/aws-diagrams/post-processing.md`, `references/aws-diagrams/style-guide.md`, `references/aws-diagrams/xml-rules.md`, `references/aws-diagrams/xml-templates-examples.md`, `references/aws-diagrams/xml-templates-structure.md` (+7 more)
+<!-- SAP_BUNDLE_END -->
+
 Conductor is a **Context-Driven Development (CDD)** protocol. It turns an AI agent into a proactive project manager that follows a strict protocol to specify, plan, and implement software features and bug fixes.
 
 ## Commands

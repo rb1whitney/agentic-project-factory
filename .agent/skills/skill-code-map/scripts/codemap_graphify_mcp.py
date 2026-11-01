@@ -261,7 +261,12 @@ class CodeMapGraphifyMCP:
                 return {"error": res.stderr.strip()[-2000:]}
             return json.loads(res.stdout)
         if name == "graph_k8s_extract":
-            script = SCRIPT_DIR.parent.parent / "skill-graphify" / "scripts" / "k8s_graphify_extract.py"
+            local_script = SCRIPT_DIR / "k8s_graphify_extract.py"
+            script = (
+                local_script
+                if local_script.is_file()
+                else SCRIPT_DIR.parent.parent / "skill-graphify" / "scripts" / "k8s_graphify_extract.py"
+            )
             with tempfile.TemporaryDirectory() as d:
                 out = Path(d) / "graph.json"
                 cmd = [sys.executable, str(script), "--out", str(out)]

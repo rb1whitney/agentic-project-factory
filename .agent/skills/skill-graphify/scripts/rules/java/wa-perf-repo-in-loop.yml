@@ -1,0 +1,16 @@
+id: wa-perf-repo-in-loop
+language: java
+rule:
+  kind: method_invocation
+  regex: '(?i)(repository|repo|dao)\.(find|get|save|delete)'
+  inside:
+    any:
+      - kind: for_statement
+      - kind: enhanced_for_statement
+      - kind: while_statement
+      - kind: do_statement
+    stopBy: end
+metadata:
+  record_type: wa_java_repo_in_loop
+  source_scope: wa_performance
+  pillar: PERF

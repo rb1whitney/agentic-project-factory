@@ -1,0 +1,37 @@
+id: cognitive-memory-archivist
+trigger: Ingest, consolidate, page, and query persistent SQLite session memory, episodic context, and
+  relational knowledge graph triples
+input_schema:
+  required:
+    memory_action: string
+    query_topic: string
+  optional:
+    session_id: string
+output_schema:
+  recalled_insights: string
+  memory_db_state: string
+preconditions:
+- SQLite memory store initialized via bin/memory_agent.py
+postconditions:
+- Session insights persisted and deduplicated without context bloat
+resources:
+- bin/memory_agent.py
+side_effects:
+  filesystem: updates local SQLite memory db
+  network: none
+source_parents:
+- skill-always-on-memory
+action_templates:
+- ls .agent/skills/skill-always-on-memory/references/ 2>/dev/null | bin/rtk
+- python3 bin/memory_agent.py {memory_action} --query "{query_topic}" 2>/dev/null | bin/rtk
+bindings:
+  skill-always-on-memory:
+    memory_action: <memory_action>
+    query_topic: <query_topic>
+verifier_stats:
+  coverage: 0.6667
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.9
+  tier: auto_promote

@@ -1,0 +1,41 @@
+id: k8s-graphify-topology
+trigger: Extract Kubernetes, Crossplane XRD/Composition, and code topology into Graphify knowledge graph
+input_schema:
+  required:
+    target_dir: path
+    namespace: string
+  optional:
+    manifests_dir: path
+output_schema:
+  graph_json: path
+  lineage_mermaid: string
+  evidence_boundary: string
+preconditions:
+- Secret/ConfigMap redaction active (NEVER_LIST enforced)
+- Non-prod context verified
+postconditions:
+- 0600 atomic leak-checked graph emitted
+resources:
+- .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py
+- .agent/skills/skill-code-map/scripts/state_graph.py
+side_effects:
+  filesystem: writes 0600 graph.json
+  network: read-only K8s API discovery
+source_parents:
+- skill-graphify
+action_templates:
+- /usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py -n {namespace} --manifests
+  {target_dir} | bin/rtk
+- /usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py lineage {namespace} --src {target_dir}
+  --mermaid | bin/rtk
+bindings:
+  skill-graphify:
+    target_dir: <target_dir>
+    namespace: <namespace>
+verifier_stats:
+  coverage: 0.7826
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.9348
+  tier: auto_promote

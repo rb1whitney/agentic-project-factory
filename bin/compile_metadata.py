@@ -81,19 +81,44 @@ def compile_skills(skills_dir: Path) -> list[dict]:
         if not skill_md.exists():
             continue
 
+        raw_md = skill_md.read_text(encoding="utf-8")
         meta = parse_frontmatter(skill_md)
         name = meta.get("name", skill_path.name)
         desc = meta.get("description", "")
         ref_dir = skill_path / "references"
         ref_count = len(list(ref_dir.glob("*.md"))) if ref_dir.is_dir() else 0
+        invoked_contracts = sorted(set(re.findall(r"invoke\(\s*([a-z0-9-]+)\s*,", raw_md)))
 
         skills.append({
             "name": name,
             "description": desc,
             "path": str(skill_path.relative_to(skills_dir.parent.parent)),
-            "references_count": ref_count
+            "references_count": ref_count,
+            "invoked_contracts": invoked_contracts,
         })
     return skills
+
+
+def compile_contracts(contracts_dir: Path) -> list[dict]:
+    """Scan internal SaP child contracts in .agent/contracts (kept hierarchically separate from top-level skills)."""
+    contracts = []
+    if not contracts_dir.exists():
+        return contracts
+    for cf in sorted(contracts_dir.glob("*.yaml")):
+        try:
+            data = yaml.safe_load(cf.read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError:
+            continue
+        contracts.append({
+            "id": data.get("id", cf.stem),
+            "trigger": data.get("trigger", ""),
+            "source_parents": data.get("source_parents", []),
+            "tier": data.get("verifier_stats", {}).get("tier", "auto_promote"),
+            "promotion_score": data.get("verifier_stats", {}).get("promotion_score", 0.0),
+            "path": str(cf.relative_to(contracts_dir.parent.parent)),
+        })
+    return contracts
+
 
 def main():
     parser = argparse.ArgumentParser(description="Compile agent and skill metadata index")
@@ -104,23 +129,29 @@ def main():
     root = Path(args.repo_root).resolve()
     agents_dir = root / ".agent/agents"
     skills_dir = root / ".agent/skills"
+    contracts_dir = root / ".agent/contracts"
     output_file = root / args.output
 
     catalog = {
         "compiled_at": datetime.now(timezone.utc).isoformat(),
         "standard_locations": {
             "agents": ".agent/agents",
-            "skills": ".agent/skills"
+            "skills": ".agent/skills",
+            "contracts": ".agent/contracts"
         },
         "agents": compile_agents(agents_dir),
-        "skills": compile_skills(skills_dir)
+        "skills": compile_skills(skills_dir),
+        "contracts": compile_contracts(contracts_dir)
     }
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2)
 
-    print(f"Compiled metadata: {len(catalog['agents'])} agents, {len(catalog['skills'])} skills -> {args.output}")
+    print(
+        f"Compiled metadata: {len(catalog['agents'])} agents, "
+        f"{len(catalog['skills'])} skills, {len(catalog['contracts'])} contracts -> {args.output}"
+    )
 
 if __name__ == "__main__":
     main()

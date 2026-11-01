@@ -203,6 +203,29 @@ def main():
         print(f"Standard Agents Indexed: {len(catalog.get('agents', []))}")
         print(f"Canonical Adapters Indexed: {len(catalog.get('canonical_agents', []))}")
         print(f"Standard Skills Indexed: {len(catalog.get('skills', []))}")
+        print(f"SaP Child Contracts Indexed: {len(catalog.get('contracts', []))}")
+
+    # 4.5 Skill-as-Pseudocode (SaP) Verifier & Bundle Check
+    sap_pass = True
+    try:
+        sys.path.insert(0, str(root))
+        from scripts.sap.refactor import verify_rc_bundle
+        from scripts.sap.verifier import verify_contract_catalog
+
+        sap_report = verify_contract_catalog(root / ".agent/contracts", root / ".agent/skills")
+        rc_failures = []
+        for smd in sorted((root / ".agent/skills").glob("*/SKILL.md")):
+            ok, reasons = verify_rc_bundle(smd.read_text(encoding="utf-8"))
+            if not ok:
+                rc_failures.append((smd.parent.name, reasons))
+        print("\n[SKILL-AS-PSEUDOCODE (SaP) VERIFICATION]")
+        print(f"Promoted Contracts Verified: {sap_report['promoted_count']}/{sap_report['total']}")
+        print(f"RC Bundle Failures: {len(rc_failures)}")
+        if sap_report["rejected_count"] > 0 or rc_failures:
+            sap_pass = False
+    except Exception as e:
+        sap_pass = False
+        print(f"\n[SKILL-AS-PSEUDOCODE (SaP) VERIFICATION]\nFAIL: {e}")
 
     # 5. Strict 1:1 Canonical Reconciliation Check
     canonical_dir = root / ".agent/agents"
@@ -265,6 +288,7 @@ def main():
         and agy_res["status"] == "PASS"
         and codex_res["status"] == "PASS"
         and reconciled
+        and sap_pass
         and scenarios_pass
     )
 

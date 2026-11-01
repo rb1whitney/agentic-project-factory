@@ -1,0 +1,12 @@
+id: extract-py-os-environ
+language: python
+rule:
+  any:
+    - pattern: os.environ[$KEY]
+    - pattern: os.environ.get($KEY, $$$DEFAULT)
+    - pattern: os.getenv($KEY, $$$DEFAULT)
+metadata:
+  record_type: python_env_read
+  source_scope: python_configuration
+  extract:
+    key: KEY

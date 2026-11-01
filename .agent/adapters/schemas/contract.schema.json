@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "contract.schema.json",
+  "title": "Skill-as-Pseudocode (SaP) Child Contract IR (.agent/contracts/<id>.yaml)",
+  "description": "Typed contract specification paired with concrete action templates (Li et al., arXiv:2605.27955v2, Appendix H).",
+  "type": "object",
+  "required": [
+    "id",
+    "trigger",
+    "input_schema",
+    "output_schema",
+    "preconditions",
+    "postconditions",
+    "side_effects",
+    "source_parents",
+    "action_templates"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "trigger": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_schema": {
+      "type": "object",
+      "required": ["required"],
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "optional": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "postconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "resources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "side_effects": {
+      "type": "object",
+      "required": ["filesystem", "network"],
+      "additionalProperties": { "type": "string" },
+      "properties": {
+        "filesystem": { "type": "string" },
+        "network": { "type": "string" }
+      }
+    },
+    "source_parents": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_-]+$"
+      }
+    },
+    "action_templates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": "string" }
+      }
+    },
+    "verifier_stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "coverage": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "binding": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "replacement": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "risk": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "promotion_score": { "type": "number" },
+        "tier": { "enum": ["auto_promote", "review", "reject"] }
+      }
+    }
+  }
+}

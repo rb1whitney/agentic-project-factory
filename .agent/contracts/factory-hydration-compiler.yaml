@@ -1,0 +1,43 @@
+id: factory-hydration-compiler
+trigger: Hydrate canonical multi-adapter YAML agents, sync Nexus spokes, verify model tiers, and certify
+  runtime discovery
+input_schema:
+  required:
+    harness_target: string
+    repo_root: path
+  optional:
+    write_models: string
+output_schema:
+  metadata_path: path
+  discovery_status: string
+  reconciled_count: integer
+preconditions:
+- Canonical sources in .agent/agents/*.yaml and .agent/skills/*/SKILL.md
+- Physical Sovereignty enforced
+postconditions:
+- 1:1 reconciliation across Claude, Antigravity, and Codex projections
+resources:
+- scripts/hydrate.sh
+- bin/compile_metadata.py
+- bin/verify_runtime_discovery.py
+side_effects:
+  filesystem: writes .claude/, .agents/, .codex/, .agent/metadata.json
+  network: none
+source_parents:
+- skill-factory-compiler
+action_templates:
+- ./scripts/hydrate.sh {harness_target} | bin/rtk
+- ./scripts/hydrate.sh models | bin/rtk
+- python3 bin/compile_metadata.py --repo-root {repo_root} --output .agent/metadata.json | bin/rtk
+- python3 bin/verify_runtime_discovery.py | bin/rtk
+bindings:
+  skill-factory-compiler:
+    harness_target: <harness_target>
+    repo_root: <repo_root>
+verifier_stats:
+  coverage: 0.6897
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.9069
+  tier: auto_promote

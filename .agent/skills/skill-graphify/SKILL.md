@@ -4,6 +4,39 @@ description: Lifecycle manager, knowledge graph generator, and topological depen
 ---
 # Skill: Graphify Knowledge Graph Engine (`skill-graphify`)
 
+<!-- SAP_BUNDLE_START -->
+> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
+
+## 1. Action Templates (Concrete How — Read First)
+```bash
+# [κ: k8s-graphify-topology] parent=skill-graphify required_inputs=['target_dir', 'namespace']
+/usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py -n {namespace} --manifests {target_dir} | bin/rtk
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py lineage {namespace} --src {target_dir} --mermaid | bin/rtk
+```
+
+## 2. Procedural Skeleton (Where Calls Fit)
+```text
+PROCEDURE run_skill_graphify_workflow(target_dir, namespace):
+  1. PRE-CHECK: Secret/ConfigMap redaction active (NEVER_LIST enforced); Non-prod context verified
+  2. result <- invoke(k8s-graphify-topology, {target_dir: "<target_dir>", namespace: "<namespace>"})
+  3. POST-CHECK: 0600 atomic leak-checked graph emitted
+  4. RETURN {Location, Problem, Fix, outputs: ['graph_json', 'lineage_mermaid', 'evidence_boundary']}
+```
+
+## 3. Inlined Child Contracts (Abstract Guarantees)
+- **`κ: k8s-graphify-topology`**
+  - `trigger`: Extract Kubernetes, Crossplane XRD/Composition, and code topology into Graphify knowledge graph
+  - `inputs`: required `['target_dir', 'namespace']`, optional `['manifests_dir']`
+  - `outputs`: `['graph_json', 'lineage_mermaid', 'evidence_boundary']`
+  - `preconditions`: Secret/ConfigMap redaction active (NEVER_LIST enforced); Non-prod context verified
+  - `postconditions`: 0600 atomic leak-checked graph emitted
+  - `side_effects`: filesystem=writes 0600 graph.json, network=read-only K8s API discovery
+
+## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
+- **Bundled Scripts (37)**: `scripts/auto_context.py`, `scripts/codemap_graphify_mcp.py`, `scripts/graph_builder.py`, `scripts/k8s_catalog.py`, `scripts/k8s_graphify_extract.py`, `scripts/local_extract.py`, `scripts/rules/crossplane/crossplane-composition.yml`, `scripts/rules/crossplane/crossplane-xrd.yml`, `scripts/rules/go/go-cobra-command.yml`, `scripts/rules/go/go-controller-constructor.yml`, `scripts/rules/go/go-exec-command.yml`, `scripts/rules/go/go-feature-gate-check.yml` (+25 more)
+- **Reference Runbooks (1)**: `references/crossplane.md`
+<!-- SAP_BUNDLE_END -->
+
 Operational manual and lifecycle manager for **Graphify** ([Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify)), integrated with `skill-code-map` for deterministic AST extraction, `ast-grep` rule overlays, and IaC-vs-live drift graphs.
 
 ## 0. Auto-Routing Protocol (MANDATORY)

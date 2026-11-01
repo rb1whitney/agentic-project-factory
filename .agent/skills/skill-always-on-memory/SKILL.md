@@ -4,6 +4,38 @@ description: Persistent SQLite-based cognitive layer for cross-session interacti
 ---
 # Always-On Memory: Cognitive Persistent Context
 
+<!-- SAP_BUNDLE_START -->
+> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
+
+## 1. Action Templates (Concrete How — Read First)
+```bash
+# [κ: cognitive-memory-archivist] parent=skill-always-on-memory required_inputs=['memory_action', 'query_topic']
+ls .agent/skills/skill-always-on-memory/references/ 2>/dev/null | bin/rtk
+python3 bin/memory_agent.py {memory_action} --query "{query_topic}" 2>/dev/null | bin/rtk
+```
+
+## 2. Procedural Skeleton (Where Calls Fit)
+```text
+PROCEDURE run_skill_always_on_memory_workflow(memory_action, query_topic):
+  1. PRE-CHECK: SQLite memory store initialized via bin/memory_agent.py
+  2. result <- invoke(cognitive-memory-archivist, {memory_action: "<memory_action>", query_topic: "<query_topic>"})
+  3. POST-CHECK: Session insights persisted and deduplicated without context bloat
+  4. RETURN {Location, Problem, Fix, outputs: ['recalled_insights', 'memory_db_state']}
+```
+
+## 3. Inlined Child Contracts (Abstract Guarantees)
+- **`κ: cognitive-memory-archivist`**
+  - `trigger`: Ingest, consolidate, page, and query persistent SQLite session memory, episodic context, and relational knowledge graph triples
+  - `inputs`: required `['memory_action', 'query_topic']`, optional `['session_id']`
+  - `outputs`: `['recalled_insights', 'memory_db_state']`
+  - `preconditions`: SQLite memory store initialized via bin/memory_agent.py
+  - `postconditions`: Session insights persisted and deduplicated without context bloat
+  - `side_effects`: filesystem=updates local SQLite memory db, network=none
+
+## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
+- **Reference Runbooks (2)**: `references/episodic-memory.md`, `references/graph-memory.md`
+<!-- SAP_BUNDLE_END -->
+
 Most agents have amnesia. They process information when asked, then forget everything. This skill establishes a **persistent, local memory layer** for the agentic swarm — continuously processing, consolidating, and connecting information across sessions.
 
 **No vector database. No embeddings. Just structured reads and writes from a local SQLite store.**

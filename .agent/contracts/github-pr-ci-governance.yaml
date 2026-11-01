@@ -1,0 +1,42 @@
+id: github-pr-ci-governance
+trigger: Execute specific skill description workflow on current repository state for PR creation, CI replication,
+  review suite, and docs
+input_schema:
+  required:
+    current_branch: string
+    specific_scope: string
+  optional:
+    workflow_run_id: string
+output_schema:
+  current_status: string
+  specific_description: string
+preconditions:
+- Active branch MUST NOT be master or main
+- Never execute gh pr merge (reserved for human operator)
+postconditions:
+- Feature branch verified, tests passing, PR changelog formatted
+resources:
+- '{SKILL_DIR}/references/'
+- '{SKILL_DIR}/scripts/'
+side_effects:
+  filesystem: git working tree
+  network: GitHub API via gh CLI
+source_parents:
+- skill-github
+action_templates:
+- ls .agent/skills/skill-github/references/ .agent/skills/skill-github/scripts/ 2>/dev/null | bin/rtk
+- git branch --show-current | bin/rtk
+- git status -s | bin/rtk
+- gh pr list --state open | bin/rtk
+- gh run list --limit 5 2>/dev/null | bin/rtk
+bindings:
+  skill-github:
+    current_branch: <current_branch>
+    specific_scope: <specific_scope>
+verifier_stats:
+  coverage: 0.5417
+  binding: 1.0
+  replacement: 1.0
+  risk: 0.0
+  promotion_score: 0.8625
+  tier: auto_promote

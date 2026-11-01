@@ -1,0 +1,12 @@
+id: extract-go-http-handle
+language: go
+rule:
+  any:
+    - pattern: $MUX.Handle($ROUTE, $HANDLER)
+    - pattern: $MUX.HandleFunc($ROUTE, $HANDLER)
+metadata:
+  record_type: go_http_route
+  source_scope: go_api_surface
+  extract:
+    route: ROUTE
+    handler: HANDLER
