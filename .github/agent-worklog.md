@@ -282,3 +282,12 @@
   - Migrated [`docs/kyverno_modular_design.md`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/projects/managed-cloud-infra/docs/kyverno_modular_design.md) and `--cluster-size=`, `--apps=`, `--disabled-apps=` flags into [`bin/bootstrap.sh`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/projects/managed-cloud-infra/bin/bootstrap.sh) from `cluster-forge`.
 - Removed superseded folders (`project-baker`, `project-crumbs`, `project-muffin`, `cluster-forge`, `multi-cloud-container`, `multicloud-k8s-iac`, `managed_infra.txt`).
 - Verified `18/18` pytest tests pass (`1.66s`) and re-extracted Graphify graphs (`baker`: `22 -> 27` nodes; `managed-cloud-infra`: `229 -> 378` nodes, `96 -> 161` links).
+
+### 2026-11-01T13:40:58-07:00 — AI Nexus Engine Deployment & Global Harness Symlink Repair
+- Diagnosed why Claude Code and Antigravity (`agy`) could not discover skills or agents directly:
+  1. `~/.claude/agents/` and `~/.gemini/config/agents/` held 16 broken symlinks pointing to `.agent/agents/*.md` (which are now canonical `.yaml` definitions hydrated into `.claude/agents/*.md`, `.agents/agents/*.md`, and `.agents/*.json`).
+  2. `~/.claude/skills/` and `~/.gemini/config/skills/` held 42 broken symlinks to consolidated sub-skills and lacked `skill-code-map`, `skill-graphify`, `skill-factory-compiler`, and `skill-presentation-architect`.
+  3. `bin/nexus.sh` previously invoked bare `python3` instead of `.venv/bin/python`.
+- Upgraded [`bin/nexus.sh`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/bin/nexus.sh) and [`bin/nexus.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/bin/nexus.py) to run `compile_metadata.py` + `hydrate.py --target all`, prune stale/broken symlinks across both local (`.claude`, `.agents`, `.github`) and global (`~/.claude`, `~/.gemini/config`) harness spokes, and link hydrated agent projections and all 14 Core Parent Skills.
+- Added `skill-presentation-architect` (`presentation-deck-architect` contract) to [`scripts/sap/consolidate_skills.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/scripts/sap/consolidate_skills.py) and [`scripts/sap/compile_corpus.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/scripts/sap/compile_corpus.py).
+- Verified `bin/verify_runtime_discovery.py` (`15/15` agents, `14/14` skills, `14/14` contracts, `0` RC failures, `5/5` ACS scenarios PASS), `0` broken symlinks across local and global harness directories, `ruff check` `0` errors, and `25/25` `pytest` tests passing.

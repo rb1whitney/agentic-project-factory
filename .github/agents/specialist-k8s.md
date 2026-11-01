@@ -1,0 +1,1 @@
+../../.claude/agents/specialist-k8s.md

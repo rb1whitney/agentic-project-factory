@@ -410,6 +410,38 @@ CONTRACTS_CATALOG = [
             "python3 -m unittest discover -s tests -p 'test_*.py' | bin/rtk",
         ],
     },
+    {
+        "id": "presentation-deck-architect",
+        "trigger": (
+            "Narrative-first presentation architecture, storyboard validation, "
+            "and editable PPTX slide generation from technical docs"
+        ),
+        "input_schema": {
+            "required": {"storyboard_path": "path", "narrative_brief_path": "path"},
+            "optional": {"output_pptx": "path"},
+        },
+        "output_schema": {
+            "storyboard_status": "string",
+            "deck_artifact_path": "path",
+        },
+        "preconditions": [
+            "Narrative brief and evidence ledger verified before storyboard",
+            "Storyboard approved by USER before rendering PPTX",
+        ],
+        "postconditions": ["Storyboard and narrative brief pass validate_storyboard.py with zero errors"],
+        "resources": [
+            "{SKILL_DIR}/references/narrative-craft.md",
+            "{SKILL_DIR}/references/sap-docs-bridge.md",
+            "{SKILL_DIR}/scripts/validate_storyboard.py",
+        ],
+        "side_effects": {"filesystem": "writes storyboard YAML and PPTX artifacts", "network": "none"},
+        "source_parents": ["skill-presentation-architect"],
+        "action_templates": [
+            "ls .agent/skills/skill-presentation-architect/references/ .agent/skills/skill-presentation-architect/scripts/ 2>/dev/null | bin/rtk",  # noqa: E501
+            "python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py --brief {narrative_brief_path} | bin/rtk",  # noqa: E501
+            "python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py {storyboard_path} | bin/rtk",  # noqa: E501
+        ],
+    },
 ]
 
 # Clean 15 Canonical Agents -> Bound exclusively to the 13 Core Parent Skills (0 orphan skills!)
@@ -556,7 +588,12 @@ AGENT_CONTRACTS = {
     },
     "swarm-architect": {
         "contract_id": "conductor-swarm-orchestration",
-        "skills": ["skill-conductor", "skill-code-map", "skill-graphify"],
+        "skills": [
+            "skill-conductor",
+            "skill-code-map",
+            "skill-graphify",
+            "skill-presentation-architect",
+        ],
         "trigger": "Phase 3 DDD Strategic-to-Tactical architecture design, C4/LADR diagrams, and EXECUTIVE_PLAN.md",
         "required": {"phase_name": "string", "implementation_scope": "string"},
         "output": {"phase_implementation_path": "path", "conductor_tdd_status": "string"},

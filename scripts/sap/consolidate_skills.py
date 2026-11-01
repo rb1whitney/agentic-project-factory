@@ -86,6 +86,7 @@ CONSOLIDATION_MAP = {
         "skill-msbuild",
         "skill-frontend",
     ],
+    "skill-presentation-architect": [],
 }
 
 

@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-01T19:42:40.801162+00:00",
+  "compiled_at": "2026-11-01T20:40:24.438349+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -198,6 +198,15 @@
       ]
     },
     {
+      "name": "skill-presentation-architect",
+      "description": "Narrative-first presentation architect. Builds consulting-grade decks (Big Idea, audience persona, storyline, evidence ledger, storyboard, editable PPTX) from technical, architecture, incident, or strategy material, including this repo's docs/ Skill-as-Pseudocode (SaP) architecture. Use when asked to create, storyboard, redesign, or audit a presentation.",
+      "path": ".agent/skills/skill-presentation-architect",
+      "references_count": 7,
+      "invoked_contracts": [
+        "presentation-deck-architect"
+      ]
+    },
+    {
       "name": "skill-sre-investigation",
       "description": "Incident response entrypoint for Cloud Logging analysis and Cloud Monitoring metric deep-dives.",
       "path": ".agent/skills/skill-sre-investigation",
@@ -326,6 +335,16 @@
       "tier": "auto_promote",
       "promotion_score": 0.87,
       "path": ".agent/contracts/k8s-workload-triage.yaml"
+    },
+    {
+      "id": "presentation-deck-architect",
+      "trigger": "Narrative-first presentation architecture, storyboard validation, and editable PPTX slide generation from technical docs",
+      "source_parents": [
+        "skill-presentation-architect"
+      ],
+      "tier": "auto_promote",
+      "promotion_score": 0.9429,
+      "path": ".agent/contracts/presentation-deck-architect.yaml"
     },
     {
       "id": "runtime-tooling-platform-ops",

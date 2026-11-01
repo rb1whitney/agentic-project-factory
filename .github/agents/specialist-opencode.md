@@ -1,0 +1,1 @@
+../../.claude/agents/specialist-opencode.md

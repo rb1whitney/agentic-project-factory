@@ -55,9 +55,9 @@ class TestSaPPipeline(unittest.TestCase):
 
         skills_dir = REPO_ROOT / ".agent/skills"
         parents = [p for p in parse_skill_library(skills_dir) if p["name"] in CONSOLIDATION_MAP]
-        self.assertEqual(len(parents), 13, "Expected all 13 consolidated Core Parent skills")
+        self.assertEqual(len(parents), len(CONSOLIDATION_MAP), "Expected all consolidated Core Parent skills")
         total_units = sum(len(p["procedural_units"]) for p in parents)
-        self.assertGreater(total_units, 100, "Expected >100 procedural units across 13 Core Parent skills")
+        self.assertGreater(total_units, 100, "Expected >100 procedural units across Core Parent skills")
 
         k8s_parent = next((p for p in parents if p["name"] == "skill-kubernetes"), None)
         self.assertIsNotNone(k8s_parent, "skill-kubernetes must be parsed")
