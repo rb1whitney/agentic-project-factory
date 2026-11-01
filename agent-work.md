@@ -81,7 +81,7 @@ verifier_stats:
 
 Target structure for [`.agent/skills/skill-kubernetes/SKILL.md`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/skills/skill-kubernetes/SKILL.md#L1-L58):
 
-```markdown
+````markdown
 ---
 name: skill-kubernetes
 description: Deep-dive K8s operator for managing GKE/EKS clusters and troubleshooting containerized workloads.
@@ -136,13 +136,13 @@ PROCEDURE diagnose_and_remediate(namespace, pod_name, deployment_name):
   - `inputs`: `deployment_name: str`, `namespace: str`
   - `output`: `{rollout_status: str}`
   - `pre`: `diag.root_cause_category == "Transient"` | `post`: Deployment rolling restart triggered | `side_effects`: mutates K8s Deployment pod template annotation
-```
+````
 
 ### C. Canonical Agent YAML Structure (`.agent/agents/<name>.yaml`)
 
 Target structure for [`.agent/agents/specialist-k8s.yaml`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/agents/specialist-k8s.yaml#L1-L46):
 
-```yaml
+````yaml
 version: '2.2'
 name: specialist-k8s
 description: 'Domain Specialist Subagent. Use for: Kubernetes orchestration, Helm charts, ArgoCD, Crossplane, and k9s.'
@@ -207,7 +207,7 @@ prompt: |
   ## 3. Output Constraints
   - Dialect: `caveman-prose` (`Location | Problem | Fix`).
   - Forbidden: articles, pronouns, preambles, emojis, raw unpiped shell commands.
-```
+````
 
 ---
 
