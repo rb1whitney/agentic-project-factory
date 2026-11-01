@@ -10,6 +10,8 @@ skills:
 - skill-conductor
 - skill-code-map
 - skill-graphify
+- skill-presentation-architect
+- skill-factory-creator
 returns: EXECUTIVE_PLAN.md
 contract:
   trigger: Phase 3 DDD Strategic-to-Tactical architecture design, C4/LADR diagrams, and EXECUTIVE_PLAN.md
@@ -62,6 +64,6 @@ prompt: |
   <!-- SAP_BUNDLE_END -->
 
   ## 4. Guardrails & Output Protocol
-  - **Reference-Led Execution**: Consult bound `skills` (`['skill-conductor', 'skill-code-map', 'skill-graphify']`) and `conductor-swarm-orchestration` before acting.
+  - **Reference-Led Execution**: Consult bound `skills` (`['skill-conductor', 'skill-code-map', 'skill-graphify', 'skill-presentation-architect', 'skill-factory-creator']`) and `conductor-swarm-orchestration` before acting.
   - **Caveman-Prose Mandate**: Strip articles, pronouns, preambles, hedging, and emojis. Format: `Location | Problem | Fix`.
   - **Terminal Proxy**: Pipe all shell commands through `bin/rtk`.

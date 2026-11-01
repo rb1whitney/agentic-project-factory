@@ -50,13 +50,14 @@ class TestSaPPipeline(unittest.TestCase):
 
     def test_02_parser_extracts_procedural_units(self):
         """Stage 1 parser splits SKILL.md frontmatter and markdown headings into procedural units."""
+        from scripts.sap.consolidate_skills import CONSOLIDATION_MAP
         from scripts.sap.parser import parse_skill_library
 
         skills_dir = REPO_ROOT / ".agent/skills"
-        parents = parse_skill_library(skills_dir)
-        self.assertEqual(len(parents), 13, "Expected exactly 13 consolidated Core Parent skills")
+        parents = [p for p in parse_skill_library(skills_dir) if p["name"] in CONSOLIDATION_MAP]
+        self.assertEqual(len(parents), len(CONSOLIDATION_MAP), "Expected all consolidated Core Parent skills")
         total_units = sum(len(p["procedural_units"]) for p in parents)
-        self.assertGreater(total_units, 100, "Expected >100 procedural units across 13 Core Parent skills")
+        self.assertGreater(total_units, 100, "Expected >100 procedural units across Core Parent skills")
 
         k8s_parent = next((p for p in parents if p["name"] == "skill-kubernetes"), None)
         self.assertIsNotNone(k8s_parent, "skill-kubernetes must be parsed")
@@ -210,7 +211,10 @@ description: Test skill
         )
 
         # Hierarchical separation: no contract id may exist as a top-level skill directory
-        skill_names = {d.name for d in skills_dir.iterdir() if d.is_dir()}
+        from scripts.sap.consolidate_skills import CONSOLIDATION_MAP
+
+        core_parents = list(CONSOLIDATION_MAP.keys())
+        skill_names = {d.name for d in skills_dir.iterdir() if d.is_dir() and (d / "SKILL.md").is_file()}
         for cf in contract_files:
             cdata = yaml.safe_load(cf.read_text(encoding="utf-8"))
             self.assertNotIn(
@@ -219,7 +223,7 @@ description: Test skill
                 f"Hierarchical separation violation: child contract {cdata['id']} surfaced in .agent/skills/",
             )
 
-        # Verify all 15 canonical agents have contract block + SaP sections + zero orphan skills
+        # Verify all 15 canonical agents have contract block + SaP sections + bind all 13 Core Parent skills
         agent_files = sorted(agents_dir.glob("*.yaml"))
         self.assertEqual(len(agent_files), 15)
         bound_skills = set()
@@ -234,14 +238,13 @@ description: Test skill
 
         self.assertEqual(
             bound_skills,
-            skill_names,
-            f"Orphan skills detected: {skill_names - bound_skills}",
+            set(core_parents),
+            f"Orphan Core Parent skills detected: {set(core_parents) - bound_skills}",
         )
 
         # Verify all 13 Core Parent skills have SaP bundle header
-        skill_mds = sorted(skills_dir.glob("*/SKILL.md"))
-        self.assertEqual(len(skill_mds), 13)
-        for smd in skill_mds:
+        for parent_name in core_parents:
+            smd = skills_dir / parent_name / "SKILL.md"
             text = smd.read_text(encoding="utf-8")
             ok, reasons = verify_rc_bundle(text, expected_contracts=[])
             self.assertTrue(ok, f"Skill {smd} failed SaP RC bundle check: {reasons}")

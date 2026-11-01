@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-01T19:42:40.801162+00:00",
+  "compiled_at": "2026-11-01T21:21:17.960896+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -153,6 +153,15 @@
       ]
     },
     {
+      "name": "skill-factory-creator",
+      "description": "Create, classify, and audit skills in this agentic factory so they follow the Skill-as-Pseudocode (SaP) format and the 4-tier taxonomy. Use when asked to add a skill, agent capability, contract, reference runbook, or script subcommand, or to check whether a proposed skill belongs in .agent/skills, .agent/contracts, references/, or scripts/.",
+      "path": ".agent/skills/skill-factory-creator",
+      "references_count": 5,
+      "invoked_contracts": [
+        "skill-authoring-taxonomy-gate"
+      ]
+    },
+    {
       "name": "skill-gcp",
       "description": "Holistic Google Cloud expert focusing on production-ready standards and dynamic gcloud discovery.",
       "path": ".agent/skills/skill-gcp",
@@ -195,6 +204,15 @@
       "references_count": 11,
       "invoked_contracts": [
         "runtime-tooling-platform-ops"
+      ]
+    },
+    {
+      "name": "skill-presentation-architect",
+      "description": "Narrative-first presentation architect. Builds consulting-grade decks (Big Idea, audience persona, storyline, evidence ledger, storyboard, editable PPTX) from technical, architecture, incident, or strategy material, including this repo's docs/ Skill-as-Pseudocode (SaP) architecture. Use when asked to create, storyboard, redesign, or audit a presentation.",
+      "path": ".agent/skills/skill-presentation-architect",
+      "references_count": 7,
+      "invoked_contracts": [
+        "presentation-deck-architect"
       ]
     },
     {
@@ -328,6 +346,16 @@
       "path": ".agent/contracts/k8s-workload-triage.yaml"
     },
     {
+      "id": "presentation-deck-architect",
+      "trigger": "Narrative-first presentation architecture, storyboard validation, and editable PPTX slide generation from technical docs",
+      "source_parents": [
+        "skill-presentation-architect"
+      ],
+      "tier": "auto_promote",
+      "promotion_score": 0.9429,
+      "path": ".agent/contracts/presentation-deck-architect.yaml"
+    },
+    {
       "id": "runtime-tooling-platform-ops",
       "trigger": "Expert skill name and description capability for runtime platform, MCP servers, OpenCode, Gemini CLI, MSBuild, and Frontend",
       "source_parents": [
@@ -336,6 +364,16 @@
       "tier": "auto_promote",
       "promotion_score": 0.8579,
       "path": ".agent/contracts/runtime-tooling-platform-ops.yaml"
+    },
+    {
+      "id": "skill-authoring-taxonomy-gate",
+      "trigger": "Skill factory creator operating contract hard rules from docs skill_as_pseudocode_architecture output format and reference index",
+      "source_parents": [
+        "skill-factory-creator"
+      ],
+      "tier": "auto_promote",
+      "promotion_score": 0.8962,
+      "path": ".agent/contracts/skill-authoring-taxonomy-gate.yaml"
     },
     {
       "id": "sre-telemetry-incident-response",

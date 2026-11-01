@@ -17,13 +17,15 @@ from pathlib import Path
 def main():
     repo_root = Path(__file__).resolve().parent.parent
     os.chdir(repo_root)
+    venv_py = repo_root / ".venv" / "bin" / "python"
+    py_bin = str(venv_py) if venv_py.is_file() else sys.executable
 
     # 1. Compile metadata from standard sources
     subprocess.run(
-        [sys.executable, "bin/compile_metadata.py", "--repo-root", str(repo_root), "--output", ".agent/metadata.json"],
+        [py_bin, "bin/compile_metadata.py", "--repo-root", str(repo_root), "--output", ".agent/metadata.json"],
         check=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
     )
 
     # 2. Hydrate canonical agents for active engines
@@ -35,12 +37,8 @@ def main():
             stderr=subprocess.PIPE
         )
 
-    # 3. Output JSON hook response if invoked by agy hook runner
-    response = {
-        "status": "success",
-        "message": "Autoload webhook executed: Metadata compiled & canonical agents hydrated from .agent/agents/."
-    }
-    print(json.dumps(response))
+    # 3. Output valid empty protojson HookResult object for agy hook runner
+    print(json.dumps({}))
 
 if __name__ == "__main__":
     main()
