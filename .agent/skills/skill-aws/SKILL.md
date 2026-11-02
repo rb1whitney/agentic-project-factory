@@ -60,10 +60,10 @@ Every runbook in `.agent/skills/skill-aws/references/` is reachable in **1 hop**
 
 | Capability Domain | Trigger / Scope | Hop-1 Runbook / Domain Index (`.agent/skills/skill-aws/`) |
 | :--- | :--- | :--- |
-| **Account & CLI Discovery** | Active caller identity, region, VPC/S3 inventory | `scripts/aws_discovery.sh`, `references/directory-management.md` |
+| **Account & CLI Discovery** | Active caller identity, region, VPC/S3 inventory | `scripts/aws_discovery.sh`, `references/sagemaker-project-directory.md` |
 | **Foundation (IAM, VPC, S3) & Well-Architected** | Least-privilege IAM, VPC Lattice/Endpoints, S3, 6-Pillar review, service design refs | `references/iam-identity.md`, `references/vpc-networking.md`, `references/s3-storage.md`, `references/well-architected.md`, `references/architecture-docs.md`, `references/design-refs/index.md` |
-| **Serverless, Lambda & Durable Execution** | Event-driven Lambda (`11` leaf guides), durable execution (`11` leaf guides), CDK/SAM (`5` leaf guides) | `references/serverless-excellence.md`, `references/lambda-guide.md`, `references/lambda-durable-guide.md`, `references/deployment-guide.md` |
+| **Serverless, Lambda & Durable Execution** | Event-driven Lambda (`11` leaf guides), durable execution (`11` leaf guides), CDK/SAM (`5` leaf guides) | `references/serverless-excellence.md`, `references/lambda-development-index.md`, `references/lambda-durable-guide.md`, `references/deployment-cdk-sam-index.md` |
 | **API Gateway** | REST/HTTP/WebSocket APIs, auth, custom domains, limits, observability (`18` leaf guides) | `references/api-gateway-guide.md` |
-| **SageMaker, Fine-Tuning & HyperPod** | Dataset eval/transform, SFT/DPO/RLVR fine-tuning, model eval/deploy, HyperPod (`11` leaf guides) | `references/aws-sagemaker.md` |
+| **SageMaker, Fine-Tuning & HyperPod** | Dataset eval/transform, SFT/DPO/RLVR fine-tuning, model eval/deploy, HyperPod (`11` leaf guides) | `references/sagemaker-index.md` |
 | **GCP-to-AWS 5-Phase Migration** | Discover, clarify, cluster Terraform, design, estimate, execute (`22` leaf guides) | `references/aws-migration.md` |
 | **Amplify Gen 2, Aurora DSQL & Location Service** | Full-stack Amplify (`3` leaf guides), Aurora DSQL (`24` leaf guides), Location Service (`6` leaf guides) | `references/amplify-workflow/guide.md`, `scripts/amplify-prereq-check.sh`, `references/dsql/guide.md`, `references/location-service/guide.md` |

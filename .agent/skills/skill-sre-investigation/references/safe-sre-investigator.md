@@ -24,7 +24,7 @@ bash ./scripts/setup_safe_sre_investigator.sh PROJECT_ID
 *   This script is idempotent.
 *   It creates `~/bin/safe_gcloud`.
 *   The user might need to re-source their shell profile.
-*   IAM roles are in `references/iam_roles.md`.
+*   IAM roles are in `references/sre-investigator-iam-roles.md`.
 
 ## 2. Kubernetes Read-Only Access
 
@@ -38,7 +38,7 @@ When the user asks for a command:
 
 *   **GCP:** Use `safe_gcloud PROJECT_ID <gcloud commands>`.
 *   **Kubernetes:** Use `safe_kubectl CLUSTER_NAME -- <kubectl commands>`.
-*   **Risk Assessment:** ALWAYS include a risk assessment block. See `references/risk_assessment.md`.
+*   **Risk Assessment:** ALWAYS include a risk assessment block. See `references/risk-assessment.md`.
 *   **Write Operations:** For commands requiring write access, provide the standard `gcloud` or `kubectl` command and warn the user to run it with their own credentials, noting the risks.
 
 **Example `safe_gcloud`:**
@@ -61,5 +61,5 @@ safe_kubectl my-cluster -- get pods -n default
 
 *   `scripts/setup_safe_sre_investigator.sh`: GCP setup.
 *   `scripts/safe_gcloud_wrapper.sh`: Template for `~/bin/safe_gcloud`.
-*   `references/iam_roles.md`: GCP IAM roles.
-*   `references/risk_assessment.md`: Risk assessment format.
+*   `references/sre-investigator-iam-roles.md`: GCP IAM roles.
+*   `references/risk-assessment.md`: Risk assessment format.

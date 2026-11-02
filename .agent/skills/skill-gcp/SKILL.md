@@ -57,8 +57,8 @@ Verify GCP ADC identity (`identity_state`), configure OneMCP servers, and execut
 
 | Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-gcp/`) |
 | :--- | :--- | :--- |
-| **ADC Setup & Inventory Discovery** | Verify gcloud auth, project inventory, OneMCP server wiring | `references/gcp-setup.md`, `references/gcp-mcp-setup.md`, `scripts/gcp-whoami.sh`, `scripts/gcp_inventory.py`, `scripts/verify_setup.py`, `scripts/setup_onemcp.py`, `scripts/test_mcp_endpoint.sh` |
+| **ADC Setup & Inventory Discovery** | Verify gcloud auth, project inventory, OneMCP server wiring | `references/environment-setup.md`, `references/onemcp-setup.md`, `scripts/gcp-whoami.sh`, `scripts/gcp_inventory.py`, `scripts/verify_setup.py`, `scripts/setup_onemcp.py`, `scripts/test_mcp_endpoint.sh` |
 | **GKE & Container Operations** | VPC-native clusters, Workload Identity, Binary Auth, Gateway API | `references/gke-operations.md`, `references/googleapis.com/container.md` |
 | **Cloud Run, Build & Resource Manager** | Serverless revisions, error reporting by revision, org/folder hierarchy | `references/googleapis.com/run.md`, `references/googleapis.com/cloudbuild.md`, `references/googleapis.com/cloudresourcemanager.md`, `scripts/report_errors_by_revision.py` |
 | **Security & IAM Hardening** | IAM least privilege, Cloud Armor, VPC Service Controls, zero-trust | `references/security-foundations.md` |
-| **System Design & Ops Playbooks** | Architecture patterns, operational excellence, triage | `references/architecture-docs.md`, `references/system-design.md`, `references/operational-excellence.md`, `references/gcp-playbooks.md`, `references/troubleshooting.md` |
+| **System Design & Ops Playbooks** | Architecture patterns, operational excellence, triage | `references/architecture-docs.md`, `references/system-design.md`, `references/operational-excellence.md`, `references/sre-playbooks.md`, `references/gke-cloudrun-cloudsql-troubleshooting.md` |

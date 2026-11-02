@@ -153,8 +153,8 @@ CONTRACTS_CATALOG = [
         ],
         "postconditions": ["Failure isolated to image, crashloop, probe, resource limit, or network before mutation"],
         "resources": [
-            ".agent/skills/skill-kubernetes/references/istio-specialist.md",
-            ".agent/skills/skill-kubernetes/references/k9s-specialist.md",
+            ".agent/skills/skill-kubernetes/references/istio-service-mesh.md",
+            ".agent/skills/skill-kubernetes/references/k9s-cli.md",
         ],
         "side_effects": {"filesystem": "none", "network": "read-only K8s API GET/LIST"},
         "source_parents": ["skill-kubernetes"],

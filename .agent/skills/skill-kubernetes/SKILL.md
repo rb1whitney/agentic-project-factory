@@ -58,7 +58,7 @@ Diagnose Kubernetes pod status, container logs, events, local k3s cluster state,
 
 | Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-kubernetes/`) |
 | :--- | :--- | :--- |
-| **Pod & Workload Troubleshooting** | CrashLoopBackOff, ImagePullBackOff, OOMKilled, probe/resource failures | `references/troubleshooting-deep-dive.md`, `scripts/cluster-dump.sh` |
-| **Service Mesh & Networking** | Istio mTLS, Gateway API, VirtualService, CoreDNS & service routing | `references/istio-specialist.md` |
-| **Interactive Cluster Triage (k9s)** | k9s navigation, resource inspection, log/shell shortcuts | `references/k9s-specialist.md` |
-| **Cluster Provisioning & Local k3s** | k3s installation, homelab GitOps (ArgoCD, GitLab, OpenBao/ESO, Kargo) | `references/kubernetes-local.md`, `references/provisioning-guide.md`, `scripts/install_k3s.sh`, `scripts/k3s-orchestrator.sh`, `scripts/maintenance-cleanup.sh`, `scripts/projects/devops-homelab/README.md` |
+| **Pod & Workload Troubleshooting** | CrashLoopBackOff, ImagePullBackOff, OOMKilled, probe/resource failures | `references/workload-troubleshooting.md`, `scripts/cluster-dump.sh` |
+| **Service Mesh & Networking** | Istio mTLS, Gateway API, VirtualService, CoreDNS & service routing | `references/istio-service-mesh.md` |
+| **Interactive Cluster Triage (k9s)** | k9s navigation, resource inspection, log/shell shortcuts | `references/k9s-cli.md` |
+| **Cluster Provisioning & Local k3s** | k3s installation, homelab GitOps (ArgoCD, GitLab, OpenBao/ESO, Kargo) | `references/operations-manual.md`, `references/cluster-provisioning.md`, `scripts/install_k3s.sh`, `scripts/k3s-orchestrator.sh`, `scripts/maintenance-cleanup.sh`, `scripts/projects/devops-homelab/README.md` |

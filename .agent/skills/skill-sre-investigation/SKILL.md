@@ -48,15 +48,15 @@ Execute read-only SRE monitoring queries and time series description analysis ac
   ```
 
 ### 2. Incident Governance & Postmortem Discipline
-- Enforce read-only least-privilege access (`references/skill-safe-sre-investigator.md`, `references/iam_roles.md`).
+- Enforce read-only least-privilege access (`references/safe-sre-investigator.md`, `references/sre-investigator-iam-roles.md`).
 - Document root cause, blast radius, and timeline using the postmortem generator and aggregator playbooks.
 
 ## Reference & Script Routing Index
 
 | SRE Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-sre-investigation/`) |
 | :--- | :--- | :--- |
-| **Incident Entrypoint & Safe Triage** | Initial incident triage, read-only SA guardrails, admin IAM request template, risk & mitigations | `references/skill-investigation-entrypoint.md`, `references/skill-safe-sre-investigator.md`, `references/skill-generic-mitigations.md`, `references/iam_roles.md`, `references/email_to_admin.md`, `references/risk_assessment.md`, `scripts/discovery.py` |
-| **Cloud Logging Analysis** | Token-efficient log queries, Apache log conversion, error aggregation | `references/skill-cloud-logging.md`, `references/data-ingestion.md`, `scripts/cloudlogging2apachelogs.py` |
-| **Cloud Monitoring & Time Series** | Metric queries, CSV export/merge, sparklines, dual-metric & archetype plots | `references/skill-cloud-monitoring.md`, `references/skill-monitoring-graphs.md`, `references/archetypes.md`, `scripts/export_timeseries_to_csv.py`, `scripts/merge_timeseries.py`, `scripts/preprocess_data.py`, `scripts/csv_to_sparkline.py`, `scripts/plot_archetype.py`, `scripts/reference_dual_plot.py` |
-| **Statistical Anomaly Detection** | Z-score, Isolation Forest, and k-NN anomaly detection & plotting | `references/skill-anomaly-detection.md`, `scripts/detect_zscore.py`, `scripts/detect_isolation_forest.py`, `scripts/detect_knn.py`, `scripts/plot_anomalies.py` |
-| **SLO Management & Postmortems** | GCP SLO burn analysis, PagerDuty workflows, postmortems | `references/skill-gcp-slo-management.md`, `references/skill-postmortem-generator.md`, `references/skill-postmortem-aggregator.md`, `references/pagerduty.md` |
+| **Incident Entrypoint & Safe Triage** | Initial incident triage, read-only SA guardrails, admin IAM request template, risk & mitigations | `references/incident-investigation-entrypoint.md`, `references/safe-sre-investigator.md`, `references/generic-mitigations.md`, `references/sre-investigator-iam-roles.md`, `references/iam-admin-request-email-template.md`, `references/risk-assessment.md`, `scripts/discovery.py` |
+| **Cloud Logging Analysis** | Token-efficient log queries, Apache log conversion, error aggregation | `references/cloud-logging-analysis.md`, `references/data-ingestion.md`, `scripts/cloudlogging2apachelogs.py` |
+| **Cloud Monitoring & Time Series** | Metric queries, CSV export/merge, sparklines, dual-metric & archetype plots | `references/cloud-monitoring-metrics.md`, `references/monitoring-incident-graphs.md`, `references/monitoring-archetypes.md`, `scripts/export_timeseries_to_csv.py`, `scripts/merge_timeseries.py`, `scripts/preprocess_data.py`, `scripts/csv_to_sparkline.py`, `scripts/plot_archetype.py`, `scripts/reference_dual_plot.py` |
+| **Statistical Anomaly Detection** | Z-score, Isolation Forest, and k-NN anomaly detection & plotting | `references/anomaly-detection.md`, `scripts/detect_zscore.py`, `scripts/detect_isolation_forest.py`, `scripts/detect_knn.py`, `scripts/plot_anomalies.py` |
+| **SLO Management & Postmortems** | GCP SLO burn analysis, PagerDuty workflows, postmortems | `references/gcp-slo-management.md`, `references/postmortem-generator.md`, `references/postmortem-aggregator.md`, `references/pagerduty.md` |

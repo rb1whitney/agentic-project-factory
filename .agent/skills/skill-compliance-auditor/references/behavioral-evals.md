@@ -17,25 +17,25 @@ Behavioral evaluations (evals) are tests that validate the **agent's decision-ma
     *   *No* -> Normal integration tests.
     *   *Yes* -> Continue below.
 2.  **Is it UI/Interaction heavy?**
-    *   *Yes* -> Use `appEvalTest` (`AppRig`). See **[creating.md](.agent/skills/skill-compliance-auditor/references/creating.md)**.
-    *   *No* -> Use `evalTest` (`TestRig`). See **[creating.md](.agent/skills/skill-compliance-auditor/references/creating.md)**.
+    *   *Yes* -> Use `appEvalTest` (`AppRig`). See **[behavioral-evals-creating.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-creating.md)**.
+    *   *No* -> Use `evalTest` (`TestRig`). See **[behavioral-evals-creating.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-creating.md)**.
 3.  **Is it a new test?**
     *   *Yes* -> Set policy to `USUALLY_PASSES`.
     *   *No* -> `ALWAYS_PASSES` (locks in regression).
 4.  **Are you fixing a failure or promoting a test?**
-    *   *Fixing* -> See **[fixing.md](.agent/skills/skill-compliance-auditor/references/fixing.md)**.
-    *   *Promoting* -> See **[promoting.md](.agent/skills/skill-compliance-auditor/references/promoting.md)**.
+    *   *Fixing* -> See **[behavioral-evals-fixing.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-fixing.md)**.
+    *   *Promoting* -> See **[behavioral-evals-promoting.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-promoting.md)**.
 
 ---
 ##  Quick Checklist
 
 ### 1. Setup Workspace
 Seed the workspace with necessary files using the `files` object to simulate a realistic scenario (e.g., NodeJS project with `package.json`).
-*   *Details in **[creating.md](.agent/skills/skill-compliance-auditor/references/creating.md)***
+*   *Details in **[behavioral-evals-creating.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-creating.md)***
 
 ### 2. Write Assertions
 Audit agent decisions using `rig.setBreakpoint()` (AppRig only) or index verification on `rig.readToolLogs()`.
-*   *Details in **[creating.md](.agent/skills/skill-compliance-auditor/references/creating.md)***
+*   *Details in **[behavioral-evals-creating.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-creating.md)***
 
 ### 3. Verify
 Run single tests locally with Vitest. Confirm stability locally before relying on CI workflows.
@@ -45,6 +45,6 @@ Run single tests locally with Vitest. Confirm stability locally before relying o
 ##  Bundled Resources
 
 Detailed procedural guides:
-*   **[creating.md](.agent/skills/skill-compliance-auditor/references/creating.md)**: Assertion strategies, Rig selection, Mock MCPs.
-*   **[fixing.md](.agent/skills/skill-compliance-auditor/references/fixing.md)**: Step-by-step automated investigation, architecture diagnosis guidelines.
-*   **[promoting.md](.agent/skills/skill-compliance-auditor/references/promoting.md)**: Candidate identification criteria and threshold guidelines.
+*   **[behavioral-evals-creating.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-creating.md)**: Assertion strategies, Rig selection, Mock MCPs.
+*   **[behavioral-evals-fixing.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-fixing.md)**: Step-by-step automated investigation, architecture diagnosis guidelines.
+*   **[behavioral-evals-promoting.md](.agent/skills/skill-compliance-auditor/references/behavioral-evals-promoting.md)**: Candidate identification criteria and threshold guidelines.

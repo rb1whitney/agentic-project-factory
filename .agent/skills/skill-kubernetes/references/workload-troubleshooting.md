@@ -1,4 +1,4 @@
-# Reference: Troubleshooting Encyclopedia (`references/troubleshooting-deep-dive.md`)
+# Reference: Troubleshooting Encyclopedia (`references/workload-troubleshooting.md`)
 
 ## 1. Executive Diagnostic Philosophy: The "Bottom-Up" Protocol
 When the cluster fails, do not guess. Follow this sequence:

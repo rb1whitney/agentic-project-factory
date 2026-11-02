@@ -56,7 +56,7 @@ Execute infrastructure capability implementation and specific skill description 
 
 | IaC Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-terraform/`) |
 | :--- | :--- | :--- |
-| **Terraform Plan & State Analysis** | HCL module design, plan risk analysis, ALB TLS policy and WAF review | `references/security-guide.md`, `scripts/tf_plan_analyzer.py` |
-| **Packer & Machine Image Builders** | Golden AMI, Azure Image Builder, Windows images, container registry push | `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/windows-builder.md`, `references/push-to-registry.md` |
-| **PKI & Certificate Lifecycle** | Public TLS validity limits (200/100/47 days), ACME, cert-manager, rotation automation | `references/pki-guide.md` |
+| **Terraform Plan & State Analysis** | HCL module design, plan risk analysis, ALB TLS policy and WAF review | `references/edge-tls-waf-security.md`, `scripts/tf_plan_analyzer.py` |
+| **Packer & Machine Image Builders** | Golden AMI, Azure Image Builder, Windows images, container registry push | `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/windows-builder.md`, `references/push-module-to-registry.md` |
+| **PKI & Certificate Lifecycle** | Public TLS validity limits (200/100/47 days), ACME, cert-manager, rotation automation | `references/tls-certificate-lifecycle.md` |
 | **On-Prem Provisioning** | On-prem VMs: Terraform creates, Ansible configures (Proxmox example) | `references/on-prem-provisioning.md` |

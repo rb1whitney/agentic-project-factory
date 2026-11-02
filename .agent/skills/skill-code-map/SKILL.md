@@ -86,7 +86,7 @@ SG=.agent/skills/skill-code-map/scripts/state_graph.py
 
 | Capability / Need | Trigger / Scope | Reference Runbooks, Configs & Scripts (`.agent/skills/skill-code-map/`) |
 | :--- | :--- | :--- |
-| **PPR Context Lensing & Recon** | Blast radius ranking, git churn/hotspot forensics, token budgeting | `scripts/auto_context.py`, `references/codebase-recon.md`, `references/context-master.md` |
+| **PPR Context Lensing & Recon** | Blast radius ranking, git churn/hotspot forensics, token budgeting | `scripts/auto_context.py`, `references/git-forensics-recon.md`, `references/ast-context-lensing.md` |
 | **AST Symbol Map & Dependency Graph** | Tree-sitter symbol extraction (`code_map.md`) & import/call graphs | `scripts/code_mapper.py`, `scripts/graph_builder.py`, `scripts/search_map.py`, `scripts/read_code_map.py` |
 | **Semantic Lineage, Impact & Surgery** | Cross-file symbol usage, Mermaid lineage, AST node replacement | `scripts/semantic_query.py`, `scripts/semantic_edit.py`, `scripts/codemap_graphify_mcp.py` |
 | **6-Pillar Well-Architected & Policy Engine** | Static `SEC`/`REL`/`OPS`/`PERF`/`COST`/`SUS` audit & Kodus policy hydration | `scripts/well_architected_audit.py`, `scripts/local_extract.py`, `scripts/hydrate_policies.py`, `scripts/sgconfig.yml`, `scripts/rules/`, `resources/RULE_AUTHORING_GUIDE.md` |
