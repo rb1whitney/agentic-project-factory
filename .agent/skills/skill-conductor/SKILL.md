@@ -54,8 +54,8 @@ All project and manufacturing tracks in `conductor/tracks/<track-id>/` follow th
 | Orchestration Capability | Trigger / Scope | Reference Runbooks & Templates (`.agent/skills/skill-conductor/` & `conductor/`) |
 | :--- | :--- | :--- |
 | **Track Lifecycle & Templates** | Phase 1/3/5 track artifacts and architectural plan templates | `conductor/templates/STRATEGIC_RECON.md`, `conductor/templates/EXECUTIVE_PLAN.md`, `conductor/templates/CERTIFICATION_REPORT.md`, `scripts/templates/IMPLEMENTATION_PLAN.md`, `scripts/templates/LOGICAL_ARCHITECTURE.md`, `scripts/templates/PHYSICAL_ARCHITECTURE.md` |
-| **Swarm Multi-Agent Lifecycle** | Scout/Architect/Engineer/Auditor/Supervisor hand-offs & track archival | `references/swarm.md`, `references/swarm-agents.md`, `references/swarm-management.md` |
-| **Domain-Driven Design (DDD)** | 7-step Strategic-to-Tactical DDD bounded context & aggregate design | `references/ddd.md` |
+| **Swarm Multi-Agent Lifecycle** | Scout/Architect/Engineer/Auditor/Supervisor hand-offs & track archival | `references/swarm-executive-proposal-engine.md`, `references/swarm-agent-roles-and-lifecycle.md`, `references/swarm-supervisor-protocol.md` |
+| **Domain-Driven Design (DDD)** | 7-step Strategic-to-Tactical DDD bounded context & aggregate design | `references/ddd-seven-phase-workflow.md` |
 | **Product Factory Blueprint** | 6-phase standalone product manufacturing & Zero-Zero decoupling | `references/product-blueprint.md` |
 | **Architecture & LADR Generation** | Lightweight Architecture Decision Records (LADRs) & system design | `references/ladr-generator.md`, `references/ladr-template.md`, `scripts/templates/LADR.md` |
 | **AWS Architecture Diagrams** | Draw.io / XML architecture diagram generation & layout standards | `references/aws-diagrams/drawing-guide.md`, `references/aws-diagrams/layout-guidelines.md`, `references/aws-diagrams/style-guide.md`, `references/aws-diagrams/cli-export.md` |

@@ -51,6 +51,6 @@ Execute 6-Pillar Well-Architected AST rules, compliance security checks, and beh
 | Audit Capability | Trigger / Scope | Reference Runbooks & Assets (`.agent/skills/skill-compliance-auditor/`) |
 | :--- | :--- | :--- |
 | **AI & Agent Standards** | Agentic safety, prompt/contract standards, knowledge validation | `references/knowledge-validation.md` |
-| **Behavioral Evaluations** | Creating, running, fixing, and promoting behavioral eval suites | `references/behavioral-evals.md`, `references/creating.md`, `references/running.md`, `references/fixing.md`, `references/promoting.md`, `scripts/assets/standard_eval.ts.txt`, `scripts/assets/interactive_eval.ts.txt` |
-| **Regulatory & Hub Governance** | Policy enforcement, branch/PR governance, audit trails | `references/compliance-guide.md` |
+| **Behavioral Evaluations** | Creating, running, fixing, and promoting behavioral eval suites | `references/behavioral-evals.md`, `references/behavioral-evals-creating.md`, `references/behavioral-evals-running.md`, `references/behavioral-evals-fixing.md`, `references/behavioral-evals-promoting.md`, `scripts/assets/standard_eval.ts.txt`, `scripts/assets/interactive_eval.ts.txt` |
+| **Regulatory & Hub Governance** | Policy enforcement, branch/PR governance, audit trails | `references/compliance-analysis.md` |
 | **Production Readiness** | Pre-release certification gate (`CERTIFICATION_REPORT.md`) | `conductor/templates/CERTIFICATION_REPORT.md` |

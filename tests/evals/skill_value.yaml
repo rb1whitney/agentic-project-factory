@@ -5,7 +5,7 @@
 version: 1
 guides:
   - id: pki-guide
-    path: .agent/skills/skill-terraform/references/pki-guide.md
+    path: .agent/skills/skill-terraform/references/tls-certificate-lifecycle.md
     tasks:
       - id: pki-1
         q: "Under the current CA/Browser Forum TLS Baseline Requirements, what is the maximum validity in days of a publicly trusted TLS certificate issued on 2027-04-01? Give the number first."
@@ -23,7 +23,7 @@ guides:
         q: "Which ACME challenge type must be used to obtain a wildcard certificate?"
         all: ['dns-?01']
   - id: security-guide
-    path: .agent/skills/skill-terraform/references/security-guide.md
+    path: .agent/skills/skill-terraform/references/edge-tls-waf-security.md
     tasks:
       - id: sec-1
         q: "An AWS ALB HTTPS listener is created in the AWS console and no security policy is chosen. What is the default policy name? Give the exact name only."

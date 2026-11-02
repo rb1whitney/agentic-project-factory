@@ -1,6 +1,6 @@
 # Edge Network Security: TLS Policy and WAF
 
-**Read when**: setting the TLS policy on a load balancer or reviewing WAF/firewall exposure in Terraform. Skip for certificate issuance (see `pki-guide.md`).
+**Read when**: setting the TLS policy on a load balancer or reviewing WAF/firewall exposure in Terraform. Skip for certificate issuance (see `tls-certificate-lifecycle.md`).
 
 ## AWS Application Load Balancer TLS policy
 - Always set `ssl_policy` explicitly. The default depends on how the listener is created, and the CLI/CloudFormation/CDK default is an old policy (see volatile facts).

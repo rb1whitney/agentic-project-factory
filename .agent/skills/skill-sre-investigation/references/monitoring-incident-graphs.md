@@ -16,7 +16,7 @@ This skill guides the agent through identifying high-signal metrics, extracting 
   1. Use Monitoring MCP to find relevant metrics for the incident time window.
   2. Download the data as CSV (e.g., `out/incident/metric.csv`) or directly parse JSON.
   3. Use a sub-agent (`generalist`) for large datasets to keep the main session history lean.
-- **Reference:** See [archetypes.md](references/archetypes.md) for "Apple-to-Apple" strategies and granularity tables.
+- **Reference:** See [monitoring-archetypes.md](references/monitoring-archetypes.md) for "Apple-to-Apple" strategies and granularity tables.
 
 ### 2. Baseline Graph (Draft)
 - **Rule:** Always generate a raw "Draft" graph first to confirm the data shows a clear signal.

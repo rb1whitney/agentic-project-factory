@@ -54,7 +54,7 @@ Execute expert skill name and description capability workflows for `expert_name`
 
 | Platform Capability | Trigger / Scope | Reference Runbooks & Configs (`.agent/skills/skill-platform-admin/`) |
 | :--- | :--- | :--- |
-| **Workspace & Symlink Architecture** | Onboarding, venv setup, `AGENTS.md` & spoke symlink configuration | `references/workspace-guide.md`, `references/platform-guide.md`, `references/symlink-config.md`, `scripts/security.yaml` |
-| **Cloud SDK & CLI Discovery** | Managing `gcloud`, `aws`, `kubectl`, `helm`, `gh`, and dynamic CLI schema discovery | `references/sdk-manager.md`, `references/cli-discovery.md`, `references/latest_docs.md` |
+| **Workspace & Symlink Architecture** | Onboarding, venv setup, `AGENTS.md` & spoke symlink configuration | `references/workspace-context-manager.md`, `references/platform-onboarding.md`, `references/symlink-config.md`, `scripts/security.yaml` |
+| **Cloud SDK & CLI Discovery** | Managing `gcloud`, `aws`, `kubectl`, `helm`, `gh`, and dynamic CLI schema discovery | `references/sdk-manager.md`, `references/cli-discovery.md`, `references/gemini-cli-abilities-summary.md` |
 | **MCP Server Lifecycle** | Configuring, testing, and troubleshooting Model Context Protocol servers | `references/mcp-manager.md` |
-| **AI Harnesses (OpenCode & Gemini CLI)** | Local model orchestration, provider routing, Gemini CLI & Antigravity setup | `references/opencode.md`, `references/gemini.md` |
+| **AI Harnesses (OpenCode & Gemini CLI)** | Local model orchestration, provider routing, Gemini CLI & Antigravity setup | `references/opencode-manager.md`, `references/gemini-cli-expert.md` |

@@ -4,7 +4,7 @@
 
 
 ## 1. Executive Summary & Philosophy
-This document is the sole authoritative technical encyclopedia for the `devops-homelab` infrastructure. It governs every aspect of cluster lifecycle—from bare-metal binary installation to advanced GitOps reconciliation. Manual changes are strictly forbidden unless documented as emergency mitigation in `references/troubleshooting-deep-dive.md`.
+This document is the sole authoritative technical encyclopedia for the `devops-homelab` infrastructure. It governs every aspect of cluster lifecycle—from bare-metal binary installation to advanced GitOps reconciliation. Manual changes are strictly forbidden unless documented as emergency mitigation in `references/workload-troubleshooting.md`.
 
 ### 1.1 Architectural Fundamentals
 - **Core Engine:** K3s v1.35.5 (Single-node).
@@ -62,7 +62,7 @@ kubectl get applications -n argocd -o yaml | grep "status:.*sync:"
 4. `curl -sfL https://get.k3s.io | sh -`
 5. `systemctl start k3s`
 
-## 4. Master Diagnostic Library (Reference: `references/troubleshooting-deep-dive.md`)
+## 4. Master Diagnostic Library (Reference: `references/workload-troubleshooting.md`)
 
 ### 4.1 Triage Protocol (The "Bottom-Up" Loop)
 1. **Node Analysis:** `kubectl get nodes -o wide` -> Check `STATUS`.

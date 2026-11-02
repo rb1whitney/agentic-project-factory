@@ -1,4 +1,4 @@
-# Reference: Provisioning Guide (`references/provisioning-guide.md`)
+# Reference: Provisioning Guide (`references/cluster-provisioning.md`)
 
 # K3s, Helm, and ArgoCD Setup Guide for Devops-Homelab
 

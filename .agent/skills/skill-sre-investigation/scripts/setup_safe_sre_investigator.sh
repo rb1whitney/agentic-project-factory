@@ -74,7 +74,7 @@ if ! ${SUDO_GCLOUD} iam service-accounts describe "${SA_EMAIL}" --project "${PRO
       echo "1. Ask your admin to temporarily give you 'resourcemanager.projectIamAdmin' (maybe expiring in 1 hour)."
       echo "2. Give your Admin the commands to create the service account for you."
       echo "👉 Please check the template email to your Admin:"
-      echo "   cat ${SKILL_DIR}/references/email_to_admin.md"
+      echo "   cat ${SKILL_DIR}/references/iam-admin-request-email-template.md"
       exit 1
   fi
 else
@@ -95,7 +95,7 @@ for role in "${IAM_ROLES[@]}"; do
         echo "1. Ask your admin to temporarily give you 'resourcemanager.projectIamAdmin' (maybe expiring in 1 hour)."
         echo "2. Give your Admin the commands to grant the roles for you."
         echo "👉 Please check the template email to your Admin:"
-        echo "   cat ${SKILL_DIR}/references/email_to_admin.md"
+        echo "   cat ${SKILL_DIR}/references/iam-admin-request-email-template.md"
         exit 1
       else
         cat /tmp/iam_error.log
@@ -116,7 +116,7 @@ if ! ${SUDO_GCLOUD} iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
       echo "❌ Permission Denied: You do not have the required permissions to assign the impersonation role to yourself on the Service Account."
       echo "Give your Admin the commands to grant the roles for you."
       echo "👉 Please check the template email to your Admin:"
-      echo "   cat ${SKILL_DIR}/references/email_to_admin.md"
+      echo "   cat ${SKILL_DIR}/references/iam-admin-request-email-template.md"
       exit 1
     else
       cat /tmp/iam_error2.log

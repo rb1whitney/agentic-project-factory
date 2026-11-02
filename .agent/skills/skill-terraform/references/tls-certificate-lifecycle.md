@@ -1,6 +1,6 @@
 # TLS Certificate Lifecycle (Public and Private PKI)
 
-**Read when**: issuing, renewing, or debugging X.509/TLS certificates, sizing a rotation schedule, or wiring cert-manager. Skip for TLS cipher policy (see `security-guide.md`).
+**Read when**: issuing, renewing, or debugging X.509/TLS certificates, sizing a rotation schedule, or wiring cert-manager. Skip for TLS cipher policy (see `edge-tls-waf-security.md`).
 
 ## Design consequences
 - Publicly trusted certificates are heading to 47-day lifetimes (schedule below). A human-driven annual rotation is obsolete; design for automated issuance and renewal (ACME).

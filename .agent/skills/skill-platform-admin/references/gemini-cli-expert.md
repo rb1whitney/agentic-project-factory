@@ -14,7 +14,7 @@ When asked to "update your knowledge" or "update the cli docs", this skill shoul
 ---
 ## Workflow: Update Knowledge Base
 
-This is a multi-step process to refresh the `.agent/skills/skill-platform-admin/references/latest_docs.md` file with a comprehensive summary of the entire Gemini CLI documentation.
+This is a multi-step process to refresh the `.agent/skills/skill-platform-admin/references/gemini-cli-abilities-summary.md` file with a comprehensive summary of the entire Gemini CLI documentation.
 
 **Step 1: Fetch Documentation**
 - **Action:** Use the `run_shell_command` tool to execute the script at `.gemini/commands/update-self-knowledge`.
@@ -30,7 +30,7 @@ This is a multi-step process to refresh the `.agent/skills/skill-platform-admin/
 
 **Step 4: Save the New Summary**
 - **Action:** Use the `write_file` tool to save your newly generated summary.
-- **Destination:** Overwrite the file at `.agent/skills/skill-platform-admin/references/latest_docs.md`.
+- **Destination:** Overwrite the file at `.agent/skills/skill-platform-admin/references/gemini-cli-abilities-summary.md`.
 
 **Step 5: Clean Up**
 - **Action:** Use the `run_shell_command` tool to delete the temporary file from Step 1. The command should be `rm <file_path>`. This is important to avoid leaving temporary files on the user's system.
