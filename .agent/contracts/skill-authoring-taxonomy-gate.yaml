@@ -17,9 +17,9 @@ preconditions:
 postconditions:
 - Artifact at correct tier path; contract not surfaced under .agent/skills/; no orphan skill
 resources:
-- '{SKILL_DIR}/references/narrative-for-skills.md'
-- '{SKILL_DIR}/references/taxonomy-decision.md'
-- '{SKILL_DIR}/references/sap-authoring.md'
+- .agent/skills/skill-factory-creator/references/narrative-for-skills.md
+- .agent/skills/skill-factory-creator/references/taxonomy-decision.md
+- .agent/skills/skill-factory-creator/references/sap-authoring.md
 side_effects:
   filesystem: writes under .agent/skills/ or .agent/contracts/
   network: none
@@ -35,8 +35,7 @@ action_templates:
 - .venv/bin/python -m unittest tests/test_sap_pipeline.py | bin/rtk
 bindings:
   skill-factory-creator:
-    capability_name: <capability_name>
-    capability_summary: <capability_summary>
+    skill_dir: .agent/skills/skill-factory-creator
 verifier_stats:
   coverage: 0.6538
   binding: 1.0

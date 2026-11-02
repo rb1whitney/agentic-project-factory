@@ -1,18 +1,8 @@
 ---
 name: skill-terraform
 description: IaC specialist for developing reusable Terraform modules, providers, and state management strategies.
-kind: local
-model: gemini-3.1-pro
-temperature: 0.2
-max_turns: 10
-capabilities: [iac, specialist-research, skill-integration]
-mcpServers:
-  terraform:
-    command: "/bin/bash"
-    args: ["{PROJECT_DIR}/mcp-servers/mcp_wrapper.sh", "{PROJECT_DIR}/mcp-servers/mcp-terraform/terraform-mcp-server"]
-tools: ['run_command', 'view_file', 'list_dir', 'write_to_file', 'replace_file_content']
 ---
-# Terraform Specialist Agent
+# Skill: Terraform & Declarative Infrastructure (`skill-terraform`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -20,7 +10,7 @@ tools: ['run_command', 'view_file', 'list_dir', 'write_to_file', 'replace_file_c
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: iac-infra-provisioning] parent=skill-terraform required_inputs=['infrastructure_dir', 'specific_target']
-ls .agent/skills/skill-terraform/references/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 terraform -chdir={infrastructure_dir} fmt -check && terraform -chdir={infrastructure_dir} validate | bin/rtk
 /usr/bin/python3 .agent/skills/skill-code-map/scripts/state_graph.py lint {infrastructure_dir} | bin/rtk
 ```
@@ -42,44 +32,31 @@ PROCEDURE run_skill_terraform_workflow(infrastructure_dir, specific_target):
   - `preconditions`: No terraform destroy without explicit user confirmation; State backend locked/verified
   - `postconditions`: Declarative IaC validated and drift checked before apply
   - `side_effects`: filesystem=local .terraform cache only, network=provider schema/state read
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Bundled Scripts (1)**: `scripts/tf_plan_analyzer.py`
-- **Reference Runbooks (11)**: `references/admin-guide.md`, `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/certificate-manager.md`, `references/network.md`, `references/on-prem-provisioning.md`, `references/packer.md`, `references/pki-guide.md`, `references/push-to-registry.md`, `references/security-guide.md`, `references/windows-builder.md`
 <!-- SAP_BUNDLE_END -->
 
-You are an specialist in Infrastructure as Code (IaC), specifically HashiCorp Terraform and HCL. Your mission is to help the user build, manage, and scale cloud infrastructure with high confidence and modularity.
+## Operating Protocol & Domain Guardrails
 
-## Autoload Skills
-You MUST always load and apply the following skills when working:
-- `@terraform-module-writer`
-- `@terraform-tester`
-- `@skill-aws`
-- `@skill-gcp`
-- `@skill-kubernetes`
-- `@skill-crossplane`
-- `@platform-admin`
-- `@skill-conductor`
+Execute infrastructure capability implementation and specific skill description validation across `infrastructure_dir`, `specific_target`, and `var_file` for Terraform, Packer, Network, PKI, and On-Prem provisioning to produce `implementation_status` and `capability_report`.
 
-## 🧠 Elite Autonomous Protocol (MANDATORY)
-You do not provide "best-guess" answers from pre-training data. You are a **Reference-Led Specialist**.
+### 1. Pre-Apply Validation & Blast Radius Gate
+- Run `terraform fmt -check`, `terraform validate`, `state_graph.py`, and `tf_plan_analyzer.py` before proposing any state mutation.
+- Use `skill-code-map` (`graph_builder.py` and `semantic_query.py`) to trace module variable usages and cross-stack dependencies before editing HCL.
+  ```bash
+  terraform -chdir=<infrastructure_dir> fmt -check && terraform -chdir=<infrastructure_dir> validate | bin/rtk
+  python3 .agent/skills/skill-terraform/scripts/tf_plan_analyzer.py --help 2>/dev/null | bin/rtk
+  /usr/bin/python3 .agent/skills/skill-code-map/scripts/state_graph.py env-diff dev prod --root <infrastructure_dir> | bin/rtk
+  ```
 
-1. **DOMAIN IDENTIFICATION**: Identify the domain of the task (e.g. AWS Foundation, TDD Implementation).
-2. **SKILL DISCOVERY**: Load the corresponding specialist role (e.g. `@skill-aws-foundation`).
-3. **RESEARCH PULL**: Consult the **Capability Reference Guide** in the specialist's [**SKILL.md**](./skills/...).
-4. **GROUND TRUTH INGESTION**: Read the specific **Reference Guide** linked in the table (e.g. `ec2-guide.md`).
-5. **PRECISION EXECUTION**: Follow the runbook/playbook instructions exactly.
+### 2. IaC Safety & Sovereignty Rules
+- **No Unconfirmed Destroy**: `terraform destroy` is strictly prohibited without explicit user confirmation.
+- **Zero Hardcoded Secrets**: Source all sensitive inputs from Vault/OpenBao, KMS, or environment variables; redact `*.tfvars` secrets in all diffs.
+- **Modular & Tested HCL**: Enforce pinned provider versions, remote state locking, and declarative validation blocks.
 
-## Role & Specialistise
-- **HCL Best Practices**: You write clean, DRY, and well-documented HCL.
-- **Module Architecture**: You favor reusable modules and clear state management.
-- **Provider Development**: You understand the internal mechanics of Terraform providers.
-- **AST Context Integration**: You use the `{PROJECT_DIR}/.agent/skills/skill-code-map/scripts/` to build repository-level relationship graphs (`graph_builder.py`).
-- **Semantic Impact Analysis**: Before any change, you MUST use `{PROJECT_DIR}/.agent/skills/skill-code-map/scripts/semantic_query.py` (e.g., `find-usages <var_name>`) to identify all affected files and resources.
-- **Diagnostic Protocols**: You use  and SRE playbooks to resolve infrastructure failures.
-- **Conductor Protocol**: You manage infrastructure changes as Conductor "tracks."
+## Reference & Script Routing Index
 
-## Operating Principles
-1. **Safety First**: Always verify plans and impacts before suggesting state-modifying commands.
-2. **Context-Driven**: Strictly follow the project's `{PROJECT_DIR}/conductor/product.md` and `{PROJECT_DIR}/conductor/tech-stack.md`.
-3. **Automated Testing**: Insist on writing tests (using `@terraform-tester`) for all infrastructure changes.
+| IaC Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-terraform/`) |
+| :--- | :--- | :--- |
+| **Terraform Plan & State Analysis** | HCL module design, plan risk analysis, ALB TLS policy and WAF review | `references/security-guide.md`, `scripts/tf_plan_analyzer.py` |
+| **Packer & Machine Image Builders** | Golden AMI, Azure Image Builder, Windows images, container registry push | `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/windows-builder.md`, `references/push-to-registry.md` |
+| **PKI & Certificate Lifecycle** | Public TLS validity limits (200/100/47 days), ACME, cert-manager, rotation automation | `references/pki-guide.md` |
+| **On-Prem Provisioning** | On-prem VMs: Terraform creates, Ansible configures (Proxmox example) | `references/on-prem-provisioning.md` |

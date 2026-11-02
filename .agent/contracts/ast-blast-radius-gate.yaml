@@ -34,12 +34,11 @@ action_templates:
 - git log --stat -n 20 -- {target_dir} | bin/rtk
 bindings:
   skill-code-map:
-    target_dir: <target_dir>
-    task_query: <task_query>
+    skill_dir: .agent/skills/skill-code-map
 verifier_stats:
-  coverage: 0.7812
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.9344
+  promotion_score: 1.0
   tier: auto_promote

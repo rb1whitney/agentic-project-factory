@@ -11,7 +11,7 @@ Transforms a data set provided by the user into their desired format. All transf
 ## Principles
 
 1. **One thing at a time.** Each response advances exactly one decision. Never combine multiple questions or recommendations in a single turn.
-2. **Confirm before proceeding.** Wait for the user to agree before moving to the next step. You are a guide, not a runaway train.
+2. **Confirm before proceeding.** Wait for the user to agree before moving to the next step.
 3. **Don't read files until you need them.** Only read reference files when you've reached the workflow step that requires them and the user has confirmed the direction. Never read ahead.
 4. **No narration.** Don't explain what you're about to do or what you just did. Share outcomes and ask questions. Keep responses short and focused.
 5. **No repetition.** If you said something before a tool call, don't repeat it after. Only share new information.
@@ -27,14 +27,14 @@ This skill supports two transformation purposes  **training data** and **evaluat
 
 ### Training Data Formats
 
-When the transformation is for **model training**, resolve the target format using the reference file `../dataset-evaluation/references/strategy_data_requirements.md`. The required format depends on both the **model type** (Open Weights like Llama/Qwen vs Nova) and the **finetuning technique** (SFT, DPO, RLVR)  make sure to match on both dimensions. If either the model type or technique is not yet known, ask the user before resolving the format.
+When the transformation is for **model training**, resolve the target format using the reference file `dataset-evaluation-strategy-data-requirements.md`. The required format depends on both the **model type** (Open Weights like Llama/Qwen vs Nova) and the **finetuning technique** (SFT, DPO, RLVR)  make sure to match on both dimensions. If either the model type or technique is not yet known, ask the user before resolving the format.
 
 ### Evaluation Data Formats
 
 When the transformation is for **model evaluation**, resolve the target format using this order:
 
 1. Try fetching the live documentation at https://docs.aws.amazon.com/sagemaker/latest/dg/model-customize-evaluation-dataset-formats.html to get the latest evaluation dataset schema definitions.
-2. **If the fetch fails** (e.g., no internet access, VPC environment), fall back to the offline copy at `references/sagemaker_dataset_formats.md`. Inform the user that the format schemas are from an offline copy and may be outdated.
+2. **If the fetch fails** (e.g., no internet access, VPC environment), fall back to the offline copy at `sagemaker_dataset_formats.md`. Inform the user that the format schemas are from an offline copy and may be outdated.
 
 Use whichever source you successfully access as the source of truth for the target format. Do not rely on memorized schemas.
 
@@ -111,7 +111,7 @@ If the user provides a directory (not a full file path), construct the output fi
 
 For this step, you need: **to generate a python function that transforms the dataset from the format in Step 5 to the format in Step 3**
 
-Read the reference guide at `references/dataset_transformation_code.md` and follow its skeleton exactly when generating the transformation function.
+Read the reference guide at `dataset_transformation_code.md` and follow its skeleton exactly when generating the transformation function.
 
 The python function should be in the form of:
 
@@ -119,7 +119,7 @@ The python function should be in the form of:
 def transform_dataset(df: pd.DataFrame) -> pd.DataFrame:
 ```
 
-Add a `%%writefile <project-dir>/scripts/transform_fn.py` code cell to the notebook AND write the file to disk for testing. The `<project-dir>` is the project directory established by the directory-management skill (e.g., `dpo-to-rlvr-conversion`). All notebooks go in `<project-dir>/notebooks/` and all scripts go in `<project-dir>/scripts/`.
+Add a `%%writefile <project-dir>/transform_fn.py` code cell to the notebook AND write the file to disk for testing. The `<project-dir>` is the project directory established by the directory-management skill (e.g., `dpo-to-rlvr-conversion`). All notebooks go in `<project-dir>/notebooks/` and all scripts go in `<project-dir>/scripts/`.
 
 Continue iterating with the user's feedback  update the notebook cell in place on each revision rather than showing code inline.
 
@@ -139,8 +139,8 @@ Continue iterating with the user's feedback  update the notebook cell in place o
 
 **Before writing the notebook, read:**
 
-- `references/notebook_structure.md` (cell order, placeholders, and content)
-- `references/notebook_writing_guide.md` (Jupyter notebook JSON formatting)
+- `notebook_structure.md` (cell order, placeholders, and content)
+- `notebook_writing_guide.md` (Jupyter notebook JSON formatting)
 
 Generate the execution logic as code cells in the notebook.
 
@@ -148,7 +148,7 @@ Generate the execution logic as code cells in the notebook.
 - The script must import `transform_dataset` from `transform_fn`.
 - Replace placeholders with the actual input/output paths.
 
-Read the reference guide at `references/dataset_transformation_code.md` and follow its execution script skeleton exactly.
+Read the reference guide at `dataset_transformation_code.md` and follow its execution script skeleton exactly.
 
 **If sample data was collected in Step 5**, test the full pipeline:
 
@@ -195,7 +195,7 @@ If local execution:
 
 If SageMaker Processing Job:
 
-- Add a cell that submits and monitors the Processing Job inline using the V3 SageMaker SDK directly (FrameworkProcessor, ProcessingInput, ProcessingOutput, etc.). Create a FrameworkProcessor with the SKLearn 1.2-1 image, configure inputs/outputs, and call `processor.run(wait=True, logs=True)` to block the cell and stream logs until the job completes. See `scripts/transformation_tools.py` for reference implementation details.
+- Add a cell that submits and monitors the Processing Job inline using the V3 SageMaker SDK directly (FrameworkProcessor, ProcessingInput, ProcessingOutput, etc.). Create a FrameworkProcessor with the SKLearn 1.2-1 image, configure inputs/outputs, and call `processor.run(wait=True, logs=True)` to block the cell and stream logs until the job completes. See `transformation_tools.py` for reference implementation details.
 - Inform the user they can run this cell to kick off and monitor the job.
 
 **Important:** The agent must NOT execute the full dataset transformation itself. The notebook cells are generated for the user to review and run. Only sample data (from Steps 78) should be transformed by the agent for validation purposes.

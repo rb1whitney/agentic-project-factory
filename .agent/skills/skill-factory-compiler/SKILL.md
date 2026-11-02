@@ -1,15 +1,8 @@
 ---
 name: skill-factory-compiler
 description: Factory agent compiler and hydration engine. Translates canonical multi-adapter agent schemas into runtime dotfiles (.claude/agents/, .agents/) and recompiles standard metadata without drift.
-auto_triggers:
-  - "hydrate"
-  - "compile agents"
-  - "compile metadata"
-  - "verify discovery"
-  - "agent projection"
 ---
-
-# Factory Agent Compiler (Ephemeral Projection Pattern)
+# Skill: Factory Agent Compiler & Hydration Engine (`skill-factory-compiler`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -40,70 +33,32 @@ PROCEDURE run_skill_factory_compiler_workflow(harness_target, repo_root):
   - `preconditions`: Canonical sources in .agent/agents/*.yaml and .agent/skills/*/SKILL.md; Physical Sovereignty enforced
   - `postconditions`: 1:1 reconciliation across Claude, Antigravity, and Codex projections
   - `side_effects`: filesystem=writes .claude/, .agents/, .codex/, .agent/metadata.json, network=none
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Bundled Scripts (5)**: `scripts/__init__.py`, `scripts/logic.py`, `scripts/scanner.py`, `scripts/templates/AGENT.md`, `scripts/tool.json`
-- **Reference Runbooks (5)**: `references/agentic-initializer.md`, `references/harness-models.md`, `references/nexus-sync.md`, `references/vercel-agents-md.md`, `references/webhook-autoload.md`
 <!-- SAP_BUNDLE_END -->
 
-## Overview
-The Factory Agent Compiler decouples agent definitions from vendor harness parsers (Claude Code, Antigravity `agy`, OpenAI/Copilot). Source definitions live exclusively in `.agent/canonical-agents/*.yaml` with separate adapter blocks and markdown instruction bodies.
+## Operating Protocol & Domain Guardrails
 
-## Canonical Schema Anatomy
-Location: `.agent/canonical-agents/<agent-name>.yaml`
+Hydrate canonical multi-adapter YAML agents in `.agent/agents/*.yaml`, sync Nexus spokes via `bin/nexus.sh`, verify model tiers (`write_models`), and certify runtime discovery across `harness_target` and `repo_root` to produce `metadata_path`, `discovery_status`, and `reconciled_count`.
 
-```yaml
-version: 1.0
-name: <agent-name>
-description: "<agent-description>"
-adapter:
-  claude:
-    model: sonnet
-    permissionMode: plan-first
-    tools: [Read, Glob, Grep, Bash]
-    disallowedTools: [Task]
-  antigravity:
-    model: flash
-    subagent: true
-    commandExecutionPolicy: sandbox
-    tools: [view_file, grep_search, run_command, list_dir]
-    auto_approve: ["view_file", "grep_search"]
----
-# Agent System Instructions
-Markdown prompt content here.
-```
+### 1. Canonical v2.2 Source Architecture
+- **Agents**: `.agent/agents/<agent-name>.yaml` (`version: "2.2"`, `tier: fast|deep`, `skills: [...]`, `contract: {...}`, `prompt: |`). Validated against `.agent/adapters/schemas/agent.schema.json`.
+- **Contracts**: `.agent/contracts/<contract-id>.yaml`. Validated against `.agent/adapters/schemas/contract.schema.json` and 4-check verifier (`{REPO_ROOT}/scripts/sap/verifier.py`).
+- **Skills**: `.agent/skills/<skill-name>/SKILL.md`. Physical source of truth; projected to `.claude/skills/`, `.agents/skills/`, and `.codex/skills/` via `bin/nexus.py`.
 
-## Standard Commands
+### 2. Synchronous Hydration & Verification Pipeline
+- Never author directly into `.claude/`, `.agents/`, or `.codex/` (ephemeral projections).
+- Fail fast (`exit 1`) on missing adapter mappings in `.agent/adapters/map.yaml` or invalid model tiers (`agy plugin validate`).
+  ```bash
+  ./scripts/hydrate.sh all | bin/rtk
+  ./scripts/hydrate.sh models | bin/rtk
+  bash bin/nexus.sh | bin/rtk
+  .venv/bin/python bin/verify_runtime_discovery.py | bin/rtk
+  ```
 
-### 1. Hydrate Projections (Synchronous Build)
-Compile canonical agents into runtime dotfiles:
-```bash
-# Hydrate Claude Code markdown frontmatter
-./scripts/hydrate.sh claude
+## Reference & Script Routing Index
 
-# Hydrate Antigravity JSON agent specifications
-./scripts/hydrate.sh antigravity
-```
-
-### 2. Recompile Standard Metadata
-Index agents and skills strictly from standard canonical directories (`.agent/agents`, `.agent/skills`, `.agent/canonical-agents`):
-```bash
-python3 bin/compile_metadata.py --repo-root . --output .agent/metadata.json
-```
-
-### 3. Orchestrated Nexus Sync
-Recompile metadata pre-flight and synchronize symlinks across all spokes:
-```bash
-bash bin/nexus.sh
-```
-
-### 4. Verify Runtime Discovery
-Run pre-flight discovery audit to verify 100% schema validity and zero syntax drift:
-```bash
-python3 bin/verify_runtime_discovery.py
-```
-
-## Guardrails
-- **Zero Harness Frontmatter in Source**: Never write vendor-specific frontmatter directly into `.agent/canonical-agents/`.
-- **Fail Fast**: Hydration aborts immediately on missing required adapter fields. No fallback guessing permitted.
-- **Single Source of Truth**: Always edit `.agent/canonical-agents/*.yaml` rather than ephemeral dotfiles.
+| Compiler Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-factory-compiler/`) |
+| :--- | :--- | :--- |
+| **Hydration & Spoke Projection** | Compile `.agent/agents/*.yaml` into `.claude/agents/*.md`, `.agents/agents/*.md`, `.codex/agents/*.toml` | `references/nexus-sync.md`, `scripts/logic.py`, `scripts/scanner.py`, `scripts/templates/AGENT.md` |
+| **Model Tier Drift & Validation** | Audit or update Claude (`sonnet`/`opus`), Antigravity (`flash`/`pro`), and Codex model tiers | `references/harness-models.md` |
+| **PreInvocation Autoload Webhook** | Dynamic context and skill injection via `bin/autoload_webhook.py` | `references/webhook-autoload.md`, `scripts/tool.json` |
+| **Agentic Initializer & AGENTS.md** | Bootstrapping canonical hub directories and `AGENTS.md` routing indexes | `references/agentic-initializer.md`, `references/vercel-agents-md.md` |

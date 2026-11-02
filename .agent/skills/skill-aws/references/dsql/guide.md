@@ -16,10 +16,10 @@ Aurora DSQL is a serverless, PostgreSQL-compatible distributed SQL database. Thi
 
 Load these files as needed for detailed guidance:
 
-### [development-guide.md](references/development-guide.md)
+### [development-guide.md](references/dsql/development-guide.md)
 
 **When:** ALWAYS load before implementing schema changes or database operations
-**Contains:** [Best Practices](references/development-guide.md#best-practices), DDL rules, connection patterns, transaction limits, data type serialization patterns, application-layer referential integrity instructions, security best practices
+**Contains:** **Best Practices**, DDL rules, connection patterns, transaction limits, data type serialization patterns, application-layer referential integrity instructions, security best practices
 
 ### MCP:
 
@@ -37,66 +37,66 @@ sampled in [.mcp.json](../../.mcp.json)
 **When:** Load when you need detailed MCP tool syntax and examples. PREFER MCP tools for ad-hoc queries  execute directly rather than writing scripts.
 **Contains:** Tool parameters, detailed examples, usage patterns, [input validation](mcp/tools/input-validation.md)
 
-### [language.md](references/language.md)
+### [language.md](references/dsql/language.md)
 
 **When:** MUST load when making language-specific implementation choices. ALWAYS prefer DSQL Connector when available.
 **Contains:** Driver selection, framework patterns, connection code for Python/JS/Go/Java/Rust
 
-### [dsql-examples.md](references/dsql-examples.md)
+### [dsql-examples.md](references/dsql/dsql-examples.md)
 
 **When:** Load when looking for specific implementation examples
 **Contains:** Code examples, repository patterns, multi-tenant implementations
 
-### [troubleshooting.md](references/troubleshooting.md)
+### [troubleshooting.md](references/dsql/troubleshooting.md)
 
 **When:** Load when debugging errors or unexpected behavior. SHOULD always consult for OCC errors, connection failures, or unexpected query results.
 **Contains:** Common pitfalls, error messages, solutions
 
-### [onboarding.md](references/onboarding.md)
+### [onboarding.md](references/dsql/onboarding.md)
 
 **When:** User explicitly requests to "Get started with DSQL" or similar phrase
 **Contains:** Interactive step-by-step guide for new users
 
-### [access-control.md](references/access-control.md)
+### [access-control.md](references/dsql/access-control.md)
 
 **When:** MUST load when creating database roles, granting permissions, setting up schemas for applications, or handling sensitive data. ALWAYS use scoped roles for applications  create database roles with `dsql:DbConnect`.
 **Contains:** Scoped role setup, IAM-to-database role mapping, schema separation for sensitive data, role design patterns
 
 ### DDL Migrations (modular):
 
-#### [ddl-migrations/overview.md](references/ddl-migrations/overview.md)
+#### [ddl-migrations/overview.md](references/dsql/ddl-migrations/overview.md)
 
 **When:** MUST load when performing DROP COLUMN, RENAME COLUMN, ALTER COLUMN TYPE, or DROP CONSTRAINT
 **Contains:** Table recreation pattern overview, transaction rules, common verify & swap pattern
 
-#### [ddl-migrations/column-operations.md](references/ddl-migrations/column-operations.md)
+#### [ddl-migrations/column-operations.md](references/dsql/ddl-migrations/column-operations.md)
 
 **When:** Load for DROP COLUMN, ALTER COLUMN TYPE, SET/DROP NOT NULL, SET/DROP DEFAULT migrations
 **Contains:** Step-by-step migration patterns for column-level changes
 
-#### [ddl-migrations/constraint-operations.md](references/ddl-migrations/constraint-operations.md)
+#### [ddl-migrations/constraint-operations.md](references/dsql/ddl-migrations/constraint-operations.md)
 
 **When:** Load for ADD/DROP CONSTRAINT, MODIFY PRIMARY KEY, column split/merge migrations
 **Contains:** Step-by-step migration patterns for constraint and structural changes
 
-#### [ddl-migrations/batched-migration.md](references/ddl-migrations/batched-migration.md)
+#### [ddl-migrations/batched-migration.md](references/dsql/ddl-migrations/batched-migration.md)
 
 **When:** Load when migrating tables exceeding 3,000 rows
 **Contains:** OFFSET-based and cursor-based batching patterns, progress tracking, error handling
 
 ### MySQL Migrations (modular):
 
-#### [mysql-migrations/type-mapping.md](references/mysql-migrations/type-mapping.md)
+#### [mysql-migrations/type-mapping.md](references/dsql/mysql-migrations/type-mapping.md)
 
 **When:** MUST load when migrating MySQL schemas to DSQL
 **Contains:** MySQL data type mappings, feature alternatives, DDL operation mapping
 
-#### [mysql-migrations/ddl-operations.md](references/mysql-migrations/ddl-operations.md)
+#### [mysql-migrations/ddl-operations.md](references/dsql/mysql-migrations/ddl-operations.md)
 
 **When:** Load when translating MySQL DDL operations to DSQL equivalents
 **Contains:** ALTER COLUMN, DROP COLUMN, AUTO_INCREMENT, ENUM, SET, FOREIGN KEY migration patterns
 
-#### [mysql-migrations/full-example.md](references/mysql-migrations/full-example.md)
+#### [mysql-migrations/full-example.md](references/dsql/mysql-migrations/full-example.md)
 
 **When:** Load when migrating a complete MySQL table to DSQL
 **Contains:** End-to-end MySQL CREATE TABLE migration example with decision summary
@@ -153,7 +153,7 @@ that limits should be verified against [DSQL documentation](https://docs.aws.ama
 ## CLI Scripts Available
 
 Bash scripts in [scripts/](../../scripts/) for cluster management (create, delete, list, cluster info), psql connection, and bulk data loading from local/s3 csv/tsv/parquet files.
-See [scripts/README.md](../../scripts/README.md) for usage and hook configuration.
+See `BestPractices.md` for usage and hook configuration.
 
 ---
 
@@ -230,17 +230,17 @@ ALTER COLUMN TYPE, DROP COLUMN, DROP CONSTRAINT are NOT supported directly
 
 ### Workflow 5: Set Up Scoped Database Roles
 
-MUST load [access-control.md](references/access-control.md) for role setup, IAM mapping, and schema permissions.
+MUST load [access-control.md](references/dsql/access-control.md) for role setup, IAM mapping, and schema permissions.
 
 ### Workflow 6: Table Recreation DDL Migration
 
 DSQL does NOT support direct `ALTER COLUMN TYPE`, `DROP COLUMN`, `DROP CONSTRAINT`, or `MODIFY PRIMARY KEY`. These operations require the **Table Recreation Pattern**  creating a new table, copying data, dropping the original, and renaming. This is a destructive workflow that requires user confirmation at each step.
 
-MUST load [ddl-migrations/overview.md](references/ddl-migrations/overview.md) before attempting any of these operations.
+MUST load [ddl-migrations/overview.md](references/dsql/ddl-migrations/overview.md) before attempting any of these operations.
 
 ### Workflow 7: MySQL to DSQL Schema Migration
 
-MUST load [mysql-migrations/type-mapping.md](references/mysql-migrations/type-mapping.md) for type mappings, feature alternatives, and migration steps.
+MUST load [mysql-migrations/type-mapping.md](references/dsql/mysql-migrations/type-mapping.md) for type mappings, feature alternatives, and migration steps.
 
 ---
 
@@ -248,10 +248,10 @@ MUST load [mysql-migrations/type-mapping.md](references/mysql-migrations/type-ma
 
 - **MCP server unavailable:** Fall back to CLI scripts ([scripts/](../../scripts/)) or direct psql. Note the limitation to the user.
 - **`awsknowledge` returns no results:** Use the default limits in the table above and note that limits should be verified against [DSQL documentation](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/).
-- **OCC serialization error:** Retry the transaction. If persistent, check for hot-key contention  see [troubleshooting.md](references/troubleshooting.md).
-- **Transaction exceeds limits:** Split into batches under 3,000 rows  see [batched-migration.md](references/ddl-migrations/batched-migration.md).
-- **Token expiration mid-operation:** Generate a fresh IAM token and reconnect  see [authentication-guide.md](references/auth/authentication-guide.md).
-- See [troubleshooting.md](references/troubleshooting.md) for other issues.
+- **OCC serialization error:** Retry the transaction. If persistent, check for hot-key contention  see [troubleshooting.md](references/dsql/troubleshooting.md).
+- **Transaction exceeds limits:** Split into batches under 3,000 rows  see [batched-migration.md](references/dsql/ddl-migrations/batched-migration.md).
+- **Token expiration mid-operation:** Generate a fresh IAM token and reconnect  see [authentication-guide.md](references/dsql/auth/authentication-guide.md).
+- See [troubleshooting.md](references/dsql/troubleshooting.md) for other issues.
 
 ---
 
@@ -262,3 +262,33 @@ MUST load [mysql-migrations/type-mapping.md](references/mysql-migrations/type-ma
 - [PostgreSQL Compatibility](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility.html)
 - [IAM Authentication Guide](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/using-database-and-iam-roles.html)
 - [CloudFormation Resource](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dsql-cluster.html)
+
+## Complete DSQL Reference Index
+
+- `references/dsql/access-control.md`
+- `references/dsql/auth/authentication-guide.md`
+- `references/dsql/auth/connectivity-tools.md`
+- `references/dsql/auth/scaling-guide.md`
+- `references/dsql/ddl-migrations/batched-migration.md`
+- `references/dsql/ddl-migrations/column-operations.md`
+- `references/dsql/ddl-migrations/constraint-operations.md`
+- `references/dsql/ddl-migrations/overview.md`
+- `references/dsql/development-guide.md`
+- `references/dsql/dsql-examples.md`
+- `references/dsql/examples/connection.md`
+- `references/dsql/examples/data-operations.md`
+- `references/dsql/examples/migrations.md`
+- `references/dsql/examples/patterns.md`
+- `references/dsql/examples/schema.md`
+- `references/dsql/language.md`
+- `references/dsql/mysql-migrations/ddl-auto-increment.md`
+- `references/dsql/mysql-migrations/ddl-batching.md`
+- `references/dsql/mysql-migrations/ddl-column-changes.md`
+- `references/dsql/mysql-migrations/ddl-constraints.md`
+- `references/dsql/mysql-migrations/ddl-operations.md`
+- `references/dsql/mysql-migrations/ddl-structural.md`
+- `references/dsql/mysql-migrations/ddl-type-alternatives.md`
+- `references/dsql/mysql-migrations/full-example.md`
+- `references/dsql/mysql-migrations/type-mapping.md`
+- `references/dsql/onboarding.md`
+- `references/dsql/troubleshooting.md`

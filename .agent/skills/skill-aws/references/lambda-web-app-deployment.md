@@ -141,7 +141,7 @@ For DynamoDB optimization (billing, key design, query patterns), see [optimizati
 
 ## Environment Management
 
-Use `samconfig.toml` environment-specific sections for multi-environment deployments. See [sam-project-setup.md](../../aws-serverless-deployment/references/sam-project-setup.md) for configuration details.
+Use `samconfig.toml` environment-specific sections for multi-environment deployments. See **sam-project-setup.md** for configuration details.
 
 Store environment-specific secrets in Secrets Manager or SSM Parameter Store, referenced by environment name.
 

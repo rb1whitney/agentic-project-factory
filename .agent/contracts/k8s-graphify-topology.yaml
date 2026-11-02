@@ -23,6 +23,12 @@ side_effects:
   network: read-only K8s API discovery
 source_parents:
 - skill-graphify
+probes:
+- kubectl get xrd,compositions -o name | bin/rtk
+- kubectl get providers.pkg.crossplane.io,functions.pkg.crossplane.io | bin/rtk
+- kubectl get compositions -o json | jq -r '.items[] | select(.spec.mode != "Pipeline") | .metadata.name'
+  | bin/rtk
+- kubectl get controllerconfigs.pkg.crossplane.io -o name | bin/rtk
 action_templates:
 - /usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py -n {namespace} --manifests
   {target_dir} | bin/rtk
@@ -30,12 +36,11 @@ action_templates:
   --mermaid | bin/rtk
 bindings:
   skill-graphify:
-    target_dir: <target_dir>
-    namespace: <namespace>
+    skill_dir: .agent/skills/skill-graphify
 verifier_stats:
-  coverage: 0.7826
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.9348
+  promotion_score: 1.0
   tier: auto_promote

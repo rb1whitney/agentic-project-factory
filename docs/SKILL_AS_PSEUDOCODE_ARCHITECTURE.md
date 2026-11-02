@@ -133,7 +133,7 @@ Even though contracts are inlined into `SKILL.md` and `agents/*.yaml` for runtim
 
 ---
 
-## 4. Consolidation Ledger: 55 Skills $\rightarrow$ 13 Core Parent Skills & 15 Agents
+## 4. Consolidation Ledger: 55 Skills $\rightarrow$ 13 Core Parent Skills & 15 Agents (+2 parents added later: `skill-presentation-architect`, `skill-factory-creator` = 15 total)
 
 Prior to consolidation, an empirical audit of the 55 skills in `.agent/skills/` revealed:
 - **22 Orphan Skills (`40%`)**: Bound to **0** canonical agents in `.agent/agents/*.yaml` (including `skill-code-map` and `skill-graphify`!).
@@ -192,3 +192,39 @@ PYTHONPATH=. .venv/bin/python scripts/sap/compile_corpus.py
 3. **Replacement ($w_r = 0.30$, threshold $\ge 0.80$)**: Verifies valid kebab-case contract ID, non-empty `action_templates`, and balanced Markdown code fences (` ``` `).
 4. **Risk ($w_s = 1.00$, hard-reject $\ge 0.80$)**: Regex/AST scan for undeclared destructive sinks (`rm -rf`, `terraform destroy`, `git push <remote> master|main`, `gh pr merge`, `subprocess(..., shell=True)`, `eval()`).
 5. **Calibration**: Evaluated against 30 synthetic negative controls (`10 B_same_domain_distinct`, `10 C_near_miss`, `10 D_swapped_contract`) at $(\tau_{\text{auto}}, \tau_{\text{rev}}) = (0.65, 0.35)$ with **0.0% false-positive promotion**.
+
+
+## 6. Reference Corpus Architecture (Lessons 6-9) and Scaling Playbook
+
+Consolidating skills creates a second problem the compiler does not see: absorbed child skills become `references/*.md` runbooks. Lessons 6-9 record what broke and what now enforces it.
+
+### Lesson 6: Consolidation Moves Identity, Not Just Content
+`consolidate_skills.py` originally copied child `SKILL.md` files verbatim into `references/`. Each copy kept its frontmatter (`name: skill-x`), persona opener ("You are an expert..."), a `Knowledge Bootstrap (MANDATORY)` loop, and `{SKILL_DIR}` placeholders. Severity is lower than first claimed: a reference arrives as Read tool output, which carries less authority than the system prompt or `SKILL.md`, and discovery loads only `SKILL.md`. The real cost was wasted `ls` and Read calls and paths that never resolved.
+**Rule**: `references/**/*.md` are passive runbooks. No line-1 frontmatter, persona, bootstrap loop or placeholder. Cleanup is done in place by `scripts/sap/sanitize_references.py`, which is idempotent. `consolidate_skills.py` no longer writes files; it only exports `CONSOLIDATION_MAP`.
+
+### Lesson 7: A Binder That Cannot Fail Is Not a Check
+`compile_corpus.py` bound each required input to its own name (`{k: "<k>"}`), so `verify_be_bindings` passed on anything. Runtime inputs (`{namespace}`, `{pod_name}`) are episode state and cannot be bound at index time (SaP §3.5). Index-time constants can: `skill_dir` is now a literal `.agent/skills/<skill>` path, recorded under `bindings`, and no longer a model-supplied input.
+**Replacement check**: every `{placeholder}` in an Action Template must be a declared `required` or `optional` input (compiler raises; `test_09`).
+
+### Lesson 8: Do Not Wrap Lookup in `invoke(κ)` (SaP Appendix U)
+`ls <skill>/references/ | bin/rtk` in Action Templates returned bare filenames with no trigger metadata. Reference lists are Bundled Resources and stay outside contracts. Action Templates now carry one line: `# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file`. The routing table below `<!-- SAP_BUNDLE_END -->` is the single hand-authored source of truth. Rejected alternatives: EOF `SAP_REF_META` trailers plus a `route_ref.py` resolver. They duplicate the routing table, add a tool hop, and depend on a binder that does not exist.
+
+### Lesson 9: Verify Links Inside References, Not Just `SKILL.md`
+The first "zero broken links" claim only checked `SKILL.md`. Checking `references/**` found over 160 drifted links. Even after that fix, `test_08` found 5 more (`skills/gcp-playbooks/...`, `.gemini/skills/...`) that the first audit's regex missed. Treat any self-reported link audit as unverified until a test enforces it.
+
+### Tier 1B: Knowledge-Router Parent
+A parent skill that owns a large reference corpus (`skill-aws`, 100+ runbooks) is knowledge, not procedure. Its `SKILL.md` is a thin router: guardrails, discovery commands, and a domain table pointing to per-domain `index.md`/`guide.md` files, reaching any leaf in at most 2 hops. Its contract wraps only executable procedures (`aws sts get-caller-identity`, `scripts/aws_discovery.sh`). See `skill-factory-creator/references/taxonomy-decision.md`. Non-markdown assets (drawio XML, dumps, sample CSVs, stray scripts) live in `resources/` or `scripts/`, never `references/`.
+
+### Test Gates (`tests/test_sap_pipeline.py`)
+| Test | Enforces |
+| :--- | :--- |
+| `test_07` | Reference purity: no line-1 frontmatter, bootstrap loop, `{SKILL_DIR}` outside code fences |
+| `test_08` | Every `.md` path outside fences resolves; every reference reachable from `SKILL.md` in at most 2 hops |
+| `test_09` | Template placeholders declared; no `skill_dir` input; no blind `ls references/` |
+
+### Scaling to ~150 Skills: What Transfers and What Does Not
+1. **Transfers as-is**: the 3-block bundle (Action Templates, Skeleton, Contracts), contracts separate from skills, the 4-check verifier, `sanitize_references.py`, and the three test gates. Run the gates before any consolidation, not after.
+2. **Does not scale**: `CONTRACTS_CATALOG` in `compile_corpus.py` is hand-authored for 15 parents. At 150, use the proposer stages (`parser.py` then `proposer.py`) to draft clusters and keep a human review step on the verifier's `auto_promote` tier.
+3. **Consolidate only when assets justify it**: merge prose-only stubs; keep a skill standalone if it owns scripts.
+4. **Routing tables are the maintenance burden**: one table per parent, hand-written. The `test_08` reachability gate is what keeps them honest as references are added.
+5. **Verification stance**: counts quoted in worklogs disagreed across agents in this effort (frontmatter files: 52 claimed, 43 measured by one review, depending on the definition used). Re-measure with a grep, never trust a summary.

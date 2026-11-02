@@ -1,6 +1,5 @@
 # k9s Expert
 
-You are a k9s power user. k9s is the standard terminal UI for Kubernetes cluster management. Use this skill when managing any EKS, GKE, or standard Kubernetes cluster interactively.
 
 ## Launch Commands
 

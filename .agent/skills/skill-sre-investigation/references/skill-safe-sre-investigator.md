@@ -1,13 +1,3 @@
----
-name: safe-sre-investigator
-description: 🐉 Sets up and uses read-only Service Accounts for GCP and Kubernetes investigations using the principle of least privilege, and provides risk assessments for suggested commands. Use when asked to investigate GCP/GKE resources or suggest gcloud/kubectl commands.
-metadata:
-    author: Riccardo Carlesso
-    version: 1.0.8 
-    status: active development
-# See CHANGELOG.md for version history
----
-
 # Safe SRE Investigator
 
 This skill helps set up and use dedicated read-only Service Accounts for investigating GCP and Kubernetes resources.
@@ -36,20 +26,11 @@ bash ./scripts/setup_safe_sre_investigator.sh PROJECT_ID
 *   The user might need to re-source their shell profile.
 *   IAM roles are in `references/iam_roles.md`.
 
-## 2. Setup Kubernetes (`safe_kubectl`)
+## 2. Kubernetes Read-Only Access
 
-This setup must be run for EACH Kubernetes cluster you want to investigate.
+The upstream Kubernetes setup (`setup_safe_kubectl.sh`, `safe_kubectl_wrapper.sh`, `k8s_readonly_role.yaml`) was never bundled in this repo. Do not invoke them.
 
-**Action:** Ask the user for the Cluster Name and Cluster Location (Zone or Region).
-
-**Script:** Run the setup script:
-```bash
-bash ./scripts/setup_safe_kubectl.sh CLUSTER_NAME CLUSTER_LOCATION
-```
-*   This script needs to be run with user credentials that have permissions to create ServiceAccounts and ClusterRoleBindings in the target cluster.
-*   It creates a read-only ServiceAccount in the cluster and generates a dedicated kubeconfig in `~/.kube/safe-investigator-configs/`.
-*   It also creates `~/bin/safe_kubectl`.
-*   The K8s roles are in `references/k8s_readonly_role.yaml`.
+**Action:** Ask the user for the cluster context, then use the built-in `view` ClusterRole and read-only verbs only (`get`, `describe`, `logs`). Creating ServiceAccounts or ClusterRoleBindings requires explicit user approval.
 
 ## 3. Suggesting Commands
 
@@ -63,16 +44,16 @@ When the user asks for a command:
 **Example `safe_gcloud`:**
 
 ```bash
-# 🎬 Check GKE cluster status
-# ⚠️ Risk: ⚪ NONE: This is a read-only operation.
+# Check GKE cluster status
+# Risk: NONE: This is a read-only operation.
 safe_gcloud my-project container clusters list
 ```
 
 **Example `safe_kubectl`:**
 
 ```bash
-# 🎬 List pods in the default namespace
-# ⚠️ Risk: ⚪ NONE: This is a read-only operation.
+# List pods in the default namespace
+# Risk: NONE: This is a read-only operation.
 safe_kubectl my-cluster -- get pods -n default
 ```
 
@@ -80,8 +61,5 @@ safe_kubectl my-cluster -- get pods -n default
 
 *   `scripts/setup_safe_sre_investigator.sh`: GCP setup.
 *   `scripts/safe_gcloud_wrapper.sh`: Template for `~/bin/safe_gcloud`.
-*   `scripts/setup_safe_kubectl.sh`: Kubernetes setup.
-*   `scripts/safe_kubectl_wrapper.sh`: Template for `~/bin/safe_kubectl`.
 *   `references/iam_roles.md`: GCP IAM roles.
-*   `references/k8s_readonly_role.yaml`: Kubernetes ClusterRole definition.
 *   `references/risk_assessment.md`: Risk assessment format.

@@ -66,7 +66,7 @@
 - Client sends `Cache-Control: max-age=0` header
 - Can require authorization for invalidation requests
 - Entire stage cache can be flushed via console or API
-- **Automatic flush on redeployment**: Creating a new deployment to a stage flushes the entire cache, causing a temporary backend load spike ("thundering herd"). See `references/deployment.md` for mitigations
+- **Automatic flush on redeployment**: Creating a new deployment to a stage flushes the entire cache, causing a temporary backend load spike ("thundering herd"). See `references/api-gateway-deployment.md` for mitigations
 
 ### Cache Encryption
 

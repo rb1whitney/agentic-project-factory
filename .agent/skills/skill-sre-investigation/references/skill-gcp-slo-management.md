@@ -1,8 +1,3 @@
----
-name: gcp-slo-management
-description: 🐉 [SRE] Manage Service Level Objectives (SLOs) on Google Cloud. Use when you need to discover Monitoring Services, list existing SLOs, or create new SLOs (Availability/Latency) via the REST API when gcloud commands are unavailable.
----
-
 # GCP SLO Management
 
 ## Overview

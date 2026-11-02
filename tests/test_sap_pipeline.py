@@ -135,9 +135,7 @@ class TestSaPPipeline(unittest.TestCase):
             "input_schema": {"required": {"namespace": "string", "pod_name": "string"}, "optional": {}},
         }
         unit_text = "Run kubectl get pods -n default and check pod_name web-0."
-        self.assertTrue(
-            verify_be_bindings(unit_text, contract, {"namespace": "default", "pod_name": "web-0"})
-        )
+        self.assertTrue(verify_be_bindings(unit_text, contract, {"namespace": "default", "pod_name": "web-0"}))
         # Missing required input or token not overlapping unit text -> rejected
         self.assertFalse(
             verify_be_bindings(unit_text, contract, {"namespace": "nonexistent_token_xyz", "pod_name": "web-0"})
@@ -248,6 +246,187 @@ description: Test skill
             text = smd.read_text(encoding="utf-8")
             ok, reasons = verify_rc_bundle(text, expected_contracts=[])
             self.assertTrue(ok, f"Skill {smd} failed SaP RC bundle check: {reasons}")
+
+    # ---- Reference corpus integrity (references/**/*.md are passive runbooks, reachable from SKILL.md) ----
+
+    @staticmethod
+    def _strip_fences(text: str) -> str:
+        import re
+
+        return re.sub(r"```.*?```", "", text, flags=re.S)
+
+    def _ref_files(self):
+        return sorted((REPO_ROOT / ".agent/skills").glob("*/references/**/*.md"))
+
+    def test_07_reference_purity(self):
+        """references/**/*.md must not carry SKILL.md identity (line-1 frontmatter, bootstrap loop, {SKILL_DIR})."""
+        offenders = []
+        for f in self._ref_files():
+            text = f.read_text(encoding="utf-8")
+            body = self._strip_fences(text)
+            if text.startswith("---\nname:"):
+                offenders.append(f"{f}: line-1 frontmatter")
+            if "Knowledge Bootstrap" in body and "MANDATORY" in body:
+                offenders.append(f"{f}: Knowledge Bootstrap loop")
+            if "{SKILL_DIR}" in body or "{skill_dir}" in body:
+                offenders.append(f"{f}: unexpanded SKILL_DIR placeholder")
+        self.assertEqual(offenders, [], "Reference purity violations")
+
+    def test_08_reference_links_resolve_and_are_reachable(self):
+        """Every .md path outside code fences resolves; every reference is reachable from SKILL.md in <=2 hops."""
+        import re
+
+        skills_dir = REPO_ROOT / ".agent/skills"
+        path_re = re.compile(r"(?<![\w/])((?:\.{1,2}/|\.agent/skills/[\w-]+/)?(?:references/)?[\w./-]+\.md)\b")
+
+        def resolve(token: str, src: Path, skill: Path):
+            for base in (REPO_ROOT, skill, src.parent):
+                cand = (base / token).resolve()
+                if cand.is_file():
+                    return cand
+            return None
+
+        broken, unreachable = [], []
+        for skill in sorted(d for d in skills_dir.iterdir() if (d / "SKILL.md").is_file()):
+            refs = {p.resolve() for p in skill.glob("references/**/*.md")}
+            seen, frontier = set(), {(skill / "SKILL.md").resolve()}
+            for _hop in range(3):  # SKILL.md -> hop1 -> hop2
+                nxt = set()
+                for src in frontier:
+                    for tok in path_re.findall(self._strip_fences(src.read_text(encoding="utf-8"))):
+                        if "references/" not in tok and src.name == "SKILL.md":
+                            continue
+                        hit = resolve(tok, src, skill)
+                        if hit is None:
+                            if "references/" in tok:
+                                broken.append(f"{src.relative_to(REPO_ROOT)} -> {tok}")
+                            continue
+                        if hit in refs and hit not in seen:
+                            nxt.add(hit)
+                seen |= nxt
+                frontier = nxt
+            unreachable += [str(p.relative_to(REPO_ROOT)) for p in sorted(refs - seen)]
+        self.assertEqual(sorted(set(broken)), [], "Broken reference links outside code fences")
+        self.assertEqual(unreachable, [], "References unreachable from SKILL.md within 2 hops")
+
+    def test_09_action_template_placeholders_are_declared(self):
+        """Every {placeholder} in contract action_templates must be a declared required/optional input."""
+        import re
+
+        import yaml
+
+        problems = []
+        for cf in sorted((REPO_ROOT / ".agent/contracts").glob("*.yaml")):
+            c = yaml.safe_load(cf.read_text(encoding="utf-8"))
+            declared = set(c["input_schema"].get("required", {})) | set(c["input_schema"].get("optional", {}))
+            self.assertNotIn("skill_dir", declared, f"{cf.name}: skill_dir is an index-time constant, not an input")
+            for t in c.get("action_templates", []):
+                if re.search(r"\bls\b[^|]*references/", t):
+                    problems.append(f"{cf.name}: blind ls of references/")
+                problems += [
+                    f"{cf.name}: undeclared {{{m}}}" for m in re.findall(r"\{([a-z_]+)\}", t) if m not in declared
+                ]
+        self.assertEqual(problems, [], "Action template defects")
+
+    def test_10_volatile_facts_are_sourced_dated_and_fresh(self):
+        """Every row under '## Volatile facts' needs an ISO as-of date within max_age_days, a source URL on the
+        skill's authoritative-host allowlist (.agent/sources.yaml), and a search query."""
+        import datetime
+        import re
+
+        import yaml
+
+        reg = yaml.safe_load((REPO_ROOT / ".agent/sources.yaml").read_text(encoding="utf-8"))
+        max_age = int(reg["max_age_days"])
+        today = datetime.date.today()
+        url_re = re.compile(r"https?://[^\s)|`]+")
+        problems = []
+        for f in self._ref_files():
+            text = f.read_text(encoding="utf-8")
+            m = re.search(r"^## Volatile facts.*?(?=^## |\Z)", text, flags=re.S | re.M)
+            if not m:
+                continue
+            skill = f.relative_to(REPO_ROOT / ".agent/skills").parts[0]
+            allowed = reg["skills"].get(skill)
+            rel = f.relative_to(REPO_ROOT).as_posix()
+            if not allowed:
+                problems.append(f"{rel}: skill {skill} has no entry in .agent/sources.yaml")
+                continue
+            rows = [ln for ln in m.group(0).splitlines() if ln.startswith("|")][2:]  # drop header + separator
+            if not rows:
+                problems.append(f"{rel}: Volatile facts section has no rows")
+            for row in rows:
+                cells = [c.strip() for c in row.strip().strip("|").split("|")]
+                if len(cells) != 4:
+                    problems.append(f"{rel}: row needs 4 columns: {row[:60]}")
+                    continue
+                claim, asof, source, query = cells
+                try:
+                    age = (today - datetime.date.fromisoformat(asof)).days
+                    if age < 0 or age > max_age:
+                        problems.append(f"{rel}: as-of {asof} outside 0..{max_age} days ({claim[:40]})")
+                except ValueError:
+                    problems.append(f"{rel}: bad as-of date '{asof}' ({claim[:40]})")
+                urls = url_re.findall(source)
+                if not urls:
+                    problems.append(f"{rel}: no source URL ({claim[:40]})")
+                for u in urls:
+                    hostpath = re.sub(r"^https?://", "", u)
+                    if not any(hostpath == a or hostpath.startswith(a + "/") for a in allowed):
+                        problems.append(f"{rel}: source host not allowlisted for {skill}: {u}")
+                if not query.strip("` "):
+                    problems.append(f"{rel}: missing search query ({claim[:40]})")
+        self.assertEqual(problems, [], "Volatile facts defects")
+
+    def test_11_risk_gate_scans_every_command_field(self):
+        """Oversight-loosening flags are rejected wherever they appear, including probes and verify (no field
+        escapes compute_risk). A declared side effect plus a confirm precondition still permits a flagged command."""
+        from scripts.sap.verifier import compute_risk
+
+        base = {"action_templates": ["echo ok"], "side_effects": {}, "preconditions": []}
+        for field in ("action_templates", "probes", "verify"):
+            c = dict(base)
+            c[field] = ["terraform apply -auto-approve"]
+            risk, reasons = compute_risk(c)
+            self.assertGreaterEqual(risk, 0.80, field)
+            self.assertIn("oversight_loosening_flag", reasons, field)
+        lease = dict(base, action_templates=["git push --force-with-lease origin feat/x"])
+        self.assertEqual(compute_risk(lease)[0], 0.0)
+        allowed = {
+            "action_templates": ["apt-get install --yes jq"],
+            "side_effects": {"oversight_loosening_flag": "installs jq"},
+            "preconditions": ["User must confirm the install"],
+        }
+        self.assertEqual(compute_risk(allowed)[0], 0.0)
+
+    def test_12_no_emoji_and_script_paths_resolve(self):
+        """AGENTS.md bans emoji. Every `scripts/...` or `.agent/skills/...` file path named in a reference or
+        SKILL.md must exist (a path that does not exist makes the agent run a command that cannot work)."""
+        import re
+
+        emoji = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf\u2b50\u2b55\ufe0f]")
+        path_re = re.compile(
+            r"(?<![\w/.-])(\.agent/skills/[\w./-]+|scripts/[\w./-]+\.(?:py|sh|mjs|js|ts|json|yaml|yml|txt)(?![\w]|\.\w)|bin/[\w./-]+\.(?:py|sh)(?![\w]|\.\w))"
+        )
+        skills = REPO_ROOT / ".agent/skills"
+        problems = []
+        targets = list(self._ref_files()) + list(skills.glob("*/SKILL.md"))
+        for f in targets:
+            if f.suffix != ".md":
+                continue
+            text = f.read_text(encoding="utf-8")
+            rel = f.relative_to(REPO_ROOT)
+            if emoji.search(text):
+                problems.append(f"{rel}: contains emoji")
+            skill = f.relative_to(skills).parts[0]
+            for m in set(path_re.findall(text)):
+                cand = m.rstrip(".,:;)")
+                if any(c in cand for c in "<>*{}$"):
+                    continue
+                options = [REPO_ROOT / cand, skills / skill / cand, skills / skill / "scripts" / Path(cand).name]
+                if not any(o.exists() for o in options):
+                    problems.append(f"{rel}: missing path {cand}")
+        self.assertEqual(problems, [], "\n".join(problems))
 
 
 if __name__ == "__main__":

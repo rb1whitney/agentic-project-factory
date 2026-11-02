@@ -1,13 +1,8 @@
----
-name: skill-swarm
-description: Unified orchestration engine for managing the high-precision multi-agent workflow and state-machine.
----
 # Swarm Orchestration: Executive Architecture Proposal Engine
 
 
 
 
-You are the **Swarm Strategic Orchestrator**. You manage a high-precision multi-agent workflow to design, manufacture, and verify industrial-grade technical ecosystems. All operations are documented as **Executive Architecture Proposals** within the `{PROJECT_DIR}/conductor/` sovereignty layer.
 
 ## 1. The Strategic Manufacturing Lifecycle
 
@@ -15,17 +10,17 @@ All work adheres to the **Conductor CDD (Context-Driven Development)** lifecycle
 
 ### Phase 1: Strategic Discovery (Recon)
 - **Agent**: `swarm-scout`
-- **Output**: `{PROJECT_DIR}/conductor/tracks/<track_id>/research/` (Mandatory: `STRATEGIC_RECON.md`)
+- **Output**: `conductor/tracks/<track_id>/research/` (Mandatory: `STRATEGIC_RECON.md`)
 - **Goal**: Map the architectural topology, identify systemic risks, and verify operational constraints.
 
 ### Phase 2: Strategic Planning (Architecture)
 - **Agent**: `swarm-architect`
-- **Output**: Updated `{PROJECT_DIR}/conductor/tracks.md` (Strategic Ledger)
+- **Output**: Updated `conductor/tracks.md` (Strategic Ledger)
 - **Goal**: Define the systemic impact, document trade-offs, and decompose into sovereign tracks.
 
 ### Phase 3: Tactical Implementation Plan (Blueprint)
 - **Agent**: `swarm-architect`
-- **Output**: `{PROJECT_DIR}/conductor/tracks/<track_id>/plan.md` (Mandatory: `EXECUTIVE_PLAN.md`)
+- **Output**: `conductor/tracks/<track_id>/plan.md` (Mandatory: `EXECUTIVE_PLAN.md`)
 - **Goal**: Create a high-fidelity, TDD-first implementation roadmap with explicit verification gates.
 
 ### Phase 4: Manufacturing (Engineering)
@@ -35,7 +30,7 @@ All work adheres to the **Conductor CDD (Context-Driven Development)** lifecycle
 
 ### Phase 5: Verification & Certification (Audit)
 - **Agent**: `swarm-auditor`
-- **Output**: `{PROJECT_DIR}/conductor/tracks/<track_id>/audit.md` (Mandatory: `CERTIFICATION_REPORT.md`)
+- **Output**: `conductor/tracks/<track_id>/audit.md` (Mandatory: `CERTIFICATION_REPORT.md`)
 - **Goal**: Ensure zero-shortcut compliance and certify the architectural resolution.
 
 ## 2. Dispatch & Governance Protocol
@@ -49,8 +44,8 @@ Use the `/conductor:dispatch` command for all agentic hand-offs:
 
 - **Zero-Shortcut Law**: Reject all "TODO", "FIXME", or faked logic. Use `audit_stubs.sh` to verify.
 - **TDD-First Mandate**: Every manufacturing step must be preceded by a test characterization.
-- **Physical Sovereignty**: The `{PROJECT_DIR}/.agent/` hub is the only source of truth for swarm capabilities.
-- **Conductor Sovereignty**: All planning and reporting MUST reside within `{PROJECT_DIR}/conductor/`.
+- **Physical Sovereignty**: The `.agent/` hub is the only source of truth for swarm capabilities.
+- **Conductor Sovereignty**: All planning and reporting MUST reside within `conductor/`.
 
 ## 3. Executive Output Standards
 - **Visual Topology**: Every proposal should include a Mermaid.js diagram of the mental map.

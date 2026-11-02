@@ -15,7 +15,7 @@
 - [HTTP API Parameter Mapping](#http-api-parameter-mapping)
 - [Binary Data Handling](#binary-data-handling)
 
-For direct AWS service integration templates (EventBridge, SQS, DynamoDB, Kinesis, Step Functions), see `references/sam-service-integrations.md`.
+For direct AWS service integration templates (EventBridge, SQS, DynamoDB, Kinesis, Step Functions), see `references/api-gateway-sam-service-integrations.md`.
 
 ---
 
@@ -39,7 +39,7 @@ Define API Gateway configuration inline in OpenAPI specs:
 
 ## Common SAM Patterns
 
-For basic Lambda proxy and auth SAM templates (JWT authorizer, Cognito authorizer, Lambda authorizer, API keys), see the [aws-lambda web-app-deployment reference](../../aws-lambda/references/web-app-deployment.md).
+For basic Lambda proxy and auth SAM templates (JWT authorizer, Cognito authorizer, Lambda authorizer, API keys), see the [aws-lambda web-app-deployment reference](references/lambda-web-app-deployment.md).
 
 ### Custom Domain with Base Path Mapping
 

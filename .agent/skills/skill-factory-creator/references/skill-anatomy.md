@@ -27,13 +27,13 @@ description: One sentence: what it owns + when to use. Include trigger nouns the
 ## 1. Action Templates (Concrete How — Read First)
 ## 2. Procedural Skeleton (Where Calls Fit)
 ## 3. Inlined Child Contracts (Abstract Guarantees)
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
 <!-- SAP_BUNDLE_END -->
 
-(domain prose: protocol, rules, decision tables)
+(domain prose: operating guardrails + ## Reference & Script Routing Index)
 ```
 
-The bundle sits immediately after the H1 so it is read first. `scripts/sap/compile_corpus.py` regenerates this block; do not hand-edit between the markers once the contract exists in the compiler catalog.
+The bundle sits immediately after the H1 so it is read first. `./scripts/sap/compile_corpus.py` regenerates this block; do not hand-edit between the markers once the contract exists in the compiler catalog.
+- For **Tier 1B (Knowledge-Router Parent)** skills (`>=10` reference runbooks, e.g., `skill-aws`), the `κ` contract wraps only real executable procedures (discovery, audit, validation), while the `## Reference & Script Routing Index` links to per-domain `guide.md` / `index.md` files so every `.md` under `references/` is reachable in `<=2` hops.
 
 ## Checks the repo runs on a skill
 
@@ -42,9 +42,11 @@ The bundle sits immediately after the H1 so it is read first. `scripts/sap/compi
 | RC bundle | `scripts/sap/refactor.py:verify_rc_bundle` | `## ...Action Templates` + code fence; `## ...Procedural Skeleton` + `invoke(id` ; `## ...Inlined Contracts` |
 | Orphan | `tests/test_sap_pipeline.py` | skill named in >=1 agent `skills:` |
 | Hierarchy | same | no contract id equals a skill directory name |
-| Count | same | hardcoded totals (13 skills, 15 agents). Adding a Tier-1 skill requires updating these asserts in the same change |
+| Count | same | hardcoded totals (15 skills, 15 agents). Adding a Tier-1 skill requires updating these asserts in the same change |
+| Link & 2-Hop Reachability | same | every path in `SKILL.md` and `references/**/*.md` exists on disk; every `references/**/*.md` is reachable within `<=2` hops from `SKILL.md` |
+| Reference Purity | same | no line-1 `SKILL.md` YAML frontmatter, no `Knowledge Bootstrap`, no `.agent/skills/skill-factory-creator`, and no non-`.md` files inside `references/` |
 | Contract schema | `.agent/adapters/schemas/contract.schema.json` | required: id, trigger, input_schema.required, output_schema, preconditions, postconditions, side_effects{filesystem,network}, source_parents, action_templates |
-| Verifier | `scripts/sap/verifier.py` | coverage >=0.45, binding >=0.50, replacement >=0.80, risk <0.80 |
+| Verifier | `./scripts/sap/verifier.py` | coverage >=0.45, binding >=0.50, replacement >=0.80, risk <0.80 |
 
 ## Agent side
 
@@ -53,6 +55,6 @@ Agents live in `.agent/agents/<name>.yaml` (stem == `name`), with `skills:` list
 ## Content rules for the body
 
 - Decision tables over narrative paragraphs.
-- Persona sentences ("You are a senior ...") are noise; state the contract and rules instead.
+- Persona sentences ("..") are noise; state the contract and rules instead.
 - Concrete flags only; every command piped through `bin/rtk`.
 - No emoji. Credentials only via `gopass` references, never values.

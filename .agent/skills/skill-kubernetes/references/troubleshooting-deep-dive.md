@@ -39,8 +39,9 @@ When the cluster fails, do not guess. Follow this sequence:
 ```bash
 # Verify issuer
 kubectl get clusterissuer my-ca-issuer
-# If missing, apply issuer manifest
-kubectl apply -f scripts/yaml/cluster-issuer.yaml
+# If missing, find the manifest that defines it (no issuer manifest ships in this skill), review it, and propose the apply
+git grep -l 'my-ca-issuer' -- '*.yaml' '*.tf' | bin/rtk
+kubectl get secret root-secret-cacert -n cert-manager
 ```
 
 ### 2.4 External Secret Store Failure (OpenBao)

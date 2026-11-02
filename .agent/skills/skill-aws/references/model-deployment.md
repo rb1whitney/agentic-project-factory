@@ -81,7 +81,7 @@ Do NOT mention technical details like merged/unmerged weights, reference files, 
 
 Before proceeding to deployment, display the model's license or service terms to the user.
 
-1. Read `references/model-licenses.md` and look up the model by its model ID (determined in Step 1).
+1. Read `model-licenses.md` and look up the model by its model ID (determined in Step 1).
 2. Follow the instructions in the Notes column  use the exact phrasing provided.
 3. If the model ID is not found in the table, warn the user that you could not find license information for their model and recommend they verify the license independently before proceeding.
 
@@ -93,10 +93,10 @@ Read the reference file for the selected pathway and follow its instructions.
 
 | Model Type | Deployment Target | Reference                             |
 | ---------- | ----------------- | ------------------------------------- |
-| OSS        | SageMaker         | `references/deploy-oss-sagemaker.md`  |
-| OSS        | Bedrock           | `references/deploy-oss-bedrock.md`    |
-| Nova       | SageMaker         | `references/deploy-nova-sagemaker.md` |
-| Nova       | Bedrock           | `references/deploy-nova-bedrock.md`   |
+| OSS        | SageMaker         | `deploy-oss-sagemaker.md`  |
+| OSS        | Bedrock           | `deploy-oss-bedrock.md`    |
+| Nova       | SageMaker         | `deploy-nova-sagemaker.md` |
+| Nova       | Bedrock           | `deploy-nova-bedrock.md`   |
 
 ### Step 6: Post-Deployment Summary
 

@@ -18,7 +18,6 @@ contract:
     review
   input_schema:
     required:
-      skill_dir: path
       aws_service: string
     optional:
       context_budget: integer
@@ -43,16 +42,16 @@ prompt: |
 
   ## 1. Action Templates (Concrete How — Read First)
   ```bash
-  # [κ: aws-cloud-architecture-audit] agent=specialist-aws required_inputs=['skill_dir', 'aws_service']
-  ls .agent/skills/skill-aws/references/ | bin/rtk
+  # [κ: aws-cloud-architecture-audit] agent=specialist-aws required_inputs=['aws_service']
+  # Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
   aws sts get-caller-identity | bin/rtk
   ```
 
   ## 2. Procedural Skeleton (Where Calls Fit)
   ```text
-  PROCEDURE dispatch_specialist_aws(skill_dir, aws_service):
+  PROCEDURE dispatch_specialist_aws(aws_service):
     1. GATHER blast radius context and verify preconditions
-    2. out <- invoke(aws-cloud-architecture-audit, {skill_dir: "<skill_dir>", aws_service: "<aws_service>"})
+    2. out <- invoke(aws-cloud-architecture-audit, {aws_service: "<aws_service>"})
     3. VERIFY postconditions and Evidence Boundary
     4. EMIT Location | Problem | Fix
   ```
@@ -60,7 +59,7 @@ prompt: |
   ## 3. Inlined Child Contracts (Abstract Guarantees)
   - **`κ: aws-cloud-architecture-audit`**
     - `trigger`: AWS architecture discovery, IAM/VPC/EC2/RDS/Lambda/SageMaker/FinOps operations, and Well-Architected review
-    - `inputs`: `['skill_dir', 'aws_service']` -> `outputs`: `['reference_file', 'aws_management_plan']`
+    - `inputs`: `['aws_service']` -> `outputs`: `['reference_file', 'aws_management_plan']`
     - `side_effects`: filesystem=surgical strict-patch edits on feature branch only; network=read-only CLI/API queries piped through bin/rtk
   <!-- SAP_BUNDLE_END -->
 

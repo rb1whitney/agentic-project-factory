@@ -2,7 +2,7 @@
 name: skill-always-on-memory
 description: Persistent SQLite-based cognitive layer for cross-session interaction logging and insight distillation.
 ---
-# Always-On Memory: Cognitive Persistent Context
+# Skill: Always-On Cognitive Memory (`skill-always-on-memory`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -10,7 +10,7 @@ description: Persistent SQLite-based cognitive layer for cross-session interacti
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: cognitive-memory-archivist] parent=skill-always-on-memory required_inputs=['memory_action', 'query_topic']
-ls .agent/skills/skill-always-on-memory/references/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 python3 bin/memory_agent.py {memory_action} --query "{query_topic}" 2>/dev/null | bin/rtk
 ```
 
@@ -31,132 +31,36 @@ PROCEDURE run_skill_always_on_memory_workflow(memory_action, query_topic):
   - `preconditions`: SQLite memory store initialized via bin/memory_agent.py
   - `postconditions`: Session insights persisted and deduplicated without context bloat
   - `side_effects`: filesystem=updates local SQLite memory db, network=none
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Reference Runbooks (2)**: `references/episodic-memory.md`, `references/graph-memory.md`
 <!-- SAP_BUNDLE_END -->
 
-Most agents have amnesia. They process information when asked, then forget everything. This skill establishes a **persistent, local memory layer** for the agentic swarm — continuously processing, consolidating, and connecting information across sessions.
+## Operating Protocol & Domain Guardrails
 
-**No vector database. No embeddings. Just structured reads and writes from a local SQLite store.**
+Ingest, consolidate, page, and query persistent SQLite session memory (`memory.db`), episodic context, and relational knowledge graph triples via `bin/memory_agent.py` using `memory_action`, `query_topic`, and `session_id` to produce `recalled_insights` and `memory_db_state`.
 
-## 1. Upstream Standard Reference
-*   **Primary Architecture**: [GoogleCloudPlatform/generative-ai — always-on-memory-agent](https://github.com/GoogleCloudPlatform/generative-ai/tree/main/gemini/agents/always-on-memory-agent)
-*   **Built With**: Google ADK (Agent Development Kit) + Gemini Flash-Lite + SQLite
-*   **Local Implementation**: [bin/memory_agent.py](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/bin/memory_agent.py)
-*   **Storage**: `memory.db` (local SQLite, git-ignored)
+### 1. Triple-Layer Hybrid Memory Architecture
+- **Layer 1 — Core / Episodic Memory (RAM)**: Active session context window managed via `references/episodic-memory.md` paging rules.
+- **Layer 2 — Recall Memory (SQLite Disk)**: `sessions`, `interactions`, and `insights` tables indexed by category (`architecture`, `standards`, `sre`, `security`, `performance`, `governance`, `debugging`) and `impact_score`.
+- **Layer 3 — Graph Memory (Relational Triples)**: `entities` and `relationships` (`source_id`, `predicate`, `target_id`) extracted during session consolidation (`references/graph-memory.md`).
 
----
-## 2. Architecture: Triple-Layer Hybrid Stack
-
-This skill now orchestrates a 2026-standard hybrid memory stack, delegating specialized paging to `@skill-episodic-memory` and extraction to `@skill-graph-memory`.
-
-### Layer 1 — CORE MEMORY (RAM)
-The agent's immediate context block. Managed by Episodic Memory rules. Paged in at session start, paged out when context bloats.
-
-### Layer 2 — RECALL MEMORY (Disk)
-The traditional SQLite interaction and insight log. Handled via standard `{PROJECT_DIR}/bin/memory_agent.py` inserts and queries. Acts as fuzzy, semantic history.
-
-### Layer 3 — GRAPH MEMORY (Relational)
-Extracted entities and relationships. Triggered during the `CONSOLIDATE` phase (via `python3 {PROJECT_DIR}/bin/memory_agent.py complete <session_id>`). 
-
-```
-[User Workspace] -> migrated to -> [Antigravity CLI]
-         │                                  │
-      impacts                            requires
-         ▼                                  ▼
-[SRE Agent Config]                   [mcp_config.json]
-```
-
----
-## 3. Structural Topology (`memory.db`)
-
-Five high-performance SQLite tables support the hybrid stack:
-
-| Table | Purpose | Key Fields |
-|---|---|---|
-| `sessions` | Task/session boundaries | `session_id`, `start_time`, `status` |
-| `interactions` | Recall: Logged user↔agent exchanges | `request`, `response`, `tokens_used` |
-| `insights` | Recall: Distilled, high-impact lessons | `category`, `insight_text`, `impact_score` |
-| `entities` | Graph: Extracted nodes | `entity_id`, `name`, `type` |
-| `relationships`| Graph: Edges between nodes | `source_id`, `target_id`, `predicate`, `timestamp` |
-
-**Indexes**: `idx_insights_category`, `idx_interactions_session`, `idx_graph_source`, `idx_graph_target` for high-speed routing.
-
----
-## 4. Lifecycle Hook Integration
-
-The memory database is automatically managed by the lifecycle hooks:
-
-| Hook | Action |
-|---|---|
-| `session_start.json` | `python3 {PROJECT_DIR}/bin/memory_agent.py start default_session` |
-| `post_task.json` | `python3 {PROJECT_DIR}/bin/memory_agent.py complete default_session` |
-
----
-## 5. CLI Interface (Full Reference)
-
-**Initialize database**:
+### 2. Memory CLI Operations (`bin/memory_agent.py`)
+Execute all memory operations piped through `bin/rtk`:
 ```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py init
+python3 bin/memory_agent.py init | bin/rtk
+python3 bin/memory_agent.py start <session_id> | bin/rtk
+python3 bin/memory_agent.py query "<query_topic>" | bin/rtk
+python3 bin/memory_agent.py add-insight <session_id> "<category>" "<insight_text>" <impact_score> | bin/rtk
+python3 bin/memory_agent.py summary | bin/rtk
+python3 bin/memory_agent.py complete <session_id> | bin/rtk
 ```
 
-**Start a named session**:
-```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py start <session_id>
-```
+### 3. Pre-Task Recall & Post-Task Capture Mandate
+1. **RECALL**: Query `bin/memory_agent.py query "<query_topic>" | bin/rtk` before starting a new architectural track to surface prior decisions and prevent amnesia.
+2. **CAPTURE**: Record distilled architectural lessons (`add-insight`) and complete the session (`complete <session_id>`) to flush graph triples.
 
-**Query insights by keyword**:
-```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py query "terraform"
-python3 {PROJECT_DIR}/bin/memory_agent.py query "authentication"
-```
+## Reference & Script Routing Index
 
-**Add a high-impact insight**:
-```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py add-insight <session_id> "<category>" "<insight_text>" <impact_score>
-
-# Example:
-python3 {PROJECT_DIR}/bin/memory_agent.py add-insight default_session "SRE" \
-  "OIDC auth requires OTLP ports configured deterministically before service mesh init" 4.5
-```
-
-**Log an interaction**:
-```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py add-interaction <session_id> "<request>" "<response>" <tokens>
-```
-
-**Show database summary**:
-```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py summary
-```
-
-**Mark session complete & Trigger Consolidation (Hook integration)**:
-```bash
-python3 {PROJECT_DIR}/bin/memory_agent.py complete <session_id>
-```
-*Note: Executing `complete` automatically flushes ephemeral Core Memory to Disk and runs the Graph Extraction pipeline over the session's interactions. This ensures `post_task.json` hooks remain fully compatible with the new architecture.*
-
----
-## 6. Insight Categories (Standardized)
-Use consistent categories to enable precise recall:
-
-| Category | Usage |
-|---|---|
-| `architecture` | Structural design decisions, ADRs |
-| `standards` | Protocol standards, frameworks, specs |
-| `sre` | Operational runbooks, gotchas, port configs |
-| `security` | Auth patterns, credential rules, zero-trust |
-| `performance` | Token costs, bottlenecks, optimization wins |
-| `governance` | Compliance rules, branch policies, audit gates |
-| `debugging` | Known bugs, error patterns, resolution paths |
-
----
-## 7. Memory Agent Behavioral Mandate
-
-Before starting **any** new track or complex task, the `@memory-agent` MUST:
-
-1. **RECALL**: Run `python3 {PROJECT_DIR}/bin/memory_agent.py query "<task keyword>"` to check for prior art.
-2. **REPORT**: Surface all matching insights with their `impact_score` before proceeding.
-3. **PROCEED**: Only after confirming no conflicting decisions exist in memory.
-4. **CAPTURE**: At task completion, write ≥1 distilled insight per significant architectural decision.
+| Memory Capability | Trigger / Scope | Reference Runbooks & Scripts |
+| :--- | :--- | :--- |
+| **SQLite Recall & Insight Engine** | Session init, keyword query, insight scoring, lifecycle hook integration (`session_start.json`, `post_task.json`) | `bin/memory_agent.py` |
+| **Episodic Context Paging** | Context window budgeting, paging out stale turns, summarizing long trajectories | `.agent/skills/skill-always-on-memory/references/episodic-memory.md` |
+| **Relational Graph Memory** | Entity/relationship triple extraction, conflict detection, cross-session lineage | `.agent/skills/skill-always-on-memory/references/graph-memory.md` |

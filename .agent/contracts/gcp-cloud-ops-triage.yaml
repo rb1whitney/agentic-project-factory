@@ -17,26 +17,39 @@ preconditions:
 postconditions:
 - GCP project and cluster health verified with zero unmanaged mutation
 resources:
-- '{SKILL_DIR}/references/'
-- '{SKILL_DIR}/scripts/'
+- .agent/skills/skill-gcp/references/
+- .agent/skills/skill-gcp/scripts/
 side_effects:
   filesystem: none
   network: read-only GCP API
 source_parents:
 - skill-gcp
+probes:
+- gcloud config get-value project | bin/rtk
+- gcloud projects get-ancestors {project_id} | bin/rtk
+- 'gcloud container clusters list --project={project_id} --format=json | jq ''[.[] | {name, location,
+  channel: .releaseChannel.channel, privateNodes: .privateClusterConfig.enablePrivateNodes, wiPool: .workloadIdentityConfig.workloadPool}]''
+  | bin/rtk'
+- gcloud projects get-iam-policy {project_id} --flatten='bindings[].members' --filter='bindings.role:(roles/owner
+  OR roles/editor)' --format='table(bindings.role,bindings.members)' | bin/rtk
+- gcloud compute firewall-rules list --project={project_id} --filter='sourceRanges:0.0.0.0/0' --format='table(name,network.basename(),direction)'
+  | bin/rtk
+- gcloud org-policies list --project={project_id} | bin/rtk
+- gcloud logging sinks list --project={project_id} | bin/rtk
+- gcloud monitoring policies list --project={project_id} --format='value(displayName)' | bin/rtk
 action_templates:
-- ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - gcloud config get-value project | bin/rtk
 - gcloud container clusters list --project={project_id} --zone={gcp_zone} | bin/rtk
 - gcloud logging read 'severity>=ERROR' --project={project_id} --limit=20 --format=json | bin/rtk
 bindings:
   skill-gcp:
-    project_id: <project_id>
-    gcp_zone: <gcp_zone>
+    skill_dir: .agent/skills/skill-gcp
 verifier_stats:
-  coverage: 0.5357
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.8607
+  promotion_score: 1.0
   tier: auto_promote

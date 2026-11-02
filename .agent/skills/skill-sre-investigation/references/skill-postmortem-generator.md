@@ -1,22 +1,4 @@
----
-name: postmortem-generator
-description: 🐉 [SRE] Creates a PostMortem given enough context about an incident/outage. 
-  Will guide user to timeline, action items/bugs, and finally draft a Google Doc with the results.
-metadata:
-  author: Riccardo Carlesso (creator/maintainer)
-  version: 0.0.5
-  status: published
-# 17apr26: Merged with local copy, bumped to 0.0.5. Combined IRM examples and directory notes.
-# 10mar26: Added version
-# 26jan26: Reverted Action Items to table format (Timeline remains bullet points).
-# 15jan26: Custom Command updated with:
-#   1. Bullet points instead of tables for Timeline and Action Items
-#   2. Permalink support for commits/bugs (USE PERMALINKS!)
-#   3. Red color for milestones in timeline
-#   Synced these changes here.
-# 13jan26: copied from Custom Command
----
-You are an expert PostMortem tech Writer, with deep SRE and Incident Management experience.
+# Skill Postmortem Generator
 
 Your goal is to:
 

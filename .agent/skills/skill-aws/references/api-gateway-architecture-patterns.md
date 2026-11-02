@@ -29,7 +29,7 @@
 ## Multi-Tenant SaaS Specific Concerns
 
 - Tiered usage plans (free/pro/enterprise or bronze/silver/gold)
-- Lambda authorizer validates JWT from external IdP, extracts tenant ID, retrieves per-tenant API key from DynamoDB, returns it in `usageIdentifierKey` for transparent per-tenant throttling (see `references/authentication.md` for full flow)
+- Lambda authorizer validates JWT from external IdP, extracts tenant ID, retrieves per-tenant API key from DynamoDB, returns it in `usageIdentifierKey` for transparent per-tenant throttling (see `references/api-gateway-authentication.md` for full flow)
 - Set `ApiKeySourceType: AUTHORIZER` so API Gateway reads the key from the authorizer response, so tenants never see or manage API keys
 - Onboarding automation: create tenant in IdP + API key in API Gateway + mapping in DynamoDB + associate key with usage plan tier
 - Forward tenant identification as custom header to backend for tenant-specific logic
@@ -37,7 +37,7 @@
 
 ## Integration Patterns
 
-API Gateway supports five integration types: `AWS`, `AWS_PROXY`, `HTTP`, `HTTP_PROXY`, and `MOCK`. See `references/service-integrations.md` for detailed configuration of each pattern.
+API Gateway supports five integration types: `AWS`, `AWS_PROXY`, `HTTP`, `HTTP_PROXY`, and `MOCK`. See `references/api-gateway-service-integrations.md` for detailed configuration of each pattern.
 
 **Lambda integrations** (`AWS_PROXY` / `AWS`), the most common integration type. `AWS_PROXY` (Lambda proxy) is the recommended default: API Gateway passes the full request to Lambda and returns the Lambda response directly, no mapping templates needed. `AWS` (Lambda non-proxy) allows VTL request/response transformation but requires more setup.
 
@@ -46,7 +46,7 @@ API Gateway supports five integration types: `AWS`, `AWS_PROXY`, `HTTP`, `HTTP_P
 - **REST API and WebSocket API** use `Type: AWS` with VTL mapping templates for full request/response transformation. Supports most of AWS services' actions
 - **HTTP API** uses first-class integrations (`Type: AWS_PROXY` with `IntegrationSubtype`) with parameter mapping instead of VTL. Supported services: EventBridge (`PutEvents`), SQS (`SendMessage`, `ReceiveMessage`, `DeleteMessage`, `PurgeQueue`), Kinesis (`PutRecord`), Step Functions (`StartExecution`, `StartSyncExecution`, `StopExecution`), and AppConfig (`GetConfiguration`). DynamoDB, SNS, and S3 are not available as HTTP API first-class integrations; use Lambda proxy instead
 
-Most commonly used service integrations (REST API `Type: AWS` can integrate with any AWS service that has an HTTP API; the list below covers the most popular patterns; see `references/service-integrations.md` for details):
+Most commonly used service integrations (REST API `Type: AWS` can integrate with any AWS service that has an HTTP API; the list below covers the most popular patterns; see `references/api-gateway-service-integrations.md` for details):
 
 - **EventBridge**: event ingestion
 - **SQS**: async message buffering
@@ -155,7 +155,7 @@ VPC Links enable API Gateway to reach **private integration targets** inside a V
 
 ## Response Streaming
 
-- Still a **request/response pattern**: client sends a request and receives a streamed response. The connection is one-directional (server to client) and closes when the response completes. For bidirectional real-time communication, use WebSocket API (see `references/websocket.md`)
+- Still a **request/response pattern**: client sends a request and receives a streamed response. The connection is one-directional (server to client) and closes when the response completes. For bidirectional real-time communication, use WebSocket API (see `references/api-gateway-websocket.md`)
 - REST API only; not available for HTTP API or WebSocket API
 - Set `responseTransferMode: "STREAM"` on integration
 - Supports HTTP_PROXY, Lambda proxy, and private integrations (ALB/NLB/Cloud Map backends via VPC Link)
@@ -186,4 +186,4 @@ As AI agents become API consumers, design considerations change:
 - **Add pagination and filters**: Reduce response data volume
 - **Batch operations**: Combine multiple small actions into single requests
 - **Async processing**: Acknowledge request immediately, queue for backend processing at its own pace. Better for constrained backend resources
-- **Caching strategy**: Use CloudFront caching first (reduces load, latency, AND cost, since the request never reaches API Gateway). Use API Gateway cache as fallback (reduces load and latency but NOT cost, as the request is still counted by API Gateway). See `references/performance-scaling.md` for cache sizing, TTL configuration, and multi-layer caching details
+- **Caching strategy**: Use CloudFront caching first (reduces load, latency, AND cost, since the request never reaches API Gateway). Use API Gateway cache as fallback (reduces load and latency but NOT cost, as the request is still counted by API Gateway). See `references/api-gateway-performance-scaling.md` for cache sizing, TTL configuration, and multi-layer caching details

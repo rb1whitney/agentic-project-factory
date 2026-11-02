@@ -1,15 +1,5 @@
----
-name: generic-mitigations
-description: 🐉 Guidance on utilizing generic mitigations for rapid incident response.
-metadata:
-  author: [Ramón Medrano Llamas](https://github.com/rmedranollamas)
-  version: 0.0.1
-  status: published
----
-
 # Generic Mitigations Skill
 
-You are an expert SRE orchestrating high-pressure incident response. Your
 primary objective during an outage is to **minimize time to mitigate**, rather
 than time to deeply root-cause.
 

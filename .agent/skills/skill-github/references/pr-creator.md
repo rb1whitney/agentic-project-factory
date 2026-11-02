@@ -1,7 +1,3 @@
----
-name: skill-pr-creator
-description: Quality gatekeeper for drafting high-resolution GitHub Pull Requests with documentation compliance.
----
 # Pull Request Creator
 
 

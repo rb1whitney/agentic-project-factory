@@ -16,29 +16,28 @@ preconditions:
 postconditions:
 - Storyboard and narrative brief pass validate_storyboard.py with zero errors
 resources:
-- '{SKILL_DIR}/references/narrative-craft.md'
-- '{SKILL_DIR}/references/sap-docs-bridge.md'
-- '{SKILL_DIR}/scripts/validate_storyboard.py'
+- .agent/skills/skill-presentation-architect/references/narrative-craft.md
+- .agent/skills/skill-presentation-architect/references/sap-docs-bridge.md
+- .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py
 side_effects:
   filesystem: writes storyboard YAML and PPTX artifacts
   network: none
 source_parents:
 - skill-presentation-architect
 action_templates:
-- ls .agent/skills/skill-presentation-architect/references/ .agent/skills/skill-presentation-architect/scripts/
-  2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py --brief {narrative_brief_path}
   | bin/rtk
 - python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py {storyboard_path}
   | bin/rtk
 bindings:
   skill-presentation-architect:
-    storyboard_path: <storyboard_path>
-    narrative_brief_path: <narrative_brief_path>
+    skill_dir: .agent/skills/skill-presentation-architect
 verifier_stats:
-  coverage: 0.8095
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.9429
+  promotion_score: 1.0
   tier: auto_promote

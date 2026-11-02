@@ -1,13 +1,3 @@
----
-name: skill-webhook-autoload
-description: Adapter webhook lifecycle hook that automatically compiles metadata and hydrates canonical agents into active engine dotfiles on session startup.
-auto_triggers:
-  - "webhook"
-  - "autoload"
-  - "adapter webhook"
-  - "lifecycle hook"
----
-
 # Adapter Webhook Autoload Engine
 
 

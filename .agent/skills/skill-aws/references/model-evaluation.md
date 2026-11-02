@@ -5,7 +5,7 @@ Generate a Jupyter notebook that evaluates a SageMaker fine-tuned model using LL
 ## Principles
 
 1. **One thing at a time.** Each response advances exactly one decision. Never combine multiple questions or recommendations in a single turn.
-2. **Confirm before proceeding.** Wait for the user to agree before moving to the next step. You are a guide, not a runaway train.
+2. **Confirm before proceeding.** Wait for the user to agree before moving to the next step.
 3. **Don't read files until you need them.** Only read reference files when you've reached the workflow step that requires them and the user has confirmed the direction. Never read ahead.
 4. **No narration.** Don't explain what you're about to do or what you just did. Share outcomes and ask questions. Keep responses short and focused.
 5. **No repetition.** If you said something before a tool call, don't repeat it after. Only share new information.
@@ -65,7 +65,7 @@ For this step, you need: **whether the user has predefined custom metrics.**
 
  Wait for user.
 
-- If the user has custom metrics  Read `references/llmaaj-custom-evaluation.md` and follow its instructions to collect and validate the metrics JSON.
+- If the user has custom metrics  Read `llmaaj-custom-evaluation.md` and follow its instructions to collect and validate the metrics JSON.
 - If the user does not have custom metrics  Move to Step 6.
 
 ### Step 6: Select built-in metrics
@@ -78,7 +78,7 @@ If the user provided custom metrics in Step 5, ask whether they also want built-
 
 If they say no, skip to Step 7.
 
-For built-in metric selection, read `references/llmaaj-builtin-evaluation.md` and follow its instructions.
+For built-in metric selection, read `llmaaj-builtin-evaluation.md` and follow its instructions.
 
  Wait for user to confirm metrics.
 
@@ -110,7 +110,7 @@ For this step, you need: **the Model Package ARN of the fine-tuned model.**
 For this step, you need: **which judge model to use for evaluation.**
 This step always runs  both built-in and custom metrics require a judge model.
 
-Read `references/supported-judge-models.md` for the canonical list, selection guidance, and validation steps.
+Read `supported-judge-models.md` for the canonical list, selection guidance, and validation steps.
 
 Before presenting options, run the validation checks from the reference doc against the user's account and region. Only include models that pass all checks.
 
@@ -182,8 +182,8 @@ Check for existing notebooks in `<project-name>/notebooks/`. Then ask:
 
 **Before writing the notebook, read:**
 
-- `references/notebook_structure.md` (cell order, placeholders, JSON formatting)
-- `scripts/notebook_cells.py` (all cell code templates)
+- `notebook_structure.md` (cell order, placeholders, JSON formatting)
+- `notebook_cells.py` (all cell code templates)
 
 ### Step 13: Provide run instructions
 

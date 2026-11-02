@@ -66,4 +66,4 @@ All service icons use `resourceIcon;resIcon=mxgraph.aws4.{name}` style at 78x78.
 
 `group_account`, `group_auto_scaling_group`, `group_aws_cloud`, `group_aws_cloud_alt`, `group_aws_step_functions_workflow`, `group_corporate_data_center`, `group_ec2_instance_contents`, `group_elastic_beanstalk`, `group_iot_greengrass`, `group_iot_greengrass_deployment`, `group_on_premise`, `group_region`, `group_security_group`, `group_spot_fleet`, `group_vpc2`
 
-**AgentCore**: Use `resIcon=mxgraph.aws4.bedrock_agentcore` (NOT `mxgraph.aws4.bedrock`) for Amazon Bedrock AgentCore services (Gateway, Runtime, Memory). See `references/example-agentcore.drawio`.
+**AgentCore**: Use `resIcon=mxgraph.aws4.bedrock_agentcore` (NOT `mxgraph.aws4.bedrock`) for Amazon Bedrock AgentCore services (Gateway, Runtime, Memory). See `resources/aws-diagrams/example-agentcore.drawio`.

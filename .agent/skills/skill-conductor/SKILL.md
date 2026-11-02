@@ -2,7 +2,7 @@
 name: skill-conductor
 description: CDD (Context-Driven Development) protocol manager enforcing the Spec-Plan-Implement-Verify lifecycle.
 ---
-# Gemini Conductor Skill
+# Skill: Conductor CDD & Swarm Orchestration (`skill-conductor`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -10,7 +10,7 @@ description: CDD (Context-Driven Development) protocol manager enforcing the Spe
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: conductor-swarm-orchestration] parent=skill-conductor required_inputs=['phase_name', 'implementation_scope']
-ls conductor/tracks/ conductor/templates/ .agent/skills/skill-conductor/references/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 python3 bin/nexus.py status 2>/dev/null | bin/rtk
 ```
 
@@ -31,53 +31,31 @@ PROCEDURE run_skill_conductor_workflow(phase_name, implementation_scope):
   - `preconditions`: Active track registered in conductor/tracks/; Mandatory template selected from conductor/templates/
   - `postconditions`: Phase artifact verified before specialist hand-off
   - `side_effects`: filesystem=writes track markdown in conductor/tracks/, network=none
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Bundled Scripts (4)**: `scripts/templates/IMPLEMENTATION_PLAN.md`, `scripts/templates/LADR.md`, `scripts/templates/LOGICAL_ARCHITECTURE.md`, `scripts/templates/PHYSICAL_ARCHITECTURE.md`
-- **Reference Runbooks (22)**: `references/architecture.md`, `references/aws-diagrams/aws4-shapes-resources.md`, `references/aws-diagrams/aws4-shapes-services.md`, `references/aws-diagrams/cli-export.md`, `references/aws-diagrams/diagram-templates-advanced.md`, `references/aws-diagrams/diagram-templates-basic.md`, `references/aws-diagrams/drawing-guide.md`, `references/aws-diagrams/general-icons.md`, `references/aws-diagrams/group-styles.md`, `references/aws-diagrams/layout-guidelines.md`, `references/aws-diagrams/post-processing.md`, `references/aws-diagrams/style-guide.md`, `references/aws-diagrams/xml-rules.md`, `references/aws-diagrams/xml-templates-examples.md`, `references/aws-diagrams/xml-templates-structure.md` (+7 more)
 <!-- SAP_BUNDLE_END -->
 
-Conductor is a **Context-Driven Development (CDD)** protocol. It turns an AI agent into a proactive project manager that follows a strict protocol to specify, plan, and implement software features and bug fixes.
+## Operating Protocol & Domain Guardrails
 
-## Commands
+Define conductor phase implementation (`phase_name`, `implementation_scope`, `template_name`) and TDD skill description workflow across Swarm orchestration, Domain-Driven Design (DDD), Architecture (C4/LADR), and Product Blueprints to produce `phase_implementation_path` and `conductor_tdd_status`.
 
-| Command | Description |
-| :--- | :--- |
-| `/conductor:setup` | Scaffolds the project and sets up the Conductor environment. |
-| `/conductor:newTrack` | Starts a new feature or bug track. Generates `spec.md` and `plan.md`. |
-| `/conductor:implement` | Executes the tasks defined in the current track's plan. |
-| `/conductor:status` | Displays the current progress of the tracks file and active tracks. |
-| `/conductor:revert` | Reverts a track, phase, or task by analyzing git history. |
-| `/conductor:review` | Reviews completed work against guidelines and the plan. |
+### 1. Deterministic 5-Phase Track Lifecycle
+All project and manufacturing tracks in `conductor/tracks/<track-id>/` follow the Spec-Plan-Implement-Verify lifecycle using mandatory templates in `conductor/templates/`:
+- **Phase 1 (Scout — Strategic Recon)**: Map blast radius and author `STRATEGIC_RECON.md`.
+- **Phase 2 & 3 (Architect — DDD & Executive Plan)**: Define bounded contexts, LADRs, and TDD micro-steps in `EXECUTIVE_PLAN.md`.
+- **Phase 4 (Engineer — TDD Implementation)**: Write failing tests first, implement surgical edits, and verify green test suite.
+- **Phase 5 (Auditor — Certification)**: Run 6-Pillar audit and emit `CERTIFICATION_REPORT.md` before human review / PR push.
 
-## Protocol Summary
+### 2. Conductor Commands & Governance Rules
+- `/conductor:setup`, `/conductor:newTrack`, `/conductor:implement`, `/conductor:status`, `/conductor:review`, `/conductor:revert`.
+- Never initiate a new project or track without explicit user approval.
+- Follow the IDE Hand-off Protocol on phase completion: stop and ask the user to tag the next specialist (`@swarm-architect`, `@swarm-engineer`, `@swarm-auditor`, `@swarm-supervisor`).
 
-### 1. Setup (`/conductor:setup`)
-Initialize the `{PROJECT_DIR}/conductor/` directory with:
-- `product.md`: Product vision, goals, and user personas.
-- `tech-stack.md`: Technical choices, languages, frameworks, and constraints.
-- `product-guidelines.md`: Brand voice, UI/UX standards, and communication style.
-- `workflow.md`: The development lifecycle (rules for TDD, commits, etc.).
-- `tracks.md`: The registry of all work units.
+## Reference & Script Routing Index
 
-### 2. New Track (`/conductor:newTrack`)
-For every new feature or fix:
-1. **Spec**: Define *what* is being built and *why*.
-2. **Plan**: Break down the work into **Phases** and **Tasks**. Each task must be actionable.
-3. **Register**: Add the track to `{PROJECT_DIR}/conductor/tracks.md`.
-
-### 3. Implementation (`/conductor:implement`)
-A strict loop:
-1. **Selection**: Pick the next task from the plan.
-2. **Workflow**: Follow `workflow.md` (e.g., TDD: Write Test -> Fail -> Implement -> Pass).
-3. **Commit**: Use meaningful commit messages and attach summaries via `git notes`.
-4. **CP Verification**: At the end of every phase, run tests and perform manual verification.
-
-### 4. Synchronization & Cleanup
-1. **Sync**: Update project-level docs (`product.md`, `tech-stack.md`) based on the completed track.
-2. **Cleanup**: Archive or delete the track artifacts once finalized.
-
-## Guidelines for the Agent
-- **Adhere to the Plan**: Do not deviate from the current `plan.md` without formal revision.
-- **Context is King**: Always read and update the core context files in `{PROJECT_DIR}/conductor/` to maintain the project's single source of truth.
-- **Verification First**: Never mark a task as complete without passing tests and verification.
+| Orchestration Capability | Trigger / Scope | Reference Runbooks & Templates (`.agent/skills/skill-conductor/` & `conductor/`) |
+| :--- | :--- | :--- |
+| **Track Lifecycle & Templates** | Phase 1/3/5 track artifacts and architectural plan templates | `conductor/templates/STRATEGIC_RECON.md`, `conductor/templates/EXECUTIVE_PLAN.md`, `conductor/templates/CERTIFICATION_REPORT.md`, `scripts/templates/IMPLEMENTATION_PLAN.md`, `scripts/templates/LOGICAL_ARCHITECTURE.md`, `scripts/templates/PHYSICAL_ARCHITECTURE.md` |
+| **Swarm Multi-Agent Lifecycle** | Scout/Architect/Engineer/Auditor/Supervisor hand-offs & track archival | `references/swarm.md`, `references/swarm-agents.md`, `references/swarm-management.md` |
+| **Domain-Driven Design (DDD)** | 7-step Strategic-to-Tactical DDD bounded context & aggregate design | `references/ddd.md` |
+| **Product Factory Blueprint** | 6-phase standalone product manufacturing & Zero-Zero decoupling | `references/product-blueprint.md` |
+| **Architecture & LADR Generation** | Lightweight Architecture Decision Records (LADRs) & system design | `references/ladr-generator.md`, `references/ladr-template.md`, `scripts/templates/LADR.md` |
+| **AWS Architecture Diagrams** | Draw.io / XML architecture diagram generation & layout standards | `references/aws-diagrams/drawing-guide.md`, `references/aws-diagrams/layout-guidelines.md`, `references/aws-diagrams/style-guide.md`, `references/aws-diagrams/cli-export.md` |

@@ -2,52 +2,61 @@
 name: skill-sre-investigation
 description: Incident response entrypoint for Cloud Logging analysis and Cloud Monitoring metric deep-dives.
 ---
-# SRE Investigation: Incident Response Engine
+# Skill: SRE Telemetry & Incident Investigation (`skill-sre-investigation`)
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
 
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
-# [κ: sre-telemetry-incident-response] parent=skill-sre-investigation required_inputs=['skill_dir', 'monitoring_time']
-ls {skill_dir}/scripts/ {skill_dir}/references/ 2>/dev/null | bin/rtk
+# [κ: sre-telemetry-incident-response] parent=skill-sre-investigation required_inputs=['monitoring_time']
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 gcloud logging read 'severity>=ERROR' --freshness={monitoring_time} --limit=25 --format=json | bin/rtk
-python3 {skill_dir}/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk
+python3 .agent/skills/skill-sre-investigation/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk
 ```
 
 ## 2. Procedural Skeleton (Where Calls Fit)
 ```text
-PROCEDURE run_skill_sre_investigation_workflow(skill_dir, monitoring_time):
+PROCEDURE run_skill_sre_investigation_workflow(monitoring_time):
   1. PRE-CHECK: Read-only telemetry query scope; Time window bounded to prevent token overflow
-  2. result <- invoke(sre-telemetry-incident-response, {skill_dir: "<skill_dir>", monitoring_time: "<monitoring_time>"})
+  2. result <- invoke(sre-telemetry-incident-response, {monitoring_time: "<monitoring_time>"})
   3. POST-CHECK: Root-cause signal correlated across logs, metrics, and traces
   4. RETURN {Location, Problem, Fix, outputs: ['sre_monitoring_summary', 'references_playbook']}
 ```
 
 ## 3. Inlined Child Contracts (Abstract Guarantees)
 - **`κ: sre-telemetry-incident-response`**
-  - `trigger`: SRE monitoring skill_dir references and time series description analysis for logs, SLO burn, and anomaly detection
-  - `inputs`: required `['skill_dir', 'monitoring_time']`, optional `['severity_filter']`
+  - `trigger`: SRE monitoring references and time series description analysis for logs, SLO burn, and anomaly detection
+  - `inputs`: required `['monitoring_time']`, optional `['severity_filter']`
   - `outputs`: `['sre_monitoring_summary', 'references_playbook']`
   - `preconditions`: Read-only telemetry query scope; Time window bounded to prevent token overflow
   - `postconditions`: Root-cause signal correlated across logs, metrics, and traces
   - `side_effects`: filesystem=none, network=read-only telemetry API
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-- **Bundled Scripts (18)**: `scripts/README.md`, `scripts/cloudlogging2apachelogs.py`, `scripts/cloudlogging2apachelogs_test.py`, `scripts/csv_to_sparkline.py`, `scripts/detect_isolation_forest.py`, `scripts/detect_knn.py`, `scripts/detect_zscore.py`, `scripts/discovery.py`, `scripts/export_timeseries_to_csv.py`, `scripts/merge_timeseries.py`, `scripts/parse_csv.py`, `scripts/plot_anomalies.py` (+6 more)
-- **Reference Runbooks (21)**: `references/README.md`, `references/archetypes.md`, `references/data-ingestion.md`, `references/email_to_admin.md`, `references/iam_roles.md`, `references/observability.md`, `references/pagerduty.md`, `references/risk_assessment.md`, `references/servicenow.md`, `references/skill-anomaly-detection.md`, `references/skill-cloud-logging.md`, `references/skill-cloud-monitoring.md`, `references/skill-gcp-slo-management.md`, `references/skill-generic-mitigations.md`, `references/skill-investigation-entrypoint.md` (+6 more)
 <!-- SAP_BUNDLE_END -->
 
-You are the **On-Call SRE**. Your mission is to identify the root cause of service disruptions using read-only, least-privilege investigative protocols.
+## Operating Protocol & Domain Guardrails
 
-## Scripts & Automation
-Ground your investigation in real-time data:
-- `{SKILL_DIR}/scripts/setup_readonly_sa.sh`: Setup a least-privilege investigator identity.
-- `{SKILL_DIR}/scripts/log_analyzer.sh`: Process large JSON logs into readable formats.
+Execute read-only SRE monitoring queries and time series description analysis across `monitoring_time` and `severity_filter` for logs, SLO burn, and anomaly detection to produce `sre_monitoring_summary` and `references_playbook`.
 
-## Investigative Runbooks
-Consult the following references in `{SKILL_DIR}/references/` for specific service protocols:
-- `safe-sre-investigator.md`: Principle of least privilege investigative standards.
-- `investigation-entrypoint.md`: Start-to-finish incident response workflow.
-- `cloud-logging.md`: Advanced BigQuery/Log-Explorer query patterns.
-- `cloud-monitoring.md`: Metric correlation and dashboard analysis.
+### 1. Bounded Read-Only Telemetry Triage
+- Bound every log and time-series query with an explicit `monitoring_time` window (`--freshness`) and `--limit` so raw telemetry never overflows context.
+- Correlate signals across Cloud Logging, Cloud Monitoring time series, and anomaly detection scripts (`detect_zscore.py`, `detect_isolation_forest.py`, `detect_knn.py`) before proposing mitigations.
+  ```bash
+  python3 .agent/skills/skill-sre-investigation/scripts/discovery.py --help 2>/dev/null | bin/rtk
+  python3 .agent/skills/skill-sre-investigation/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk
+  python3 .agent/skills/skill-sre-investigation/scripts/detect_isolation_forest.py --help 2>/dev/null | bin/rtk
+  ```
+
+### 2. Incident Governance & Postmortem Discipline
+- Enforce read-only least-privilege access (`references/skill-safe-sre-investigator.md`, `references/iam_roles.md`).
+- Document root cause, blast radius, and timeline using the postmortem generator and aggregator playbooks.
+
+## Reference & Script Routing Index
+
+| SRE Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-sre-investigation/`) |
+| :--- | :--- | :--- |
+| **Incident Entrypoint & Safe Triage** | Initial incident triage, read-only SA guardrails, admin IAM request template, risk & mitigations | `references/skill-investigation-entrypoint.md`, `references/skill-safe-sre-investigator.md`, `references/skill-generic-mitigations.md`, `references/iam_roles.md`, `references/email_to_admin.md`, `references/risk_assessment.md`, `scripts/discovery.py` |
+| **Cloud Logging Analysis** | Token-efficient log queries, Apache log conversion, error aggregation | `references/skill-cloud-logging.md`, `references/data-ingestion.md`, `scripts/cloudlogging2apachelogs.py` |
+| **Cloud Monitoring & Time Series** | Metric queries, CSV export/merge, sparklines, dual-metric & archetype plots | `references/skill-cloud-monitoring.md`, `references/skill-monitoring-graphs.md`, `references/archetypes.md`, `scripts/export_timeseries_to_csv.py`, `scripts/merge_timeseries.py`, `scripts/preprocess_data.py`, `scripts/csv_to_sparkline.py`, `scripts/plot_archetype.py`, `scripts/reference_dual_plot.py` |
+| **Statistical Anomaly Detection** | Z-score, Isolation Forest, and k-NN anomaly detection & plotting | `references/skill-anomaly-detection.md`, `scripts/detect_zscore.py`, `scripts/detect_isolation_forest.py`, `scripts/detect_knn.py`, `scripts/plot_anomalies.py` |
+| **SLO Management & Postmortems** | GCP SLO burn analysis, PagerDuty workflows, postmortems | `references/skill-gcp-slo-management.md`, `references/skill-postmortem-generator.md`, `references/skill-postmortem-aggregator.md`, `references/pagerduty.md` |

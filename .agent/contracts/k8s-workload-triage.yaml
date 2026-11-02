@@ -14,32 +14,31 @@ output_schema:
   remediation_cmd: string
 preconditions:
 - kubectl context verified
-- Reference runbooks indexed in {SKILL_DIR}/references/
+- Reference runbooks indexed in .agent/skills/skill-kubernetes/references/
 postconditions:
 - Failure isolated to image, crashloop, probe, resource limit, or network before mutation
 resources:
-- '{SKILL_DIR}/references/istio-expert.md'
-- '{SKILL_DIR}/references/k9s-expert.md'
-- '{SKILL_DIR}/references/service-management.md'
+- .agent/skills/skill-kubernetes/references/istio-specialist.md
+- .agent/skills/skill-kubernetes/references/k9s-specialist.md
 side_effects:
   filesystem: none
   network: read-only K8s API GET/LIST
 source_parents:
 - skill-kubernetes
 action_templates:
-- ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - kubectl get pods -n {namespace} | bin/rtk
 - kubectl logs {pod_name} -n {namespace} --tail=100 | bin/rtk
 - kubectl describe pod {pod_name} -n {namespace} | bin/rtk
 - bash .agent/skills/skill-kubernetes/scripts/verify-cluster.sh 2>/dev/null | bin/rtk
 bindings:
   skill-kubernetes:
-    namespace: <namespace>
-    pod_name: <pod_name>
+    skill_dir: .agent/skills/skill-kubernetes
 verifier_stats:
-  coverage: 0.5667
+  coverage: 1.0
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 0.87
+  promotion_score: 1.0
   tier: auto_promote

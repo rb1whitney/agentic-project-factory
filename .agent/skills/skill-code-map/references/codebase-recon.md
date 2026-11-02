@@ -1,7 +1,3 @@
----
-name: skill-codebase-recon
-description: Git forensics analyst for identifying hotspots, logic churn, and knowledge gaps via commit history.
----
 # Codebase Reconnaissance: Git Forensics Protocol
 
 

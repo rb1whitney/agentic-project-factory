@@ -21,7 +21,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.sap.refactor import verify_be_bindings, verify_rc_bundle  # noqa: E402
+from scripts.sap.refactor import verify_rc_bundle  # noqa: E402
 from scripts.sap.verifier import _strip_sap_bundle, verify_contract  # noqa: E402
 
 
@@ -78,8 +78,7 @@ CONTRACTS_CATALOG = [
     {
         "id": "ast-policy-compliance-audit",
         "trigger": (
-            "Execute 6-Pillar Well-Architected AST rules, compliance security checks, "
-            "and behavioral evaluations"
+            "Execute 6-Pillar Well-Architected AST rules, compliance security checks, and behavioral evaluations"
         ),
         "input_schema": {
             "required": {"target_dir": "path", "pillar_scope": "string"},
@@ -123,6 +122,12 @@ CONTRACTS_CATALOG = [
         ],
         "side_effects": {"filesystem": "writes 0600 graph.json", "network": "read-only K8s API discovery"},
         "source_parents": ["skill-graphify"],
+        "probes": [
+            "kubectl get xrd,compositions -o name | bin/rtk",
+            "kubectl get providers.pkg.crossplane.io,functions.pkg.crossplane.io | bin/rtk",
+            "kubectl get compositions -o json | jq -r '.items[] | select(.spec.mode != \"Pipeline\") | .metadata.name' | bin/rtk",  # noqa: E501
+            "kubectl get controllerconfigs.pkg.crossplane.io -o name | bin/rtk",
+        ],
         "action_templates": [
             f"/usr/bin/python3 {GR_SCRIPTS}/k8s_graphify_extract.py -n {{namespace}} --manifests {{target_dir}} | bin/rtk",  # noqa: E501
             f"/usr/bin/python3 {CM_SCRIPTS}/semantic_query.py lineage {{namespace}} --src {{target_dir}} --mermaid | bin/rtk",  # noqa: E501
@@ -131,8 +136,7 @@ CONTRACTS_CATALOG = [
     {
         "id": "k8s-workload-triage",
         "trigger": (
-            "Diagnose Kubernetes pod status, container logs, events, "
-            "local k3s cluster state, and service mesh routing"
+            "Diagnose Kubernetes pod status, container logs, events, local k3s cluster state, and service mesh routing"
         ),
         "input_schema": {
             "required": {"namespace": "string", "pod_name": "string"},
@@ -143,19 +147,19 @@ CONTRACTS_CATALOG = [
             "evidence_log_span": "string",
             "remediation_cmd": "string",
         },
-        "preconditions": ["kubectl context verified", "Reference runbooks indexed in {SKILL_DIR}/references/"],
-        "postconditions": [
-            "Failure isolated to image, crashloop, probe, resource limit, or network before mutation"
+        "preconditions": [
+            "kubectl context verified",
+            "Reference runbooks indexed in .agent/skills/skill-kubernetes/references/",
         ],
+        "postconditions": ["Failure isolated to image, crashloop, probe, resource limit, or network before mutation"],
         "resources": [
-            "{SKILL_DIR}/references/istio-expert.md",
-            "{SKILL_DIR}/references/k9s-expert.md",
-            "{SKILL_DIR}/references/service-management.md",
+            ".agent/skills/skill-kubernetes/references/istio-specialist.md",
+            ".agent/skills/skill-kubernetes/references/k9s-specialist.md",
         ],
         "side_effects": {"filesystem": "none", "network": "read-only K8s API GET/LIST"},
         "source_parents": ["skill-kubernetes"],
         "action_templates": [
-            "ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "kubectl get pods -n {namespace} | bin/rtk",
             "kubectl logs {pod_name} -n {namespace} --tail=100 | bin/rtk",
             "kubectl describe pod {pod_name} -n {namespace} | bin/rtk",
@@ -165,11 +169,11 @@ CONTRACTS_CATALOG = [
     {
         "id": "aws-cloud-architecture-audit",
         "trigger": (
-            "AWS capability reference guide and skill_dir references management "
+            "AWS capability reference guide and runbook routing "
             "for foundation, serverless, sagemaker, migration, and finops"
         ),
         "input_schema": {
-            "required": {"skill_dir": "path", "aws_service": "string"},
+            "required": {"aws_service": "string"},
             "optional": {"aws_region": "string"},
         },
         "output_schema": {
@@ -178,11 +182,21 @@ CONTRACTS_CATALOG = [
         },
         "preconditions": ["AWS credentials sourced via environment or gopass", "Read-only describe/list calls first"],
         "postconditions": ["Blast radius and cost delta documented before state mutation"],
-        "resources": ["{SKILL_DIR}/references/"],
+        "resources": [".agent/skills/skill-aws/references/"],
         "side_effects": {"filesystem": "none", "network": "read-only AWS API describe/list"},
         "source_parents": ["skill-aws"],
+        "probes": [
+            "aws sts get-caller-identity | bin/rtk",
+            "aws iam get-account-summary --query 'SummaryMap.{RootMFA:AccountMFAEnabled,RootKeys:AccountAccessKeysPresent,Users:Users,Roles:Roles}' | bin/rtk",  # noqa: E501
+            "aws accessanalyzer list-analyzers --query 'analyzers[].[name,type,status]' --output text | bin/rtk",
+            "aws ec2 describe-flow-logs --query 'FlowLogs[].[ResourceId,TrafficType,LogDestinationType]' --output text | bin/rtk",  # noqa: E501
+            'aws s3control get-public-access-block --account-id "$(aws sts get-caller-identity --query Account --output text)" | bin/rtk',  # noqa: E501
+            "aws rds describe-db-instances --query 'DBInstances[].[DBInstanceIdentifier,MultiAZ,StorageEncrypted,BackupRetentionPeriod,PubliclyAccessible]' --output text | bin/rtk",  # noqa: E501
+            "aws lambda list-functions --query 'Functions[].[FunctionName,Runtime,MemorySize,Timeout]' --output text | bin/rtk",  # noqa: E501
+            "aws ec2 describe-security-groups --filters Name=ip-permission.cidr,Values=0.0.0.0/0 --query 'SecurityGroups[].[GroupId,GroupName]' --output text | bin/rtk",  # noqa: E501
+        ],
         "action_templates": [
-            "ls {skill_dir}/references/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "aws sts get-caller-identity | bin/rtk",
             "aws {aws_service} help 2>/dev/null | head -n 30 | bin/rtk",
         ],
@@ -204,11 +218,21 @@ CONTRACTS_CATALOG = [
         },
         "preconditions": ["gcloud ADC authenticated", "Read-only observation commands executed first"],
         "postconditions": ["GCP project and cluster health verified with zero unmanaged mutation"],
-        "resources": ["{SKILL_DIR}/references/", "{SKILL_DIR}/scripts/"],
+        "resources": [".agent/skills/skill-gcp/references/", ".agent/skills/skill-gcp/scripts/"],
         "side_effects": {"filesystem": "none", "network": "read-only GCP API"},
         "source_parents": ["skill-gcp"],
+        "probes": [
+            "gcloud config get-value project | bin/rtk",
+            "gcloud projects get-ancestors {project_id} | bin/rtk",
+            "gcloud container clusters list --project={project_id} --format=json | jq '[.[] | {name, location, channel: .releaseChannel.channel, privateNodes: .privateClusterConfig.enablePrivateNodes, wiPool: .workloadIdentityConfig.workloadPool}]' | bin/rtk",  # noqa: E501
+            "gcloud projects get-iam-policy {project_id} --flatten='bindings[].members' --filter='bindings.role:(roles/owner OR roles/editor)' --format='table(bindings.role,bindings.members)' | bin/rtk",  # noqa: E501
+            "gcloud compute firewall-rules list --project={project_id} --filter='sourceRanges:0.0.0.0/0' --format='table(name,network.basename(),direction)' | bin/rtk",  # noqa: E501
+            "gcloud org-policies list --project={project_id} | bin/rtk",
+            "gcloud logging sinks list --project={project_id} | bin/rtk",
+            "gcloud monitoring policies list --project={project_id} --format='value(displayName)' | bin/rtk",
+        ],
         "action_templates": [
-            "ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "gcloud config get-value project | bin/rtk",
             "gcloud container clusters list --project={project_id} --zone={gcp_zone} | bin/rtk",
             "gcloud logging read 'severity>=ERROR' --project={project_id} --limit=20 --format=json | bin/rtk",
@@ -217,11 +241,10 @@ CONTRACTS_CATALOG = [
     {
         "id": "sre-telemetry-incident-response",
         "trigger": (
-            "SRE monitoring skill_dir references and time series description analysis "
-            "for logs, SLO burn, and anomaly detection"
+            "SRE monitoring references and time series description analysis for logs, SLO burn, and anomaly detection"
         ),
         "input_schema": {
-            "required": {"skill_dir": "path", "monitoring_time": "string"},
+            "required": {"monitoring_time": "string"},
             "optional": {"severity_filter": "string"},
         },
         "output_schema": {
@@ -230,13 +253,16 @@ CONTRACTS_CATALOG = [
         },
         "preconditions": ["Read-only telemetry query scope", "Time window bounded to prevent token overflow"],
         "postconditions": ["Root-cause signal correlated across logs, metrics, and traces"],
-        "resources": ["{SKILL_DIR}/scripts/", "{SKILL_DIR}/references/"],
+        "resources": [
+            ".agent/skills/skill-sre-investigation/scripts/",
+            ".agent/skills/skill-sre-investigation/references/",
+        ],
         "side_effects": {"filesystem": "none", "network": "read-only telemetry API"},
         "source_parents": ["skill-sre-investigation"],
         "action_templates": [
-            "ls {skill_dir}/scripts/ {skill_dir}/references/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "gcloud logging read 'severity>=ERROR' --freshness={monitoring_time} --limit=25 --format=json | bin/rtk",
-            "python3 {skill_dir}/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk",
+            "python3 .agent/skills/skill-sre-investigation/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk",
         ],
     },
     {
@@ -259,7 +285,7 @@ CONTRACTS_CATALOG = [
         "side_effects": {"filesystem": "local .terraform cache only", "network": "provider schema/state read"},
         "source_parents": ["skill-terraform"],
         "action_templates": [
-            "ls .agent/skills/skill-terraform/references/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "terraform -chdir={infrastructure_dir} fmt -check && terraform -chdir={infrastructure_dir} validate | bin/rtk",  # noqa: E501
             f"/usr/bin/python3 {CM_SCRIPTS}/state_graph.py lint {{infrastructure_dir}} | bin/rtk",
         ],
@@ -325,7 +351,7 @@ CONTRACTS_CATALOG = [
         "side_effects": {"filesystem": "writes track markdown in conductor/tracks/", "network": "none"},
         "source_parents": ["skill-conductor"],
         "action_templates": [
-            "ls conductor/tracks/ conductor/templates/ .agent/skills/skill-conductor/references/ 2>/dev/null | bin/rtk",  # noqa: E501
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "python3 bin/nexus.py status 2>/dev/null | bin/rtk",
         ],
     },
@@ -349,7 +375,7 @@ CONTRACTS_CATALOG = [
         "side_effects": {"filesystem": "updates local SQLite memory db", "network": "none"},
         "source_parents": ["skill-always-on-memory"],
         "action_templates": [
-            "ls .agent/skills/skill-always-on-memory/references/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             'python3 bin/memory_agent.py {memory_action} --query "{query_topic}" 2>/dev/null | bin/rtk',
         ],
     },
@@ -372,11 +398,11 @@ CONTRACTS_CATALOG = [
             "Never execute gh pr merge (reserved for human operator)",
         ],
         "postconditions": ["Feature branch verified, tests passing, PR changelog formatted"],
-        "resources": ["{SKILL_DIR}/references/", "{SKILL_DIR}/scripts/"],
+        "resources": [".agent/skills/skill-github/references/", ".agent/skills/skill-github/scripts/"],
         "side_effects": {"filesystem": "git working tree", "network": "GitHub API via gh CLI"},
         "source_parents": ["skill-github"],
         "action_templates": [
-            "ls .agent/skills/skill-github/references/ .agent/skills/skill-github/scripts/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "git branch --show-current | bin/rtk",
             "git status -s | bin/rtk",
             "gh pr list --state open | bin/rtk",
@@ -390,7 +416,7 @@ CONTRACTS_CATALOG = [
             "MCP servers, OpenCode, Gemini CLI, MSBuild, and Frontend"
         ),
         "input_schema": {
-            "required": {"expert_name": "string", "skill_dir": "path"},
+            "required": {"expert_name": "string"},
             "optional": {},
         },
         "output_schema": {
@@ -402,11 +428,11 @@ CONTRACTS_CATALOG = [
             "Sandbox execution verified",
         ],
         "postconditions": ["Tooling endpoint or build artifact verified non-destructively"],
-        "resources": ["{SKILL_DIR}/references/"],
+        "resources": [".agent/skills/skill-platform-admin/references/"],
         "side_effects": {"filesystem": "local build/venv artifacts", "network": "local model/MCP healthcheck"},
         "source_parents": ["skill-platform-admin"],
         "action_templates": [
-            "ls {skill_dir}/references/ 2>/dev/null | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "python3 -m unittest discover -s tests -p 'test_*.py' | bin/rtk",
         ],
     },
@@ -430,14 +456,14 @@ CONTRACTS_CATALOG = [
         ],
         "postconditions": ["Storyboard and narrative brief pass validate_storyboard.py with zero errors"],
         "resources": [
-            "{SKILL_DIR}/references/narrative-craft.md",
-            "{SKILL_DIR}/references/sap-docs-bridge.md",
-            "{SKILL_DIR}/scripts/validate_storyboard.py",
+            ".agent/skills/skill-presentation-architect/references/narrative-craft.md",
+            ".agent/skills/skill-presentation-architect/references/sap-docs-bridge.md",
+            ".agent/skills/skill-presentation-architect/scripts/validate_storyboard.py",
         ],
         "side_effects": {"filesystem": "writes storyboard YAML and PPTX artifacts", "network": "none"},
         "source_parents": ["skill-presentation-architect"],
         "action_templates": [
-            "ls .agent/skills/skill-presentation-architect/references/ .agent/skills/skill-presentation-architect/scripts/ 2>/dev/null | bin/rtk",  # noqa: E501
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py --brief {narrative_brief_path} | bin/rtk",  # noqa: E501
             "python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py {storyboard_path} | bin/rtk",  # noqa: E501
         ],
@@ -462,9 +488,9 @@ CONTRACTS_CATALOG = [
             "Artifact at correct tier path; contract not surfaced under .agent/skills/; no orphan skill"
         ],
         "resources": [
-            "{SKILL_DIR}/references/narrative-for-skills.md",
-            "{SKILL_DIR}/references/taxonomy-decision.md",
-            "{SKILL_DIR}/references/sap-authoring.md",
+            ".agent/skills/skill-factory-creator/references/narrative-for-skills.md",
+            ".agent/skills/skill-factory-creator/references/taxonomy-decision.md",
+            ".agent/skills/skill-factory-creator/references/sap-authoring.md",
         ],
         "side_effects": {
             "filesystem": "writes under .agent/skills/ or .agent/contracts/",
@@ -500,8 +526,7 @@ AGENT_CONTRACTS = {
         "contract_id": "cognitive-memory-archivist",
         "skills": ["skill-always-on-memory", "skill-conductor"],
         "trigger": (
-            "Cross-session memory ingestion, consolidation, episodic paging, "
-            "graph triples, and insight retrieval"
+            "Cross-session memory ingestion, consolidation, episodic paging, graph triples, and insight retrieval"
         ),
         "required": {"memory_action": "string", "query_topic": "string"},
         "output": {"recalled_insights": "string", "memory_db_state": "string"},
@@ -530,10 +555,10 @@ AGENT_CONTRACTS = {
             "AWS architecture discovery, IAM/VPC/EC2/RDS/Lambda/SageMaker/FinOps operations, "
             "and Well-Architected review"
         ),
-        "required": {"skill_dir": "path", "aws_service": "string"},
+        "required": {"aws_service": "string"},
         "output": {"reference_file": "string", "aws_management_plan": "string"},
         "templates": [
-            "ls .agent/skills/skill-aws/references/ | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "aws sts get-caller-identity | bin/rtk",
         ],
     },
@@ -552,8 +577,7 @@ AGENT_CONTRACTS = {
         "contract_id": "github-pr-ci-governance",
         "skills": ["skill-github", "skill-code-map", "skill-conductor"],
         "trigger": (
-            "GitHub issue triage, feature-branch governance, PR creation, "
-            "CI failure replication, and code review"
+            "GitHub issue triage, feature-branch governance, PR creation, CI failure replication, and code review"
         ),
         "required": {"current_branch": "string", "specific_scope": "string"},
         "output": {"current_status": "string", "specific_description": "string"},
@@ -584,10 +608,10 @@ AGENT_CONTRACTS = {
             "OpenCode model provider administration, local LLM endpoint tuning, "
             "harness models, and MCP server lifecycle"
         ),
-        "required": {"expert_name": "string", "skill_dir": "path"},
+        "required": {"expert_name": "string"},
         "output": {"skill_description": "string", "expert_capability": "string"},
         "templates": [
-            "ls {skill_dir}/references/ | bin/rtk",
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "./scripts/hydrate.sh models | bin/rtk",
         ],
     },
@@ -598,10 +622,10 @@ AGENT_CONTRACTS = {
             "SRE incident response, SLO burn analysis, anomaly detection, "
             "Datadog/Cloud Monitoring, and read-only production investigation"
         ),
-        "required": {"skill_dir": "path", "monitoring_time": "string"},
+        "required": {"monitoring_time": "string"},
         "output": {"sre_monitoring_summary": "string", "references_playbook": "string"},
         "templates": [
-            "ls .agent/skills/skill-sre-investigation/scripts/ .agent/skills/skill-sre-investigation/references/ | bin/rtk",  # noqa: E501
+            "# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file",
             "gcloud logging read 'severity>=ERROR' --freshness={monitoring_time} --limit=25 --format=json | bin/rtk",
             "kubectl get pods -A | bin/rtk",
         ],
@@ -721,32 +745,6 @@ def render_skill_sap_block(skill_dir: Path, contract: dict) -> str:
     se = contract["side_effects"]
     se_str = f"filesystem={se.get('filesystem', 'none')}, network={se.get('network', 'none')}"
 
-    scripts_list = []
-    if (skill_dir / "scripts").is_dir():
-        scripts_list = sorted(
-            str(p.relative_to(skill_dir))
-            for p in (skill_dir / "scripts").rglob("*")
-            if p.is_file() and "__pycache__" not in str(p)
-        )
-    refs_list = []
-    if (skill_dir / "references").is_dir():
-        refs_list = sorted(
-            str(p.relative_to(skill_dir)) for p in (skill_dir / "references").rglob("*.md") if p.is_file()
-        )
-
-    assets_lines = []
-    if scripts_list:
-        sample_s = ", ".join(f"`{s}`" for s in scripts_list[:12])
-        if len(scripts_list) > 12:
-            sample_s += f" (+{len(scripts_list) - 12} more)"
-        assets_lines.append(f"- **Bundled Scripts ({len(scripts_list)})**: {sample_s}")
-    if refs_list:
-        sample_r = ", ".join(f"`{r}`" for r in refs_list[:15])
-        if len(refs_list) > 15:
-            sample_r += f" (+{len(refs_list) - 15} more)"
-        assets_lines.append(f"- **Reference Runbooks ({len(refs_list)})**: {sample_r}")
-    assets_block = "\n".join(assets_lines) if assets_lines else "- **Bundled Assets**: Core CLI templates above."
-
     note_hdr = (
         "> **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, "
         "not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first."
@@ -778,9 +776,6 @@ PROCEDURE run_{skill_name.replace("-", "_")}_workflow({", ".join(req_keys)}):
   - `preconditions`: {pre_str}
   - `postconditions`: {post_str}
   - `side_effects`: {se_str}
-
-## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks
-{assets_block}
 {SAP_SKILL_END}"""
 
 
@@ -940,12 +935,19 @@ def main():
         req_keys = list(c["input_schema"]["required"].keys())
         for p in c["source_parents"]:
             raw_text = _strip_sap_bundle((skills_dir / p / "SKILL.md").read_text(encoding="utf-8"))
-            unit_with_tpl = raw_text + "\n" + "\n".join(c["action_templates"])
             units.append({"parent": p, "heading": p, "text": raw_text, "code_blocks": c["action_templates"]})
-            b_entry = {k: f"<{k}>" for k in req_keys}
-            if not verify_be_bindings(unit_with_tpl, c, b_entry):
-                raise RuntimeError(f"BE binding verification failed for {c['id']} on parent {p}")
-            bindings_map[p] = b_entry
+            # Runtime inputs (SaP 3.5) are episode state and stay unbound placeholders. Only
+            # index-time constants are bound. Every {placeholder} in a template must be declared.
+            declared = set(req_keys) | set(c["input_schema"].get("optional", {}))
+            undeclared = {
+                m
+                for t in c["action_templates"] + c.get("probes", []) + c.get("verify", [])
+                for m in re.findall(r"\{([a-z_]+)\}", t)
+                if m not in declared
+            }
+            if undeclared:
+                raise RuntimeError(f"Undeclared template placeholders in {c['id']}: {sorted(undeclared)}")
+            bindings_map[p] = {"skill_dir": f".agent/skills/{p}"}
 
         prof = verify_contract(units, c)
         if prof["tier"] != "auto_promote":

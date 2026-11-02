@@ -31,7 +31,7 @@ WRAPPER_PATH="${WRAPPER_DIR}/safe_gcloud"
 # Determine the path to the template in the skill directory early
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-ROLES_FILE="${SKILL_DIR}/references/iam_roles.txt"
+ROLES_FILE="${SKILL_DIR}/resources/samples/iam_roles.txt"
 
 if [ -f "$ROLES_FILE" ]; then
   echo "📖 Reading IAM roles from: ${ROLES_FILE}"

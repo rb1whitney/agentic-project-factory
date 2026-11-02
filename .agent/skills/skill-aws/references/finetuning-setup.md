@@ -35,7 +35,7 @@ Guides the user through selecting a base model and fine-tuning technique based o
 
 1. Read `use_case_spec.md` to understand the use case and success criteria.
 2. Restate the use case in one sentence.
-3. Always retrieve the full list of available SageMaker Hub model names by running: `python finetuning-setup/scripts/get_model_names.py <hub-name>`  even if the user has already mentioned a model name or family. Do not skip this step or filter the results.
+3. Always retrieve the full list of available SageMaker Hub model names by running: `aws sagemaker list-hub-contents --hub-name <hub-name> --hub-content-type Model`  even if the user has already mentioned a model name or family. Do not skip this step or filter the results.
 4. Present all available models to the user, grouped by model family (e.g., Llama, Mistral, Gemma) for readability.
 5. Ask the user to pick the exact model ID from the list.
 6. Validate the selected model exists in the retrieved list before proceeding.
@@ -46,9 +46,9 @@ statement to the user: "Which model would you like to use? Please type the exact
 
 ### Step 3: Determine Finetuning Technique
 
-1. Consult `references/finetune_technique_selection_guide.md` and recommend the best-fit technique (SFT, DPO, or RLVR) for the use case. Present the recommendation and reasoning to the user.
+1. Consult `finetune_technique_selection_guide.md` and recommend the best-fit technique (SFT, DPO, or RLVR) for the use case. Present the recommendation and reasoning to the user.
 2. Ask the user if they'd like to go with the recommendation or prefer a different technique.
-3. Once the user confirms a technique, retrieve the finetuning techniques available for the selected model by running: `python finetuning-setup/scripts/get_recipes.py <model-name> <hub-name>`
+3. Once the user confirms a technique, retrieve the finetuning techniques available for the selected model by running: `aws sagemaker describe-hub-content --hub-name <hub-name> --hub-content-type Model --hub-content-name <model-name>`
    - This returns only the techniques the model actually supports, filtered to SFT, DPO, and RLVR. Only these three techniques are supported  ignore any other techniques even if the model's recipes include them.
 4. If the chosen technique is available for the model, proceed to Step 4.
 5. If the chosen technique is not available for the model, explain that the selected model does not support it on SageMaker and offer to go back to Step 2 to pick a different model that supports the chosen technique.
@@ -65,4 +65,4 @@ Here's what we've selected:
 
 ## References
 
-- `references/finetune_technique_selection_guide.md`  Technique guidance
+- `finetune_technique_selection_guide.md`  Technique guidance

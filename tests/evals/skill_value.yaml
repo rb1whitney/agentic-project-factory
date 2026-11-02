@@ -1,0 +1,58 @@
+# With/without-guide mini-eval. Each task is answered with no tools twice: question only (baseline) and
+# question plus the guide text (treatment). Scoring is deterministic: every `all` regex must match and no
+# `none` regex may match (case-insensitive). A guide earns its place only if treatment beats baseline.
+# Ground truth comes from the primary sources pinned in each guide's Volatile facts table.
+version: 1
+guides:
+  - id: pki-guide
+    path: .agent/skills/skill-terraform/references/pki-guide.md
+    tasks:
+      - id: pki-1
+        q: "Under the current CA/Browser Forum TLS Baseline Requirements, what is the maximum validity in days of a publicly trusted TLS certificate issued on 2027-04-01? Give the number first."
+        all: ['\b100\b']
+      - id: pki-2
+        q: "Under the current CA/Browser Forum TLS Baseline Requirements, what is the maximum validity in days of a publicly trusted TLS certificate issued on 2026-04-01? Give the number first."
+        all: ['\b200\b']
+      - id: pki-3
+        q: "From 2029-03-15 onward, for how many days may a CA reuse validated domain control data under the TLS Baseline Requirements? Give the number first."
+        all: ['\b10\s*days?\b']
+      - id: pki-4
+        q: "A cert-manager Certificate has duration 90 days and sets neither renewBefore nor renewBeforePercentage. How many days after issuance does cert-manager start renewing it? Give the number first."
+        all: ['\b60\b']
+      - id: pki-5
+        q: "Which ACME challenge type must be used to obtain a wildcard certificate?"
+        all: ['dns-?01']
+  - id: security-guide
+    path: .agent/skills/skill-terraform/references/security-guide.md
+    tasks:
+      - id: sec-1
+        q: "An AWS ALB HTTPS listener is created in the AWS console and no security policy is chosen. What is the default policy name? Give the exact name only."
+        all: ['TLS13-1-2-Res-PQ-2025-09']
+        none: ['FIPS']
+      - id: sec-2
+        q: "An ALB HTTPS listener is created through CloudFormation without specifying SslPolicy. Which policy name is applied? Give the exact name only."
+        all: ['ELBSecurityPolicy-2016-08']
+      - id: sec-3
+        q: "What is the exact name of the FIPS variant of the recommended post-quantum TLS 1.3/1.2 restricted ALB security policy dated 2025-09?"
+        all: ['ELBSecurityPolicy-TLS13-1-2-Res-FIPS-PQ-2025-09']
+      - id: sec-4
+        q: "Can I upload my own custom set of TLS ciphers as a custom security policy for an AWS Application Load Balancer? Answer yes or no first."
+        all: ['^\W*no\b']
+      - id: sec-5
+        q: "I am adding a brand-new AWS WAF rule to a production web ACL. Which rule action should it use first, before Block? One word first."
+        all: ['count']
+  - id: on-prem-provisioning
+    path: .agent/skills/skill-terraform/references/on-prem-provisioning.md
+    tasks:
+      - id: onp-2
+        q: "With the bpg/proxmox Terraform provider, ipv4_addresses is empty after apply. Name the two settings or components to check."
+        all: ['agent[\s.{]+enabled', 'qemu|guest[- ]agent']
+      - id: onp-3
+        q: "In the bpg/proxmox provider's virtual machine resource, which attribute skips the wait for the guest-agent IP lookup? Give the full attribute path."
+        all: ['wait_for_ip', 'disabled']
+      - id: onp-4
+        q: "In bpg/proxmox, can initialization.user_data_file_id be set together with initialization.user_account? Answer yes or no first."
+        all: ['^\W*no\b']
+      - id: onp-5
+        q: "In the bpg/proxmox virtual machine resource, does agent.enabled default to true or false?"
+        all: ['false']

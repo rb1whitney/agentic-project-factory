@@ -1,14 +1,3 @@
----
-name: skill-harness-models
-description: Model-name drift checker and updater for the Claude Code, Antigravity (agy) and Codex adapters. Compares the tier models in .agent/adapters/map.yaml with what each installed harness reports, and rewrites stale tier values from regex rules.
-auto_triggers:
-  - "update models"
-  - "model drift"
-  - "stale model"
-  - "refresh tiers"
-  - "model not found"
----
-
 # Harness Model Updater
 
 

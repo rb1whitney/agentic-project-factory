@@ -69,8 +69,8 @@ Use this checklist to audit UI strings and AI responses.
 
 ### Use consistent terminology
 
-Ensure all terminology aligns with the project [word
-list](./references/word-list.md). 
+Ensure all terminology aligns with the project **word
+list**. 
 
 If a string uses a term marked "do not use" or "use with caution," provide a
 correction based on the preferred terms.
@@ -78,8 +78,8 @@ correction based on the preferred terms.
 ## Ensure consistent style for settings
 
 If `packages/cli/src/config/settingsSchema.ts` is modified, confirm labels and
-descriptions specifically follow the unique [Settings
-guidelines](./references/settings.md).
+descriptions specifically follow the unique **Settings
+guidelines**.
 
 ## Output format
 When suggesting changes, always present your review using the following list
