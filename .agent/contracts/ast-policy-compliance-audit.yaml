@@ -29,8 +29,7 @@ action_templates:
 - /usr/bin/python3 .agent/skills/skill-code-map/scripts/local_extract.py {target_dir} | bin/rtk
 bindings:
   skill-compliance-auditor:
-    target_dir: <target_dir>
-    pillar_scope: <pillar_scope>
+    skill_dir: .agent/skills/skill-compliance-auditor
 verifier_stats:
   coverage: 1.0
   binding: 1.0

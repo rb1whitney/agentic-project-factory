@@ -1,10 +1,3 @@
----
-name: skill-nexus-sync
-description: Synchronization engine for maintaining consistent agent and skill definitions across all AI IDE platforms.
-  - "sync skills"
-  - "sync agents"
-  - "run nexus"
----
 # Nexus Sync
 
 
@@ -37,5 +30,5 @@ When you need to ensure that your agent definitions and skills are up-to-date ac
    ```
 
 ## Operating Principles
-- **Physical Sovereignty**: Always treat `{PROJECT_DIR}/.agent/agents/` and `{PROJECT_DIR}/.agent/skills/` as the physical source of truth.
+- **Physical Sovereignty**: Always treat `.agent/agents/` and `.agent/skills/` as the physical source of truth.
 - **Parity**: Ensure all platforms receive the same definitions to prevent behavioral drift.

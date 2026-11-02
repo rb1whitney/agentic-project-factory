@@ -84,7 +84,7 @@ SG=.agent/skills/skill-code-map/scripts/state_graph.py
 
 ## 2. Reference & Script Routing Index
 
-| Capability / Need | Trigger / Scope | Reference Runbooks, Configs & Scripts (`{SKILL_DIR}/`) |
+| Capability / Need | Trigger / Scope | Reference Runbooks, Configs & Scripts (`.agent/skills/skill-code-map/`) |
 | :--- | :--- | :--- |
 | **PPR Context Lensing & Recon** | Blast radius ranking, git churn/hotspot forensics, token budgeting | `scripts/auto_context.py`, `references/codebase-recon.md`, `references/context-master.md` |
 | **AST Symbol Map & Dependency Graph** | Tree-sitter symbol extraction (`code_map.md`) & import/call graphs | `scripts/code_mapper.py`, `scripts/graph_builder.py`, `scripts/search_map.py`, `scripts/read_code_map.py` |

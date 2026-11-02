@@ -112,7 +112,7 @@ or [postgres-js](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/SECTIO
 #### Prisma
 
 - Custom `directUrl` with token refresh middleware
-- See [aurora-dsql-samples/typescript/prisma](https://github.com/aws-samples/aurora-dsql-samples/tree/main/typescript/prisma)
+- See [aurora-dsql-samples/typescript/prisma-multi-region](https://github.com/aws-samples/aurora-dsql-samples/tree/main/typescript/prisma-multi-region)
 
 #### Sequelize
 
@@ -140,7 +140,7 @@ PREFER using JDBC with the [DSQL JDBC Connector](https://docs.aws.amazon.com/aur
 **HikariCP** (Connection Pooling)
 
 - Wrap JDBC connection, configure max lifetime < 1 hour
-- See [aurora-dsql-samples/java/pgjdbc_hikaricp](https://github.com/aws-samples/aurora-dsql-samples/tree/main/java/pgjdbc_hikaricp)
+- See [aurora-dsql-samples/java/pgjdbc](https://github.com/aws-samples/aurora-dsql-samples/tree/main/java/pgjdbc)
 
 ### Rust
 
@@ -165,7 +165,6 @@ PREFER using JDBC with the [DSQL JDBC Connector](https://docs.aws.amazon.com/aur
 - MUST use Erlang/OTP 26+
 - Driver: [Postgrex](https://hexdocs.pm/postgrex/) ~> 0.19
   - Use Postgrex.query! for all queries
-  - See [aurora-dsql-samples/elixir/postgrex](https://github.com/aws-samples/aurora-dsql-samples/tree/main/elixir/postgrex)
 - Connection: Implement `Repo.init/2` callback for dynamic token injection
   - MUST set `ssl: true` with `ssl_opts: [verify: :verify_peer, cacerts: :public_key.cacerts_get()]`
   - MAY prefer AWS CLI via `System.cmd` to call `generate-db-connect-auth-token`

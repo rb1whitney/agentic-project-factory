@@ -73,7 +73,7 @@ graphify export callflow-html --graph <target_dir>/graphify-out/graph.json | bin
 
 ## 2. Reference & Script Routing Index
 
-| Graph Capability | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| Graph Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-graphify/`) |
 | :--- | :--- | :--- |
 | **K8s, CRD & Manifest Graph Extractor** | Secret-redacted live/offline K8s + Crossplane + Terraform bridge (`provisions-k8s`, `manifest-of`) | `scripts/k8s_graphify_extract.py`, `scripts/k8s_catalog.py` |
 | **Crossplane v2 & GitOps Control Planes** | XRD (`CompositeResourceDefinition`), Composition, ProviderConfig, and ArgoCD topology patterns | `references/crossplane.md`, `scripts/rules/crossplane/crossplane-xrd.yml`, `scripts/rules/crossplane/crossplane-composition.yml` |

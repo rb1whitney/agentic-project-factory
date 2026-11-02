@@ -57,6 +57,16 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "probes": {
+      "description": "Read-only commands that resolve environment state before any file is read.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "verify": {
+      "description": "Deterministic read-only commands proving the result. Optional until all contracts carry one.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
     "side_effects": {
       "type": "object",
       "required": ["filesystem", "network"],

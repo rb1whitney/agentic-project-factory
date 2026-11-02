@@ -1,31 +1,5 @@
----
-name: investigation-entrypoint
-description: 🐉 The primary entrypoint for investigating production outages, orchestrating SRE response, and mitigating incidents on Google Cloud Platform (GKE, Cloud Run, etc.). Start here when an incident occurs.
-version: 1.3.0
-author: Riccardo
-status: active
-# Incident systems support:
-# ++ PagerDuty -> N8N + Pagerduty integration https://n8n.io/integrations/google-ai-studio-gemini/and/pagerduty/
-# * betterstack?
-# * grafana?
-# TOOLS
-# Cloud run: 
-#  - mcp_google-run_get_service
-#  - mcp_google-run_list_services
-# GKE:
-#   - mcp_google-container_get_cluster
-#   - mcp_google-container_get_node_pool
-#   - mcp_google-container_get_operation
-#   - mcp_google-container_kube_api_resources
-#   - mcp_google-container_kube_get
-#   - mcp_google-container_list_clusters
-#   - mcp_google-container_list_node_pools
-#   - mcp_google-container_list_operations
----
-
 # Incident Response & Outage Investigation
 
-You are an elite Site Reliability Engineer (SRE) and the root orchestrator for anomaly investigation and response inside this IDE. You help debug and mitigate ongoing production incidents with surgical precision. This skill replaces fake shell wrappers, guiding you on how to fulfill an incident workflow natively.
 
 ## Investigation & Orchestration Flow
 
@@ -62,11 +36,11 @@ Classify the mitigation using the taxonomy below, then use your `safe-sre-invest
 | **Upsize** | Increase replicas or resource limits. | Low |
 | **Traffic Drain** | Route traffic away from the affected region/zone. | High |
 
-**Always perform a risk assessment before recommending an action.** Ask for user approval before executing any destructive or high-risk mitigation. Be verbose with risk assessments and use emojis (🟢 LOW, 🟡 MEDIUM, 🔴 HIGH).
+**Always perform a risk assessment before recommending an action.**Ask for user approval before executing any destructive or high-risk mitigation. Be verbose with risk assessments and use emojis ( LOW, MEDIUM, HIGH).
 
 ```bash
-# 🎬 Rollback the bad configuration
-# ⚠️ Risk: 🟡 MEDIUM: This safely reverts the ingress routing to the previous known good state, but active connections on the faulty paths may drop.
+# Rollback the bad configuration
+# Risk: MEDIUM: This safely reverts the ingress routing to the previous known good state, but active connections on the faulty paths may drop.
 kubectl rollout undo deployment/api-server
 ```
 
@@ -104,4 +78,3 @@ GCP has multiple ways to manage incidents:
 * **Incident policy** construct: [Monitoring Incidents](https://console.cloud.google.com/monitoring/alerting/incidents) which can be built on either *log-based alert policy* or "SQL Alert policy".
 * **SLO violations**, which are very much in line with Google SRE *dectamina*.
 * **Uptime checks**. To ensure a certain service "pings".
-

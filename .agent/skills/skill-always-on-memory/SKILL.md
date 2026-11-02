@@ -10,7 +10,7 @@ description: Persistent SQLite-based cognitive layer for cross-session interacti
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: cognitive-memory-archivist] parent=skill-always-on-memory required_inputs=['memory_action', 'query_topic']
-ls .agent/skills/skill-always-on-memory/references/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 python3 bin/memory_agent.py {memory_action} --query "{query_topic}" 2>/dev/null | bin/rtk
 ```
 
@@ -62,5 +62,5 @@ python3 bin/memory_agent.py complete <session_id> | bin/rtk
 | Memory Capability | Trigger / Scope | Reference Runbooks & Scripts |
 | :--- | :--- | :--- |
 | **SQLite Recall & Insight Engine** | Session init, keyword query, insight scoring, lifecycle hook integration (`session_start.json`, `post_task.json`) | `bin/memory_agent.py` |
-| **Episodic Context Paging** | Context window budgeting, paging out stale turns, summarizing long trajectories | `{SKILL_DIR}/references/episodic-memory.md` |
-| **Relational Graph Memory** | Entity/relationship triple extraction, conflict detection, cross-session lineage | `{SKILL_DIR}/references/graph-memory.md` |
+| **Episodic Context Paging** | Context window budgeting, paging out stale turns, summarizing long trajectories | `.agent/skills/skill-always-on-memory/references/episodic-memory.md` |
+| **Relational Graph Memory** | Entity/relationship triple extraction, conflict detection, cross-session lineage | `.agent/skills/skill-always-on-memory/references/graph-memory.md` |

@@ -1,7 +1,3 @@
----
-name: skill-context-master
-description: High-precision repository architect for AST-based code mapping, ast-grep structural extraction, and sub-100k token context lensing.
----
 # Context Master: High-Precision AST & Lensing
 
 
@@ -9,7 +5,6 @@ description: High-precision repository architect for AST-based code mapping, ast
 
 Scripts and rules live in `skill-code-map`; this skill defines the lensing protocol only.
 
-You are a Senior Context Architect. Your goal is to map repositories and "lens" into specific files and structural nodes across Java, Kubernetes, Crossplane v2, Terraform, and Vault.
 
 ## Prerequisites
 

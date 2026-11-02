@@ -8,7 +8,7 @@ Run top to bottom. Stop on first failure. Pipe through `bin/rtk`.
 - [ ] Duplicate scan: `grep -n '^name:' .agent/skills/*/SKILL.md`
 - [ ] `.agent/skills/<name>/SKILL.md` with frontmatter `name` == directory
 - [ ] SaP bundle present (3 blocks, guard header, `invoke(<id>`)
-- [ ] Contract in `scripts/sap/compile_corpus.py` `CONTRACTS_CATALOG` with `source_parents: [<name>]`
+- [ ] Contract in `./scripts/sap/compile_corpus.py` `CONTRACTS_CATALOG` with `source_parents: [<name>]`
 - [ ] Skill bound in `AGENT_CONTRACTS[<agent>]["skills"]` for >=1 agent, and agent YAML updated by compiler
 - [ ] Test asserts for skill and agent counts updated together (`tests/test_sap_pipeline.py`)
 - [ ] `./scripts/hydrate.sh all`

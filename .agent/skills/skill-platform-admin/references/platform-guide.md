@@ -1,6 +1,5 @@
 # Platform Onboarding Guide
 
-You are a Platform Enablement AI. Your task is to guide engineers through service creation and deployment on the platform.
 
 ## Workflow
 

@@ -10,7 +10,7 @@ description: Repository manager for GitHub Issue lifecycles, Pull Request operat
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: github-pr-ci-governance] parent=skill-github required_inputs=['current_branch', 'specific_scope']
-ls .agent/skills/skill-github/references/ .agent/skills/skill-github/scripts/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 git branch --show-current | bin/rtk
 git status -s | bin/rtk
 gh pr list --state open | bin/rtk
@@ -51,14 +51,14 @@ Execute specific skill description workflow on `current_branch` and `specific_sc
   5. Attach specialist/auditor review findings via `gh pr comment`.
 
 ### 2. CI Failure Triage & Local Replication
-- Inspect failing GitHub Actions runs using `gh run list --limit 5 | bin/rtk` and `gh run view <workflow_run_id> --log-failed | bin/rtk`, or use `{SKILL_DIR}/scripts/ci.mjs` and `{SKILL_DIR}/references/ci-replicator.md` to reproduce failures locally before pushing fixes.
+- Inspect failing GitHub Actions runs using `gh run list --limit 5 | bin/rtk` and `gh run view <workflow_run_id> --log-failed | bin/rtk`, or use `.agent/skills/skill-github/scripts/ci.mjs` and `references/ci-replicator.md` to reproduce failures locally before pushing fixes.
 
 ## Reference & Script Routing Index
 
-| GitHub Capability | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| GitHub Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-github/`) |
 | :--- | :--- | :--- |
-| **Pull Request Creation & Lifecycle** | Feature-branch PR formatting, changelog generation, PR updates | `references/pr-creator.md`, `references/pr-creation-guide.md`, `references/pr-guide.md`, `references/changelog-guide.md` |
-| **Automated Code & String Review** | Multi-dimension PR review suite, security/style checks, UI/copy string review | `references/review-suite.md`, `references/review-guide.md`, `references/string-review-guide.md` |
+| **Pull Request Creation & Lifecycle** | Feature-branch PR formatting, changelog generation, PR updates | `references/pr-creator.md`, `references/pr-creation-guide.md`, `references/changelog-guide.md` |
+| **Automated Code & String Review** | Multi-dimension PR review suite, security/style checks, UI/copy string review | `references/review-suite.md`, `references/string-review-guide.md` |
 | **CI Failure Replication** | Inspecting GitHub Actions logs (`workflow_run_id`) and reproducing CI locally | `references/ci-replicator.md`, `scripts/ci.mjs` |
-| **Issue Triage & Authoring** | Structured bug reports, feature requests, issue labeling | `references/issue-creation-guide.md`, `references/issue-guide.md` |
-| **Technical Documentation** | Architecture docs, READMEs, markdownlint compliance | `references/docs.md`, `references/docs-writing-guide.md` |
+| **Issue Triage & Authoring** | Structured bug reports, feature requests, issue labeling | `references/issue-creation-guide.md` |
+| **Technical Documentation** | Architecture docs, READMEs, markdownlint compliance | `references/docs-writing-guide.md` |

@@ -1,7 +1,3 @@
----
-name: skill-aws-migration
-description: 5-phase migration engine for transitioning workloads from Google Cloud Platform to AWS architecture.
----
 # GCP-to-AWS Migration Skill
 
 
@@ -86,11 +82,11 @@ If `.phase-status.json` exists:
 
 | Phase        | Inputs                                                                        | Outputs                                                                                   | Reference                                |
 | ------------ | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **Discover** | `.tf` files                                                                   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `.phase-status.json` updated | `{SKILL_DIR}/references/phases/discover/discover.md` |
-| **Clarify**  | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`                   | `clarified.json`, `.phase-status.json` updated                                            | `{SKILL_DIR}/references/phases/clarify.md`           |
-| **Design**   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `clarified.json` | `aws-design.json`, `aws-design-report.md`, `.phase-status.json` updated                   | `{SKILL_DIR}/references/phases/design.md`            |
-| **Estimate** | `aws-design.json`, `clarified.json`                                           | `estimation.json`, `estimation-report.md`, `.phase-status.json` updated                   | `{SKILL_DIR}/references/phases/estimate.md`          |
-| **Execute**  | `aws-design.json`, `estimation.json`                                          | `execution.json`, `execution-timeline.md`, `.phase-status.json` updated                   | `{SKILL_DIR}/references/phases/execute.md`           |
+| **Discover** | `.tf` files                                                                   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `.phase-status.json` updated | `.agent/skills/skill-aws/references/phases/discover/discover.md` |
+| **Clarify**  | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`                   | `clarified.json`, `.phase-status.json` updated                                            | `.agent/skills/skill-aws/references/phases/clarify.md`           |
+| **Design**   | `gcp-resource-inventory.json`, `gcp-resource-clusters.json`, `clarified.json` | `aws-design.json`, `aws-design-report.md`, `.phase-status.json` updated                   | `.agent/skills/skill-aws/references/phases/design.md`            |
+| **Estimate** | `aws-design.json`, `clarified.json`                                           | `estimation.json`, `estimation-report.md`, `.phase-status.json` updated                   | `.agent/skills/skill-aws/references/phases/estimate.md`          |
+| **Execute**  | `aws-design.json`, `estimation.json`                                          | `execution.json`, `execution-timeline.md`, `.phase-status.json` updated                   | `.agent/skills/skill-aws/references/phases/execute.md`           |
 
 ## MCP Servers
 
@@ -98,7 +94,7 @@ If `.phase-status.json` exists:
 
 1. Call `get_pricing_service_codes()` to detect availability
 2. If success: use live AWS pricing
-3. If timeout/error: fall back to `{SKILL_DIR}/references/shared/pricing-fallback.json` (includes 2026 on-demand rates for major services)
+3. If timeout/error: fall back to `.agent/skills/skill-aws/resources/pricing-fallback.json` (includes 2026 on-demand rates for major services)
 
 **awsknowledge** (for design validation):
 
@@ -139,10 +135,10 @@ When invoked, the agent **MUST follow this exact sequence**:
    - If status is `in-progress`: Resume that phase (read corresponding reference file)
    - If status is `completed`: Advance to next phase (read next reference file)
    - Phase mapping for advancement:
-     - discover (completed)  Execute clarify (read `{SKILL_DIR}/references/phases/clarify.md`)
-     - clarify (completed)  Execute design (read `{SKILL_DIR}/references/phases/design.md`)
-     - design (completed)  Execute estimate (read `{SKILL_DIR}/references/phases/estimate.md`)
-     - estimate (completed)  Execute execute (read `{SKILL_DIR}/references/phases/execute.md`)
+     - discover (completed)  Execute clarify (read `.agent/skills/skill-aws/references/phases/clarify.md`)
+     - clarify (completed)  Execute design (read `.agent/skills/skill-aws/references/phases/design.md`)
+     - design (completed)  Execute estimate (read `.agent/skills/skill-aws/references/phases/estimate.md`)
+     - estimate (completed)  Execute execute (read `.agent/skills/skill-aws/references/phases/execute.md`)
      - execute (completed)  Migration complete
 
 3. **Read phase reference**: Load the full reference file for the target phase.
@@ -175,3 +171,14 @@ User can invoke the skill again to resume from last completed phase.
 - AI-only fast-track path in Clarify/Design
 - Billing data import from GCP
 - Flat Design path (for non-Terraform codebases)
+
+
+## Migration Sub-Runbooks Index (2-Hop Reachability)
+
+| Subtree | Files (`.agent/skills/skill-aws/`) |
+| :--- | :--- |
+| **Phase 1: Discover** | `references/phases/discover/discover.md`, `references/phases/discover/discover-iac.md`, `references/phases/discover/discover-app-code.md`, `references/phases/discover/discover-billing.md` |
+| **Phases 2-5: Clarify, Design, Estimate, Execute** | `references/phases/clarify.md`, `references/phases/design.md`, `references/phases/estimate.md`, `references/phases/execute.md` |
+| **Terraform Clustering Engine** | `references/clustering/terraform/classification-rules.md`, `references/clustering/terraform/clustering-algorithm.md`, `references/clustering/terraform/depth-calculation.md`, `references/clustering/terraform/typed-edges-strategy.md` |
+| **AWS Architecture Design Refs** | `references/design-refs/index.md`, `references/design-refs/ai.md`, `references/design-refs/compute.md`, `references/design-refs/database.md`, `references/design-refs/fast-path.md`, `references/design-refs/messaging.md`, `references/design-refs/networking.md`, `references/design-refs/storage.md` |
+| **Shared Schemas & Fallbacks** | `references/shared/clarify-questions.md`, `references/shared/output-schema.md`, `resources/pricing-fallback.json` |

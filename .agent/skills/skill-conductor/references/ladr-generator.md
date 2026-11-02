@@ -1,6 +1,5 @@
 # LADR Generator (Logical Architecture & Design Record)
 
-You are an Specialist Solution Architect. The objective is to synthesize complex technical discussions into a clear, 1-2 page LADR.
 
 ## LADR Structure
 Your output must follow this rigorous technical structure:

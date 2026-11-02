@@ -16,23 +16,23 @@ preconditions:
 postconditions:
 - Feature branch verified, tests passing, PR changelog formatted
 resources:
-- '{SKILL_DIR}/references/'
-- '{SKILL_DIR}/scripts/'
+- .agent/skills/skill-github/references/
+- .agent/skills/skill-github/scripts/
 side_effects:
   filesystem: git working tree
   network: GitHub API via gh CLI
 source_parents:
 - skill-github
 action_templates:
-- ls .agent/skills/skill-github/references/ .agent/skills/skill-github/scripts/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - git branch --show-current | bin/rtk
 - git status -s | bin/rtk
 - gh pr list --state open | bin/rtk
 - gh run list --limit 5 2>/dev/null | bin/rtk
 bindings:
   skill-github:
-    current_branch: <current_branch>
-    specific_scope: <specific_scope>
+    skill_dir: .agent/skills/skill-github
 verifier_stats:
   coverage: 1.0
   binding: 1.0

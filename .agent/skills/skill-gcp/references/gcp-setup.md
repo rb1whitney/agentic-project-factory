@@ -1,9 +1,3 @@
----
-name: skill-gcp-setup
-description: Identity manager for initial GCP environment verification and ADC/kubectl authentication alignment.
-metadata:
-  version: 0.0.2
----
 # GCP Environment Setup
 
 
@@ -21,7 +15,7 @@ Use this skill to verify and harmonize your GCP identities at the start of an in
 
 ## Bundled Scripts
 
-- `{SKILL_DIR}/scripts/gcp-whoami.sh`: Displays current identities for gcloud, ADC, and kubectl.
+- `.agent/skills/skill-gcp/scripts/gcp-whoami.sh`: Displays current identities for gcloud, ADC, and kubectl.
 
 ## Safe Mode Support
 

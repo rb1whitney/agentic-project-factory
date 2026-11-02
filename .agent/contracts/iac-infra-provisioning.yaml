@@ -23,14 +23,14 @@ side_effects:
 source_parents:
 - skill-terraform
 action_templates:
-- ls .agent/skills/skill-terraform/references/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - terraform -chdir={infrastructure_dir} fmt -check && terraform -chdir={infrastructure_dir} validate |
   bin/rtk
 - /usr/bin/python3 .agent/skills/skill-code-map/scripts/state_graph.py lint {infrastructure_dir} | bin/rtk
 bindings:
   skill-terraform:
-    infrastructure_dir: <infrastructure_dir>
-    specific_target: <specific_target>
+    skill_dir: .agent/skills/skill-terraform
 verifier_stats:
   coverage: 1.0
   binding: 1.0

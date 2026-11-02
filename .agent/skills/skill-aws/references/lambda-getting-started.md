@@ -12,7 +12,7 @@ sam --version                  # SAM CLI
 
 **Verify** that any Docker-compatible container runtime is installed (Docker, Finch, Podman, etc.). Use the appropriate command for your runtime (e.g., `finch --version`).
 
-If `aws sts get-caller-identity` fails, ask user to set up credentials. If using CDK instead of SAM, also run `cdk --version`  see [cdk-project-setup.md](../../aws-serverless-deployment/references/cdk-project-setup.md).
+If `aws sts get-caller-identity` fails, ask user to set up credentials. If using CDK instead of SAM, also run `cdk --version`  see **cdk-project-setup.md**.
 
 ## What Are You Building?
 
@@ -28,7 +28,7 @@ An API backend serving JSON over HTTPS  the most common serverless pattern.
 
 **Read next:**
 
-- [sam-project-setup.md](../../aws-serverless-deployment/references/sam-project-setup.md)  project scaffolding, deployment workflow, handler examples, container image packaging for large dependencies
+- **sam-project-setup.md**  project scaffolding, deployment workflow, handler examples, container image packaging for large dependencies
 - [web-app-deployment.md](web-app-deployment.md)  API endpoint selection (HTTP API vs REST API vs Function URL vs ALB), CORS, custom domains, authentication
 
 ### Full-Stack Web Application
@@ -138,7 +138,7 @@ MyScheduledFunction:
 
 **Read next:**
 
-- [sam-project-setup.md](../../aws-serverless-deployment/references/sam-project-setup.md)  project setup and deployment workflow
+- **sam-project-setup.md**  project setup and deployment workflow
 
 ## Working with Existing Projects
 
@@ -149,4 +149,4 @@ When joining or modifying an existing SAM project:
 3. Run `sam_build` to verify the project builds
 4. Use `sam_logs` and `get_metrics` to understand current behavior before making changes
 
-For CDK projects, look for `cdk.json` and run `cdk synth` to verify synthesis. See [cdk-project-setup.md](../../aws-serverless-deployment/references/cdk-project-setup.md).
+For CDK projects, look for `cdk.json` and run `cdk synth` to verify synthesis. See **cdk-project-setup.md**.

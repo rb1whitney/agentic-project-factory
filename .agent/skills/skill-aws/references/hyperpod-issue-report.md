@@ -1,11 +1,10 @@
 # HyperPod Issue Report
 
-Collect diagnostic logs from HyperPod cluster nodes via SSM, store results in S3. Supports both EKS and Slurm clusters with auto-detection. Uses the bundled `scripts/hyperpod_issue_report.py` for reliable parallel collection.
+Collect diagnostic logs from HyperPod cluster nodes via SSM, store results in S3. Supports both EKS and Slurm clusters with auto-detection. Collects over SSM node by node.
 
 ## Prerequisites
 
 - AWS CLI configured with permissions: `sagemaker:DescribeCluster`, `sagemaker:ListClusterNodes`, `ssm:StartSession`, `s3:PutObject`, `s3:GetObject`, `eks:DescribeCluster`
-- Python 3.8+ and [uv](https://docs.astral.sh/uv/) (see [uv installation docs](https://docs.astral.sh/uv/getting-started/installation/) for install options)
 - SSM Agent running on target nodes; node IAM roles need `s3:GetObject`/`s3:PutObject` on the report bucket
 - For EKS clusters: kubectl installed and configured (see Workflow step 2)
 
@@ -44,25 +43,20 @@ aws s3 mb s3://<bucket-name> --region <region>
    aws eks update-kubeconfig --name <eks-cluster-name> --region <region>
    ```
 
-### 3. Run the Collection Script
+### 3. Collect Diagnostics
 
-```bash
-uv run scripts/hyperpod_issue_report.py \
-  --cluster <cluster-name-or-arn> \
-  --region <region> \
-  --s3-path s3://<bucket>[/prefix]
-```
+The bundled collection script is not part of this repo. Collect per node over SSM, following `hyperpod-ssm.md` (resolve the cluster ID and nodes once, then one `aws ssm start-session` per node, within the 3 TPS limit). Suggested read-only commands per node:
 
-Use `--help` for all options including `--instance-groups`, `--nodes`, `--command`, `--max-workers`, and `--debug`. Note: `--instance-groups` and `--nodes` are mutually exclusive. Node identifiers accept instance IDs (`i-*`), EKS names (`hyperpod-i-*`), or Slurm names (`ip-*`).
+- `cat /var/log/provision/provisioning.log` (lifecycle logs)
+- `nvidia-smi`, `df -h && lsblk`, `free -h` (GPU, disk, memory)
+- `sudo journalctl -u amazon-cloudwatch-agent --since "-1h"` (agent)
+
+Write results to the S3 path from step 1 with `aws s3 cp` run on the node, and report the S3 location.
 
 ### 4. Present Results
 
-After collection, the script shows statistics and offers interactive download. Report the S3 location and offer to:
+Report the S3 location and offer to:
 
 - Download the report locally
-- Help analyze collected diagnostics (see [references/collection-details.md](references/collection-details.md) for what's in each file)
+- Help analyze the collected diagnostics
 - Prepare a summary for AWS Support
-
-## Troubleshooting
-
-See [references/troubleshooting.md](references/troubleshooting.md) for error handling, large cluster tuning, and known limitations.

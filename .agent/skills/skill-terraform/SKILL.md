@@ -10,7 +10,7 @@ description: IaC specialist for developing reusable Terraform modules, providers
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: iac-infra-provisioning] parent=skill-terraform required_inputs=['infrastructure_dir', 'specific_target']
-ls .agent/skills/skill-terraform/references/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 terraform -chdir={infrastructure_dir} fmt -check && terraform -chdir={infrastructure_dir} validate | bin/rtk
 /usr/bin/python3 .agent/skills/skill-code-map/scripts/state_graph.py lint {infrastructure_dir} | bin/rtk
 ```
@@ -54,9 +54,9 @@ Execute infrastructure capability implementation and specific skill description 
 
 ## Reference & Script Routing Index
 
-| IaC Capability | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| IaC Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-terraform/`) |
 | :--- | :--- | :--- |
-| **Terraform Plan & State Analysis** | HCL module design, plan risk analysis, state administration & security | `references/admin-guide.md`, `references/security-guide.md`, `scripts/tf_plan_analyzer.py` |
-| **Packer & Machine Image Builders** | Golden AMI, Azure Image Builder, Windows images, container registry push | `references/packer.md`, `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/windows-builder.md`, `references/push-to-registry.md` |
-| **PKI & Certificate Lifecycle** | X.509 CA hierarchies, cert-manager, mTLS & TLS rotation | `references/pki-guide.md`, `references/certificate-manager.md` |
-| **Network & On-Prem Provisioning** | VLAN/BGP/firewall automation, bare-metal & on-prem infrastructure | `references/network.md`, `references/on-prem-provisioning.md` |
+| **Terraform Plan & State Analysis** | HCL module design, plan risk analysis, ALB TLS policy and WAF review | `references/security-guide.md`, `scripts/tf_plan_analyzer.py` |
+| **Packer & Machine Image Builders** | Golden AMI, Azure Image Builder, Windows images, container registry push | `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/windows-builder.md`, `references/push-to-registry.md` |
+| **PKI & Certificate Lifecycle** | Public TLS validity limits (200/100/47 days), ACME, cert-manager, rotation automation | `references/pki-guide.md` |
+| **On-Prem Provisioning** | On-prem VMs: Terraform creates, Ansible configures (Proxmox example) | `references/on-prem-provisioning.md` |

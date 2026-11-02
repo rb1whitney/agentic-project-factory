@@ -133,14 +133,34 @@ def verify_codex_projection(repo_root: Path):
     if not codex_agents_dir.exists():
         return {"status": "FAIL", "error": f"Missing directory: {codex_agents_dir}", "agents": []}
 
+    # Python <3.11 (the repo .venv is 3.10) has no tomllib; tomli is optional, so degrade to
+    # substring checks rather than crash.
+    try:
+        import tomllib
+    except ImportError:
+        try:
+            import tomli as tomllib  # type: ignore[no-redef]
+        except ImportError:
+            tomllib = None
+
     loaded_agents = []
     for toml_path in sorted(codex_agents_dir.glob("*.toml")):
         content = toml_path.read_text(encoding="utf-8")
-        has_name = 'name = "' in content
-        has_model = 'model = "' in content
-        has_sandbox = 'sandbox_mode = "' in content
-        has_instructions = 'developer_instructions = """' in content
-        valid = has_name and has_model and has_sandbox and has_instructions
+        try:
+            if tomllib is None:
+                raise ImportError
+            parsed = tomllib.loads(content)
+            valid = bool(
+                parsed.get("name")
+                and parsed.get("model")
+                and parsed.get("sandbox_mode")
+                and parsed.get("developer_instructions")
+            )
+        except ImportError:
+            required = ('name = "', 'model = "', 'sandbox_mode = "', 'developer_instructions = """')
+            valid = all(k in content for k in required)
+        except Exception:
+            valid = False
         loaded_agents.append({
             "name": toml_path.stem,
             "valid_toml": valid,

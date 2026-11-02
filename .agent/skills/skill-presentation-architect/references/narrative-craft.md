@@ -4,7 +4,7 @@ Source: Sumeet Gayathri Moghe, "Nail your narrative" (15 September 2026), Never 
 URL: https://martinfowler.com/articles/never-send-slides/nail-your-narrative.html
 This file is a methodological synthesis, not a reproduction. Series context: previous post "Do you even need a presentation?", next posts "Principles for effective slides" and "Build your slide template".
 
-Shared by `skill-presentation-architect` and `skill-factory-creator` (see `skill-factory-creator/references/narrative-for-skills.md` for the skill-authoring mapping).
+Shared by `skill-presentation-architect` and `skill-factory-creator` (see `.agent/skills/skill-factory-creator/references/narrative-for-skills.md` for the skill-authoring mapping).
 
 ## Thesis
 

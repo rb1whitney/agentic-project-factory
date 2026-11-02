@@ -1,9 +1,3 @@
----
-name: cloud-logging
-description: 🐉 Skill for interacting with and analyzing Google Cloud Logging and Error Reporting. Use this when you need to process large JSON logs from GCP or convert them to Apache format for easier analysis.
-version: 0.3
----
-
 # Cloud Logging 
 
 This skill provides utilities for analyzing logs, errors, and system health across Google Cloud deployments.

@@ -308,3 +308,124 @@
 - **Fix**:
   - Removed `## 4. Consolidated Sub-Skills, Scripts & Reference Runbooks` from `render_skill_sap_block` in `scripts/sap/compile_corpus.py` so the SaP bundle contains strictly the 3 canonical blocks (`## 1. Action Templates`, `## 2. Procedural Skeleton`, `## 3. Inlined Child Contracts`).
   - Refactored the post-bundle bodies across `.agent/skills/*/SKILL.md` to eliminate all duplicate tables, broken links, deleted `@skill-*` mentions, persona noise, and emojis, replacing them with concise domain guardrails and a single verified `## Reference & Script Routing Index` table per skill (reducing total lines across all 15 `SKILL.md` files from `2,208` to `1,017`, `-53.9%`, with `0` broken links).
+
+## 2026-11-01T14:40:49-07:00 — Architectural Audit of Absorbed `references/*.md` Contamination & Blind `ls` Routing (`:architect` Mode)
+
+- **Findings**:
+  1. **Blind `ls` Routing in Action Templates**: `ls .agent/skills/<skill>/references/ | bin/rtk` returns bare filenames with zero semantic triggers, preconditions, or capabilities, forcing blind file guessing.
+  2. **Session-Hijacking Reference Files (52 files with raw `SKILL.md` YAML frontmatter, 40 files with `"You are a/an..."` persona overrides, 17 files with recursive `## Knowledge Bootstrap` loops, 24 files with broken `{SKILL_DIR}` / `@skill-*` pointers)**: `scripts/sap/consolidate_skills.py` copied absorbed child `SKILL.md` files verbatim into `references/*.md`. When an agent reads e.g. `skill-terraform/references/packer.md` or `skill-aws/references/aws-foundation.md`, the file injects `name: skill-packer`, re-declares `"You are an expert in..."`, and orders a recursive `ls {SKILL_DIR}/references/` loop. Worse, several absorbed files (`packer.md`, `aws-foundation.md`, `finops.md`, `docs.md`, `frontend.md`, `certificate-manager.md`, `network.md`) are pure dead router shells with zero technical procedures.
+- **Architectural Resolution Plan Proposed (No code changes made in `:architect` mode)**:
+  1. **Sanitize & De-Skill All 270 `references/*.md` Files**: Strip `SKILL.md` YAML frontmatter, strip `"You are a..."` persona hijacks, strip recursive `## Knowledge Bootstrap` & `## Capability Reference Guide` blocks, and delete/inline hollow router stubs (`packer.md`, `aws-foundation.md`, `finops.md`, `docs.md`, etc.) whose children already sit in `references/`.
+  2. **Machine-Queryable Runbook Metadata + Deterministic Router CLI (`bin/route_reference.py` or structured YAML/footer manifest)**: Embed a deterministic machine-readable metadata block (`triggers`, `inputs`, `commands`, `when_to_read`) in each reference runbook (or compile `references/index.json` from footer/header metadata) and replace `ls .../references/` in Action Templates with a deterministic query command that returns the exact matching runbook path and concrete commands for the task.
+
+## 2026-11-01T14:53:09-07:00 — Empirical Verification of Claude `swarm-architect` Adversarial Review (`:architect` Mode)
+
+- **Verified Findings from Claude's `swarm-architect` Review**:
+  1. **Frontmatter Count Reconciliation (`52` vs `43`)**: All `52` files start with `---\nname: ...`; `42` have `name: skill-*` (or `agentic-initializer`) and `10` in `skill-sre-investigation/references/skill-*.md` have `name: <subskill>` without the `skill-` prefix (`42 + 10 = 52`).
+  2. **Tautological `verify_be_bindings` (`scripts/sap/refactor.py:42-43` & `compile_corpus.py:916`)**: Confirmed High-Risk defect. `compile_corpus.py` passes `b_entry = {k: f"<{k}>"}` and concatenates `action_templates` onto `raw_text`, while `verify_be_bindings` checks `req_parts & unit_toks`. Thus any dummy placeholder `<k>` automatically passes.
+  3. **Broken Internal Links Inside `references/**/*.md` (`167` broken/drifted internal links across 6 skills)**: Our previous check only verified links inside top-level `SKILL.md` files (`0` broken), completely missing `167` broken internal links inside the moved `references/**/*.md` files themselves (`127` in `skill-aws` such as `amplify-workflow/guide.md`, `api-gateway-*.md`, `lambda-durable-guide.md`, `dsql/guide.md`; `26` in `skill-conductor/references/aws-diagrams/`; `4` in `skill-sre-investigation`; `4` in `skill-factory-creator`; `3` in `skill-kubernetes`; `3` in `skill-platform-admin`).
+  4. **Rejection of Pillar 2 (`EOF SAP_REF_META` + `.index.json`) & Pillar 3 (`route_ref.py`)**: Validated. Adding EOF metadata to 270 files + a keyword-scoring Python CLI adds an extra tool-turn hop, duplicates the `SKILL.md` routing table, and introduces false-negative keyword scoring.
+  5. **Literal `skill_dir` Substitution**: Validated. `{skill_dir}` / `{SKILL_DIR}` is known at compile time (`.agent/skills/<skill-name>`) and should never be a required runtime model input.
+
+## 2026-11-01T14:54:17-07:00 — `agy` `swarm-architect` Adversarial Review Completed (`:architect` Mode)
+
+- **Key Additional Findings from `agy` `swarm-architect` (`54470232-115b-4d7b-bb04-249faa1369b1`)**:
+  1. **Unanimous Rejection of Pillar 2 (EOF Trailers) & Pillar 3 (`route_ref.py`)**: Both Claude and `agy` `swarm-architect` independently rejected EOF `SAP_REF_META` trailers (citing 270-file maintenance debt, EOF byte-truncation on 25KB-42KB runbooks like `calculate-routes.md`, and dual-schema drift) and `route_ref.py` (citing +2 tool-turn latency tax, ambiguous query explosion on terms like `lambda`/`deploy`, and SaP Action Template degradation).
+  2. **Non-Markdown & Misplaced Assets in `references/` (`18` files)**:
+     - `7` raw Draw.io XML files (`28KB-54KB` each) in `skill-conductor/references/aws-diagrams/*.drawio` -> belong in `resources/diagrams/`.
+     - `3` raw cluster text dumps in `skill-kubernetes/references/*.txt` -> belong in `resources/dumps/`.
+     - `4` sample CSV/TXT dumps in `skill-sre-investigation/references/` (`sample_output_*.csv`, `iam_roles.txt`, `descriptive_stats_sample.txt`) -> belong in `resources/samples/`.
+     - `1` executable bash script hidden inside `skill-aws/references/amplify-workflow/scripts/prereq-check.sh` -> belongs in `skill-aws/scripts/amplify-prereq-check.sh`.
+     - `3` legacy repo metadata docs in `skill-gcp/references/` (`CHANGELOG.md`, `EVAL.md`, `TEST_PROMPTS.md`) -> belong in `resources/`.
+  3. **Phantom Reference Pointers & Conversational Hijacks**:
+     - Hollow guides (`ec2-guide.md`, `iam-guide.md`, `rds-guide.md`, `aws-serverless.md`, `networking-guide.md`, `skill-safe-sre-investigator.md`) reference phantom files that do not exist anywhere in the repo (`EC2InstanceReachabilityCheckFailed.md`, `IAMPolicyDenial.md`, `RDSConnectivityLoss.md`, `LambdaTimeout.md`, `setup_safe_kubectl.sh`, `k8s_readonly_role.yaml`).
+     - `skill-aws/references/aws-sagemaker.md` (lines 38-146) contains an interactive chat hijack instructing the agent to halt execution and interview the user before running tools.
+
+## 2026-11-01T14:56:44-07:00 — Resolution of Claude's 4 Architectural Items & Taxonomy Gap (`:architect` Mode)
+
+- **1. Codex Projection & TOML Parse Check**:
+  - Codex projection code is at `scripts/hydrate.py#L354-L420` (`hydrate_codex` -> `.codex/agents/*.toml`).
+  - `bin/verify_runtime_discovery.py#L131-L154` (`verify_codex_projection`) currently checks string substrings (`'name = "' in content`) rather than running a real TOML parser (`tomllib`/`tomli`). Will upgrade `verify_codex_projection` to parse `.codex/agents/*.toml` via `tomllib`/`tomli`.
+- **2. Binder Dropped**:
+  - Drop fake `b_entry = {k: f"<{k}>"}` self-binding verification and remove `skill_dir` pseudo-inputs from contracts. Substitute literal repo paths at compile time and replace `ls .../references/` in `Action Templates` with a one-line comment pointing to `## Reference & Script Routing Index`.
+- **3. Taxonomy Gap Resolved (`skill-factory-creator` 4-Tier Taxonomy -> Knowledge-Router vs Procedural Parent)**:
+  - Audited `.agent/skills/skill-factory-creator/references/taxonomy-decision.md` and `skill-anatomy.md`: currently Tier 1 assumes every Core Parent Skill is purely procedural, leaving a gap for a **Knowledge-Router Parent Skill** (`skill-aws`, 135 runbooks).
+  - Resolution: Update `taxonomy-decision.md` and `skill-anatomy.md` first to define two Tier-1 archetypes:
+    - **Tier 1A (Procedural Parent)**: Skills whose primary surface is executable scripts/CLIs (`skill-code-map`, `skill-graphify`, `skill-sre-investigation`, etc.).
+    - **Tier 1B (Knowledge-Router Parent)**: Skills owning a multi-domain reference corpus (`>= 10` runbooks, e.g., `skill-aws`). `SKILL.md` is a thin 2-hop router (`SKILL.md` domain table -> per-domain `index.md`/`guide.md` -> leaf runbook), and its `κ` contract (`aws-cloud-architecture-audit`) wraps **only** real executable procedures (`scripts/aws_discovery.sh`, `aws sts get-caller-identity`, `well_architected_audit.py`), never reference lookup.
+- **4. `consolidate_skills.py` Guard**:
+  - Strip or guard the destructive `main()` in `scripts/sap/consolidate_skills.py` (retaining `CONSOLIDATION_MAP` as a read-only constant imported by `tests/test_sap_pipeline.py`) so it can never overwrite cleaned `references/` files.
+
+## 2026-11-01T14:59:18-07:00 — Fidelity & Trade-Off Assessment Against Li et al. (arXiv:2605.27955v2) (`:architect` Mode)
+
+- **Comparison of Converged Architecture vs. SaP Paper (Li et al., arXiv:2605.27955v2)**:
+  1. **Reference Lookup vs. Executable Contracts (§3.2, §5.7, Appendix U)**: In the paper, `Bundled Resources` lists are explicitly rejected as spurious BE call-sites (Appendix U) and left outside `invoke(κ)` as non-clustered sections (§3.2). Removing `ls .../references/` from `Action Templates` and treating `skill-aws`'s 135 runbooks as a 2-hop reference index while scoping `κ` strictly to executable CLI commands moves us *closer* to the paper, fixing our prior deviation.
+  2. **Static vs. Runtime Bindings (§3.5 & Limitations)**: In the paper, ALFWorld parent skills are object-specific (`alfworld-heat-mug`), so BE binds constants (`obj="mug"`) at index time, while §3.5 explicitly notes that episode runtime state cannot be statically bound at index time. In our repo, parent skills are domain-general (`skill-kubernetes`, `skill-terraform`), so `namespace`/`pod_name`/`infrastructure_dir` are runtime inputs, whereas `skill_dir` (`.agent/skills/<skill>`) is a true index-time constant. Hardcoding `.agent/skills/<skill>` at compile time and dropping fake `{k: "<k>"}` bindings aligns directly with §3.5.
+  3. **Deterministic Sanitization vs. LLM Rewrite Cleanup (RC, §3.2, §5.4, Appendix C)**: The paper uses an LLM RC pass (`+5 pp` on ALFWorld) to clean residual conflicts in unrewritten sections after refactoring. Our in-place sanitization of `references/**/*.md` (stripping line-1 frontmatter, personas, `Knowledge Bootstrap`, and fixing `167` drifted internal links) plus hard unit test gates in `tests/test_sap_pipeline.py` provides the deterministic equivalent of RC across absorbed reference files.
+
+## 2026-11-01T15:37:05-07:00 — Claude takeover from agy: finish SaP reference-corpus fix (:code)
+
+- **Where agy stopped**: mid Step 2. Already done by agy: `scripts/sap/sanitize_references.py` (253 refs), non-md assets moved to `resources/`, `consolidate_skills.py` made non-destructive, TOML parse in `verify_runtime_discovery.py`, Tier 1A/1B text in `taxonomy-decision.md` / `skill-anatomy.md`. Not done: `compile_corpus.py` untouched, no tests, no architecture doc update, no worklog entries for the :code phase.
+- **`scripts/sap/compile_corpus.py`**: replaced 13 `ls .../references/` templates with a one-line routing pointer; removed `skill_dir` required input from 6 contracts/agent blocks; literal `.agent/skills/<skill>` substituted for `{SKILL_DIR}`/`{skill_dir}` (19 places); tautological `b_entry = {k: "<k>"}` + `verify_be_bindings` call replaced by a declared-placeholder check; `bindings` now holds only the index-time constant `skill_dir`.
+- **`bin/verify_runtime_discovery.py`**: agy's `import tomli` fallback crashed under the repo `.venv` (Python 3.10, no `tomli`); now degrades to substring checks. Run with `.venv/bin/python` (system `python3` lacks `yaml`).
+- **Broken links agy's audit missed** (found by new `test_08`): `gcp-playbooks.md` x4 (`skills/gcp-playbooks/...`), `gemini.md` (`.gemini/skills/...`); `agentic-initializer.md` `{SKILL_DIR}` placeholder. Fixed.
+- **Tests**: added `test_07` (reference purity), `test_08` (links resolve + 2-hop reachability), `test_09` (placeholders declared). `.venv/bin/python -m unittest tests.test_sap_pipeline`: 9/9 OK. `ruff check scripts/sap bin`: clean. `.venv/bin/python bin/verify_runtime_discovery.py`: exit 0 (SUCCESS). `sanitize_references.py` re-run is idempotent.
+- **Docs**: appended section 6 (Lessons 6-9, Tier 1B, test gates, 150-skill scaling playbook) to `docs/SKILL_AS_PSEUDOCODE_ARCHITECTURE.md`.
+- **Not done**: nothing committed or pushed (feature branch, awaiting user). Section 4 of the arch doc still says 13 core parents (now 15). skill-aws SKILL.md links 17 of 129 references directly; the rest are reached via per-domain guide.md files (hop 2), confirmed by test_08. No new index.md files were needed.
+
+## 2026-11-01T15:51:22-07:00 — Claude: regression fixes after agy asset moves (work staged on feat/sap-pseudocode-skill-consolidation; not committed)
+
+- `skill-sre-investigation/scripts/setup_safe_sre_investigator.sh` read `references/iam_roles.txt`, which agy moved to `resources/samples/`; path fixed (`bash -n` ok).
+- `skill-safe-sre-investigator.md`: removed instructions to run non-existent `setup_safe_kubectl.sh`, `safe_kubectl_wrapper.sh`, `k8s_readonly_role.yaml`; replaced with read-only `view` ClusterRole guidance.
+- `skill-cloud-monitoring.md`: sample CSV path updated to `resources/samples/`.
+- `docs/SKILL_AS_PSEUDOCODE_ARCHITECTURE.md` section 4 heading notes the 2 parents added after the 13-parent consolidation (15 total).
+- Tests 9/9 OK after changes; sanitizer idempotent. Staged with git add; no commit/push.
+
+## 2026-11-01T16:51:48-07:00 — Claude: researched rewrites replacing net-negative reference guides (no deletions yet)
+
+- User rule: a reference must carry a verifiable repo fact, a non-obvious command/gotcha, or an authoritative link with when-to-use. Generic lists and invented org procedure are net negative.
+- Evidence: `conductor/tech-stack.md:84` rejects Puppet/Chef for Ansible, yet `on-prem-provisioning.md` mandated Puppet; `pki-guide.md` cited `nitsslman` (absent from repo) and a 397-day rotation superseded by CA/B Forum SC-081v3 (200d from 2026-03-15, 100d 2027-03-15, 47d 2029-03-15; secondary sources only).
+- Rewrote in place: `skill-terraform/references/{pki-guide,on-prem-provisioning,security-guide}.md` (ACME/cert-manager; Terraform creates + Ansible configures; ALB TLS policy defaults differ console vs CLI/CFN/CDK, PQ policies, WAF Count-then-Block).
+- Added: `skill-aws/references/architecture-docs.md`, `skill-gcp/references/architecture-docs.md` (authoritative links + when-to-use); routing rows updated in terraform/aws/gcp SKILL.md.
+- Source gaps, flagged inside the files: no official CA/B or cert-manager page returned; no authoritative AWS WAF result; AWS pillar names confirmed via third party only.
+- Pending user approval: deletion of 26 generic/fictional guides (list in chat). Not deleted. Tests 9/9 OK; sanitizer idempotent. Staged, not committed.
+
+## 2026-11-01T17:36:11-07:00 — Claude: source registry + volatile-facts gate; pilot files re-verified from primary sources
+
+- Added `.agent/sources.yaml`: per-skill allowlist of authoritative hosts/paths (trust applies to facts only; user-content areas excluded), `max_age_days: 90`.
+- Added `test_10` (tests/test_sap_pipeline.py): every row under `## Volatile facts` needs ISO as-of date within 90 days, source URL on the skill's allowlist, and a search query. Negative control: stale date correctly fails; file restored.
+- Re-fetched primary sources for the 5 pilot files (WebFetch direct, not search). Corrections to my earlier blog-sourced text: ALB console default policy is `ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09` (not Res-2021-06); FIPS variant is `...Res-FIPS-PQ-2025-09`; TLS version is in connection logs (not access logs); dropped unverified claims (cert-manager `ca.crt`, telmate abandoned, expiration metric name).
+- Confirmed from cabforum.org TLS BR 2.3.1 PDF (pdftotext): max validity 200d (2026-03-15), 100d (2027-03-15), 47d (2029-03-15); DCV reuse 200/100/10 days. cert-manager: default duration 90d, renewal at 2/3 if `renewBefore` unset. bpg/proxmox: `agent.enabled` required for `ipv4_addresses`; `wait_for_ip.disabled` skips lookup.
+- Gates: unittest 10/10 OK, ruff clean, verify_runtime_discovery exit 0, compile_corpus OK. Staged, not committed. 26-file deletion still awaiting approval.
+
+## Strategy debate: prune, wiring, risk gate (2026-11-01 20:48 MST)
+- Backed up staged and unstaged diffs to the session scratchpad before deleting.
+- Deleted 13 fictional or org-specific references (terraform admin-guide; compliance identity, governance, readiness-checklist, ai-standards; sre observability, servicenow, sre-advanced, sre-governance; gcp workstation-specialist; k8s migration-cloud-boot, service-management; github review-guide). Routing rows, kubernetes-local.md section 7, compile_corpus.py and k8s-workload-triage contract resource updated.
+- Harness check: no CLAUDE.md; AGENTS.md is the loaded project file; .agent/rules/ is not wired anywhere; SessionStart hook emits {}. Moved precedence and oversight rules into AGENTS.md section 2.4; removed dead .agent/rules/doctrine.md.
+- enforce-safety.sh: deny the PR-merge command; ask on approval-skipping flags (auto-approve, no-verify, dangerously). Verified offline with synthetic hook JSON (merge=deny, flagged=ask, plan and pr view pass). Limitation: the hook matches those strings anywhere in command text, including heredocs, so it false-positives on documentation writes.
+- verifier.py: oversight_loosening_flag pattern; compute_risk now scans probes and verify. contract.schema.json: optional probes, verify. test_11 added.
+- Verified: unittest 11/11, ruff clean, compile_corpus and compile_metadata OK, verify_runtime_discovery exit 0.
+- Not verified: gcloud commands (gcloud not installed). Mini-eval not yet run. 12 generic guides untouched pending eval.
+
+## Mini-eval: with/without guide (2026-11-01 21:15 MST)
+- Harness: scripts/sap/eval_skill_value.py + tests/evals/skill_value.yaml. Headless claude -p, model sonnet, no tools, neutral cwd, deterministic regex scoring. Raw results in the session scratchpad (eval1, eval2).
+- Run 2 (n=3 per cell, 14 tasks, 84 runs, 0 errors): pki-guide baseline 15/15 vs guide 15/15 (delta 0); security-guide 12/15 vs 15/15 (+3, all from the ALB console default policy: baseline answered ELBSecurityPolicy-2016-08); on-prem-provisioning 10/12 vs 12/12 (+2, all from agent.wait_for_ip.disabled: baseline answered ipv4/ipv6, which do not skip the wait).
+- Run 1 flaws fixed: onp-1 removed (baseline emitted a tool-call text because the question needs repo access); onp-2 regex tightened (baseline was correct but written as agent { enabled = true }).
+- Finding: of the facts tested, only 2 are not already known to the model. CA/B schedule, cert-manager defaults, ACME challenge types, WAF count mode, ALB custom policies, bpg user_data_file_id conflict and agent.enabled default are non-discriminating.
+- Correction: earlier statement that the TLS version appears in connection logs and not access logs was wrong. ALB access logs carry ssl_cipher (15) and ssl_protocol (16) per the AWS access-log page. security-guide.md and its volatile facts table fixed.
+- Limits: one model, n=3, tasks written by me from the guides' own facts (selection bias), fact recall only, procedure and workflow value untested.
+
+## Generic guides converted to signal tables + contract probes (2026-11-01 22:15 MST)
+- Installed gcloud 591.0.0 to ~/google-cloud-sdk (user space, symlink in ~/.local/bin). No GCP project exists, so gcloud probes are validated by --help only (37 of 38 commands exist; security-policies rules list does not, replaced by describe).
+- Rewrote as Signal -> Probe -> Decision tables with gotchas (no checklist prose): aws iam-identity, vpc-networking (merged networking-guide), s3-storage, serverless-excellence; gcp gke-operations, security-foundations (merged security-specialist and Cloud Armor preview workflow), system-design, operational-excellence; graphify crossplane (v2 facts sourced from docs.crossplane.io, added to sources.yaml).
+- Deleted: aws networking-guide, gcp security-specialist, conductor architecture (duplicate of ladr-generator).
+- Procedures moved into gated contracts: probes added to aws-cloud-architecture-audit, gcp-cloud-ops-triage, k8s-graphify-topology via compile_corpus.py; placeholder check now scans probes and verify.
+- Verified: unittest 11/11, ruff clean, compile OK, discovery exit 0; jq filters tested on sample JSON. Not verified: any aws, gcloud or kubectl probe against a live account (no credentials or project); the rewritten tables are not yet run through the with/without eval.
+
+## Reference audit across all skills (2026-11-01 23:15 MST)
+- Scope: 239 files under .agent/skills/*/references. Audit script lives in the session scratchpad (audit_refs.py); deterministic gates promoted to tests.
+- Checked: 215 unique URLs by HTTP status (194 ok; real defects fixed below; remainder are bot-blocked, MCP endpoints, internal hostnames or placeholder example URLs); 20 distinct aws CLI commands in code blocks (0 invalid); script and path references; emoji; placeholders; boilerplate.
+- Fixed: gemini-cli compare links missing the three-dot separator (changelog-guide, 4 links, was broken in HEAD too); 9 dead aurora-dsql GitHub tree links (language.md, connectivity-tools.md); packer windows guide and external-secrets troubleshooting dead links; vercel-agents-md.md fabricated URL labeled hypothetical, replaced with the real post and verified figures (53/53/79/100, Next.js 16 scope); argocd sync force and prune now carries a diff-first, approval note; 70 emoji removed from 7 SRE/GCP references (AGENTS.md ban); phantom scripts replaced with CLI: hyperpod-ssm (get-cluster-info, list-nodes, ssm-exec), hyperpod-issue-report (collection script), dataset-evaluation (format_detector); troubleshooting-deep-dive cluster-issuer manifest that does not exist.
+- New gate test_12: no emoji; every scripts/, bin/ or .agent/skills path in a reference or SKILL.md must exist. It caught a real phantom the audit missed. Verified: unittest 12/12, ruff clean, compile OK, discovery exit 0.
+- Not fixed, needs a decision: SageMaker fine-tuning family copied without its companion files (finetuning, finetuning-setup, dataset-transformation, model-deployment, model-evaluation and others reference docs that do not exist; upstream is awslabs/agent-plugins plugins/sagemaker-ai); aws-migration and github guides reference missing templates; Gemini-CLI-project-specific guides (docs-writing, changelog, string-review, issue and PR creation, platform-admin latest_docs and gemini) describe another repo's conventions; pagerduty.md is a 3-line stub.
+- Not verified: content accuracy of the AWS vendor-derived guides (129 files) beyond links, commands and paths.

@@ -8,7 +8,7 @@ When answering API Gateway questions:
 
 1. Read the relevant reference file(s) before responding, do not rely solely on this summary
 2. For tasks spanning multiple concerns (e.g., "private API with mTLS and custom domain"), read all relevant references
-3. When the user needs IaC templates, consult `references/sam-cloudformation.md` or `references/sam-service-integrations.md` and provide complete, working SAM/CloudFormation YAML
+3. When the user needs IaC templates, consult `references/api-gateway-sam-cloudformation.md` or `references/api-gateway-sam-service-integrations.md` and provide complete, working SAM/CloudFormation YAML
 4. Always mention relevant pitfalls and limits that affect the user's design
 
 ## Quick Decision: Which API Type?
@@ -58,30 +58,30 @@ Choose the right API type first. This decision affects every downstream choice.
 
 ### Step 1: Design the API
 
-Before implementation, gather requirements systematically. Consult `references/requirements-gathering.md` for the full requirements workflow covering endpoints, auth, data models, performance, security, and deployment needs.
+Before implementation, gather requirements systematically. Consult `references/api-gateway-requirements-gathering.md` for the full requirements workflow covering endpoints, auth, data models, performance, security, and deployment needs.
 
 Key design decisions:
 
 1. **API type**: Use the decision table above
 2. **Endpoint type**: Edge-optimized (default for global clients; optimizes TCP connections via CloudFront POPs but does not cache at the edge), Regional (same-region clients, or global clients needing their own CloudFront distribution for edge caching, edge compute, granular WAF control, or geo-based routing), Private (VPC-only access, REST API only)
 3. **Topology**: Centralized (single domain, path-based routing) vs Distributed (subdomains per service)
-4. **Authentication**: See `references/authentication.md` for the decision tree
+4. **Authentication**: See `references/api-gateway-authentication.md` for the decision tree
 
 ### Step 2: Implement the API
 
 Consult these references based on what you're building:
 
-- **Architecture patterns**: `references/architecture-patterns.md`: topology, multi-tenant SaaS, hybrid workloads, private APIs, multi-region, streaming
-- **WebSocket API**: `references/websocket.md`: route selection, @connections management, session management, client resilience, SAM templates, limits, multi-region
-- **Service integrations**: `references/service-integrations.md`: direct AWS service integrations (EventBridge, SQS, SNS, DynamoDB, Kinesis, Step Functions, S3), HTTP proxy, mock, VTL mapping templates, binary media types, Lambda sync/async invocation
-- **Custom domains and routing**: `references/custom-domains-routing.md`: base path mappings, routing rules, header-based versioning
-- **Security**: `references/security.md`: mTLS (API Gateway native + CloudFront viewer mTLS), TLS policies, resource policies, WAF, HttpOnly cookies, CRL checks
-- **SAM/CloudFormation**: `references/sam-cloudformation.md`: IaC patterns, OpenAPI extensions, VTL reference, binary data
-- **SAM service integration templates**: `references/sam-service-integrations.md`: EventBridge, SQS, DynamoDB CRUD, Kinesis, Step Functions (REST + WebSocket) templates
+- **Architecture patterns**: `references/api-gateway-architecture-patterns.md`: topology, multi-tenant SaaS, hybrid workloads, private APIs, multi-region, streaming
+- **WebSocket API**: `references/api-gateway-websocket.md`: route selection, @connections management, session management, client resilience, SAM templates, limits, multi-region
+- **Service integrations**: `references/api-gateway-service-integrations.md`: direct AWS service integrations (EventBridge, SQS, SNS, DynamoDB, Kinesis, Step Functions, S3), HTTP proxy, mock, VTL mapping templates, binary media types, Lambda sync/async invocation
+- **Custom domains and routing**: `references/api-gateway-custom-domains-routing.md`: base path mappings, routing rules, header-based versioning
+- **Security**: `references/api-gateway-security.md`: mTLS (API Gateway native + CloudFront viewer mTLS), TLS policies, resource policies, WAF, HttpOnly cookies, CRL checks
+- **SAM/CloudFormation**: `references/api-gateway-sam-cloudformation.md`: IaC patterns, OpenAPI extensions, VTL reference, binary data
+- **SAM service integration templates**: `references/api-gateway-sam-service-integrations.md`: EventBridge, SQS, DynamoDB CRUD, Kinesis, Step Functions (REST + WebSocket) templates
 
 ### Step 3: Configure Performance and Scaling
 
-- **Throttling**: Account-level default is 10,000 rps / 5,000 burst (adjustable; request increases via AWS Support). Configure stage-level and method-level throttling via usage plans. See `references/performance-scaling.md`
+- **Throttling**: Account-level default is 10,000 rps / 5,000 burst (adjustable; request increases via AWS Support). Configure stage-level and method-level throttling via usage plans. See `references/api-gateway-performance-scaling.md`
 - **Caching** (REST only): Default TTL 300s, max 3600s. Only GET methods cached by default. Max cached response 1 MB
 - **Edge caching** (all API types): For edge caching, place a self-managed CloudFront distribution in front of a Regional API. CloudFront reduces latency, backend load, AND cost (cached responses never reach API Gateway). Also enables edge compute (CloudFront Functions, Lambda@Edge) and granular cache behaviors per path. Use a Regional endpoint, not edge-optimized, when pairing with your own CloudFront distribution
 - **Scaling**: API Gateway scales automatically but plan the entire stack (Lambda concurrency, DynamoDB capacity)
@@ -92,9 +92,9 @@ Always configure access logging. For REST and WebSocket APIs, also enable execut
 
 Consult the observability references based on what you need:
 
-- **Logging setup, log formats, retention**: `references/observability-logging.md`
-- **Metrics, alarms, metric filters, X-Ray tracing**: `references/observability-metrics-alarms.md`
-- **Log analysis and insights, analytics pipeline, cross-account, control plane logs**: `references/observability-analytics.md`
+- **Logging setup, log formats, retention**: `references/api-gateway-observability-logging.md`
+- **Metrics, alarms, metric filters, X-Ray tracing**: `references/api-gateway-observability-metrics-alarms.md`
+- **Log analysis and insights, analytics pipeline, cross-account, control plane logs**: `references/api-gateway-observability-analytics.md`
 
 ### Step 5: Deploy
 
@@ -102,11 +102,11 @@ Consult the observability references based on what you need:
 - **Canary deployments** (REST only): Route a percentage of traffic to test new versions
 - **Blue/green deployments**: Use custom domain API mappings to switch between environments with zero downtime
 - **Routing rules** (preferred for new domains): Declarative header/path-based routing on custom domains for versioning, A/B testing, gradual rollouts, and cell-based routing
-- See `references/deployment.md` for detailed patterns
+- See `references/api-gateway-deployment.md` for detailed patterns
 
 ### Step 6: Apply Governance
 
-For organization-wide API standards, see `references/governance.md` covering:
+For organization-wide API standards, see `references/api-gateway-governance.md` covering:
 
 - Preventative controls (SCPs, IAM policies)
 - Proactive controls (CloudFormation Hooks, Guard rules)
@@ -119,12 +119,12 @@ When responding to API Gateway questions, structure your answer as:
 
 1. **Recommendation**: Lead with the recommended approach and why
 2. **Code**: Include SAM/CloudFormation YAML or code when the user needs implementation (always read the relevant reference file first)
-3. **Pitfalls**: Warn about relevant gotchas from the pitfalls below or from `references/pitfalls.md`
+3. **Pitfalls**: Warn about relevant gotchas from the pitfalls below or from `references/api-gateway-pitfalls.md`
 4. **Limits**: Mention any service limits that constrain the design
 
 ## Troubleshooting Quick Reference
 
-When diagnosing API Gateway errors, consult `references/troubleshooting.md` for detailed resolution steps. Here are the most common issues:
+When diagnosing API Gateway errors, consult `references/api-gateway-troubleshooting.md` for detailed resolution steps. Here are the most common issues:
 
 | Error                  | Most Common Cause                                                                                                       | Quick Fix                                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -155,7 +155,7 @@ When diagnosing API Gateway errors, consult `references/troubleshooting.md` for 
 10. **Always redeploy REST API after configuration changes**. Changes don't take effect until deployed
 11. **Edge-optimized endpoints do NOT cache at the edge**  they only optimize TCP connections via CloudFront POPs. If you need edge caching, edge compute (CloudFront Functions, Lambda@Edge), or granular CloudFront control, use a Regional API with your own CloudFront distribution instead
 
-For additional pitfalls (header handling, URL encoding, caching charges, canary deployments, usage plans), see `references/pitfalls.md`.
+For additional pitfalls (header handling, URL encoding, caching charges, canary deployments, usage plans), see `references/api-gateway-pitfalls.md`.
 
 ## IaC Framework Selection
 
@@ -179,7 +179,7 @@ When not specified, ALWAYS use CDK TypeScript.
 
 ## Service Limits Quick Reference
 
-See `references/service-limits.md` for the complete table. **Most numeric quotas below are default values and adjustable**; check with your AWS account team and the [latest quotas page](https://docs.aws.amazon.com/apigateway/latest/developerguide/limits.html) before using them for architectural decisions. Key limits:
+See `references/api-gateway-service-limits.md` for the complete table. **Most numeric quotas below are default values and adjustable**; check with your AWS account team and the [latest quotas page](https://docs.aws.amazon.com/apigateway/latest/developerguide/limits.html) before using them for architectural decisions. Key limits:
 
 | Resource                 | REST API                                 | HTTP API | WebSocket           |
 | ------------------------ | ---------------------------------------- | -------- | ------------------- |

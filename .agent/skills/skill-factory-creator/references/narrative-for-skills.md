@@ -1,6 +1,6 @@
 # Narrative for Skills (Moghe / Fowler method applied to skill design)
 
-Source method: Sumeet Gayathri Moghe, "Nail your narrative", martinfowler.com/articles/never-send-slides/nail-your-narrative.html. Full method: `skill-presentation-architect/references/narrative-craft.md`.
+Source method: Sumeet Gayathri Moghe, "Nail your narrative", martinfowler.com/articles/never-send-slides/nail-your-narrative.html. Full method: `.agent/skills/skill-presentation-architect/references/narrative-craft.md`.
 
 Claim: a skill is a short talk delivered to an agent. Decide the argument before the format. This is an analogy used as a design checklist, not a claim the article is about skills.
 

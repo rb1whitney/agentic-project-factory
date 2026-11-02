@@ -1,7 +1,3 @@
----
-name: skill-gemini
-description: Specialized guide for Gemini CLI features, documentation updates, and internal configuration schemas.
----
 # Gemini CLI Expert and Knowledge Updater
 
 
@@ -18,7 +14,7 @@ When asked to "update your knowledge" or "update the cli docs", this skill shoul
 ---
 ## Workflow: Update Knowledge Base
 
-This is a multi-step process to refresh the `{SKILL_DIR}/references/latest_docs.md` file with a comprehensive summary of the entire Gemini CLI documentation.
+This is a multi-step process to refresh the `.agent/skills/skill-platform-admin/references/latest_docs.md` file with a comprehensive summary of the entire Gemini CLI documentation.
 
 **Step 1: Fetch Documentation**
 - **Action:** Use the `run_shell_command` tool to execute the script at `.gemini/commands/update-self-knowledge`.
@@ -34,16 +30,8 @@ This is a multi-step process to refresh the `{SKILL_DIR}/references/latest_docs.
 
 **Step 4: Save the New Summary**
 - **Action:** Use the `write_file` tool to save your newly generated summary.
-- **Destination:** Overwrite the file at `.gemini/skills/gemini-cli-expert/references/latest_docs.md`.
+- **Destination:** Overwrite the file at `.agent/skills/skill-platform-admin/references/latest_docs.md`.
 
 **Step 5: Clean Up**
 - **Action:** Use the `run_shell_command` tool to delete the temporary file from Step 1. The command should be `rm <file_path>`. This is important to avoid leaving temporary files on the user's system.
 - **Completion:** The process is now complete. The knowledge base is up to date.
-
-
-##  Capability Reference Guide
-Use the following runbooks for deep-dive investigation and implementation.
-
-| Capability | Reference File |
-| :--- | :--- |
-| **Latest_Docs** | [latest_docs.md]({SKILL_DIR}/references/latest_docs.md) |

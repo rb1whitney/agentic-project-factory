@@ -4,13 +4,13 @@ Orchestrated workflow for AWS Amplify Gen 2 development.
 
 ## Available references
 
-- **`references/backend.md`** -- Backend phase: SOP retrieval, constraints, error handling
-- **`references/frontend.md`** -- Frontend & testing phase: SOP retrieval, local testing
-- **`references/deploy.md`** -- Deploy phase: SOP retrieval, deployment type mapping
+- **`references/amplify-workflow/backend.md`** -- Backend phase: SOP retrieval, constraints, error handling
+- **`references/amplify-workflow/frontend.md`** -- Frontend & testing phase: SOP retrieval, local testing
+- **`references/amplify-workflow/deploy.md`** -- Deploy phase: SOP retrieval, deployment type mapping
 
 ## Available scripts
 
-- **`scripts/prereq-check.sh`** -- Validates Node.js, npm, AWS CLI, and AWS credentials
+- **`scripts/amplify-prereq-check.sh`** -- Validates Node.js, npm, AWS CLI, and AWS credentials
 
 ## Defaults
 
@@ -24,7 +24,7 @@ Orchestrated workflow for AWS Amplify Gen 2 development.
 Run the prerequisite check script:
 
 ```bash
-bash scripts/prereq-check.sh
+bash scripts/amplify-prereq-check.sh
 ```
 
 The script checks Node.js >= 18, npm, and AWS credentials in one pass and reports a clear PASS/FAIL summary.
@@ -45,7 +45,7 @@ I can't proceed without AWS credentials configured. Please set up your credentia
 Once your credentials are configured, let me know and I'll re-run the prerequisite check to verify.
 ```
 
-**Do NOT proceed with Amplify work until credentials are configured.** After the user confirms credentials are set up, re-run `scripts/prereq-check.sh` to verify before continuing.
+**Do NOT proceed with Amplify work until credentials are configured.** After the user confirms credentials are set up, re-run `scripts/amplify-prereq-check.sh` to verify before continuing.
 
 ---
 
@@ -66,10 +66,10 @@ Based on the user's request and project state, determine which phases apply:
 
 | Phase              | Applies when                                             | Reference                |
 | ------------------ | -------------------------------------------------------- | ------------------------ |
-| 1: Backend         | User needs to create or modify Amplify backend resources | `references/backend.md`  |
-| 2: Sandbox         | Deploy to sandbox for testing                            | `references/deploy.md`   |
-| 3: Frontend & Test | Frontend needs to connect to Amplify backend             | `references/frontend.md` |
-| 4: Production      | Deploy to production                                     | `references/deploy.md`   |
+| 1: Backend         | User needs to create or modify Amplify backend resources | `references/amplify-workflow/backend.md`  |
+| 2: Sandbox         | Deploy to sandbox for testing                            | `references/amplify-workflow/deploy.md`   |
+| 3: Frontend & Test | Frontend needs to connect to Amplify backend             | `references/amplify-workflow/frontend.md` |
+| 4: Production      | Deploy to production                                     | `references/amplify-workflow/deploy.md`   |
 
 Common patterns:
 
@@ -147,13 +147,13 @@ Do NOT re-run prerequisites or re-present the plan. Simply execute the next phas
 
 ### Phase 1: Backend
 
-Read [references/backend.md](references/backend.md) and follow its instructions completely.
+Read [references/amplify-workflow/backend.md](references/amplify-workflow/backend.md) and follow its instructions completely.
 
 ---
 
 ### Phase 2: Sandbox Deployment
 
-Read [references/deploy.md](references/deploy.md) and follow its instructions. The deployment type is **sandbox** (deployment_type: `sandbox`).
+Read [references/amplify-workflow/deploy.md](references/amplify-workflow/deploy.md) and follow its instructions. The deployment type is **sandbox** (deployment_type: `sandbox`).
 
 ---
 
@@ -161,13 +161,13 @@ Read [references/deploy.md](references/deploy.md) and follow its instructions. T
 
 **Prerequisite:** `amplify_outputs.json` must exist. If not, run Phase 2 first.
 
-Read [references/frontend.md](references/frontend.md) and follow its instructions completely.
+Read [references/amplify-workflow/frontend.md](references/amplify-workflow/frontend.md) and follow its instructions completely.
 
 ---
 
 ### Phase 4: Production Deployment
 
-Read [references/deploy.md](references/deploy.md) and follow its instructions. The deployment type is **production** (deployment_type: `cicd`).
+Read [references/amplify-workflow/deploy.md](references/amplify-workflow/deploy.md) and follow its instructions. The deployment type is **production** (deployment_type: `cicd`).
 
 **After completion:**
 

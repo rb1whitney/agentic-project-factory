@@ -1,9 +1,8 @@
 id: aws-cloud-architecture-audit
-trigger: AWS capability reference guide and skill_dir references management for foundation, serverless,
-  sagemaker, migration, and finops
+trigger: AWS capability reference guide and runbook routing for foundation, serverless, sagemaker, migration,
+  and finops
 input_schema:
   required:
-    skill_dir: path
     aws_service: string
   optional:
     aws_region: string
@@ -16,24 +15,39 @@ preconditions:
 postconditions:
 - Blast radius and cost delta documented before state mutation
 resources:
-- '{SKILL_DIR}/references/'
+- .agent/skills/skill-aws/references/
 side_effects:
   filesystem: none
   network: read-only AWS API describe/list
 source_parents:
 - skill-aws
+probes:
+- aws sts get-caller-identity | bin/rtk
+- aws iam get-account-summary --query 'SummaryMap.{RootMFA:AccountMFAEnabled,RootKeys:AccountAccessKeysPresent,Users:Users,Roles:Roles}'
+  | bin/rtk
+- aws accessanalyzer list-analyzers --query 'analyzers[].[name,type,status]' --output text | bin/rtk
+- aws ec2 describe-flow-logs --query 'FlowLogs[].[ResourceId,TrafficType,LogDestinationType]' --output
+  text | bin/rtk
+- aws s3control get-public-access-block --account-id "$(aws sts get-caller-identity --query Account --output
+  text)" | bin/rtk
+- aws rds describe-db-instances --query 'DBInstances[].[DBInstanceIdentifier,MultiAZ,StorageEncrypted,BackupRetentionPeriod,PubliclyAccessible]'
+  --output text | bin/rtk
+- aws lambda list-functions --query 'Functions[].[FunctionName,Runtime,MemorySize,Timeout]' --output text
+  | bin/rtk
+- aws ec2 describe-security-groups --filters Name=ip-permission.cidr,Values=0.0.0.0/0 --query 'SecurityGroups[].[GroupId,GroupName]'
+  --output text | bin/rtk
 action_templates:
-- ls {skill_dir}/references/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - aws sts get-caller-identity | bin/rtk
 - aws {aws_service} help 2>/dev/null | head -n 30 | bin/rtk
 bindings:
   skill-aws:
-    skill_dir: <skill_dir>
-    aws_service: <aws_service>
+    skill_dir: .agent/skills/skill-aws
 verifier_stats:
-  coverage: 1.0
+  coverage: 0.8947
   binding: 1.0
   replacement: 1.0
   risk: 0.0
-  promotion_score: 1.0
+  promotion_score: 0.9684
   tier: auto_promote

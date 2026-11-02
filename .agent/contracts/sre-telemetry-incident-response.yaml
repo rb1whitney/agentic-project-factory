@@ -1,9 +1,8 @@
 id: sre-telemetry-incident-response
-trigger: SRE monitoring skill_dir references and time series description analysis for logs, SLO burn,
-  and anomaly detection
+trigger: SRE monitoring references and time series description analysis for logs, SLO burn, and anomaly
+  detection
 input_schema:
   required:
-    skill_dir: path
     monitoring_time: string
   optional:
     severity_filter: string
@@ -16,21 +15,21 @@ preconditions:
 postconditions:
 - Root-cause signal correlated across logs, metrics, and traces
 resources:
-- '{SKILL_DIR}/scripts/'
-- '{SKILL_DIR}/references/'
+- .agent/skills/skill-sre-investigation/scripts/
+- .agent/skills/skill-sre-investigation/references/
 side_effects:
   filesystem: none
   network: read-only telemetry API
 source_parents:
 - skill-sre-investigation
 action_templates:
-- ls {skill_dir}/scripts/ {skill_dir}/references/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - gcloud logging read 'severity>=ERROR' --freshness={monitoring_time} --limit=25 --format=json | bin/rtk
-- python3 {skill_dir}/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk
+- python3 .agent/skills/skill-sre-investigation/scripts/detect_zscore.py --help 2>/dev/null | bin/rtk
 bindings:
   skill-sre-investigation:
-    skill_dir: <skill_dir>
-    monitoring_time: <monitoring_time>
+    skill_dir: .agent/skills/skill-sre-investigation
 verifier_stats:
   coverage: 1.0
   binding: 1.0

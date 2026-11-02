@@ -25,12 +25,12 @@ side_effects:
 source_parents:
 - skill-conductor
 action_templates:
-- ls conductor/tracks/ conductor/templates/ .agent/skills/skill-conductor/references/ 2>/dev/null | bin/rtk
+- '# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched
+  file'
 - python3 bin/nexus.py status 2>/dev/null | bin/rtk
 bindings:
   skill-conductor:
-    phase_name: <phase_name>
-    implementation_scope: <implementation_scope>
+    skill_dir: .agent/skills/skill-conductor
 verifier_stats:
   coverage: 1.0
   binding: 1.0

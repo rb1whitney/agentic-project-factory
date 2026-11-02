@@ -9,37 +9,37 @@ description: Comprehensive AWS Cloud expert focusing on Well-Architected Framewo
 
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
-# [κ: aws-cloud-architecture-audit] parent=skill-aws required_inputs=['skill_dir', 'aws_service']
-ls {skill_dir}/references/ 2>/dev/null | bin/rtk
+# [κ: aws-cloud-architecture-audit] parent=skill-aws required_inputs=['aws_service']
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 aws sts get-caller-identity | bin/rtk
 aws {aws_service} help 2>/dev/null | head -n 30 | bin/rtk
 ```
 
 ## 2. Procedural Skeleton (Where Calls Fit)
 ```text
-PROCEDURE run_skill_aws_workflow(skill_dir, aws_service):
+PROCEDURE run_skill_aws_workflow(aws_service):
   1. PRE-CHECK: AWS credentials sourced via environment or gopass; Read-only describe/list calls first
-  2. result <- invoke(aws-cloud-architecture-audit, {skill_dir: "<skill_dir>", aws_service: "<aws_service>"})
+  2. result <- invoke(aws-cloud-architecture-audit, {aws_service: "<aws_service>"})
   3. POST-CHECK: Blast radius and cost delta documented before state mutation
   4. RETURN {Location, Problem, Fix, outputs: ['reference_file', 'aws_management_plan']}
 ```
 
 ## 3. Inlined Child Contracts (Abstract Guarantees)
 - **`κ: aws-cloud-architecture-audit`**
-  - `trigger`: AWS capability reference guide and skill_dir references management for foundation, serverless, sagemaker, migration, and finops
-  - `inputs`: required `['skill_dir', 'aws_service']`, optional `['aws_region']`
+  - `trigger`: AWS capability reference guide and runbook routing for foundation, serverless, sagemaker, migration, and finops
+  - `inputs`: required `['aws_service']`, optional `['aws_region']`
   - `outputs`: `['reference_file', 'aws_management_plan']`
   - `preconditions`: AWS credentials sourced via environment or gopass; Read-only describe/list calls first
   - `postconditions`: Blast radius and cost delta documented before state mutation
   - `side_effects`: filesystem=none, network=read-only AWS API describe/list
 <!-- SAP_BUNDLE_END -->
 
-## Operating Protocol & Domain Guardrails
+## Operating Protocol & Domain Guardrails (Tier 1B Knowledge-Router Parent)
 
-Execute AWS capability reference guide lookups and `skill_dir` `references` management across foundation (`iam`, `vpc`, `ec2`, `rds`, `s3`), serverless (`lambda`, `api-gateway`, `amplify`, `dsql`), `sagemaker` (`hyperpod`, `finetuning`), `migration`, and `finops` domains before proposing any `aws_management_plan` for target `aws_service` or `aws_region`.
+Execute read-only AWS CLI account discovery (`aws_service`, `aws_region`) and 6-Pillar Well-Architected static audits (`target_dir`) to produce `caller_identity`, `audit_findings`, and `aws_management_plan`. Route service-specific design and implementation through the **2-Hop Hierarchical Reference Index** below (`SKILL.md -> Domain Index/Guide -> Leaf Runbook`).
 
 ### 1. Discovery & Verification Gate
-- Run read-only discovery via `{SKILL_DIR}/scripts/aws_discovery.sh` or `aws sts get-caller-identity | bin/rtk` before state changes.
+- Run read-only discovery via `.agent/skills/skill-aws/scripts/aws_discovery.sh` or `aws sts get-caller-identity | bin/rtk` before state changes.
 - Verify target account, `aws_region`, VPC CIDR, and KMS encryption posture before running `terraform` or CDK mutations.
 - Run source-level 6-Pillar checks when auditing application or IaC code:
   ```bash
@@ -54,16 +54,16 @@ Execute AWS capability reference guide lookups and `skill_dir` `references` mana
 - **Encryption & Identity**: Enforce KMS Customer Managed Keys (CMK) at rest and IAM Identity Center / short-lived role assumption (`gopass` or environment credentials only).
 - **Serverless & Observability**: Require CloudWatch Embedded Metric Format (EMF), X-Ray tracing, and idempotent replay rules on durable Lambda and Step Functions workflows.
 
-## Reference & Script Routing Index
+## Reference & Script Routing Index (2-Hop Hierarchical Lookup)
 
-Select the target `reference_file` under `{SKILL_DIR}/references/` or `{SKILL_DIR}/scripts/` based on task domain:
+Every runbook in `.agent/skills/skill-aws/references/` is reachable in **1 hop** (leaf runbook) or **2 hops** (via the Domain Index / Guide):
 
-| Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| Capability Domain | Trigger / Scope | Hop-1 Runbook / Domain Index (`.agent/skills/skill-aws/`) |
 | :--- | :--- | :--- |
 | **Account & CLI Discovery** | Active caller identity, region, VPC/S3 inventory | `scripts/aws_discovery.sh`, `references/directory-management.md` |
-| **Foundation (IAM, VPC, EC2, RDS, S3)** | Least-privilege IAM, VPC Lattice/Endpoints, EC2, RDS, S3 | `references/aws-foundation.md`, `references/iam-identity.md`, `references/iam-guide.md`, `references/vpc-networking.md`, `references/networking-guide.md`, `references/ec2-guide.md`, `references/rds-guide.md`, `references/s3-storage.md` |
-| **Well-Architected & FinOps** | 6-Pillar review, cost optimization, cloud migration | `references/well-architected.md`, `references/finops.md`, `references/aws-migration.md`, `references/design-refs/` |
-| **Serverless & Lambda** | Event-driven Lambda, durable execution, Step Functions, SAM/CDK | `references/aws-serverless.md`, `references/serverless-excellence.md`, `references/lambda-guide.md`, `references/lambda-durable-guide.md`, `references/lambda-step-functions.md`, `references/deployment-guide.md` |
-| **API Gateway** | REST/HTTP/WebSocket APIs, auth, custom domains, limits, observability | `references/api-gateway-guide.md`, `references/api-gateway-architecture-patterns.md`, `references/api-gateway-authentication.md`, `references/api-gateway-security.md`, `references/api-gateway-troubleshooting.md` |
-| **SageMaker & HyperPod** | Model fine-tuning, dataset evaluation, HyperPod EKS/Slurm clusters | `references/aws-sagemaker.md`, `references/finetuning.md`, `references/dataset-evaluation.md`, `references/model-deployment.md`, `references/hyperpod-ssm.md`, `references/clustering/`, `references/phases/` |
-| **Specialized Services** | Amplify full-stack workflows, Aurora DSQL, Amazon Location Service | `references/amplify-workflow/guide.md`, `references/dsql/`, `references/location-service/` |
+| **Foundation (IAM, VPC, S3) & Well-Architected** | Least-privilege IAM, VPC Lattice/Endpoints, S3, 6-Pillar review, service design refs | `references/iam-identity.md`, `references/vpc-networking.md`, `references/s3-storage.md`, `references/well-architected.md`, `references/architecture-docs.md`, `references/design-refs/index.md` |
+| **Serverless, Lambda & Durable Execution** | Event-driven Lambda (`11` leaf guides), durable execution (`11` leaf guides), CDK/SAM (`5` leaf guides) | `references/serverless-excellence.md`, `references/lambda-guide.md`, `references/lambda-durable-guide.md`, `references/deployment-guide.md` |
+| **API Gateway** | REST/HTTP/WebSocket APIs, auth, custom domains, limits, observability (`18` leaf guides) | `references/api-gateway-guide.md` |
+| **SageMaker, Fine-Tuning & HyperPod** | Dataset eval/transform, SFT/DPO/RLVR fine-tuning, model eval/deploy, HyperPod (`11` leaf guides) | `references/aws-sagemaker.md` |
+| **GCP-to-AWS 5-Phase Migration** | Discover, clarify, cluster Terraform, design, estimate, execute (`22` leaf guides) | `references/aws-migration.md` |
+| **Amplify Gen 2, Aurora DSQL & Location Service** | Full-stack Amplify (`3` leaf guides), Aurora DSQL (`24` leaf guides), Location Service (`6` leaf guides) | `references/amplify-workflow/guide.md`, `scripts/amplify-prereq-check.sh`, `references/dsql/guide.md`, `references/location-service/guide.md` |

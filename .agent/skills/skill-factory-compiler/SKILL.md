@@ -56,7 +56,7 @@ Hydrate canonical multi-adapter YAML agents in `.agent/agents/*.yaml`, sync Nexu
 
 ## Reference & Script Routing Index
 
-| Compiler Capability | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| Compiler Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-factory-compiler/`) |
 | :--- | :--- | :--- |
 | **Hydration & Spoke Projection** | Compile `.agent/agents/*.yaml` into `.claude/agents/*.md`, `.agents/agents/*.md`, `.codex/agents/*.toml` | `references/nexus-sync.md`, `scripts/logic.py`, `scripts/scanner.py`, `scripts/templates/AGENT.md` |
 | **Model Tier Drift & Validation** | Audit or update Claude (`sonnet`/`opus`), Antigravity (`flash`/`pro`), and Codex model tiers | `references/harness-models.md` |

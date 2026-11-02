@@ -170,5 +170,5 @@ def send_to_connection(domain_name, stage, connection_id, message):
 ## Related Templates
 
 - **Basic WebSocket SAM template**: See above
-- **Step Functions integration (sync Express + async with @connections callback)**: See `references/sam-service-integrations.md` (Step Functions section)
-- **WebSocket access log format**: See `references/observability-logging.md` (WebSocket API Access Log Format section)
+- **Step Functions integration (sync Express + async with @connections callback)**: See `references/api-gateway-sam-service-integrations.md` (Step Functions section)
+- **WebSocket access log format**: See `references/api-gateway-observability-logging.md` (WebSocket API Access Log Format section)

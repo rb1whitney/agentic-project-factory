@@ -32,8 +32,7 @@ action_templates:
 - python3 bin/verify_runtime_discovery.py | bin/rtk
 bindings:
   skill-factory-compiler:
-    harness_target: <harness_target>
-    repo_root: <repo_root>
+    skill_dir: .agent/skills/skill-factory-compiler
 verifier_stats:
   coverage: 1.0
   binding: 1.0

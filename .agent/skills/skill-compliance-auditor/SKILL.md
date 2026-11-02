@@ -39,19 +39,18 @@ Execute 6-Pillar Well-Architected AST rules, compliance security checks, and beh
 
 ### 1. Static AST & Policy Audit Workflow
 - Run `well_architected_audit.py` and `local_extract.py` in read-only static analysis mode before certifying any track or PR.
-- Cross-check findings against the governance and readiness runbooks in `{SKILL_DIR}/references/`.
+- Cross-check findings against the governance and readiness runbooks in `.agent/skills/skill-compliance-auditor/references/`.
 - Verify zero unflagged secret exposure, wildcard IAM permissions, or unsafe execution sinks (`shell=True`, `eval`, unpinned images).
 
 ### 2. Behavioral & Release Readiness Gate
-- Validate agent and microservice behavioral evaluations using the evaluation templates in `{SKILL_DIR}/scripts/assets/` and `{SKILL_DIR}/references/behavioral-evals.md`.
-- Block promotion when `compliance_status` reports `HIGH` or `CRITICAL` findings or when `readiness-checklist.md` gates fail.
+- Validate agent and microservice behavioral evaluations using the evaluation templates in `.agent/skills/skill-compliance-auditor/scripts/assets/` and `.agent/skills/skill-compliance-auditor/references/behavioral-evals.md`.
+- Block promotion when `compliance_status` reports `HIGH` or `CRITICAL` findings or when the `CERTIFICATION_REPORT.md` gate (template in `conductor/templates/`) fails.
 
 ## Reference & Script Routing Index
 
-| Audit Capability | Trigger / Scope | Reference Runbooks & Assets (`{SKILL_DIR}/`) |
+| Audit Capability | Trigger / Scope | Reference Runbooks & Assets (`.agent/skills/skill-compliance-auditor/`) |
 | :--- | :--- | :--- |
-| **AI & Agent Standards** | Agentic safety, prompt/contract standards, knowledge validation | `references/ai-standards-guide.md`, `references/knowledge-validation.md` |
+| **AI & Agent Standards** | Agentic safety, prompt/contract standards, knowledge validation | `references/knowledge-validation.md` |
 | **Behavioral Evaluations** | Creating, running, fixing, and promoting behavioral eval suites | `references/behavioral-evals.md`, `references/creating.md`, `references/running.md`, `references/fixing.md`, `references/promoting.md`, `scripts/assets/standard_eval.ts.txt`, `scripts/assets/interactive_eval.ts.txt` |
-| **Identity & Least Privilege** | IAM boundaries, zero-trust credentials, RBAC/ABAC review | `references/identity-guide.md` |
-| **Regulatory & Hub Governance** | Policy enforcement, branch/PR governance, audit trails | `references/compliance-guide.md`, `references/governance-guide.md` |
-| **Production Readiness** | Pre-release certification gate (`CERTIFICATION_REPORT.md`) | `references/readiness-checklist.md` |
+| **Regulatory & Hub Governance** | Policy enforcement, branch/PR governance, audit trails | `references/compliance-guide.md` |
+| **Production Readiness** | Pre-release certification gate (`CERTIFICATION_REPORT.md`) | `conductor/templates/CERTIFICATION_REPORT.md` |

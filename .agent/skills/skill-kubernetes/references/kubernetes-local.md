@@ -1,8 +1,3 @@
----
-name: skill-kubernetes-local
-version: 1.0.0
-description: "Skill to install or managee a local kubernetes cluster using K3S."
----
 # Master Operational Manual (The Living Embodiment)
 
 
@@ -42,7 +37,7 @@ done
 3. Sets up persistent `$KUBECONFIG` export in shell RC files.
 
 ### 2.3 Declarative Infrastructure (The Order of Operations)
-CRDs create hard dependencies. Deviation results in systemic failure. Manifests are located at `scripts/projects/devops-homelab/...`.
+CRDs create hard dependencies. Deviation results in systemic failure. Manifests are located at `scripts/projects/devops-homelab/README.md`.
 1. **Cert-Manager:** `helm install ... --set crds.enabled=true`.
 2. **Postgres-Operator:** `helm install ...`. Wait for `Ready` status before applying `postgresql` CRDs.
 3. **External Secrets:** `helm install ... --set installCRDs=true`.
@@ -53,7 +48,7 @@ CRDs create hard dependencies. Deviation results in systemic failure. Manifests 
 ### 3.1 GitOps Drift Correction
 When configuration drift is detected or components appear desynced:
 ```bash
-# Reconciliation
+# Reconciliation. --force replaces and --prune deletes live objects: run `argocd app diff root-infra-app` first and get approval.
 argocd app sync root-infra-app --server-side --force --prune
 # Verification
 kubectl get applications -n argocd -o yaml | grep "status:.*sync:"
@@ -89,21 +84,19 @@ kubectl get applications -n argocd -o yaml | grep "status:.*sync:"
 - Maintenance: `scripts/maintenance-cleanup.sh`
 - Diagnostic Bundle: `scripts/cluster-dump.sh`
 - Verification: `scripts/verify-cluster.sh`
-- Manifests: `scripts/projects/devops-homelab/...`
+- Manifests: `scripts/projects/devops-homelab/README.md`
 
 ### 5.2 Raw Diagnostic Data
-- Cluster Dump: `references/cluster-dump.txt`
+- Cluster Dump: `cluster-dump.txt`
 
 ## 6. Official References & Documentation
 - [K3s Technical Docs](https://docs.k3s.io/)
 - [Kine: SQL-based etcd shim](https://github.com/k3s-io/kine)
 - [ArgoCD GitOps Patterns](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/)
 - [Cert-Manager Issuer Specification](https://cert-manager.io/docs/concepts/issuer/)
-- [External Secrets Troubleshooting](https://external-secrets.io/latest/guides/troubleshooting/)
+- [External Secrets Troubleshooting](https://external-secrets.io/latest/introduction/faq/)
 - [RFC 5280: X.509 Certificate Profile](https://datatracker.ietf.org/doc/html/rfc5280)
 
 ---
 *(This manual is a living artifact. Updated on: 2026-06-07. Total content volume: 500+ lines of documentation, script logic, and diagnostic data.)*
 
-## 7. Migration Path: Cloud-Boot-App to Local K3s
-See reference: `references/migration-cloud-boot.md`.

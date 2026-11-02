@@ -25,6 +25,12 @@ UNSAFE_PATTERNS = [
     (re.compile(r"\bgh\s+pr\s+merge\b"), "autonomous_pr_merge", 0.95),
     (re.compile(r"\bsubprocess\.(?:run|Popen|call)\([^)]*shell\s*=\s*True"), "unsafe_subprocess_shell", 0.85),
     (re.compile(r"\beval\s*\("), "unsafe_eval", 0.85),
+    # Oversight-loosening flags (arXiv:2610.37734): a template must never skip approval or verification.
+    (
+        re.compile(r"(?:--?auto-approve\b|--no-verify\b|--dangerously[\w-]*|--yes\b|--force(?![\w-])|\s-y(?:\s|$))"),
+        "oversight_loosening_flag",
+        0.85,
+    ),
 ]
 
 STOPWORDS = {
@@ -130,7 +136,9 @@ def compute_risk(contract: dict) -> tuple[float, list[str]]:
     """Scan contract action_templates and resources for unsafe sinks."""
     templates = "\n".join(contract.get("action_templates", []))
     resources = "\n".join(contract.get("resources", []))
-    combined = f"{templates}\n{resources}"
+    # probes and verify are commands too: scan them so no command field escapes the risk gate.
+    extra = "\n".join(contract.get("probes", []) + contract.get("verify", []))
+    combined = f"{templates}\n{resources}\n{extra}"
     side_effects_str = json.dumps(contract.get("side_effects", {})).lower()
     preconds_str = " ".join(contract.get("preconditions", [])).lower()
 

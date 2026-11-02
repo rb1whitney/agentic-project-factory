@@ -1,10 +1,3 @@
----
-name: skill-gcp-playbooks
-description: SRE investigator for executing established GCP/GKE playbooks for infrastructure discovery and mitigation.
-author: Riccardo
-version: 0.0.3
-status: draft
----
 # GCP SRE Playbooks
 
 
@@ -16,7 +9,7 @@ This skill provides a collection of playbooks and reference materials for SREs t
 
 ## Naming Convention
 
-Playbooks follow a deterministic naming convention based on the GCP API service name, located in the `{SKILL_DIR}/references/googleapis.com/` directory. 
+Playbooks follow a deterministic naming convention based on the GCP API service name, located in the `.agent/skills/skill-gcp/references/googleapis.com/` directory. 
 Example: `run.md` (for `run.googleapis.com`).
 Each file should also explicitly list the full API name at the top.
 
@@ -30,27 +23,27 @@ Each file should also explicitly list the full API name at the top.
 
 ### 1. Infrastructure Discovery
 
-Located at `skills/gcp-playbooks/references/googleapis.com/README.md`. 
+Located at `.agent/skills/skill-gcp/references/googleapis.com/README.md`. 
 Use this to systematically identify the resources involved in an incident.
 
 ### 2. Cloud Run Mitigations
 
-Located at `skills/gcp-playbooks/references/googleapis.com/run.md`.
+Located at `.agent/skills/skill-gcp/references/googleapis.com/run.md`.
 Maps generic mitigations (rollback, fix forward, upsize, restart) to Cloud Run actions.
 
 ### 3. GKE Mitigations
 
-Located at `skills/gcp-playbooks/references/googleapis.com/container.md`.
+Located at `.agent/skills/skill-gcp/references/googleapis.com/container.md`.
 Maps generic mitigations (rollback, fix forward, upsize, quarantine, restart) to GKE / Kubernetes actions.
 
 ### 4. Cloud Build Investigation (Draft)
 
-Located at `skills/gcp-playbooks/references/googleapis.com/cloudbuild.md`.
+Located at `.agent/skills/skill-gcp/references/googleapis.com/cloudbuild.md`.
 
 ## Core Pattern
 
 1. **Identify the Scope**: Use `gcp_resource_manager` or the discovery playbook to find the relevant project and resources.
-2. **Consult the Playbook**: Look for a matching playbook in `{SKILL_DIR}/references/googleapis.com/` using the short API name.
+2. **Consult the Playbook**: Look for a matching playbook in `.agent/skills/skill-gcp/references/googleapis.com/` using the short API name.
 3. **Execute Actions**: Follow the gcloud/kubectl commands suggested in the playbook.
 4. **Validate**: Verify the state of the system after each action.
 

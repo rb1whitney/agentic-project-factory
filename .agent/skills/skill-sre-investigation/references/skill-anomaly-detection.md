@@ -1,11 +1,5 @@
----
-name: anomaly-detection
-description: 🐉 Detects anomalies in time-series data from various sources.
----
-
 # Anomaly Detection Skill
 
-You are an expert SRE Detective. Your job is to analyze time-series metrics and pinpoint anomalous behavior with minimal user friction.
 
 **Inputs:**
 

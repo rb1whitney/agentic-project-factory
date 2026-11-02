@@ -10,7 +10,7 @@ description: Deep-dive K8s operator for managing GKE/EKS clusters and troublesho
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: k8s-workload-triage] parent=skill-kubernetes required_inputs=['namespace', 'pod_name']
-ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 kubectl get pods -n {namespace} | bin/rtk
 kubectl logs {pod_name} -n {namespace} --tail=100 | bin/rtk
 kubectl describe pod {pod_name} -n {namespace} | bin/rtk
@@ -20,7 +20,7 @@ bash .agent/skills/skill-kubernetes/scripts/verify-cluster.sh 2>/dev/null | bin/
 ## 2. Procedural Skeleton (Where Calls Fit)
 ```text
 PROCEDURE run_skill_kubernetes_workflow(namespace, pod_name):
-  1. PRE-CHECK: kubectl context verified; Reference runbooks indexed in {SKILL_DIR}/references/
+  1. PRE-CHECK: kubectl context verified; Reference runbooks indexed in .agent/skills/skill-kubernetes/references/
   2. result <- invoke(k8s-workload-triage, {namespace: "<namespace>", pod_name: "<pod_name>"})
   3. POST-CHECK: Failure isolated to image, crashloop, probe, resource limit, or network before mutation
   4. RETURN {Location, Problem, Fix, outputs: ['root_cause_category', 'evidence_log_span', 'remediation_cmd']}
@@ -31,7 +31,7 @@ PROCEDURE run_skill_kubernetes_workflow(namespace, pod_name):
   - `trigger`: Diagnose Kubernetes pod status, container logs, events, local k3s cluster state, and service mesh routing
   - `inputs`: required `['namespace', 'pod_name']`, optional `['container_name', 'kubeconfig']`
   - `outputs`: `['root_cause_category', 'evidence_log_span', 'remediation_cmd']`
-  - `preconditions`: kubectl context verified; Reference runbooks indexed in {SKILL_DIR}/references/
+  - `preconditions`: kubectl context verified; Reference runbooks indexed in .agent/skills/skill-kubernetes/references/
   - `postconditions`: Failure isolated to image, crashloop, probe, resource limit, or network before mutation
   - `side_effects`: filesystem=none, network=read-only K8s API GET/LIST
 <!-- SAP_BUNDLE_END -->
@@ -51,15 +51,14 @@ Diagnose Kubernetes pod status, container logs, events, local k3s cluster state,
   ```
 
 ### 2. Cluster Provisioning & Local k3s Lifecycle
-- Use bundled scripts in `{SKILL_DIR}/scripts/` for non-destructive cluster dumps (`cluster-dump.sh`), local k3s setup (`install_k3s.sh`, `k3s-orchestrator.sh`), and maintenance cleanup (`maintenance-cleanup.sh`).
+- Use bundled scripts in `.agent/skills/skill-kubernetes/scripts/` for non-destructive cluster dumps (`cluster-dump.sh`), local k3s setup (`install_k3s.sh`, `k3s-orchestrator.sh`), and maintenance cleanup (`maintenance-cleanup.sh`).
 - Never apply unverified manifests or run destructive deletions without explicit user confirmation.
 
 ## Reference & Script Routing Index
 
-| Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-kubernetes/`) |
 | :--- | :--- | :--- |
 | **Pod & Workload Troubleshooting** | CrashLoopBackOff, ImagePullBackOff, OOMKilled, probe/resource failures | `references/troubleshooting-deep-dive.md`, `scripts/cluster-dump.sh` |
-| **Service Mesh & Networking** | Istio mTLS, Gateway API, VirtualService, CoreDNS & service routing | `references/istio-specialist.md`, `references/service-management.md` |
+| **Service Mesh & Networking** | Istio mTLS, Gateway API, VirtualService, CoreDNS & service routing | `references/istio-specialist.md` |
 | **Interactive Cluster Triage (k9s)** | k9s navigation, resource inspection, log/shell shortcuts | `references/k9s-specialist.md` |
 | **Cluster Provisioning & Local k3s** | k3s installation, homelab GitOps (ArgoCD, GitLab, OpenBao/ESO, Kargo) | `references/kubernetes-local.md`, `references/provisioning-guide.md`, `scripts/install_k3s.sh`, `scripts/k3s-orchestrator.sh`, `scripts/maintenance-cleanup.sh`, `scripts/projects/devops-homelab/README.md` |
-| **Cloud Boot & Workload Migration** | Containerizing and migrating Spring/cloud apps to Kubernetes | `references/migration-cloud-boot.md` |

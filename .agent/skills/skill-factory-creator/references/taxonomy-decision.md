@@ -9,10 +9,14 @@ Q0  Already covered? grep names/triggers in .agent/skills/*/SKILL.md and .agent/
     Yes -> extend the existing artifact. Stop.
 Q1  Owns a distinct external CLI/API surface AND (>=1 script OR >=3 runbooks)?
     Yes -> Tier 1: Core Parent Skill  .agent/skills/<skill-name>/SKILL.md
+           - Tier 1A (Procedural Parent): Primary surface is executable scripts/CLIs (e.g., skill-code-map, skill-sre-investigation).
+           - Tier 1B (Knowledge-Router Parent): Owns >=10 reference runbooks across sub-domains (e.g., skill-aws).
+             SKILL.md is a 2-hop router (SKILL.md -> domain guide/index.md -> leaf.md); its kappa contract wraps ONLY real
+             executable discovery/audit procedures, never reference lookup (SaP §3.2 & Appendix U).
 Q2  Multi-step procedure with typed inputs/outputs, invoked as invoke(kappa, args)?
     Yes -> Tier 2: Child Contract     .agent/contracts/<id>.yaml  (inlined into a Tier-1 parent and agents)
 Q3  Troubleshooting guide, service catalog, architecture reference table?
-    Yes -> Tier 3: Reference Runbook  .agent/skills/<parent>/references/<topic>.md
+    Yes -> Tier 3: Reference Runbook  .agent/skills/<parent>/references/<topic>.md (reachable in <=2 hops from SKILL.md)
 Q4  Otherwise -> Tier 4: Script subcommand  .agent/skills/<parent>/scripts/<tool> + one Action Template line
 ```
 
@@ -20,9 +24,10 @@ Q4  Otherwise -> Tier 4: Script subcommand  .agent/skills/<parent>/scripts/<tool
 
 | Tier | Path | Bound to agents? | Appears in skill picker? |
 | :--- | :--- | :--- | :--- |
-| 1 Core Parent | `.agent/skills/<name>/SKILL.md` | Yes, >=1 | Yes |
+| 1A Procedural Parent | `.agent/skills/<name>/SKILL.md` | Yes, >=1 | Yes |
+| 1B Knowledge-Router Parent | `.agent/skills/<name>/SKILL.md` | Yes, >=1 | Yes |
 | 2 Child Contract | `.agent/contracts/<id>.yaml` | Via parent skill and agent `contract:` | No (must not) |
-| 3 Reference Runbook | `.agent/skills/<parent>/references/*.md` | Via parent | No |
+| 3 Reference Runbook | `.agent/skills/<parent>/references/**/*.md` | Via parent (`<=2` hops) | No |
 | 4 Script Subcommand | `.agent/skills/<parent>/scripts/*` | Via parent | No |
 
 ## Worked classifications

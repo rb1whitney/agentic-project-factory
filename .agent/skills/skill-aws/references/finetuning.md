@@ -51,9 +51,9 @@ Before starting this workflow, verify:
 
 Read the example notebook matching the finetuning strategy:
 
-- SFT  `references/sft_example.md`
-- DPO  `references/dpo_example.md`
-- RLVR  `references/rlvr_example.md`
+- SFT  `sft_example.md`
+- DPO  `dpo_example.md`
+- RLVR  `rlvr_example.md`
 
 ### 1.3 Copy Notebook Structure
 
@@ -88,7 +88,7 @@ Read the example notebook matching the finetuning strategy:
 
 ### 2.2 Generate Reward Function From Template
 
-1. Follow workflow in `references/rlvr_reward_function.md` section "Helping Users Create Lambda Functions"
+1. Follow workflow in `rlvr_reward_function.md` section "Helping Users Create Lambda Functions"
 
 ### 2.3 Set CUSTOM_REWARD_FUNCTION value
 
@@ -96,7 +96,7 @@ Read the example notebook matching the finetuning strategy:
 
 ## 3. EULA review and acceptance
 
-1. Look up the official EULA link for the selected base model from references/eula_links.md
+1. Look up the official EULA link for the selected base model from `finetuning-eula-links.md`
 2. Display the EULA link(s) to the user in your message as clickable markdown links
 3. Tell the user they must read and agree to the EULA before using this model (one sentence)
 4. Ask them to manually change `ACCEPT_EULA` to `True` in the notebook after reviewing the license

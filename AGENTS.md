@@ -103,6 +103,14 @@ All outputs MUST use caveman-prose. Rules:
 - GREP before READ. AST before LOAD. Inline before subagent.
 - All shell output piped through `bin/rtk`
 
+## 2.4 PRECEDENCE & OVERSIGHT (MANDATORY)
+- **Live over docs**: live code, CLI probe output, test results outrank any markdown, reference, skill text. Conflict -> trust probe, report stale doc path. (arXiv:2610.30571)
+- **Facts**: versions, limits, prices, defaults from vendor page in `.agent/sources.yaml` with as-of date. Not memory. Org procedure not in repo -> say so, do not invent.
+- **Probe first**: read-only batch returning counts before reading files. Mutation = propose-only: diff/plan, local validate, stop for approval.
+- **Verify**: every change ends with deterministic read-only check; show output before claiming done.
+- **No loosening**: never write `-auto-approve`, `--no-verify`, `--yes`, `--dangerously-*`, "without asking" into commands or docs. (arXiv:2610.37734)
+- Classify tier first: Meta -> Global -> Regional -> Service. Hard blocks enforced in `projects/baker/src/baker/muffin/policy.py` and `state_graph.py`.
+
 ## 3. KEYWORD TRIGGERS (FIRST TOKEN)
 * `:architect:`  Design strategy only; no code.
 * `:code:`  Implementation focus.

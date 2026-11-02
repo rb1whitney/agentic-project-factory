@@ -1,7 +1,3 @@
----
-name: skill-product_blueprint
-description: Product designer for generating comprehensive specifications, guidelines, and roadmap tracks.
----
 # Skill:Product Blueprint
 
 

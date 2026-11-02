@@ -1,6 +1,5 @@
 # Drawing Reference Guide
 
-You are an AWS architecture diagram generator that produces draw.io XML files with official AWS4 icons. The diagrams you produce MUST match the style of official AWS Reference Architecture diagrams  professional title and subtitle, teal numbered step badges with a right sidebar legend, 48x48 service icons inside colored category containers, clean Helvetica typography, and clear data flow.
 
 ## Workflow
 
@@ -10,7 +9,7 @@ You are an AWS architecture diagram generator that produces draw.io XML files wi
 
 1. Scan for infrastructure files: CloudFormation (`AWSTemplateFormatVersion`, `AWS::*`), CDK (`cdk.json`, construct definitions), Terraform (`resource "aws_*"`)
 2. Extract services, relationships, VPC structure, and data flow direction
-3. If NO AWS infrastructure files found, scan for non-AWS technologies: Dockerfiles, database configs, API integrations, ML frameworks (pytorch, tensorflow, coreml), message brokers (kafka, rabbitmq). Map discovered technologies using `references/general-icons.md`
+3. If NO AWS infrastructure files found, scan for non-AWS technologies: Dockerfiles, database configs, API integrations, ML frameworks (pytorch, tensorflow, coreml), message brokers (kafka, rabbitmq). Map discovered technologies using `references/aws-diagrams/general-icons.md`
 4. For MIXED architectures (AWS + non-AWS): use AWS icons for AWS services, general icons for non-AWS. Same layout rules apply.
 5. Confirm discovered architecture with user before generating
 6. Ask which diagram type best represents the architecture
@@ -33,11 +32,11 @@ These are independent of Mode and apply after mode selection:
 
 **Load references now** (not before this step):
 
-1. Read `references/xml-rules.md` for shape styles, label placement, and structural rules
-2. Read `references/style-guide.md` for colors, fonts, and dark mode
-3. Read `references/xml-templates-structure.md` for XML code blocks
-4. Read `references/layout-guidelines.md` for spacing and edge routing
-5. Use the example entries in the table below only as conceptual guidance for edge routing and layout patterns; do not open or read any `.drawio` files as reference.
+1. Read `references/aws-diagrams/xml-rules.md` for shape styles, label placement, and structural rules
+2. Read `references/aws-diagrams/style-guide.md` and `references/aws-diagrams/group-styles.md` for colors, group containers, fonts, and dark mode
+3. Read `references/aws-diagrams/xml-templates-structure.md` and `references/aws-diagrams/xml-templates-examples.md` for XML code blocks and worked examples
+4. Read `references/aws-diagrams/layout-guidelines.md` for spacing and edge routing
+5. Use the example entries in the table below (stored under `resources/aws-diagrams/`) only as conceptual guidance for edge routing and layout patterns; do not open or read any `.drawio` files as reference.
 
 **Example selection**  pick the most relevant example for the user's architecture:
 
@@ -51,23 +50,23 @@ These are independent of Mode and apply after mode selection:
 | AI / AgentCore         | `example-agentcore.drawio`                  | `example-event-driven.drawio`     |
 | Sketch mode            | `example-sketch.drawio`                     | + one from above                  |
 
-1. If the architecture includes non-AWS services, also read `references/general-icons.md`
+1. If the architecture includes non-AWS services, also read `references/aws-diagrams/general-icons.md`
 2. Generate the XML following all loaded rules and the selected example's patterns
 3. Apply styling selections from Step 2
 
 ### Step 4: Validate and Export
 
 1. Write the `.drawio` file to `./docs/`
-2. PostToolUse hook validates XML automatically (see `references/post-processing.md` for the fixer pipeline)
+2. PostToolUse hook validates XML automatically (see `references/aws-diagrams/post-processing.md` for the fixer pipeline)
 3. If validation fails, fix errors and rewrite
-4. Run badge overlap fixer: `python3 ${PLUGIN_ROOT}/scripts/lib/fix_step_badges.py ./docs/<filename>.drawio`
+4. Run badge overlap fixer: `python3 <drawio-plugin-root>/fix_step_badges.py ./docs/<filename>.drawio`
 5. After validation passes, generate preview URL:
 
    ```bash
-   python3 ${PLUGIN_ROOT}/scripts/lib/drawio_url.py ./docs/<filename>.drawio --open
+   python3 <drawio-plugin-root>/drawio_url.py ./docs/<filename>.drawio --open
    ```
 
-6. If export format requested, run draw.io CLI (see `references/cli-export.md`)
+6. If export format requested, run draw.io CLI (see `references/aws-diagrams/cli-export.md`)
 
 ## Defaults
 
@@ -86,7 +85,7 @@ These are independent of Mode and apply after mode selection:
 ## Error Handling
 
 - **XML validation failure**: Fix reported errors (malformed tags, missing IDs, invalid shapes), rewrite the file, re-validate
-- **Shape not found**: Check `references/aws4-shapes-services.md` for valid `mxgraph.aws4.*` names
+- **Shape not found**: Check `references/aws-diagrams/aws4-shapes-services.md` and `references/aws-diagrams/aws4-shapes-resources.md` for valid `mxgraph.aws4.*` names
 - **draw.io CLI not found**: Write `.drawio` file only, skip export, inform user to install draw.io desktop
 - **Invalid edge source/target**: Verify all `source=` and `target=` IDs reference existing `mxCell` elements
 - **Double hyphens in XML comments**: `--` is illegal inside `<!-- -->` per XML spec; use single hyphens or rephrase
@@ -94,7 +93,7 @@ These are independent of Mode and apply after mode selection:
 
 ## Style Rules
 
-Full style details in `references/style-guide.md`. Critical rules that MUST be followed:
+Full style details in `references/aws-diagrams/style-guide.md`. Critical rules that MUST be followed:
 
 - **Font**: ALL text MUST use `fontFamily=Helvetica;` (Comic Sans MS only in sketch mode)
 - **Dark mode**: ALL structural elements MUST use `light-dark()` fills with `fillStyle=auto;`. See style-guide.md for the full color table.
@@ -104,7 +103,7 @@ Full style details in `references/style-guide.md`. Critical rules that MUST be f
 - **Category containers**: Every 48x48 icon MUST sit inside a 120x120 container with its category tint color. See style-guide.md for the tint color table.
 - **AgentCore**: Use `resIcon=mxgraph.aws4.bedrock_agentcore` (NOT `mxgraph.aws4.bedrock`)
 - **Sketch mode**: Only when user requests it. Add `sketch=1;curveFitting=1;jiggle=2` to non-icon elements. Keep `sketch=0` on service icons.
-- **Non-AWS services**: Map to the closest general icon using `references/general-icons.md`. Same 120x120 container + 48x48 icon pattern. Apply category tint colors by functional role (database, compute, etc.). Labels are critical since icons are generic.
+- **Non-AWS services**: Map to the closest general icon using `references/aws-diagrams/general-icons.md`. Same 120x120 container + 48x48 icon pattern. Apply category tint colors by functional role (database, compute, etc.). Labels are critical since icons are generic.
 
 ## Diagram Types
 
@@ -116,11 +115,11 @@ Full style details in `references/style-guide.md`. Critical rules that MUST be f
 - **Container**: ECS/EKS clusters, ECR, Fargate, load balancing
 - **Hybrid**: On-premises + AWS with Direct Connect, VPN, Transit Gateway
 
-See `references/diagram-templates-basic.md` and `references/diagram-templates-advanced.md` for layout patterns.
+See `references/aws-diagrams/diagram-templates-basic.md` and `references/aws-diagrams/diagram-templates-advanced.md` for layout patterns.
 
 ## XML Generation Rules
 
-For detailed XML templates, style strings, and code examples, see `references/xml-rules.md`. Key structural rules:
+For detailed XML templates, style strings, and code examples, see `references/aws-diagrams/xml-rules.md`. Key structural rules:
 
 ### Required Structure
 
@@ -156,7 +155,7 @@ Always use the full `mxfile` wrapper:
 
 ## Layout Guidelines
 
-For detailed spacing rules, edge routing patterns, and placement tables, see `references/layout-guidelines.md`. Key rules:
+For detailed spacing rules, edge routing patterns, and placement tables, see `references/aws-diagrams/layout-guidelines.md`. Key rules:
 
 - **Spacing**: 180px horizontal / 120px vertical gaps. For 13+ services, increase to 220px/160px.
 - **Edge routing**: Use `orthogonalEdgeStyle`. Add explicit waypoints for non-adjacent routing. Edges leave perpendicular to container face.
@@ -182,7 +181,7 @@ Each diagram gets a **descriptive filename** in kebab-case, placed in `./docs/` 
 7. **Only after validation passes**, generate the browser preview link by running:
 
    ```bash
-   python3 ${PLUGIN_ROOT}/scripts/lib/drawio_url.py ./docs/<filename>.drawio --open
+   python3 <drawio-plugin-root>/drawio_url.py ./docs/<filename>.drawio --open
    ```
 
    This compresses the XML and opens `app.diagrams.net` with the diagram loaded instantly. Do NOT run this if validation failed.
@@ -206,7 +205,7 @@ Each diagram gets a **descriptive filename** in kebab-case, placed in `./docs/` 
 ## Important Rules
 
 - NEVER use compressed/base64 diagram content
-- NEVER invent shape names  only use shapes from `references/aws4-shapes-services.md`
+- NEVER invent shape names  only use shapes from `references/aws-diagrams/aws4-shapes-services.md`
 - ALWAYS wrap XML in `<mxfile><diagram><mxGraphModel>`  not bare `<mxGraphModel>`
 - ALWAYS include cells id="0" and id="1" as root and default layer
 - ALWAYS use `resourceIcon;resIcon=` style for main service icons

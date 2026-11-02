@@ -18,19 +18,19 @@ Use SAM CLI for project initialization and deployment, Lambda Web Adapter for we
 
 Load the appropriate reference file based on what the user is working on:
 
-- **Getting started**, **what to build**, **project type decision**, or **working with existing projects** -> see [references/getting-started.md](references/getting-started.md)
+- **Getting started**, **what to build**, **project type decision**, or **working with existing projects** -> see [references/lambda-getting-started.md](references/lambda-getting-started.md)
 - **SAM**, **CDK**, **deployment**, **IaC templates**, **CDK constructs**, or **CI/CD pipelines** -> see the [aws-serverless-deployment skill](../aws-serverless-deployment/) (separate skill in this plugin)
-- **Web app deployment**, **Lambda Web Adapter**, **API endpoints**, **CORS**, **authentication**, **custom domains**, or **sam local start-api** -> see [references/web-app-deployment.md](references/web-app-deployment.md)
-- **Event sources**, **DynamoDB Streams**, **Kinesis**, **SQS**, **Kafka**, **S3 notifications**, or **SNS** -> see [references/event-sources.md](references/event-sources.md)
-- **EventBridge**, **event bus**, **event patterns**, **event design**, **Pipes**, or **schema registry** -> see [references/event-driven-architecture.md](references/event-driven-architecture.md)
+- **Web app deployment**, **Lambda Web Adapter**, **API endpoints**, **CORS**, **authentication**, **custom domains**, or **sam local start-api** -> see [references/lambda-web-app-deployment.md](references/lambda-web-app-deployment.md)
+- **Event sources**, **DynamoDB Streams**, **Kinesis**, **SQS**, **Kafka**, **S3 notifications**, or **SNS** -> see [references/lambda-event-sources.md](references/lambda-event-sources.md)
+- **EventBridge**, **event bus**, **event patterns**, **event design**, **Pipes**, or **schema registry** -> see [references/lambda-event-driven-architecture.md](references/lambda-event-driven-architecture.md)
 - **Durable functions**, **checkpointing**, **replay model**, **saga pattern**, or **long-running Lambda workflows** -> see the [durable-functions skill](../aws-lambda-durable-functions/) (separate skill in this plugin with full SDK reference, testing, and deployment guides)
-- **Orchestration**, **workflows**, or **Durable Functions vs Step Functions** -> see [references/orchestration-and-workflows.md](references/orchestration-and-workflows.md)
-- **Step Functions**, **ASL**, **state machines**, **JSONata**, **Distributed Map**, or **SDK integrations** -> see [references/step-functions.md](references/step-functions.md)
-- **Step Functions testing**, **TestState API**, **mocking service integrations**, or **state machine unit tests** -> see [references/step-functions-testing.md](references/step-functions-testing.md)
-- **Observability**, **logging**, **tracing**, **metrics**, **alarms**, or **dashboards** -> see [references/observability.md](references/observability.md)
-- **Optimization**, **cold starts**, **memory tuning**, **cost**, or **streaming** -> see [references/optimization.md](references/optimization.md)
-- **Powertools**, **idempotency**, **feature flags**, **parameters**, **parser**, **batch processing**, or **data masking** -> see [references/powertools.md](references/powertools.md)
-- **Troubleshooting**, **errors**, **debugging**, or **deployment failures** -> see [references/troubleshooting.md](references/troubleshooting.md)
+- **Orchestration**, **workflows**, or **Durable Functions vs Step Functions** -> see [references/lambda-orchestration-and-workflows.md](references/lambda-orchestration-and-workflows.md)
+- **Step Functions**, **ASL**, **state machines**, **JSONata**, **Distributed Map**, or **SDK integrations** -> see [references/lambda-step-functions.md](references/lambda-step-functions.md)
+- **Step Functions testing**, **TestState API**, **mocking service integrations**, or **state machine unit tests** -> see [references/lambda-step-functions-testing.md](references/lambda-step-functions-testing.md)
+- **Observability**, **logging**, **tracing**, **metrics**, **alarms**, or **dashboards** -> see [references/lambda-observability.md](references/lambda-observability.md)
+- **Optimization**, **cold starts**, **memory tuning**, **cost**, or **streaming** -> see [references/lambda-optimization.md](references/lambda-optimization.md)
+- **Powertools**, **idempotency**, **feature flags**, **parameters**, **parser**, **batch processing**, or **data masking** -> see [references/lambda-powertools.md](references/lambda-powertools.md)
+- **Troubleshooting**, **errors**, **debugging**, or **deployment failures** -> see [references/lambda-troubleshooting.md](references/lambda-troubleshooting.md)
 
 ## Best Practices
 
@@ -96,7 +96,7 @@ Check Service Quotas for your account limits: `aws lambda get-account-settings`
 | Step Functions failing silently     | No retry on Task state         | Add `Retry` with `Lambda.ServiceException`, `Lambda.AWSLambdaException`                                                                         |
 | Durable Function not resuming       | Missing IAM permissions        | Add `lambda:CheckpointDurableExecution` and `lambda:GetDurableExecutionState`  see [durable-functions skill](../aws-lambda-durable-functions/) |
 
-For detailed troubleshooting, see [references/troubleshooting.md](references/troubleshooting.md).
+For detailed troubleshooting, see [references/lambda-troubleshooting.md](references/lambda-troubleshooting.md).
 
 ## Configuration
 

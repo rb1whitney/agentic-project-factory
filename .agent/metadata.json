@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-01T21:31:44.427974+00:00",
+  "compiled_at": "2026-11-02T07:10:12.788739+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -111,7 +111,7 @@
       "name": "skill-aws",
       "description": "Comprehensive AWS Cloud expert focusing on Well-Architected Framework audits and dynamic CLI resource discovery.",
       "path": ".agent/skills/skill-aws",
-      "references_count": 74,
+      "references_count": 68,
       "invoked_contracts": [
         "aws-cloud-architecture-audit"
       ]
@@ -129,7 +129,7 @@
       "name": "skill-compliance-auditor",
       "description": "Governance lead for enforcing AI engineering standards and least-privilege security patterns across the hub.",
       "path": ".agent/skills/skill-compliance-auditor",
-      "references_count": 11,
+      "references_count": 7,
       "invoked_contracts": [
         "ast-policy-compliance-audit"
       ]
@@ -138,7 +138,7 @@
       "name": "skill-conductor",
       "description": "CDD (Context-Driven Development) protocol manager enforcing the Spec-Plan-Implement-Verify lifecycle.",
       "path": ".agent/skills/skill-conductor",
-      "references_count": 8,
+      "references_count": 7,
       "invoked_contracts": [
         "conductor-swarm-orchestration"
       ]
@@ -165,7 +165,7 @@
       "name": "skill-gcp",
       "description": "Holistic Google Cloud expert focusing on production-ready standards and dynamic gcloud discovery.",
       "path": ".agent/skills/skill-gcp",
-      "references_count": 13,
+      "references_count": 9,
       "invoked_contracts": [
         "gcp-cloud-ops-triage"
       ]
@@ -174,7 +174,7 @@
       "name": "skill-github",
       "description": "Repository manager for GitHub Issue lifecycles, Pull Request operations, and automated code review coordination.",
       "path": ".agent/skills/skill-github",
-      "references_count": 12,
+      "references_count": 8,
       "invoked_contracts": [
         "github-pr-ci-governance"
       ]
@@ -192,7 +192,7 @@
       "name": "skill-kubernetes",
       "description": "Deep-dive K8s operator for managing GKE/EKS clusters and troubleshooting containerized workloads.",
       "path": ".agent/skills/skill-kubernetes",
-      "references_count": 7,
+      "references_count": 5,
       "invoked_contracts": [
         "k8s-workload-triage"
       ]
@@ -201,7 +201,7 @@
       "name": "skill-platform-admin",
       "description": "Workspace specialist for SSH/PAT management, Python venvs, and platform-level onboarding.",
       "path": ".agent/skills/skill-platform-admin",
-      "references_count": 11,
+      "references_count": 9,
       "invoked_contracts": [
         "runtime-tooling-platform-ops"
       ]
@@ -219,7 +219,7 @@
       "name": "skill-sre-investigation",
       "description": "Incident response entrypoint for Cloud Logging analysis and Cloud Monitoring metric deep-dives.",
       "path": ".agent/skills/skill-sre-investigation",
-      "references_count": 21,
+      "references_count": 17,
       "invoked_contracts": [
         "sre-telemetry-incident-response"
       ]
@@ -228,7 +228,7 @@
       "name": "skill-terraform",
       "description": "IaC specialist for developing reusable Terraform modules, providers, and state management strategies.",
       "path": ".agent/skills/skill-terraform",
-      "references_count": 11,
+      "references_count": 7,
       "invoked_contracts": [
         "iac-infra-provisioning"
       ]
@@ -257,12 +257,12 @@
     },
     {
       "id": "aws-cloud-architecture-audit",
-      "trigger": "AWS capability reference guide and skill_dir references management for foundation, serverless, sagemaker, migration, and finops",
+      "trigger": "AWS capability reference guide and runbook routing for foundation, serverless, sagemaker, migration, and finops",
       "source_parents": [
         "skill-aws"
       ],
       "tier": "auto_promote",
-      "promotion_score": 1.0,
+      "promotion_score": 0.9684,
       "path": ".agent/contracts/aws-cloud-architecture-audit.yaml"
     },
     {
@@ -362,7 +362,7 @@
         "skill-platform-admin"
       ],
       "tier": "auto_promote",
-      "promotion_score": 1.0,
+      "promotion_score": 0.9647,
       "path": ".agent/contracts/runtime-tooling-platform-ops.yaml"
     },
     {
@@ -377,7 +377,7 @@
     },
     {
       "id": "sre-telemetry-incident-response",
-      "trigger": "SRE monitoring skill_dir references and time series description analysis for logs, SLO burn, and anomaly detection",
+      "trigger": "SRE monitoring references and time series description analysis for logs, SLO burn, and anomaly detection",
       "source_parents": [
         "skill-sre-investigation"
       ],

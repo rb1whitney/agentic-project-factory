@@ -88,17 +88,17 @@ pip install aws-durable-execution-sdk-python-testing
 
 Load the appropriate reference file based on what the user is working on:
 
-- **Getting started**, **basic setup**, **example**, **ESLint**, or **Jest setup** -> see [getting-started.md](references/getting-started.md)
-- **Understanding replay model**, **determinism**, or **non-deterministic errors** -> see [replay-model-rules.md](references/replay-model-rules.md)
-- **Creating steps**, **atomic operations**, or **retry logic** -> see [step-operations.md](references/step-operations.md)
-- **Waiting**, **delays**, **callbacks**, **external systems**, or **polling** -> see [wait-operations.md](references/wait-operations.md)
-- **Parallel execution**, **map operations**, **batch processing**, or **concurrency** -> see [concurrent-operations.md](references/concurrent-operations.md)
-- **Error handling**, **retry strategies**, **saga pattern**, or **compensating transactions** -> see [error-handling.md](references/error-handling.md)
-- **Advanced error handling**, **timeout handling**, **circuit breakers**, or **conditional retries** -> see [advanced-error-handling.md](references/advanced-error-handling.md)
-- **Testing**, **local testing**, **cloud testing**, **test runner**, or **flaky tests** -> see [testing-patterns.md](references/testing-patterns.md)
-- **Deployment**, **CloudFormation**, **CDK**, **SAM**, **log groups**, **deploy**, or **infrastructure** -> see [deployment-iac.md](references/deployment-iac.md)
-- **Advanced patterns**, **GenAI agents**, **completion policies**, **step semantics**, or **custom serialization** -> see [advanced-patterns.md](references/advanced-patterns.md)
-- **troubleshooting**, **stuck execution**, **failed execution**, **debug execution ID**, or **execution history** -> see [troubleshooting-executions.md](references/troubleshooting-executions.md)
+- **Getting started**, **basic setup**, **example**, **ESLint**, or **Jest setup** -> see [getting-started.md](references/lambda-durable-getting-started.md)
+- **Understanding replay model**, **determinism**, or **non-deterministic errors** -> see [replay-model-rules.md](references/lambda-durable-replay-model-rules.md)
+- **Creating steps**, **atomic operations**, or **retry logic** -> see [step-operations.md](references/lambda-durable-step-operations.md)
+- **Waiting**, **delays**, **callbacks**, **external systems**, or **polling** -> see [wait-operations.md](references/lambda-durable-wait-operations.md)
+- **Parallel execution**, **map operations**, **batch processing**, or **concurrency** -> see [concurrent-operations.md](references/lambda-durable-concurrent-operations.md)
+- **Error handling**, **retry strategies**, **saga pattern**, or **compensating transactions** -> see [error-handling.md](references/lambda-durable-error-handling.md)
+- **Advanced error handling**, **timeout handling**, **circuit breakers**, or **conditional retries** -> see [advanced-error-handling.md](references/lambda-durable-advanced-error-handling.md)
+- **Testing**, **local testing**, **cloud testing**, **test runner**, or **flaky tests** -> see [testing-patterns.md](references/lambda-durable-testing-patterns.md)
+- **Deployment**, **CloudFormation**, **CDK**, **SAM**, **log groups**, **deploy**, or **infrastructure** -> see [deployment-iac.md](references/lambda-durable-deployment-iac.md)
+- **Advanced patterns**, **GenAI agents**, **completion policies**, **step semantics**, or **custom serialization** -> see [advanced-patterns.md](references/lambda-durable-advanced-patterns.md)
+- **troubleshooting**, **stuck execution**, **failed execution**, **debug execution ID**, or **execution history** -> see [troubleshooting-executions.md](references/lambda-durable-troubleshooting-executions.md)
 
 ## Quick Reference
 

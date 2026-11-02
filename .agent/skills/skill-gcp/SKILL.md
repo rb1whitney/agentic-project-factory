@@ -10,7 +10,7 @@ description: Holistic Google Cloud expert focusing on production-ready standards
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: gcp-cloud-ops-triage] parent=skill-gcp required_inputs=['project_id', 'gcp_zone']
-ls {SKILL_DIR}/references/ {SKILL_DIR}/scripts/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 gcloud config get-value project | bin/rtk
 gcloud container clusters list --project={project_id} --zone={gcp_zone} | bin/rtk
 gcloud logging read 'severity>=ERROR' --project={project_id} --limit=20 --format=json | bin/rtk
@@ -40,7 +40,7 @@ PROCEDURE run_skill_gcp_workflow(project_id, gcp_zone):
 Verify GCP ADC identity (`identity_state`), configure OneMCP servers, and execute read-only `gcloud` GKE (`cluster_name`), IAM, Cloud Run, and playbook inspections in `project_id` and `gcp_zone` to produce `resource_diagnostics` and `remediation_cmd`.
 
 ### 1. Identity & Inventory Discovery
-- Confirm active ADC identity and project context via `{SKILL_DIR}/scripts/gcp-whoami.sh` and `{SKILL_DIR}/scripts/gcp_inventory.py` before running service queries.
+- Confirm active ADC identity and project context via `.agent/skills/skill-gcp/scripts/gcp-whoami.sh` and `.agent/skills/skill-gcp/scripts/gcp_inventory.py` before running service queries.
 - Execute read-only `gcloud` observation commands piped through `bin/rtk`; route all state-modifying infrastructure changes through declarative Terraform.
   ```bash
   bash .agent/skills/skill-gcp/scripts/gcp-whoami.sh | bin/rtk
@@ -55,10 +55,10 @@ Verify GCP ADC identity (`identity_state`), configure OneMCP servers, and execut
 
 ## Reference & Script Routing Index
 
-| Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`{SKILL_DIR}/`) |
+| Capability Domain | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-gcp/`) |
 | :--- | :--- | :--- |
 | **ADC Setup & Inventory Discovery** | Verify gcloud auth, project inventory, OneMCP server wiring | `references/gcp-setup.md`, `references/gcp-mcp-setup.md`, `scripts/gcp-whoami.sh`, `scripts/gcp_inventory.py`, `scripts/verify_setup.py`, `scripts/setup_onemcp.py`, `scripts/test_mcp_endpoint.sh` |
 | **GKE & Container Operations** | VPC-native clusters, Workload Identity, Binary Auth, Gateway API | `references/gke-operations.md`, `references/googleapis.com/container.md` |
 | **Cloud Run, Build & Resource Manager** | Serverless revisions, error reporting by revision, org/folder hierarchy | `references/googleapis.com/run.md`, `references/googleapis.com/cloudbuild.md`, `references/googleapis.com/cloudresourcemanager.md`, `scripts/report_errors_by_revision.py` |
-| **Security & IAM Hardening** | IAM least privilege, Cloud Armor, VPC Service Controls, zero-trust | `references/security-foundations.md`, `references/security-specialist.md` |
-| **System Design & Ops Playbooks** | Architecture patterns, operational excellence, workstations, triage | `references/system-design.md`, `references/operational-excellence.md`, `references/gcp-playbooks.md`, `references/troubleshooting.md`, `references/workstation-specialist.md` |
+| **Security & IAM Hardening** | IAM least privilege, Cloud Armor, VPC Service Controls, zero-trust | `references/security-foundations.md` |
+| **System Design & Ops Playbooks** | Architecture patterns, operational excellence, triage | `references/architecture-docs.md`, `references/system-design.md`, `references/operational-excellence.md`, `references/gcp-playbooks.md`, `references/troubleshooting.md` |

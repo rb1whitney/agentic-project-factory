@@ -23,7 +23,7 @@ To standardize the process of updating changelog files (`latest.md`,
 - **Avoid** mentioning features that are "experimental" or "in preview" in
   Stable Releases.
 - **DO NOT** include PR numbers, links, or author names in these highlights.
-- Refer to `.agents/skills/skill-docs/references/highlights_examples.md`
+- Refer to `changelog-highlights-examples.md`
   for the correct style and tone.
 
 ## Initial Processing
@@ -69,7 +69,7 @@ detailed **highlights** section for the release-specific page.
     -   **Important**: The format for this announcement is unique. You **must**
         use the existing announcements in `docs/changelogs/index.md` and the
         example within
-        `.agents/skills/skill-docs/references/index_template.md` as your
+        `changelog-index-template.md` as your
         guide. This format includes PR links and authors. Stick to 1 or 2 PR
         links and authors.
     -   Add this new announcement to the top of `docs/changelogs/index.md`.
@@ -79,7 +79,7 @@ detailed **highlights** section for the release-specific page.
         in the "Guidelines for `latest.md` and `preview.md` Highlights" section
         above.
     -   Take the content from
-        `.agents/skills/skill-docs/references/latest_template.md`.
+        `changelog-latest-template.md`.
     -   Populate the template with the `version`, `release_date`, generated
         `highlights`, and the processed content from the temporary file.
     -   **Completely replace** the contents of `docs/changelogs/latest.md` with
@@ -91,7 +91,7 @@ detailed **highlights** section for the release-specific page.
     -   Generate a comprehensive "Highlights" section, following the highlight
         guidelines.
     -   Take the content from
-        `.agents/skills/skill-docs/references/preview_template.md`.
+        `changelog-preview-template.md`.
     -   Populate the template with the `version`, `release_date`, generated
         `highlights`, and the processed content from the temporary file.
     -   **Completely replace** the contents of `docs/changelogs/preview.md`
@@ -125,9 +125,9 @@ instructions for the other section.
         it to be `...{version}`.
 
         Example: assume the patch version is `v0.29.1`. Change
-        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2v0.29.0`
+        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2...v0.29.0`
         to
-        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2v0.29.1`
+        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2...v0.29.1`
 
 ### B.2: Preview Patch (e.g., `v0.29.0-preview.3`)
 
@@ -147,9 +147,9 @@ instructions for the other section.
         it to be `...{version}`.
 
         Example: assume the patch version is `v0.29.0-preview.1`. Change
-        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2v0.29.0-preview.0`
+        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2...v0.29.0-preview.0`
         to
-        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2v0.29.0-preview.1`
+        `Full Changelog: https://github.com/google-gemini/gemini-cli/compare/v0.28.2...v0.29.0-preview.1`
 
 ---
 

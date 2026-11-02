@@ -10,7 +10,7 @@ description: Narrative-first presentation architect. Builds consulting-grade dec
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: presentation-deck-architect] parent=skill-presentation-architect required_inputs=['storyboard_path', 'narrative_brief_path']
-ls .agent/skills/skill-presentation-architect/references/ .agent/skills/skill-presentation-architect/scripts/ 2>/dev/null | bin/rtk
+# Route: select runbook from the Reference & Script Routing Index in SKILL.md; read only the matched file
 python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py --brief {narrative_brief_path} | bin/rtk
 python3 .agent/skills/skill-presentation-architect/scripts/validate_storyboard.py {storyboard_path} | bin/rtk
 ```
@@ -57,7 +57,7 @@ INPUT -> DISCOVER -> NARRATIVE BRIEF -> HOSTILE EVIDENCE REVIEW -> STORYLINE -> 
 
 ## Reference, Schema & Script Routing Index
 
-| Stage / Need | Purpose | File (`{SKILL_DIR}/`) |
+| Stage / Need | Purpose | File (`.agent/skills/skill-presentation-architect/`) |
 | :--- | :--- | :--- |
 | **Validator CLI** | Deterministic schema, headline-length, density, and evidence-binding checks | `scripts/validate_storyboard.py` |
 | **Stage 1-4: Narrative Craft** | Audience persona, Big Idea (`point` + `stakes`), SCQA/Sparkline arcs, takeaway hierarchy | `references/narrative-craft.md`, `schemas/narrative-brief.md` |

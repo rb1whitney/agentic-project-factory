@@ -47,7 +47,7 @@ Validate against `.agent/adapters/schemas/contract.schema.json`. `bindings` and 
 ## Authoring workflow
 
 1. Write domain body of `SKILL.md` first (rules, tables, runbook index).
-2. Draft contract in `scripts/sap/compile_corpus.py` `CONTRACTS_CATALOG` (the generator of record), not as a standalone hand-made YAML.
+2. Draft contract in `./scripts/sap/compile_corpus.py` `CONTRACTS_CATALOG` (the generator of record), not as a standalone hand-made YAML.
 3. Run the compiler only with USER approval: it rewrites all parents and agents. Review `git diff --stat`; unexpected files = stop.
 4. Verifier must report tier `auto_promote`. `review` or `reject` = narrow the trigger or add real tokens to the parent text; do not lower thresholds.
 

@@ -98,7 +98,7 @@ Evaluation depends on which auth type is combined with the resource policy:
 - Truststore in S3 (PEM-encoded, max 1,000 certs, max 1 MB). Certificate chain max 4 levels deep; minimum SHA-256 signature, RSA-2048 or ECDSA-256 key strength
 - S3 bucket must be in the same region as API Gateway; enable versioning for rollback
 - Works with **Regional** custom domain names for REST and HTTP APIs. Edge-optimized custom domains do not support mTLS
-- WebSocket APIs do not support native mTLS; use CloudFront viewer mTLS instead (see `references/security.md`)
+- WebSocket APIs do not support native mTLS; use CloudFront viewer mTLS instead (see `references/api-gateway-security.md`)
 - ACM certificate required for the API Gateway domain (ACM-issued or imported) for server-side TLS. Truststore accepts CA certificates from any source (ACM Private CA, commercial CA, self-signed root); just needs PEM format
 - **Private APIs do not natively support mTLS**. Use ALB as a reverse proxy in front: Client  ALB (mTLS verify with trust store)  VPC endpoint  Private API Gateway  backend. The ALB terminates the mTLS handshake, validates the client certificate, and forwards the request to the private API via the execute-api VPC endpoint
 - **Disable default endpoint**: Always set `disableExecuteApiEndpoint: true` when using mTLS; otherwise clients can bypass mTLS entirely by calling the default `execute-api` URL directly
