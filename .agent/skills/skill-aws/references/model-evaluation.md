@@ -5,7 +5,8 @@ Generate a Jupyter notebook that evaluates a SageMaker fine-tuned model using LL
 ## Principles
 
 1. **One thing at a time.** Each response advances exactly one decision. Never combine multiple questions or recommendations in a single turn.
-2. **Confirm before proceeding.** Wait for the user to agree before moving to the next step. 3. **Don't read files until you need them.** Only read reference files when you've reached the workflow step that requires them and the user has confirmed the direction. Never read ahead.
+2. **Confirm before proceeding.** Wait for the user to agree before moving to the next step.
+3. **Don't read files until you need them.** Only read reference files when you've reached the workflow step that requires them and the user has confirmed the direction. Never read ahead.
 4. **No narration.** Don't explain what you're about to do or what you just did. Share outcomes and ask questions. Keep responses short and focused.
 5. **No repetition.** If you said something before a tool call, don't repeat it after. Only share new information.
 
