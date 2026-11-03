@@ -429,3 +429,8 @@
 - New gate test_12: no emoji; every scripts/, bin/ or .agent/skills path in a reference or SKILL.md must exist. It caught a real phantom the audit missed. Verified: unittest 12/12, ruff clean, compile OK, discovery exit 0.
 - Not fixed, needs a decision: SageMaker fine-tuning family copied without its companion files (finetuning, finetuning-setup, dataset-transformation, model-deployment, model-evaluation and others reference docs that do not exist; upstream is awslabs/agent-plugins plugins/sagemaker-ai); aws-migration and github guides reference missing templates; Gemini-CLI-project-specific guides (docs-writing, changelog, string-review, issue and PR creation, platform-admin latest_docs and gemini) describe another repo's conventions; pagerduty.md is a 3-line stub.
 - Not verified: content accuracy of the AWS vendor-derived guides (129 files) beyond links, commands and paths.
+
+## SaP doc and skill-factory-creator update (2026-11-03 05:51 MST)
+- Added Lessons 10-14, test_10-12 rows, scaling items 5-8 to docs/SKILL_AS_PSEUDOCODE_ARCHITECTURE.md.
+- skill-factory-creator: hard rules 11-14, new references/reference-authoring.md, checklist/anatomy/taxonomy updates.
+- test_10 now ignores fenced templates. Verified: unittest 12/12 OK, ruff clean, markdownlint 0.37.0 clean on changed files, runtime discovery rc=0.
