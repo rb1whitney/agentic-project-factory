@@ -46,7 +46,10 @@ The bundle sits immediately after the H1 so it is read first. `./scripts/sap/com
 | Link & 2-Hop Reachability | same | every path in `SKILL.md` and `references/**/*.md` exists on disk; every `references/**/*.md` is reachable within `<=2` hops from `SKILL.md` |
 | Reference Purity | same | no line-1 `SKILL.md` YAML frontmatter, no `Knowledge Bootstrap`, no `.agent/skills/skill-factory-creator`, and no non-`.md` files inside `references/` |
 | Contract schema | `.agent/adapters/schemas/contract.schema.json` | required: id, trigger, input_schema.required, output_schema, preconditions, postconditions, side_effects{filesystem,network}, source_parents, action_templates |
-| Verifier | `./scripts/sap/verifier.py` | coverage >=0.45, binding >=0.50, replacement >=0.80, risk <0.80 |
+| Verifier | `./scripts/sap/verifier.py` | coverage >=0.45, binding >=0.50, replacement >=0.80, risk <0.80; risk includes `oversight_loosening_flag` over `action_templates`, `probes`, `verify` |
+| Contract probes | `contract.schema.json` | optional `probes` (read-only orientation) and `verify` (read-only post-check) command lists; placeholders must be declared inputs |
+| Volatile facts | same | every `## Volatile facts` row: ISO as-of date within the age limit, source on the skill's allowlist in `.agent/sources.yaml`, search query (`test_10`) |
+| No emoji, no phantom paths | same | no emoji in `references/` or `SKILL.md`; every named `scripts/`, `bin/`, `.agent/skills/` path exists (`test_12`) |
 
 ## Agent side
 
@@ -58,3 +61,4 @@ Agents live in `.agent/agents/<name>.yaml` (stem == `name`), with `skills:` list
 - Persona sentences ("..") are noise; state the contract and rules instead.
 - Concrete flags only; every command piped through `bin/rtk`.
 - No emoji. Credentials only via `gopass` references, never values.
+- References follow `references/reference-authoring.md`: a `Read when` line, then Signal -> Probe -> Decision tables, gotchas and volatile facts. Mutations are propose-only.
