@@ -65,6 +65,10 @@ CAPABILITY IDEA
 8. Destructive sinks (`rm -rf`, `terraform destroy`, `git push origin main|master`, `gh pr merge`, `shell=True`, `eval`) hard-reject unless declared in `side_effects` with a `confirm` precondition.
 9. Source of truth is `.agent/`. Never author into `.claude/`, `.agents/`, `.codex/` (ephemeral projections).
 10. No new project or track without USER approval. No commit to master. Never merge.
+11. Never write approval-skipping flags or "without asking" phrasing into a command, contract or doc. `verifier.py` flags them in `action_templates`, `probes` and `verify`.
+12. A new reference must pass the with/without eval (`scripts/sap/eval_skill_value.py`, tasks in `tests/evals/skill_value.yaml`). Delete a guide that shows no delta over the model alone.
+13. Descriptive filenames: `<topic>-<role>.md`, no `skill-` prefix, no bare `guide.md` or `creating.md`. Never name a script or template that does not exist (`test_12`).
+14. Every volatile fact (version, limit, default, price) goes in a `## Volatile facts` row with as-of date, allowlisted source in `.agent/sources.yaml`, and a search query (`test_10`).
 
 ## Output Format
 
@@ -79,3 +83,4 @@ Chat to USER: caveman-prose, `Location | Problem | Fix`, no emoji. Skill files: 
 | Write the three blocks and the contract YAML | `references/sap-authoring.md` |
 | Fowler/Moghe narrative method applied to skill design | `references/narrative-for-skills.md` |
 | Bind agents, update catalog, run gates | `references/registration-checklist.md` |
+| Write or audit a Tier 3 reference (template, naming, eval, sources) | `references/reference-authoring.md` |

@@ -46,6 +46,9 @@ Q4  Otherwise -> Tier 4: Script subcommand  .agent/skills/<parent>/scripts/<tool
 - Trigger is a noun list spanning unrelated services.
 - Would be a peer of its own parent in the picker.
 - Needs `mkdir` of a new top-level folder only to hold prose.
+- A guide that restates what the model already knows (eval delta 0): delete it, do not file it as Tier 3.
+- A guide imported without its scripts, templates or sibling docs: do not register; route to the upstream source instead.
+- A new tool (Terraform, Packer, Vault, Istio, OPA): attach under the closest existing parent as a child contract or Tier 3 reference. The top-level pool stays near 15.
 
 ## Cluster width check (before Tier 2)
 

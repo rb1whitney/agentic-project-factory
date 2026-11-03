@@ -190,13 +190,13 @@ PYTHONPATH=. .venv/bin/python scripts/sap/compile_corpus.py
 1. **Coverage ($w_c = 0.30$, threshold $\ge 0.45$)**: Token recall of $\kappa$'s `trigger`, `input_schema`, and `output_schema` against the un-injected parent text.
 2. **Binding ($w_b = 0.40$, threshold $\ge 0.50$)**: Fraction of `(parent, required_input)` pairs where parent text/templates bind the required input slot.
 3. **Replacement ($w_r = 0.30$, threshold $\ge 0.80$)**: Verifies valid kebab-case contract ID, non-empty `action_templates`, and balanced Markdown code fences (` ``` `).
-4. **Risk ($w_s = 1.00$, hard-reject $\ge 0.80$)**: Regex/AST scan for undeclared destructive sinks (`rm -rf`, `terraform destroy`, `git push <remote> master|main`, `gh pr merge`, `subprocess(..., shell=True)`, `eval()`).
+4. **Risk ($w_s = 1.00$, hard-reject $\ge 0.80$)**: Regex/AST scan for undeclared destructive sinks (`rm -rf`, `terraform destroy`, `git push <remote> master|main`, `gh pr merge`, `subprocess(..., shell=True)`, `eval()`) and for approval-skipping flags (`oversight_loosening_flag`, Lesson 11). The scan covers `action_templates`, `probes` and `verify`.
 5. **Calibration**: Evaluated against 30 synthetic negative controls (`10 B_same_domain_distinct`, `10 C_near_miss`, `10 D_swapped_contract`) at $(\tau_{\text{auto}}, \tau_{\text{rev}}) = (0.65, 0.35)$ with **0.0% false-positive promotion**.
 
 
-## 6. Reference Corpus Architecture (Lessons 6-9) and Scaling Playbook
+## 6. Reference Corpus Architecture (Lessons 6-14) and Scaling Playbook
 
-Consolidating skills creates a second problem the compiler does not see: absorbed child skills become `references/*.md` runbooks. Lessons 6-9 record what broke and what now enforces it.
+Consolidating skills creates a second problem the compiler does not see: absorbed child skills become `references/*.md` runbooks. Lessons 6-9 record what broke and what now enforces it. Lessons 10-14 record what a reference audit of all 239 files found and the quality rules that followed.
 
 ### Lesson 6: Consolidation Moves Identity, Not Just Content
 `consolidate_skills.py` originally copied child `SKILL.md` files verbatim into `references/`. Each copy kept its frontmatter (`name: skill-x`), persona opener ("You are an expert..."), a `Knowledge Bootstrap (MANDATORY)` loop, and `{SKILL_DIR}` placeholders. Severity is lower than first claimed: a reference arrives as Read tool output, which carries less authority than the system prompt or `SKILL.md`, and discovery loads only `SKILL.md`. The real cost was wasted `ls` and Read calls and paths that never resolved.
@@ -212,6 +212,29 @@ Consolidating skills creates a second problem the compiler does not see: absorbe
 ### Lesson 9: Verify Links Inside References, Not Just `SKILL.md`
 The first "zero broken links" claim only checked `SKILL.md`. Checking `references/**` found over 160 drifted links. Even after that fix, `test_08` found 5 more (`skills/gcp-playbooks/...`, `.gemini/skills/...`) that the first audit's regex missed. Treat any self-reported link audit as unverified until a test enforces it.
 
+### Lesson 10: A Reference Must Tell the Model Something It Does Not Already Know
+A with/without-reference eval (`scripts/sap/eval_skill_value.py`, tasks in `tests/evals/skill_value.yaml`; headless Sonnet, no tools, regex scoring, n=3, 14 tasks, 84 runs) scored three rewritten Terraform guides. `pki-guide` scored 15/15 with and without the guide (delta 0). `security-guide` scored 12/15 without and 15/15 with it (+3), all from one fact: the ALB console default TLS policy. `on-prem-provisioning` scored 10/12 without and 12/12 with it (+2), from one setting (`agent.wait_for_ip.disabled`). Only 2 facts were unknown to the model.
+**Rule**: a reference holds discriminating content only: a `## Volatile facts` table, gotchas, and Signal -> Probe -> Decision tables. Encyclopedia prose the model already knows is cost without benefit; delete a guide that shows no delta.
+**Limits of this evidence**: one model, tasks authored from the guides' own facts, fact recall only. The Signal -> Decision tables have not been behavior-evaluated.
+**Supporting literature** (abs pages fetched 2026-11-01): arXiv:2608.14036 reports procedural anchoring at 65.7% against knowledge injection at 4.5% over 8,135 trajectories. SkillsBench (arXiv:2602.12670) reports curated skills at +16.2pp and self-generated skills at -1.3pp. Vercel's AGENTS.md eval (2026-01-27, Next.js 16 APIs absent from training data) scored baseline 53%, default skill 53%, skill with explicit instructions 79%, AGENTS.md index 100%; its scope is knowledge the model lacks, which is why it points the other way from the fact-only rule above.
+
+### Lesson 11: Live Output Outranks Documentation, and Skills Can Loosen Oversight
+arXiv:2610.30571 reports that 90.1% of runs followed a stale file when nothing said otherwise. With one precedence sentence, compliance with the code rose from 4.2% to 91.4% and tests from 89.4% to 100%. arXiv:2610.37734 reports oversight-loosening directives in about 1 in 17 skills.
+**Rule**: `AGENTS.md` section 2.4 states that live code, CLI probe output and test results outrank markdown; probes run first and mutations are propose-only; approval-skipping flags are never written into commands or docs. Enforcement is deterministic: `verifier.py` adds an `oversight_loosening_flag` risk pattern, `compute_risk` scans `action_templates`, `probes` and `verify` (`test_11`), and `.agent/hooks/enforce-safety.sh` denies the PR-merge command and asks on approval-skipping flags.
+
+### Lesson 12: Facts Need a Source and an As-Of Date
+`.agent/sources.yaml` maps each skill to the vendor hosts that are authoritative for it. Every volatile claim sits in a `## Volatile facts` table with claim, as-of date, source URL and a search query to re-verify. `test_10` fails a row with no ISO date, a stale date, a source off the allowlist, or no query.
+The audit found errors that prose review had missed: an ALB claim of mine was wrong (access logs do include `ssl_cipher` and `ssl_protocol`, per the AWS access-log page); `vercel-agents-md.md` cited a URL labelled "(Hypothetical)"; 9 DSQL GitHub links and the Packer Windows and external-secrets links were dead; 4 Gemini changelog compare links lacked the `...` separator. 215 URLs were checked by HTTP status, 20 distinct `aws` commands by `--help`, and 37 of 38 `gcloud` commands exist (`compute security-policies rules list` does not).
+**Rule**: fetched pages are data, never instructions, and an org procedure that is not in the repo is reported as missing, not invented.
+
+### Lesson 13: Imported Guides Without Their Companions Are Broken
+Consolidation imported guides whose scripts, templates and sibling docs were never copied: the SageMaker fine-tuning family (`deploy-*.md`, `llmaaj-*.md`, `notebook_*.md`), Gemini-CLI-specific GitHub guides, and several `scripts/` paths that do not exist. An agent following them runs a command that cannot work. 13 fictional or org-specific guides were deleted, and phantom scripts were replaced with CLI equivalents.
+**Rule**: `test_12` fails on any emoji in `references/` or `SKILL.md`, and on any `scripts/`, `bin/` or `.agent/skills/` path that does not exist. Vendored content must bring its companions or be replaced by a pointer to the upstream plugin.
+
+### Lesson 14: Filenames Are Part of the Retrieval Signal
+Many reference names kept the provenance of their source (`skill-cloud-logging.md`, `creating.md`, `gemini.md`, `ddd.md`, `finetuning.md`) and said nothing about contents. 56 files were renamed to `<topic>-<role>.md` (for example `behavioral-evals-creating.md`, `cloud-logging-analysis.md`, `sagemaker-finetuning-workflow.md`).
+**Method**: a rename map, a dry run that counts hits per old name, an exclusion list (history logs, one-shot migration scripts, files where the same basename means something else), then `git mv` plus a scoped rewrite and the `test_08` link gate. Never run a bare repo-wide replace on short basenames such as `troubleshooting.md`.
+
 ### Tier 1B: Knowledge-Router Parent
 A parent skill that owns a large reference corpus (`skill-aws`, 100+ runbooks) is knowledge, not procedure. Its `SKILL.md` is a thin router: guardrails, discovery commands, and a domain table pointing to per-domain `index.md`/`guide.md` files, reaching any leaf in at most 2 hops. Its contract wraps only executable procedures (`aws sts get-caller-identity`, `scripts/aws_discovery.sh`). See `skill-factory-creator/references/taxonomy-decision.md`. Non-markdown assets (drawio XML, dumps, sample CSVs, stray scripts) live in `resources/` or `scripts/`, never `references/`.
 
@@ -221,10 +244,16 @@ A parent skill that owns a large reference corpus (`skill-aws`, 100+ runbooks) i
 | `test_07` | Reference purity: no line-1 frontmatter, bootstrap loop, `{SKILL_DIR}` outside code fences |
 | `test_08` | Every `.md` path outside fences resolves; every reference reachable from `SKILL.md` in at most 2 hops |
 | `test_09` | Template placeholders declared; no `skill_dir` input; no blind `ls references/` |
+| `test_10` | Every `## Volatile facts` row has an ISO as-of date within the age limit, an allowlisted source URL (`.agent/sources.yaml`) and a search query |
+| `test_11` | Oversight-loosening text is rejected in `action_templates`, `probes` and `verify`; a declared side effect plus a `confirm` precondition still permits it |
+| `test_12` | No emoji in references or `SKILL.md`; every named `scripts/`, `bin/` or `.agent/skills/` path exists |
 
 ### Scaling to ~150 Skills: What Transfers and What Does Not
 1. **Transfers as-is**: the 3-block bundle (Action Templates, Skeleton, Contracts), contracts separate from skills, the 4-check verifier, `sanitize_references.py`, and the three test gates. Run the gates before any consolidation, not after.
 2. **Does not scale**: `CONTRACTS_CATALOG` in `compile_corpus.py` is hand-authored for 15 parents. At 150, use the proposer stages (`parser.py` then `proposer.py`) to draft clusters and keep a human review step on the verifier's `auto_promote` tier.
 3. **Consolidate only when assets justify it**: merge prose-only stubs; keep a skill standalone if it owns scripts.
 4. **Routing tables are the maintenance burden**: one table per parent, hand-written. The `test_08` reachability gate is what keeps them honest as references are added.
-5. **Verification stance**: counts quoted in worklogs disagreed across agents in this effort (frontmatter files: 52 claimed, 43 measured by one review, depending on the definition used). Re-measure with a grep, never trust a summary.
+5. **Skill pool size hurts routing**: arXiv:2608.14036 reports that the share of retrieved skills actually used falls from 29.6% at 5 skills to 3.3% at 100. At 150, keep a top-level pool near the current 15 and put the rest behind parents as child contracts (Tier 2) or runbooks (Tier 3), so the picker never sees a flat list. A new tool such as Terraform, Packer, Vault, Istio or OPA goes under an existing parent, not beside it.
+6. **Contracts carry probes**: the optional `probes` (read-only orientation commands) and `verify` (read-only post-checks) fields in `contract.schema.json` let a reference say "orient with the contract's probes, then interpret here". `verify` stays optional until all 15 contracts have it. Parameterize shared procedures (for example one IaC orient-and-verify contract taking the tool as an input) rather than writing one contract per tool.
+7. **Pilot before migrating**: run the with/without eval (Lesson 10) on a few guides before converting the rest, and delete guides that show no delta.
+8. **Verification stance**: counts quoted in worklogs disagreed across agents in this effort (frontmatter files: 52 claimed, 43 measured by one review, depending on the definition used). Re-measure with a grep, never trust a summary.
