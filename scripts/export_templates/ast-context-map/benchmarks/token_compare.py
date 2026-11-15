@@ -36,9 +36,8 @@ def measure() -> list[dict]:
     result = []
     for label, raw, mapped in rows:
         raw_b, map_b = len(raw.encode()), len(mapped.encode())
-        result.append(
-            {"label": label, "raw_bytes": raw_b, "mapped_bytes": map_b, "reduction_pct": round(100 * (1 - map_b / raw_b), 1)}
-        )
+        reduction = round(100 * (1 - map_b / raw_b), 1)
+        result.append({"label": label, "raw_bytes": raw_b, "mapped_bytes": map_b, "reduction_pct": reduction})
     return result
 
 
