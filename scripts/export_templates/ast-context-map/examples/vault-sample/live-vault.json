@@ -1,0 +1,10 @@
+{
+  "policy": {
+    "payments-reader": "{\"path\": {\"secret/data/payments/*\": {\"capabilities\": [\"list\", \"read\"]}}}",
+    "payments-admin": "{\"path\": {\"secret/data/payments/*\": {\"capabilities\": [\"create\", \"list\", \"read\", \"update\"]}}}"
+  },
+  "mount": {"secret/": {"type": "kv", "config": {"default_lease_ttl": 7200}}},
+  "auth": {"ldap/": {"type": "ldap"}},
+  "audit": {},
+  "auth_role": {}
+}
