@@ -37,31 +37,31 @@ openbao             pod/openbao-agent-injector-79797bc555-n25vm                 
 postgres-operator   pod/postgres-operator-56c8c5f9cd-tdz6b                       1/1     Running            0              13h
 
 NAMESPACE           NAME                                            TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
-argocd              service/argo-argocd-applicationset-controller   ClusterIP      10.43.106.215   <none>          7000/TCP                     13h
-argocd              service/argo-argocd-commit-server               ClusterIP      10.43.178.129   <none>          8086/TCP                     13h
-argocd              service/argo-argocd-dex-server                  ClusterIP      10.43.17.10     <none>          5556/TCP,5557/TCP            13h
-argocd              service/argo-argocd-redis                       ClusterIP      10.43.31.187    <none>          6379/TCP                     13h
-argocd              service/argo-argocd-repo-server                 ClusterIP      10.43.63.42     <none>          8081/TCP                     13h
-argocd              service/argo-argocd-server                      ClusterIP      10.43.176.117   <none>          80/TCP,443/TCP               13h
-cert-manager        service/cert-manager                            ClusterIP      10.43.165.204   <none>          9402/TCP                     13h
-cert-manager        service/cert-manager-cainjector                 ClusterIP      10.43.36.215    <none>          9402/TCP                     13h
-cert-manager        service/cert-manager-webhook                    ClusterIP      10.43.53.21     <none>          443/TCP,9402/TCP             13h
-default             service/kubernetes                              ClusterIP      10.43.0.1       <none>          443/TCP                      13h
-default             service/postgres-cluster                        ClusterIP      10.43.93.66     <none>          5432/TCP                     13h
+argocd              service/argo-argocd-applicationset-controller   ClusterIP      198.51.100.14   <none>          7000/TCP                     13h
+argocd              service/argo-argocd-commit-server               ClusterIP      198.51.100.19   <none>          8086/TCP                     13h
+argocd              service/argo-argocd-dex-server                  ClusterIP      198.51.100.3     <none>          5556/TCP,5557/TCP            13h
+argocd              service/argo-argocd-redis                       ClusterIP      198.51.100.5    <none>          6379/TCP                     13h
+argocd              service/argo-argocd-repo-server                 ClusterIP      198.51.100.10     <none>          8081/TCP                     13h
+argocd              service/argo-argocd-server                      ClusterIP      198.51.100.18   <none>          80/TCP,443/TCP               13h
+cert-manager        service/cert-manager                            ClusterIP      198.51.100.16   <none>          9402/TCP                     13h
+cert-manager        service/cert-manager-cainjector                 ClusterIP      198.51.100.7    <none>          9402/TCP                     13h
+cert-manager        service/cert-manager-webhook                    ClusterIP      198.51.100.9     <none>          443/TCP,9402/TCP             13h
+default             service/kubernetes                              ClusterIP      198.51.100.1       <none>          443/TCP                      13h
+default             service/postgres-cluster                        ClusterIP      198.51.100.12     <none>          5432/TCP                     13h
 default             service/postgres-cluster-config                 ClusterIP      None            <none>          <none>                       13h
-default             service/postgres-cluster-repl                   ClusterIP      10.43.166.58    <none>          5432/TCP                     13h
-external-secrets    service/external-secrets-webhook                ClusterIP      10.43.66.216    <none>          443/TCP                      13h
-kargo               service/kargo-api                               ClusterIP      10.43.208.254   <none>          80/TCP                       13h
-kargo               service/kargo-external-webhooks-server          ClusterIP      10.43.52.199    <none>          443/TCP                      13h
-kargo               service/kargo-webhooks-server                   ClusterIP      10.43.24.86     <none>          443/TCP                      13h
-kube-system         service/kube-dns                                ClusterIP      10.43.0.10      <none>          53/UDP,53/TCP,9153/TCP       13h
-kube-system         service/metrics-server                          ClusterIP      10.43.36.143    <none>          443/TCP                      13h
-kube-system         service/traefik                                 LoadBalancer   10.43.217.254   192.168.193.1   80:30127/TCP,443:30811/TCP   13h
-metallb-system      service/metallb-webhook-service                 ClusterIP      10.43.125.90    <none>          443/TCP                      13h
-openbao             service/openbao                                 ClusterIP      10.43.211.14    <none>          8200/TCP,8201/TCP            13h
-openbao             service/openbao-agent-injector-svc              ClusterIP      10.43.96.254    <none>          443/TCP                      13h
+default             service/postgres-cluster-repl                   ClusterIP      198.51.100.17    <none>          5432/TCP                     13h
+external-secrets    service/external-secrets-webhook                ClusterIP      198.51.100.11    <none>          443/TCP                      13h
+kargo               service/kargo-api                               ClusterIP      198.51.100.20   <none>          80/TCP                       13h
+kargo               service/kargo-external-webhooks-server          ClusterIP      198.51.100.8    <none>          443/TCP                      13h
+kargo               service/kargo-webhooks-server                   ClusterIP      198.51.100.4     <none>          443/TCP                      13h
+kube-system         service/kube-dns                                ClusterIP      198.51.100.2      <none>          53/UDP,53/TCP,9153/TCP       13h
+kube-system         service/metrics-server                          ClusterIP      198.51.100.6    <none>          443/TCP                      13h
+kube-system         service/traefik                                 LoadBalancer   198.51.100.22   198.51.100.24   80:30127/TCP,443:30811/TCP   13h
+metallb-system      service/metallb-webhook-service                 ClusterIP      198.51.100.15    <none>          443/TCP                      13h
+openbao             service/openbao                                 ClusterIP      198.51.100.21    <none>          8200/TCP,8201/TCP            13h
+openbao             service/openbao-agent-injector-svc              ClusterIP      198.51.100.13    <none>          443/TCP                      13h
 openbao             service/openbao-internal                        ClusterIP      None            <none>          8200/TCP,8201/TCP            13h
-postgres-operator   service/postgres-operator                       ClusterIP      10.43.222.142   <none>          8080/TCP                     13h
+postgres-operator   service/postgres-operator                       ClusterIP      198.51.100.23   <none>          8080/TCP                     13h
 
 NAMESPACE        NAME                                    DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
 kube-system      daemonset.apps/svclb-traefik-88259c3a   1         1         1       1            1           <none>                   13h

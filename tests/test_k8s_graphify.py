@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unit tests for .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py.
+Unit tests for .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py.
 Tests redaction security, secret scanning, edge generation, and Graphify JSON format.
 """
 
@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 # Add skill-graphify scripts to sys.path
-SCRIPTS_DIR = Path(__file__).resolve().parents[1] / ".agent" / "skills" / "skill-graphify" / "scripts"
+SCRIPTS_DIR = Path(__file__).resolve().parents[1] / ".agent" / "skills" / "skill-code-map" / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 import k8s_graphify_extract as kge  # noqa: E402

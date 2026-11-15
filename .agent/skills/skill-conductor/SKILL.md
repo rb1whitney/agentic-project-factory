@@ -44,6 +44,12 @@ All project and manufacturing tracks in `conductor/tracks/<track-id>/` follow th
 - **Phase 4 (Engineer — TDD Implementation)**: Write failing tests first, implement surgical edits, and verify green test suite.
 - **Phase 5 (Auditor — Certification)**: Run 6-Pillar audit and emit `CERTIFICATION_REPORT.md` before human review / PR push.
 
+### 1a. Multi-Agent Quality Rules
+- The implementer's gate is never the only gate: every change is reviewed by an Auditor (and a domain reviewer where relevant) in a clean context.
+- Each engineer owns one bounded context; engineers cannot delegate or rewrite the plan.
+- Review findings carry IDs and every fix cites one; trade-offs go to the human as explicit questions before remediation.
+- Re-run the deterministic gates after every change and show the output. Details: `references/multi-agent-quality-loop.md`.
+
 ### 2. Conductor Commands & Governance Rules
 - `/conductor:setup`, `/conductor:newTrack`, `/conductor:implement`, `/conductor:status`, `/conductor:review`, `/conductor:revert`.
 - Never initiate a new project or track without explicit user approval.
@@ -54,6 +60,7 @@ All project and manufacturing tracks in `conductor/tracks/<track-id>/` follow th
 | Orchestration Capability | Trigger / Scope | Reference Runbooks & Templates (`.agent/skills/skill-conductor/` & `conductor/`) |
 | :--- | :--- | :--- |
 | **Track Lifecycle & Templates** | Phase 1/3/5 track artifacts and architectural plan templates | `conductor/templates/STRATEGIC_RECON.md`, `conductor/templates/EXECUTIVE_PLAN.md`, `conductor/templates/CERTIFICATION_REPORT.md`, `scripts/templates/IMPLEMENTATION_PLAN.md`, `scripts/templates/LOGICAL_ARCHITECTURE.md`, `scripts/templates/PHYSICAL_ARCHITECTURE.md` |
+| **Multi-Agent Quality Loop (DDD)** | Bounded contexts, independent hostile review, finding IDs, human decision gates, evidence-after-change | `references/multi-agent-quality-loop.md` |
 | **Swarm Multi-Agent Lifecycle** | Scout/Architect/Engineer/Auditor/Supervisor hand-offs & track archival | `references/swarm-executive-proposal-engine.md`, `references/swarm-agent-roles-and-lifecycle.md`, `references/swarm-supervisor-protocol.md` |
 | **Domain-Driven Design (DDD)** | 7-step Strategic-to-Tactical DDD bounded context & aggregate design | `references/ddd-seven-phase-workflow.md` |
 | **Product Factory Blueprint** | 6-phase standalone product manufacturing & Zero-Zero decoupling | `references/product-blueprint.md` |

@@ -429,3 +429,15 @@
 - New gate test_12: no emoji; every scripts/, bin/ or .agent/skills path in a reference or SKILL.md must exist. It caught a real phantom the audit missed. Verified: unittest 12/12, ruff clean, compile OK, discovery exit 0.
 - Not fixed, needs a decision: SageMaker fine-tuning family copied without its companion files (finetuning, finetuning-setup, dataset-transformation, model-deployment, model-evaluation and others reference docs that do not exist; upstream is awslabs/agent-plugins plugins/sagemaker-ai); aws-migration and github guides reference missing templates; Gemini-CLI-project-specific guides (docs-writing, changelog, string-review, issue and PR creation, platform-admin latest_docs and gemini) describe another repo's conventions; pagerduty.md is a 3-line stub.
 - Not verified: content accuracy of the AWS vendor-derived guides (129 files) beyond links, commands and paths.
+
+## SaP doc and skill-factory-creator update (2026-11-03 05:51 MST)
+- Added Lessons 10-14, test_10-12 rows, scaling items 5-8 to docs/SKILL_AS_PSEUDOCODE_ARCHITECTURE.md.
+- skill-factory-creator: hard rules 11-14, new references/reference-authoring.md, checklist/anatomy/taxonomy updates.
+- test_10 now ignores fenced templates. Verified: unittest 12/12 OK, ruff clean, markdownlint 0.37.0 clean on changed files, runtime discovery rc=0.
+
+## GitHub presence: split factory into public repos (analysis)
+- 2026-11-14 13:37 MST: graphify AST graph of .agent = 5 nodes/0 edges (markdown). Used grep dependency probe: 15 skills, 527 files, 15/15 depend on bin/rtk, 38 files hardcode .agent/skills/ paths, code-map has 5 inbound dependents.
+- 2026-11-14 13:37 MST: Compared github.com/nertwork (storefront profile README + ~20 single-purpose repos + install channels) vs rb1whitney (9 public repos, no profile README found, 5 stale forks). Conclusion: build profile README + 3-4 single-purpose repos; no per-skill repos.
+- 2026-11-14 14:00 MST: User scoped to GitHub landing page + rework existing repos + link articles. Drafted profile README in scratchpad (not pushed). Observed: cloud-boot-app description says Spring Boot 3.2 but README says 4.0, dead travis-ci.org badge; vault_controller_example README image path typo "iimages/".
+- 2026-11-14 15:15 MST: Created public repo rb1whitney/rb1whitney (main, commit ca24501) with profile README at user request. 0 TODO placeholders.
+- 2026-11-14 15:38 MST: Added root LICENSE (Apache-2.0) + NOTICE (Google LLC attribution for sre-investigation/gcp scripts) + projects/nit-fabric/LICENSE. Fixed only real hardcoded abs path (RULE_AUTHORING_GUIDE.md:57). Found 8 byte-identical scripts duplicated in skill-code-map/scripts and skill-graphify/scripts (self-contained-skill fallback). Confirmed bin/rtk pipe form masks exit codes (false | rtk = 0). 39 tests pass (code_mapper, graph_registry, semantic_lineage). Not committed.

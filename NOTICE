@@ -1,0 +1,16 @@
+Agentic Project Factory
+Copyright 2026 Richard Whitney
+
+Licensed under the Apache License, Version 2.0 (see LICENSE). Subdirectories
+that carry their own LICENSE file (projects/*, mcp-servers/*) remain under
+those terms.
+
+This product includes software developed by Google LLC, licensed under the
+Apache License, Version 2.0. It is found in files that carry a
+"Copyright ... Google LLC" header in:
+
+  .agent/skills/skill-sre-investigation/scripts/
+  .agent/skills/skill-gcp/scripts/
+
+The original copyright and license headers are retained in each file. Files
+may have been modified from the originals; see git history for changes.

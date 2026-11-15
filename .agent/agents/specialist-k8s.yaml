@@ -46,7 +46,7 @@ prompt: |
   # [κ: k8s-workload-triage] agent=specialist-k8s required_inputs=['namespace', 'pod_name']
   kubectl get pods -n {namespace} | bin/rtk
   kubectl logs {pod_name} -n {namespace} --tail=100 | bin/rtk
-  /usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py -n {namespace} | bin/rtk
+  /usr/bin/python3 .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py -n {namespace} | bin/rtk
   ```
 
   ## 2. Procedural Skeleton (Where Calls Fit)

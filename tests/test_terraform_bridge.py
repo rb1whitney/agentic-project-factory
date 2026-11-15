@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / ".agent" / "skills"
 sys.path.insert(0, str(ROOT / "skill-code-map" / "scripts"))
-sys.path.insert(0, str(ROOT / "skill-graphify" / "scripts"))
+sys.path.insert(0, str(ROOT / "skill-code-map" / "scripts"))
 
 import graph_builder as gb  # noqa: E402
 import k8s_graphify_extract as kg  # noqa: E402

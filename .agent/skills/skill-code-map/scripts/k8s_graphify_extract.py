@@ -178,13 +178,9 @@ def run_kubectl(
         return res.stdout.strip()
 
 
-# Prefer local skill scripts directory first (self-contained skill), fallback to sibling skill-code-map.
+# k8s_catalog.py lives alongside this script (single canonical scripts tree).
 _LOCAL_DIR = Path(__file__).resolve().parent
-_CATALOG_DIR = (
-    _LOCAL_DIR
-    if (_LOCAL_DIR / "k8s_catalog.py").exists()
-    else Path(__file__).resolve().parents[2] / "skill-code-map" / "scripts"
-)
+_CATALOG_DIR = _LOCAL_DIR
 if str(_CATALOG_DIR) not in sys.path:
     sys.path.insert(0, str(_CATALOG_DIR))
 from k8s_catalog import (  # noqa: E402
@@ -1282,12 +1278,7 @@ def main():
         final_graph = build_domain_hyperedges(final_graph, doc_dirs=args.docs)
 
     if args.extract_rules:
-        le_local = Path(__file__).resolve().parent / "local_extract.py"
-        le_script = (
-            le_local
-            if le_local.is_file()
-            else Path(__file__).resolve().parents[2] / "skill-code-map" / "scripts" / "local_extract.py"
-        )
+        le_script = Path(__file__).resolve().parent / "local_extract.py"
         if le_script.is_file():
             proc = subprocess.run([sys.executable, str(le_script), *args.extract_rules], capture_output=True, text=True)
             if proc.returncode == 0 and proc.stdout.strip():

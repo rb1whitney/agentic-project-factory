@@ -22,11 +22,17 @@ Run top to bottom. Stop on first failure. Pipe through `bin/rtk`.
 - [ ] Entry in `CONTRACTS_CATALOG`; id not equal to any skill directory
 - [ ] Verifier tier `auto_promote`
 - [ ] Schema valid; consumers' agents regenerated
+- [ ] `probes` and `verify` (if present) are read-only; no approval-skipping flags; placeholders declared
 
 ## Tier 3 runbook
 
 - [ ] File under `<parent>/references/`; listed in parent body index
 - [ ] Loaded conditionally (symptom match), not required reading
+- [ ] Descriptive name (`<topic>-<role>.md`); no `skill-` prefix; every named script or template exists
+- [ ] Opens with a `Read when` line; body follows `reference-authoring.md`
+- [ ] Volatile facts rows sourced and dated; host added to `.agent/sources.yaml` for this skill
+- [ ] Eval tasks added to `tests/evals/skill_value.yaml`; `eval_skill_value.py` run; delete the guide if delta is 0
+- [ ] `.venv/bin/python -m unittest tests.test_sap_pipeline` green (`test_08`, `test_10`, `test_12` apply to references)
 
 ## Tier 4 script
 

@@ -5,7 +5,7 @@ import sys
 import unittest
 from pathlib import Path
 
-SCRIPTS = Path(__file__).resolve().parents[1] / ".agent" / "skills" / "skill-graphify" / "scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / ".agent" / "skills" / "skill-code-map" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import k8s_graphify_extract as kg  # noqa: E402

@@ -67,7 +67,7 @@ Time,Description,Milestone
 ```
 
 Description should be concise, but also descriptive enough to understand what happened; if a person is involved mention
-them by username@ (e.g. "ricc@").
+them by username@ (e.g. "alice@").
 
 Username should be as concise as possible:
 
@@ -91,9 +91,9 @@ Timeline formatting rules:
 ```markdown
 ## Timeline
 Day: **1970-01-01**  TZ=US/Pacific
-* `HH:MM:SS`: ricc@ typed `sudo halt` (chubby fingers) <== <span style="color:red">Start of Incident</span>
+* `HH:MM:SS`: alice@ typed `sudo halt` (chubby fingers) <== <span style="color:red">Start of Incident</span>
 * `HH:MM:SS`: increased latency in service
-* `HH:MM:SS`: external-user@gmail.com open ticket #12345 lamenting unusable service.
+* `HH:MM:SS`: external-user@example.com open ticket #12345 lamenting unusable service.
 * `HH:MM:SS`: Support escalates to Service SRE mentioning ticket #12345  <== <span style="color:red">Incident Detected</span>
 * `HH:MM:SS`: colleague@ turns production machine back on <== <span style="color:red">End of Incident</span>
 * `HH:MM:SS`: latency back to normal.
@@ -168,7 +168,7 @@ Use the following template to create a postmortem document for an incident.
 | {short description} | username@ | **P3** | {Type} | [#124](https://github.com/user/repo/issues/124) |
 
 <!-- Notes:
-* owner is username@ , removing the domain whereas pleonastic (e.g. "ricc@" for "ricc@google.com")
+* owner is username@ , removing the domain whereas pleonastic (e.g. "alice@" for "alice@example.com")
 * Type is one of: "Mitigate", "Detect", "Prevent". Occasionally you can also use Process, Documentation if nothing else suits
 * Bug Id MUST use full permalinks (e.g., https://github.com/user/repo/issues/123)
 -->

@@ -342,7 +342,8 @@ description: Test skill
         url_re = re.compile(r"https?://[^\s)|`]+")
         problems = []
         for f in self._ref_files():
-            text = f.read_text(encoding="utf-8")
+            # Fenced templates (e.g. reference-authoring.md) show the heading but hold no real facts.
+            text = re.sub(r"^```.*?^```", "", f.read_text(encoding="utf-8"), flags=re.S | re.M)
             m = re.search(r"^## Volatile facts.*?(?=^## |\Z)", text, flags=re.S | re.M)
             if not m:
                 continue
