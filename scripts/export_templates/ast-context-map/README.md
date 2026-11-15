@@ -56,6 +56,7 @@ Read this carefully: a whole-repo map saves a moderate amount on small, comment-
 ## Limitations
 
 - Tree-sitter is syntactic. Call edges are resolved from names and declared types, not by a compiler. Reflection, dynamic dispatch and generated code are not captured.
+- The rule-pack tests and `local_extract.py` need the `ast-grep` binary (installed by `requirements.txt` as `ast-grep-cli`).
 - Dependencies are pinned to `tree-sitter==0.20.1` and `tree-sitter-languages==1.10.2`. CI runs Python 3.10 and 3.11.
 - The benchmark is one small synthetic sample, not a statistical study.
 - The Kubernetes and Vault extractors need cluster access. They are read-only, never list secrets or configmaps, strip sensitive values, and refuse `*prod*` contexts unless `--allow-prod-read` is set. Use a non-production context.
