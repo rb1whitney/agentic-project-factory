@@ -244,3 +244,4 @@ bin/kubectl
 
 # Generated Codex harness projections (scripts/hydrate.py codex); provider-specific
 .codex/agents/*.toml
+.cache/

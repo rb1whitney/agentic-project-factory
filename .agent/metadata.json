@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-02T14:41:25.943420+00:00",
+  "compiled_at": "2026-11-14T23:06:34.757298+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -138,7 +138,7 @@
       "name": "skill-conductor",
       "description": "CDD (Context-Driven Development) protocol manager enforcing the Spec-Plan-Implement-Verify lifecycle.",
       "path": ".agent/skills/skill-conductor",
-      "references_count": 7,
+      "references_count": 8,
       "invoked_contracts": [
         "conductor-swarm-orchestration"
       ]
@@ -183,7 +183,7 @@
       "name": "skill-graphify",
       "description": "Lifecycle manager, knowledge graph generator, and topological dependency visualizer using Graphify (Graphify-Labs/graphify). Supports local AST extraction, LLM semantic inference, interactive D3/Mermaid callflows, and global multi-repo graph linking.",
       "path": ".agent/skills/skill-graphify",
-      "references_count": 1,
+      "references_count": 2,
       "invoked_contracts": [
         "k8s-graphify-topology"
       ]
