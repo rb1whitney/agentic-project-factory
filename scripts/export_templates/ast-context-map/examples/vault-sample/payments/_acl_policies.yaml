@@ -1,0 +1,14 @@
+# Synthetic example in the vault_controller api_paths format. Not real data.
+api_paths:
+  # Clean: read-only access.
+  - api_path: v1/sys/policies/acl/payments-reader
+    api_payload:
+      path:
+        secret/data/payments/*:
+          capabilities: [read, list]
+  # Bad on purpose: one path mixes read and write capabilities.
+  - api_path: v1/sys/policies/acl/payments-admin
+    api_payload:
+      path:
+        secret/data/payments/*:
+          capabilities: [read, list, create, update, delete]
