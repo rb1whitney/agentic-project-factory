@@ -1,0 +1,10 @@
+# Synthetic example. Not real data.
+api_paths:
+  - api_path: v1/sys/auth/ldap
+    api_payload:
+      type: ldap
+  # Bad on purpose: TLS verification disabled.
+  - api_path: v1/auth/ldap/config
+    api_payload:
+      url: ldaps://ldap.example.com
+      insecure_tls: true

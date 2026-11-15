@@ -10,8 +10,8 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / ".agent" / "skills"
-EXTRACT = ROOT / "skill-graphify" / "scripts" / "k8s_graphify_extract.py"
-sys.path.insert(0, str(ROOT / "skill-graphify" / "scripts"))
+EXTRACT = ROOT / "skill-code-map" / "scripts" / "k8s_graphify_extract.py"
+sys.path.insert(0, str(ROOT / "skill-code-map" / "scripts"))
 sys.path.insert(0, str(ROOT / "skill-code-map" / "scripts"))
 
 import k8s_catalog as kc  # noqa: E402

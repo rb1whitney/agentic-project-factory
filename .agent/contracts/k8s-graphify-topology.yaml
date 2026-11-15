@@ -16,7 +16,7 @@ preconditions:
 postconditions:
 - 0600 atomic leak-checked graph emitted
 resources:
-- .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py
+- .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py
 - .agent/skills/skill-code-map/scripts/state_graph.py
 side_effects:
   filesystem: writes 0600 graph.json
@@ -30,7 +30,7 @@ probes:
   | bin/rtk
 - kubectl get controllerconfigs.pkg.crossplane.io -o name | bin/rtk
 action_templates:
-- /usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py -n {namespace} --manifests
+- /usr/bin/python3 .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py -n {namespace} --manifests
   {target_dir} | bin/rtk
 - /usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py lineage {namespace} --src {target_dir}
   --mermaid | bin/rtk

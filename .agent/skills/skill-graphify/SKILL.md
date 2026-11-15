@@ -3,6 +3,7 @@ name: skill-graphify
 description: Lifecycle manager, knowledge graph generator, and topological dependency visualizer using Graphify (Graphify-Labs/graphify). Supports local AST extraction, LLM semantic inference, interactive D3/Mermaid callflows, and global multi-repo graph linking.
 ---
 # Skill: Graphify Knowledge Graph Engine (`skill-graphify`)
+> **Single canonical tree:** all executable scripts, rules and the AST engine live in `.agent/skills/skill-code-map/scripts/`. This skill holds only the Graphify routing doc and its references (no duplicated scripts).
 
 <!-- SAP_BUNDLE_START -->
 > **SaP Substituted Bundle**: `invoke(...)` is structural pseudocode notation in this skill document, not an executable shell binary. Emit the concrete CLI/script commands in **Action Templates** first.
@@ -10,7 +11,7 @@ description: Lifecycle manager, knowledge graph generator, and topological depen
 ## 1. Action Templates (Concrete How — Read First)
 ```bash
 # [κ: k8s-graphify-topology] parent=skill-graphify required_inputs=['target_dir', 'namespace']
-/usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py -n {namespace} --manifests {target_dir} | bin/rtk
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py -n {namespace} --manifests {target_dir} | bin/rtk
 /usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py lineage {namespace} --src {target_dir} --mermaid | bin/rtk
 ```
 
@@ -52,7 +53,7 @@ Extract Kubernetes, Crossplane XRD/Composition, and code topology for `target_di
 
 ### Workflow A: Local AST Graph Extraction & Interactive D3/Mermaid Export
 ```bash
-/usr/bin/python3 .agent/skills/skill-graphify/scripts/graph_builder.py <target_dir> \
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/graph_builder.py <target_dir> \
   --format graphify --output <target_dir>/graphify-out/graph.json | bin/rtk
 graphify export html --graph <target_dir>/graphify-out/graph.json | bin/rtk
 graphify export callflow-html --graph <target_dir>/graphify-out/graph.json | bin/rtk
@@ -60,7 +61,7 @@ graphify export callflow-html --graph <target_dir>/graphify-out/graph.json | bin
 
 ### Workflow B: Unified Live K8s, Crossplane XRD/Composition & Code Topology
 ```bash
-/usr/bin/python3 .agent/skills/skill-graphify/scripts/k8s_graphify_extract.py \
+/usr/bin/python3 .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py \
   --namespace <namespace> \
   --merge-with <target_dir>/graphify-out/graph.json \
   --manifests <target_dir> \
@@ -75,6 +76,7 @@ graphify export callflow-html --graph <target_dir>/graphify-out/graph.json | bin
 
 | Graph Capability | Trigger / Scope | Reference Runbooks & Scripts (`.agent/skills/skill-graphify/`) |
 | :--- | :--- | :--- |
-| **K8s, CRD & Manifest Graph Extractor** | Secret-redacted live/offline K8s + Crossplane + Terraform bridge (`provisions-k8s`, `manifest-of`) | `scripts/k8s_graphify_extract.py`, `scripts/k8s_catalog.py` |
-| **Crossplane v2 & GitOps Control Planes** | XRD (`CompositeResourceDefinition`), Composition, ProviderConfig, and ArgoCD topology patterns | `references/crossplane.md`, `scripts/rules/crossplane/crossplane-xrd.yml`, `scripts/rules/crossplane/crossplane-composition.yml` |
-| **AST Graph Builder & Context Lensing** | Multi-language NetworkX `node_link_data` graph generation & PPR context ranking | `scripts/graph_builder.py`, `scripts/auto_context.py`, `scripts/local_extract.py`, `scripts/codemap_graphify_mcp.py`, `scripts/rules/` |
+| **K8s, CRD & Manifest Graph Extractor** | Secret-redacted live/offline K8s + Crossplane + Terraform bridge (`provisions-k8s`, `manifest-of`) | `.agent/skills/skill-code-map/scripts/k8s_graphify_extract.py`, `.agent/skills/skill-code-map/scripts/k8s_catalog.py` |
+| **Crossplane v2 & GitOps Control Planes** | XRD (`CompositeResourceDefinition`), Composition, ProviderConfig, and ArgoCD topology patterns | `references/crossplane.md`, `.agent/skills/skill-code-map/scripts/rules/crossplane/crossplane-xrd.yml`, `.agent/skills/skill-code-map/scripts/rules/crossplane/crossplane-composition.yml` |
+| **Shared Per-Repo Graph Registry** | Publish a graph per commit, route a question to the right repo, query it without a checkout | `references/graph-registry.md`, `.agent/skills/skill-code-map/scripts/graph_registry.py` |
+| **AST Graph Builder & Context Lensing** | Multi-language NetworkX `node_link_data` graph generation & PPR context ranking | `.agent/skills/skill-code-map/scripts/graph_builder.py`, `.agent/skills/skill-code-map/scripts/auto_context.py`, `.agent/skills/skill-code-map/scripts/local_extract.py`, `.agent/skills/skill-code-map/scripts/codemap_graphify_mcp.py`, `.agent/skills/skill-code-map/scripts/rules/` |

@@ -36,7 +36,7 @@ def _literal_representer(dumper, data):
 yaml.add_representer(LiteralStr, _literal_representer)
 
 CM_SCRIPTS = ".agent/skills/skill-code-map/scripts"
-GR_SCRIPTS = ".agent/skills/skill-graphify/scripts"
+GR_SCRIPTS = ".agent/skills/skill-code-map/scripts"
 
 CONTRACTS_CATALOG = [
     {

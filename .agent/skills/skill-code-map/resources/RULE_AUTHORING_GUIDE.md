@@ -54,7 +54,7 @@ All outputs adhere to the schema:
 
 ## 5. Well-Architected Policy-as-Code Hydration Playbook (`hydrate_policies.py`)
 
-To scale rules across **Python, Java, and Go** mapped to the **6 AWS Well-Architected Pillars** (`SEC`, `REL`, `OPS`, `PERF`, `COST`, `SUS`), use [`scripts/hydrate_policies.py`](file:///mnt/d/OneDrive/Email_attachments/Programming-Work/.agent/skills/skill-code-map/scripts/hydrate_policies.py).
+To scale rules across **Python, Java, and Go** mapped to the **6 AWS Well-Architected Pillars** (`SEC`, `REL`, `OPS`, `PERF`, `COST`, `SUS`), use [`scripts/hydrate_policies.py`](../scripts/hydrate_policies.py).
 
 ### 5.1 Multi-Rule Kodus Markdown Policy Pack Schema (`resources/policies/<lang>/<lang>-<pillar>.md`)
 Each Markdown policy pack uses YAML frontmatter with a `rules:` list and a Markdown summary table:
