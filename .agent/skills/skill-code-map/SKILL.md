@@ -46,7 +46,7 @@ Extract AST symbol map, call/import graph (`relationship_graph`), git forensics 
 | **Graphify bridge** (`skill-graphify`) | Interactive D3/Mermaid callflow HTML, community/God-node topology, unified code+K8s+Vault graph | `--format graphify` on `graph_builder.py` / `k8s_catalog.py` / `state_graph.py`, plus `k8s_graphify_extract.py` |
 
 ### Routing & Runtime Rules
-- **Map First**: Build or reuse the graph (`~/.cache/skill-code-map/<repo-hash>/`), then query it; never read raw files to answer a dependency or blast-radius question.
+- **Map First, then verify**: Build or reuse the graph (`~/.cache/skill-code-map/<repo-hash>/`) and query it for candidates, then read the files it names before answering a dependency or blast-radius question. For a named-symbol lookup, search first (`git grep -w`). Measured: agents that answered from graph output alone and read no source found 0.46 of the right files against 0.75 for search (`references/graph-vs-search.md`).
 - **Interpreter**: Always run Python AST scripts with `/usr/bin/python3` (system Python with `tree_sitter` bindings) and pipe shell output through `bin/rtk`.
 - **Evidence Boundary**: Every readout MUST end with an **Evidence Boundary** line stating static AST vs manifests only vs live cluster state.
 - **Language & Grammar Caveats**: Go graph tracks package-level imports, exported funcs/methods, and Cobra `AddCommand` edges (use `ast-grep` for general call sites); YAML Helm templates must be rendered before `state_graph.py`; `state_graph.py` refuses `*prod*` kubectl contexts unless `--allow-prod-read` is passed and strips all Secret/ConfigMap payloads.
@@ -91,3 +91,4 @@ SG=.agent/skills/skill-code-map/scripts/state_graph.py
 | **Semantic Lineage, Impact & Surgery** | Cross-file symbol usage, Mermaid lineage, AST node replacement | `scripts/semantic_query.py`, `scripts/semantic_edit.py`, `scripts/codemap_graphify_mcp.py` |
 | **6-Pillar Well-Architected & Policy Engine** | Static `SEC`/`REL`/`OPS`/`PERF`/`COST`/`SUS` audit & Kodus policy hydration | `scripts/well_architected_audit.py`, `scripts/local_extract.py`, `scripts/hydrate_policies.py`, `scripts/sgconfig.yml`, `scripts/rules/`, `resources/RULE_AUTHORING_GUIDE.md` |
 | **IaC Drift, Vault Lint & K8s Catalog** | Desired-vs-live K8s/Vault drift, OpenAPI/CRD catalog, env-diff | `scripts/state_graph.py`, `scripts/k8s_catalog.py`, `scripts/k8s_graphify_extract.py` |
+| **Graph vs Search, Multi-Repo Index & Scoring** | Choosing graph or search, indexing many repositories, cross-repo dependencies, scoring file-list answers | `references/graph-vs-search.md`, `scripts/graph_of_graphs.py`, `scripts/manifest_deps.py`, `scripts/eval_score.py` |
