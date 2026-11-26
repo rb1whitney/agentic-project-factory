@@ -37,5 +37,6 @@ def test_find_usages_footer_in_skill_copy_is_exact_for_go_packages(tmp_path):
     f = tmp_path / "g.json"
     f.write_text(json.dumps(g))
     q = ROOT / ".agent/skills/skill-code-map/scripts/semantic_query.py"
-    out = subprocess.run([sys.executable, str(q), "--graph", str(f), "find-usages", "go:a"], capture_output=True, text=True).stdout
+    cmd = [sys.executable, str(q), "--graph", str(f), "find-usages", "go:a"]
+    out = subprocess.run(cmd, capture_output=True, text=True).stdout
     assert "complete for those files" in out and "git grep -lw" not in out

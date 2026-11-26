@@ -10,7 +10,8 @@ import graph_builder  # noqa: E402
 import semantic_query  # noqa: E402
 
 FILES = {
-    "src/A.java": 'package p;\npublic class A {\n  B b;\n  Object load() throws Exception { return Class.forName("x").newInstance(); }\n}\n',
+    "src/A.java": "package p;\npublic class A {\n  B b;\n"
+    '  Object load() throws Exception { return Class.forName("x").newInstance(); }\n}\n',
     "src/B.java": "package p;\npublic class B {\n  C c;\n  D d;\n}\n",
     "src/C.java": "package p;\npublic class C {\n  E e;\n}\n",
     "src/D.java": "package p;\n@Module\npublic class D {}\n",

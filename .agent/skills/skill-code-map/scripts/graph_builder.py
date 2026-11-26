@@ -808,7 +808,7 @@ class GraphBuilder:
         self._bump("java_ambiguous_references", len(self._java_ambiguous))
 
     def _link_class(self, info: Dict[str, Any]) -> None:
-        cls, src, rel, name = info["node"], info["src"], info["file"], info["name"]
+        cls, src, name = info["node"], info["src"], info["name"]
         # Header: direct supertypes inherit; their type arguments are type uses.
         for header in cls.children:
             if header.type in ("superclass", "super_interfaces", "extends_interfaces"):

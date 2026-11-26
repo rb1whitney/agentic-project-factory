@@ -11,13 +11,16 @@ Payloads: Claude Code sends {"tool_name": "Grep"|"Bash"|..., "tool_input": {...}
 {"toolCall": {"name": "grep_search"|"run_command"|..., "args": {...}}, "workspacePaths": [...]}.
 The reply is `permissionDecision` JSON for Claude and `decision` JSON for Antigravity.
 
-Everything has a default so the hook works with no setup. Environment (all optional): NOISE_REPO (git checkout to count in;
+Everything has a default so the hook works with no setup. Environment (all optional): NOISE_REPO (git checkout to
+count in;
 default the git root of the payload's working directory), NOISE_GLOB (files to count; default all tracked files),
 NOISE_MIN_HITS (default 100), NOISE_HINT (map command named in the denial; default the sibling `semantic_query.py` and
 `auto_context.py`), NOISE_NOTE (appended to the denial), NOISE_CMD_RE (what counts as using the map; default
-`semantic_query\\.py|auto_context\\.py`), NOISE_MAX_DENIES (default 1), NOISE_STATE (state file; default one per session,
+`semantic_query\\.py|auto_context\\.py`), NOISE_MAX_DENIES (default 1), NOISE_STATE (state file; default one per
+session,
 keyed on the payload's session id or the parent process), NOISE_LOG (append-only decision log).
-Measured in Finding 20: the gate stays silent on quiet searches and redirects noisy ones, but did not lower cost by itself.
+Measured in Finding 20: the gate stays silent on quiet searches and redirects noisy ones, but did not lower cost by
+itself.
 """
 
 import hashlib
@@ -88,7 +91,8 @@ def decide(payload: dict, env=os.environ) -> tuple[bool, str, str]:
     state = Path(env.get("NOISE_STATE") or _default_state(payload, repo))
     saved = _load(state)
     cmd = str(args.get("command") or args.get("CommandLine") or "")
-    if tool in ("Bash", "run_command") and re.search(env.get("NOISE_CMD_RE", r"semantic_query\.py|auto_context\.py"), cmd):
+    map_cmd = env.get("NOISE_CMD_RE", r"semantic_query\.py|auto_context\.py")
+    if tool in ("Bash", "run_command") and re.search(map_cmd, cmd):
         state.write_text(json.dumps({"map_used": True, "denies": saved.get("denies", 0)}))
         return False, "", "map-command"
     pattern = pattern_of(tool, args)
@@ -102,8 +106,9 @@ def decide(payload: dict, env=os.environ) -> tuple[bool, str, str]:
     if hits <= int(env.get("NOISE_MIN_HITS", "100")):
         return False, "", f"quiet({hits})"
     state.write_text(json.dumps({"map_used": False, "denies": saved.get("denies", 0) + 1}))
+    hint = env.get("NOISE_HINT", DEFAULT_HINT)
     reason = (
-        f"This search matches {hits} files, too many to read. Orient first with `{env.get('NOISE_HINT', DEFAULT_HINT)}`, "
+        f"This search matches {hits} files, too many to read. Orient first with `{hint}`, "
         "then search or read only the files it names."
     )
     if env.get("NOISE_NOTE"):

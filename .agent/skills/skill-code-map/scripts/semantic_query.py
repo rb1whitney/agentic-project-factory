@@ -185,7 +185,8 @@ class SemanticQuery:
             # Every line stays in the agent's context, so say nothing the path or the header already says.
             short = sorted({c.rsplit("::", 1)[-1].rsplit(".", 1)[-1] for c in classes})
             stem = f.rsplit("/", 1)[-1].rsplit(".", 1)[0]
-            label = "" if short == [stem] else f"  [{short[0]}" + (f" +{len(short) - 1}" if len(short) > 1 else "") + "]"
+            more = f" +{len(short) - 1}" if len(short) > 1 else ""
+            label = "" if short == [stem] else f"  [{short[0]}{more}]"
             via_file = "" if parent == root_file else f"<- {parent.rsplit('/', 1)[-1]} "
             lines.append(f"- hop {hop[f]}  {f}{label}  {via_file}({', '.join(kinds[:3])})")
         extra = ""
@@ -197,7 +198,8 @@ class SemanticQuery:
         lines.append(
             self.coverage_footer(
                 covered, root, extra, files=len(ranked),
-                verify=f"Verify by reading what {root_file} imports and calls: the list above is what it depends on, not what depends on it.",
+                verify=f"Verify by reading what {root_file} imports and calls: "
+                "the list above is what it depends on, not what depends on it.",
             )
         )
         return "\n".join(lines)
@@ -227,7 +229,8 @@ class SemanticQuery:
         if err:
             flags.append(f"parse errors in {len(err)} ({names(err)})")
         counted = f"{files} files" if files is not None else f"{len(owners)} classes"
-        short = re.split(r"[./:]", name)[-1]  # a bare name a grep can match, not the graph's internal id such as `go:pkg/x`
+        # A bare name a grep can match, not the graph's internal id such as `go:pkg/x`.
+        short = re.split(r"[./:]", name)[-1]
         lines = [
             "",
             "-- coverage --",
@@ -237,7 +240,7 @@ class SemanticQuery:
         ]
         if extra:
             lines.append(extra)
-        # `git grep -lw X` finds files that USE X, which is the right check for usages and impact but the wrong direction for
+        # `git grep -lw X` finds files that USE X: the right check for usages and impact, the wrong direction for
         # closure, which lists what X uses; closure passes its own `verify` line.
         lines.append(verify or f"Verify before changing shared code: git grep -lw {short}")
         return "\n".join(lines)
@@ -276,9 +279,10 @@ class SemanticQuery:
         if found and all(nodes[t].get("type") == "go-package" for t in found):
             return (
                 "-- coverage --\n"
-                "Each line is a directory with a non-test, non-vendor .go file that imports this package directly. Go requires "
-                "an explicit import for every cross-package use, so this list is complete for those files: searching the whole "
-                "repository again will not add to it. Not covered: test files, vendor/, other modules, build-generated code."
+                "Each line is a directory with a non-test, non-vendor .go file that imports this package directly. "
+                "Go requires an explicit import for every cross-package use, so this list is complete for those files: "
+                "searching the whole repository again will not add to it. "
+                "Not covered: test files, vendor/, other modules, build-generated code."
             )
         return None
 
@@ -654,7 +658,10 @@ def main() -> None:
         print(query.closure(args.name, args.depth, args.limit))
     elif args.command == "find-usages":
         print(query.find_usages(args.name))
-        print("\n" + (query.exact_usage_footer(args.name) or query.coverage_footer(query.usage_owners(args.name), args.name).lstrip("\n")))
+        footer = query.exact_usage_footer(args.name) or query.coverage_footer(
+            query.usage_owners(args.name), args.name
+        ).lstrip("\n")
+        print("\n" + footer)
     elif args.command == "trace-dependencies":
         print(query.trace_dependencies(args.file))
     elif args.command == "impact":
