@@ -4,6 +4,7 @@ import importlib.util
 import json
 import logging
 import os
+import stat
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -19,15 +20,28 @@ CACHE_SCHEMA = 2
 MAX_FILE_BYTES = 5 * 1024 * 1024  # generated blobs above this add parse time and no structure
 
 
+def _private_dir(path: Path) -> Path:
+    """Create `path` as 0700, or raise: a shared temp directory lets another user plant a link or a file first."""
+    path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    info = os.lstat(path)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+        raise OSError(f"refusing {path}: not a directory owned by this user")
+    path.chmod(0o700)
+    return path
+
+
 def external_cache_root(repo_dir: str) -> Path:
     """Per-repo artifact dir under ~/.cache/skill-code-map/<hash>/, falling back to /tmp when ~/.cache is read-only.
 
     Keeps .ast_cache, code_map.md and relationship_graph.json out of the target repo so `git status` stays clean."""
     digest = hashlib.blake2b(str(Path(repo_dir).resolve()).encode(), digest_size=8).hexdigest()
     base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
-    for root in (base / "skill-code-map", Path("/tmp") / f"skill-code-map-{os.getuid()}"):
+    fallback = Path("/tmp") / f"skill-code-map-{os.getuid()}"
+    for root in (base / "skill-code-map", fallback):
         target = root / digest
         try:
+            if root == fallback:
+                _private_dir(root)
             target.mkdir(parents=True, exist_ok=True)
             if os.access(target, os.W_OK):
                 return target

@@ -12,6 +12,7 @@ Capabilities:
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -1908,6 +1909,12 @@ def write_policy_packs(policies: List[Dict[str, Any]], out_dir: Path) -> List[Pa
     return written
 
 
+# Rules read from here become policies, so the default must be somewhere only this user can write.
+DEFAULT_RULE_CACHE = str(
+    Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "skill-code-map" / "upstream-rules"
+)
+
+
 def fetch_upstream_repos(cache_dir: Path) -> Tuple[Optional[Path], Optional[Path]]:
     """Shallow sparse-checkout `semgrep/semgrep-rules` and `joshuadavidthomas/ast-grep-rules` into `cache_dir`."""
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -1948,7 +1955,7 @@ def hydrate(
     semgrep_dir: Optional[str] = None,
     astgrep_dir: Optional[str] = None,
     fetch_upstream: bool = False,
-    cache_dir: str = "/tmp/codemap-upstream-rules",
+    cache_dir: str = DEFAULT_RULE_CACHE,
 ) -> Dict[str, Any]:
     """Hydrate Curated 150 + optional upstream Semgrep/ast-grep rules, canary-validate, and write Markdown packs."""
     all_policies = build_curated_150_policies()
@@ -2123,7 +2130,7 @@ def main() -> int:
         "--fetch-upstream", action="store_true", help="Shallow sparse-checkout upstream semgrep-rules & ast-grep-rules."
     )
     parser.add_argument(
-        "--cache-dir", default="/tmp/codemap-upstream-rules", help="Cache directory for upstream rule repos."
+        "--cache-dir", default=DEFAULT_RULE_CACHE, help="Cache directory for upstream rule repos."
     )
     parser.add_argument(
         "--verify", action="store_true", help="Run 4-gate Well-Hydrated Certification check on --out-dir."

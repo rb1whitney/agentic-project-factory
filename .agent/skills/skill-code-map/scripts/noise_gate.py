@@ -28,6 +28,7 @@ import json
 import os
 import re
 import shlex
+import stat
 import subprocess
 import sys
 import tempfile
@@ -122,9 +123,20 @@ def _git_root(payload: dict) -> str:
     return out.stdout.strip() or str(cwd)
 
 
+def _private_dir(path: Path) -> Path:
+    """Create `path` as 0700, or raise: a shared temp directory lets another user plant a link or a file first."""
+    path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    info = os.lstat(path)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+        raise OSError(f"refusing {path}: not a directory owned by this user")
+    path.chmod(0o700)
+    return path
+
+
 def _default_state(payload: dict, repo: str) -> Path:
     key = payload.get("session_id") or f"{repo}:{os.getppid()}"
-    return Path(tempfile.gettempdir()) / f"noise_gate_{hashlib.sha1(str(key).encode()).hexdigest()[:12]}.json"
+    folder = _private_dir(Path(tempfile.gettempdir()) / f"noise_gate-{os.getuid()}")
+    return folder / f"{hashlib.sha1(str(key).encode()).hexdigest()[:12]}.json"
 
 
 def _load(path: Path) -> dict:
