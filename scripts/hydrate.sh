@@ -12,5 +12,14 @@ if [[ "$TARGET" != "claude" && "$TARGET" != "antigravity" && "$TARGET" != "codex
   exit 1
 fi
 
-PY=python3; [[ -x "$REPO_ROOT/.venv/bin/python" ]] && PY="$REPO_ROOT/.venv/bin/python"
+# The first python3 on PATH (e.g. Homebrew) may lack the modules hydrate.py imports,
+# so pick an interpreter by what it can import rather than by name.
+PY=""
+for candidate in "$REPO_ROOT/.venv/bin/python" python3 /usr/bin/python3; do
+  if "$candidate" -c 'import yaml, jsonschema' >/dev/null 2>&1; then PY="$candidate"; break; fi
+done
+if [[ -z "$PY" ]]; then
+  echo "Error: no Python with 'yaml' and 'jsonschema' found (tried .venv, python3, /usr/bin/python3)" >&2
+  exit 1
+fi
 exec "$PY" "$SCRIPT_DIR/hydrate.py" "$TARGET" "${@:2}"

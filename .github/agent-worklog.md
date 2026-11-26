@@ -441,3 +441,8 @@
 - 2026-11-14 14:00 MST: User scoped to GitHub landing page + rework existing repos + link articles. Drafted profile README in scratchpad (not pushed). Observed: cloud-boot-app description says Spring Boot 3.2 but README says 4.0, dead travis-ci.org badge; vault_controller_example README image path typo "iimages/".
 - 2026-11-14 15:15 MST: Created public repo rb1whitney/rb1whitney (main, commit ca24501) with profile README at user request. 0 TODO placeholders.
 - 2026-11-14 15:38 MST: Added root LICENSE (Apache-2.0) + NOTICE (Google LLC attribution for sre-investigation/gcp scripts) + projects/nit-fabric/LICENSE. Fixed only real hardcoded abs path (RULE_AUTHORING_GUIDE.md:57). Found 8 byte-identical scripts duplicated in skill-code-map/scripts and skill-graphify/scripts (self-contained-skill fallback). Confirmed bin/rtk pipe form masks exit codes (false | rtk = 0). 39 tests pass (code_mapper, graph_registry, semantic_lineage). Not committed.
+
+## Hook exit 127 and stub hook removal (2026-11-25)
+- Cause: relative hook path; safety check did not run when session cwd was not repo root.
+- Fix: `$CLAUDE_PROJECT_DIR` path for enforce-safety. Removed `audit_stubs` PostToolUse hook (scan exceeded 100s, exit 1 did not block), its script and stale `.agent/claude/settings.json`.
+- `scripts/hydrate.sh` selects a Python that imports `yaml` and `jsonschema`.
