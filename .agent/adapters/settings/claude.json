@@ -21,6 +21,15 @@
             "command": "bash \"$CLAUDE_PROJECT_DIR\"/.agent/hooks/enforce-safety.sh"
           }
         ]
+      },
+      {
+        "matcher": "Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.agent/skills/skill-code-map/scripts/noise_gate.py || true"
+          }
+        ]
       }
     ]
   }
