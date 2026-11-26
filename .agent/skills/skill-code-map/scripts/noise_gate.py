@@ -28,6 +28,7 @@ import json
 import os
 import re
 import shlex
+import stat
 import subprocess
 import sys
 import tempfile
@@ -40,6 +41,8 @@ DEFAULT_HINT = (
     f'python3 {HERE}/auto_context.py "<task>" --src <dir> --max-tokens 8000 (a multi-file task)'
 )
 
+# Repository config can name programs for git to run; this hook runs git on every search, so switch them off.
+GIT_HARDENING = ["-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null", "-c", "safe.bareRepository=explicit"]
 SEARCH_WORD = re.compile(r"(^|[\s;&|(])(grep|egrep|fgrep|rg|ag|ack|git\s+grep)\s")
 
 
@@ -74,7 +77,8 @@ def pattern_of(tool: str, args: dict) -> str | None:
 def count_hits(repo: str, pattern: str, glob: str, timeout: float = 8.0) -> int:
     for flag in ("-E", "-F"):
         proc = subprocess.run(
-            ["git", "-C", repo, "grep", "-l", flag, "-e", pattern, *(["--", glob] if glob else [])],
+            ["git", *GIT_HARDENING, "-C", repo, "grep", "--no-textconv", "-l", flag, "-e", pattern,
+             *(["--", glob] if glob else [])],
             capture_output=True, text=True, timeout=timeout,
         )  # fmt: skip
         if proc.returncode in (0, 1):
@@ -118,13 +122,25 @@ def decide(payload: dict, env=os.environ) -> tuple[bool, str, str]:
 
 def _git_root(payload: dict) -> str:
     cwd = payload.get("cwd") or ((payload.get("workspacePaths") or [None])[0]) or os.getcwd()
-    out = subprocess.run(["git", "-C", str(cwd), "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+    cmd = ["git", *GIT_HARDENING, "-C", str(cwd), "rev-parse", "--show-toplevel"]
+    out = subprocess.run(cmd, capture_output=True, text=True)
     return out.stdout.strip() or str(cwd)
+
+
+def _private_dir(path: Path) -> Path:
+    """Create `path` as 0700, or raise: a shared temp directory lets another user plant a link or a file first."""
+    path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    info = os.lstat(path)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+        raise OSError(f"refusing {path}: not a directory owned by this user")
+    path.chmod(0o700)
+    return path
 
 
 def _default_state(payload: dict, repo: str) -> Path:
     key = payload.get("session_id") or f"{repo}:{os.getppid()}"
-    return Path(tempfile.gettempdir()) / f"noise_gate_{hashlib.sha1(str(key).encode()).hexdigest()[:12]}.json"
+    folder = _private_dir(Path(tempfile.gettempdir()) / f"noise_gate-{os.getuid()}")
+    return folder / f"{hashlib.sha1(str(key).encode(), usedforsecurity=False).hexdigest()[:12]}.json"
 
 
 def _load(path: Path) -> dict:
@@ -132,6 +148,17 @@ def _load(path: Path) -> dict:
         return json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def append_log(path: str, line: str) -> None:
+    """Append without following a link someone planted at the log path; a log failure never affects the hook."""
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        with os.fdopen(fd, "a") as fh:
+            if os.fstat(fd).st_uid == os.getuid():  # not a file someone else created for us to fill
+                fh.write(line)
+    except OSError:
+        pass
 
 
 def main() -> None:
@@ -145,8 +172,7 @@ def main() -> None:
     except Exception as exc:  # a hook must never break the agent
         deny, reason, label = False, "", f"error:{type(exc).__name__}"
     if os.environ.get("NOISE_LOG"):
-        with open(os.environ["NOISE_LOG"], "a") as fh:
-            fh.write(f"{time.strftime('%H:%M:%S')}\t{label}\n")
+        append_log(os.environ["NOISE_LOG"], f"{time.strftime('%H:%M:%S')}\t{label}\n")
     if agy:
         print(json.dumps({"decision": "deny", "reason": reason} if deny else {"decision": "allow"}))
     elif deny:

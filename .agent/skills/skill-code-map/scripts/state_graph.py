@@ -21,6 +21,9 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from k8s_catalog import REDACTED, SENSITIVE_KEY  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import is_secret, readable, yaml_documents  # noqa: E402
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("state_graph")
 
@@ -57,15 +60,23 @@ VAULT_BUILTIN = {
 
 # ------------------------------------------------------------------ diff core
 
+DATA_KEYS = ("data", "stringData", "binaryData")
+# Paths whose values are free-form payloads: a literal env value, or anything under a data map.
+_PAYLOAD_PATH = re.compile(r"(^|\.)env\[[^\]]*\]\.value$|(^|\.)(data|stringData|binaryData)(\.|\[)")
+
 
 def _scrub(val: Any, key: str = "") -> Any:
     if SENSITIVE_KEY.search(key) and not isinstance(val, (dict, list)):
         return REDACTED
     if isinstance(val, dict):
-        return {k: _scrub(v, k) for k, v in val.items()}
+        if key in DATA_KEYS:  # ConfigMap and Secret payloads: names only
+            return {k: REDACTED for k in val}
+        if "value" in val and (key == "env" or SENSITIVE_KEY.search(str(val.get("name", "")))):
+            val = {**val, "value": REDACTED}
+        return {k: v if v == REDACTED else _scrub(v, k) for k, v in val.items()}
     if isinstance(val, list):
         return [_scrub(v, key) for v in val]
-    return val
+    return REDACTED if isinstance(val, str) and is_secret("", val) else val
 
 
 def _norm(v: Any) -> str:
@@ -78,6 +89,8 @@ def subset_diff(desired: Any, live: Any, path: str = "") -> List[Dict[str, Any]]
 
     def change(p: str, d: Any, lv: Any) -> None:
         key = p.rsplit(".", 1)[-1].split("[")[0]
+        if _PAYLOAD_PATH.search(p):
+            d, lv = (v if v == ABSENT else REDACTED for v in (d, lv))
         out.append({"path": p, "desired": _scrub(d, key), "live": _scrub(lv, key)})
 
     if isinstance(desired, dict):
@@ -142,7 +155,7 @@ def _walk_files(paths: Iterable[str], suffixes: Tuple[str, ...]) -> Iterable[Pat
         for dirpath, dirs, names in os.walk(pp):
             dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
             for n in sorted(names):
-                if n.endswith(suffixes):
+                if n.endswith(suffixes) and readable(Path(dirpath) / n, pp):
                     yield Path(dirpath) / n
 
 
@@ -156,7 +169,7 @@ def load_k8s_desired(paths: Iterable[str]) -> Dict[str, Dict[str, Any]]:
         if "{{" in text:  # unrendered helm/go template
             continue
         try:
-            docs = list(yaml.safe_load_all(text))
+            docs = yaml_documents(text)
         except yaml.YAMLError:
             continue
         for doc in docs:
@@ -210,6 +223,10 @@ def _strip_secret(item: Dict[str, Any]) -> Dict[str, Any]:
     return item
 
 
+_KIND = re.compile(r"[A-Za-z][A-Za-z0-9]*")
+_DNS = re.compile(r"[a-z0-9]([-a-z0-9.]*[a-z0-9])?")
+
+
 def fetch_k8s_live(
     scope: Dict[str, List[str]], runner: Optional[Callable[[List[str]], Optional[str]]] = None
 ) -> List[Dict[str, Any]]:
@@ -218,8 +235,14 @@ def fetch_k8s_live(
     for api_kind, namespaces in sorted(scope.items()):
         api, kind = api_kind.rsplit("/", 1)
         group = api.split("/")[0] if "/" in api else ""
+        # These strings come from manifests; anything that is not a plain name could be read as a kubectl option.
+        if not (_KIND.fullmatch(kind) and (not group or _DNS.fullmatch(group))):
+            continue
         res = f"{kind}.{group}" if group else kind
-        targets = [[]] if kind in CLUSTER_SCOPED else [["-n", ns] for ns in (namespaces or [])] or [["-A"]]
+        scoped = [["-n", ns] for ns in (namespaces or []) if _DNS.fullmatch(str(ns))]
+        if kind not in CLUSTER_SCOPED and namespaces and not scoped:
+            continue
+        targets = [[]] if kind in CLUSTER_SCOPED else scoped or [["-A"]]
         for t in targets:
             out = runner(["get", res, *t, "-o", "json", "--ignore-not-found"])
             if not out:
@@ -389,9 +412,10 @@ def classify_vault_path(api_path: str) -> Tuple[str, str]:
 def _vault_files(root: Path) -> Iterable[Tuple[Path, Dict[str, Any]]]:
     for f in _walk_files([str(root)], (".yaml", ".yml")):
         try:
-            doc = yaml.safe_load(f.read_text(encoding="utf-8"))
+            docs = yaml_documents(f.read_text(encoding="utf-8"))
         except (OSError, UnicodeDecodeError, yaml.YAMLError):
             continue
+        doc = docs[0] if docs else None
         if isinstance(doc, dict) and isinstance(doc.get("api_paths"), list):
             yield f, doc
 
@@ -488,7 +512,7 @@ def lint_vault(root: Path) -> List[Dict[str, str]]:
                 payload.get("exportable") is True or payload.get("allow_plaintext_backup") is True
             ):
                 add("transit-key-exportable", "advisory", f, f"{path}: key is exportable or allows plaintext backup")
-            if kind == "audit" and str((payload.get("options") or {}).get("file_path", "")).startswith("/tmp"):
+            if kind == "audit" and str((payload.get("options") or {}).get("file_path", "")).startswith("/tmp"):  # nosec B108 - a rule that reads this string, not a path used
                 add("audit-log-in-tmp", "advisory", f, f"{name}: audit log under /tmp")
             if kind == "auth_role":
                 names, nss = (
@@ -903,7 +927,7 @@ def _load_layer_file(path: Path) -> Dict[str, Any]:
     if path.suffix == ".tfvars":
         return {m.group(1): m.group(2) for m in map(_TFVAR_LINE.match, text.splitlines()) if m}
     try:
-        docs = [d for d in yaml.safe_load_all(text) if d is not None]
+        docs = [d for d in yaml_documents(text) if d is not None]
     except yaml.YAMLError:
         return {}
     flat: Dict[str, Any] = {}
@@ -939,7 +963,7 @@ def _layer_files(root: Path, env: str) -> Dict[str, Path]:
                     and (fn in (f"{env}.yaml", f"{env}.yml") or env in parts[parts.index("appenv") + 1 : -1])
                 )
             )
-            if hit and fn.endswith((".yaml", ".yml", ".tfvars")):
+            if hit and fn.endswith((".yaml", ".yml", ".tfvars")) and readable(p, root):
                 found[re.sub(rf"(?<![A-Za-z0-9]){re.escape(env)}(?![A-Za-z0-9])", "{env}", rel)] = p
     return found
 
@@ -950,7 +974,9 @@ def env_diff(root: Path, env_a: str, env_b: str) -> Dict[str, Any]:
     layers: Dict[str, Any] = {}
 
     def show(key: str, val: Any) -> Any:
-        return REDACTED if SENSITIVE_KEY.search(key) else val
+        # any parent segment keeps the old, stricter match; the leaf also gets the word-based one
+        leaf = key.rsplit(".", 1)[-1]
+        return REDACTED if SENSITIVE_KEY.search(key) or is_secret(leaf, val) else val
 
     for layer in sorted(set(la) | set(lb)):
         fa = _load_layer_file(la[layer]) if layer in la else None

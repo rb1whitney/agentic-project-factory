@@ -98,7 +98,7 @@ class McpExtraToolTests(unittest.TestCase):
         import json
         import tempfile
 
-        srv = mcp.CodeMapGraphifyMCP(graph={"nodes": {}, "edges": []})
+        srv = mcp.CodeMapGraphifyMCP(graph={"nodes": {}, "edges": []}, roots=[tempfile.gettempdir()])
         self.assertTrue(
             {"graph_env_diff", "graph_state_drift", "graph_k8s_extract"} <= {t["name"] for t in srv.list_tools()}
         )

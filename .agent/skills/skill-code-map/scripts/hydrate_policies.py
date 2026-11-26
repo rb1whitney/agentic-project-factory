@@ -12,12 +12,16 @@ Capabilities:
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import git_argv, readable  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -211,7 +215,7 @@ def import_semgrep_dir(semgrep_dir: str) -> List[Dict[str, Any]]:
         return []
     transpiled: List[Dict[str, Any]] = []
     seen_ids: set = set()
-    for yml_path in sorted(list(root.rglob("*.yml")) + list(root.rglob("*.yaml"))):
+    for yml_path in sorted(f for pat in ("*.yml", "*.yaml") for f in root.rglob(pat) if readable(f, root)):
         if yml_path.name.endswith(".test.yml") or yml_path.name.endswith(".test.yaml"):
             continue
         try:
@@ -239,7 +243,7 @@ def import_astgrep_dir(astgrep_dir: str) -> List[Dict[str, Any]]:
         return []
     imported: List[Dict[str, Any]] = []
     seen_ids: set = set()
-    for yml_path in sorted(list(root.rglob("*.yml")) + list(root.rglob("*.yaml"))):
+    for yml_path in sorted(f for pat in ("*.yml", "*.yaml") for f in root.rglob(pat) if readable(f, root)):
         if yml_path.name == "sgconfig.yml":
             continue
         try:
@@ -1908,39 +1912,46 @@ def write_policy_packs(policies: List[Dict[str, Any]], out_dir: Path) -> List[Pa
     return written
 
 
-def fetch_upstream_repos(cache_dir: Path) -> Tuple[Optional[Path], Optional[Path]]:
-    """Shallow sparse-checkout `semgrep/semgrep-rules` and `joshuadavidthomas/ast-grep-rules` into `cache_dir`."""
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    sg_dir = cache_dir / "semgrep-rules"
-    ag_dir = cache_dir / "ast-grep-rules"
+# Rules read from here become policies, so the default must be somewhere only this user can write.
+DEFAULT_RULE_CACHE = str(
+    Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "skill-code-map" / "upstream-rules"
+)
 
-    if not sg_dir.exists():
-        subprocess.run(
-            [
-                "git",
-                "clone",
-                "--depth",
-                "1",
-                "--filter=blob:none",
-                "--sparse",
-                "https://github.com/semgrep/semgrep-rules.git",
-                str(sg_dir),
-            ],
-            check=False,
-            capture_output=True,
-        )
-        subprocess.run(
-            ["git", "-C", str(sg_dir), "sparse-checkout", "set", "python/lang", "java/lang", "java/spring", "go/lang"],
-            check=False,
-            capture_output=True,
-        )
-    if not ag_dir.exists():
-        subprocess.run(
-            ["git", "clone", "--depth", "1", "https://github.com/joshuadavidthomas/ast-grep-rules.git", str(ag_dir)],
-            check=False,
-            capture_output=True,
-        )
-    return (sg_dir if sg_dir.is_dir() else None), (ag_dir if ag_dir.is_dir() else None)
+
+UPSTREAM_RULES = (
+    (
+        "semgrep-rules",
+        "https://github.com/semgrep/semgrep-rules.git",
+        "a5ad1714f00c9f7fde980cab0ea1d6dc6d414fd2",
+        ("python/lang", "java/lang", "java/spring", "go/lang"),
+    ),
+    (
+        "ast-grep-rules",
+        "https://github.com/joshuadavidthomas/ast-grep-rules.git",
+        "e8107ab7e9cd423742e03a3d29fe5ec2e022c041",
+        (),
+    ),
+)
+
+
+def fetch_upstream_repos(cache_dir: Path) -> Tuple[Optional[Path], Optional[Path]]:
+    """Check out `semgrep/semgrep-rules` and `joshuadavidthomas/ast-grep-rules` at pinned commits into `cache_dir`.
+
+    Rule text ends up in reports an agent reads, so a new upstream commit is adopted only by changing the pin."""
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    out: List[Optional[Path]] = []
+    for name, url, commit, sparse in UPSTREAM_RULES:
+        target = cache_dir / name
+        if not target.exists():
+            subprocess.run(["git", "init", "-q", str(target)], check=False, capture_output=True)
+            git = ["git", "-C", str(target)]
+            if sparse:
+                subprocess.run([*git, "sparse-checkout", "set", *sparse], check=False, capture_output=True)
+            subprocess.run([*git, "fetch", "-q", "--depth", "1", url, commit], check=False, capture_output=True)
+            subprocess.run([*git, "checkout", "-q", commit], check=False, capture_output=True)
+        head = subprocess.run([*git_argv(target), "rev-parse", "HEAD"], capture_output=True, text=True)
+        out.append(target if head.stdout.strip() == commit else None)
+    return out[0], out[1]
 
 
 def hydrate(
@@ -1948,7 +1959,7 @@ def hydrate(
     semgrep_dir: Optional[str] = None,
     astgrep_dir: Optional[str] = None,
     fetch_upstream: bool = False,
-    cache_dir: str = "/tmp/codemap-upstream-rules",
+    cache_dir: str = DEFAULT_RULE_CACHE,
 ) -> Dict[str, Any]:
     """Hydrate Curated 150 + optional upstream Semgrep/ast-grep rules, canary-validate, and write Markdown packs."""
     all_policies = build_curated_150_policies()
@@ -2123,7 +2134,7 @@ def main() -> int:
         "--fetch-upstream", action="store_true", help="Shallow sparse-checkout upstream semgrep-rules & ast-grep-rules."
     )
     parser.add_argument(
-        "--cache-dir", default="/tmp/codemap-upstream-rules", help="Cache directory for upstream rule repos."
+        "--cache-dir", default=DEFAULT_RULE_CACHE, help="Cache directory for upstream rule repos."
     )
     parser.add_argument(
         "--verify", action="store_true", help="Run 4-gate Well-Hydrated Certification check on --out-dir."

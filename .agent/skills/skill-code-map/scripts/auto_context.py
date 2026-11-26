@@ -53,7 +53,7 @@ def _load_sibling(name: str):
 
 def split_words(identifier: str) -> List[str]:
     """DataDTO -> [data, dto]; createData -> [create, data]; snake_case and paths split too."""
-    spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", identifier)
+    spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", identifier[:200])  # the next pattern is quadratic
     spaced = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1 \2", spaced)
     return [w.lower() for w in re.split(r"[^A-Za-z0-9]+", spaced) if w]
 

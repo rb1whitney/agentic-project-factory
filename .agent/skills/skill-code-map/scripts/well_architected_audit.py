@@ -22,6 +22,9 @@ if str(SCRIPT_DIR) not in sys.path:
 import graph_builder as gb  # noqa: E402
 import local_extract as le  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import AST_GREP_SCAN_ALL, git_argv, has_local_filters, md_cell  # noqa: E402
+
 PILLAR_NAMES: Dict[str, str] = {
     "SEC": "Security",
     "REL": "Reliability",
@@ -231,7 +234,7 @@ def evaluate_markdown_policies(target_dir: str, policies_dir: str) -> List[Dict[
         sg_cfg = troot / "sgconfig.yml"
         sg_cfg.write_text("ruleDirs:\n  - rules\n", encoding="utf-8")
         proc = subprocess.run(
-            ["ast-grep", "scan", "--config", str(sg_cfg), "--json=stream", str(target_dir)],
+            ["ast-grep", "scan", "--config", str(sg_cfg), "--json=stream", *AST_GREP_SCAN_ALL, str(target_dir)],
             capture_output=True,
             text=True,
             check=False,
@@ -258,6 +261,8 @@ def evaluate_markdown_policies(target_dir: str, policies_dir: str) -> List[Dict[
                 _, _, matches = _write_and_scan(valid_pols, troot)
             else:
                 matches = []
+        if rc not in (0, 1) and not matches:  # a scanner that failed must never look like a clean scan
+            raise RuntimeError(f"ast-grep scan failed: {stderr_txt.strip()[:500]}")
 
     findings: List[Dict[str, Any]] = []
     for m in matches:
@@ -539,7 +544,8 @@ def render_well_architected_markdown(report: Dict[str, Any]) -> str:
         for f in report["pillars"][pkey]["findings"]:
             any_finding = True
             lines.append(
-                f"| `{f['location']}` | **{pkey}** | `{f['rule']}` | {f['severity']} | {f['problem']} | {f['fix']} |"
+                f"| `{md_cell(f['location'])}` | **{pkey}** | `{md_cell(f['rule'])}` | {md_cell(f['severity'])} "
+                f"| {md_cell(f['problem'])} | {md_cell(f['fix'])} |"
             )
     if not any_finding:
         lines.append("| None | ALL | — | — | Zero violations detected. | — |")
@@ -574,7 +580,12 @@ def main() -> None:
     if args.diff_file:
         diff_text = Path(args.diff_file).read_text(encoding="utf-8")
     elif args.diff:
-        res = subprocess.run(["git", "-C", args.dir, "diff", "HEAD"], capture_output=True, text=True)
+        if has_local_filters(args.dir):
+            sys.stderr.write("refusing git diff: this checkout configures filter programs; use --diff-file\n")
+            sys.exit(1)
+        res = subprocess.run(
+            [*git_argv(args.dir), "diff", "--no-ext-diff", "--no-textconv", "HEAD"], capture_output=True, text=True
+        )
         if res.returncode != 0:
             sys.stderr.write(f"Error running git diff in {args.dir}: {res.stderr}\n")
             sys.exit(1)

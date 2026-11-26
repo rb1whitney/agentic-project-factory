@@ -4,12 +4,18 @@ import importlib.util
 import json
 import logging
 import os
+import stat
+import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import clean_text, git_argv, readable, write_atomic, yaml_documents  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("code_mapper")
@@ -19,15 +25,28 @@ CACHE_SCHEMA = 2
 MAX_FILE_BYTES = 5 * 1024 * 1024  # generated blobs above this add parse time and no structure
 
 
+def _private_dir(path: Path) -> Path:
+    """Create `path` as 0700, or raise: a shared temp directory lets another user plant a link or a file first."""
+    path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    info = os.lstat(path)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+        raise OSError(f"refusing {path}: not a directory owned by this user")
+    path.chmod(0o700)
+    return path
+
+
 def external_cache_root(repo_dir: str) -> Path:
     """Per-repo artifact dir under ~/.cache/skill-code-map/<hash>/, falling back to /tmp when ~/.cache is read-only.
 
     Keeps .ast_cache, code_map.md and relationship_graph.json out of the target repo so `git status` stays clean."""
     digest = hashlib.blake2b(str(Path(repo_dir).resolve()).encode(), digest_size=8).hexdigest()
     base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
-    for root in (base / "skill-code-map", Path("/tmp") / f"skill-code-map-{os.getuid()}"):
+    fallback = Path("/tmp") / f"skill-code-map-{os.getuid()}"  # nosec B108 - ownership checked by _private_dir
+    for root in (base / "skill-code-map", fallback):
         target = root / digest
         try:
+            if root == fallback:
+                _private_dir(root)
             target.mkdir(parents=True, exist_ok=True)
             if os.access(target, os.W_OK):
                 return target
@@ -79,8 +98,20 @@ class CodeMapper:
             self._queries[key] = get_language(lang).query(source)
         return self._queries[key]
 
+    def _cache_is_ours(self) -> bool:
+        """A cache that arrived with the repository would stand in for parsing its files, so never read it."""
+        if os.path.islink(self.cache_dir) or os.path.islink(self.cache_file):
+            return False
+        try:
+            tracked = subprocess.run(
+                [*git_argv(self.cache_dir), "ls-files", "--error-unmatch", self.cache_file.name], capture_output=True
+            )
+        except OSError:  # no git: nothing could have been committed through it
+            return True
+        return tracked.returncode != 0
+
     def _load_cache(self) -> None:
-        if self.cache_file.exists():
+        if self.cache_file.exists() and self._cache_is_ours():
             try:
                 with open(self.cache_file, "r", encoding="utf-8") as f:
                     self.os_cache = json.load(f)
@@ -91,13 +122,12 @@ class CodeMapper:
                 self.os_cache = {}
 
     def _save_cache(self) -> None:
-        os.makedirs(self.cache_dir, exist_ok=True)
-        tmp = self.cache_file.with_suffix(".json.tmp")
+        if os.path.islink(self.cache_dir):
+            logger.error(f"Not writing the cache: {self.cache_dir} is a link")
+            return
         try:
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump(self.os_cache, f, indent=2)
-            os.replace(tmp, self.cache_file)  # atomic: an interrupted run cannot leave a truncated cache
-        except IOError as e:
+            write_atomic(self.cache_file, json.JSONEncoder(indent=2).iterencode(self.os_cache))
+        except OSError as e:
             logger.error(f"Failed to save cache: {e}")
 
     def get_hash(self, file_path: Path) -> str:
@@ -128,7 +158,9 @@ class CodeMapper:
                             if entry.is_symlink() or entry.name in skip_dirs or entry.name.startswith("temp_"):
                                 continue
                             subdirs.append(Path(entry.path))
-                        else:
+                        elif entry.is_file(follow_symlinks=False) and entry.name.isprintable():
+                            files.append(Path(entry.path))
+                        elif entry.is_symlink() and readable(entry.path, self.root_dir, None):
                             files.append(Path(entry.path))
             except OSError as e:
                 logger.debug(f"Skipping unreadable directory {directory}: {e}")
@@ -365,10 +397,9 @@ class CodeMapper:
                         text = content.decode("utf-8", errors="ignore")
                         if "apiVersion:" in text and "kind:" in text:
                             # Kubernetes manifest
-                            import yaml as pyyaml
 
                             try:
-                                docs = list(pyyaml.safe_load_all(text))
+                                docs = yaml_documents(text)
                                 for doc in docs:
                                     if isinstance(doc, dict):
                                         kind = doc.get("kind", "Unknown")
@@ -383,10 +414,9 @@ class CodeMapper:
                                 pass
                         elif "hosts:" in text or "tasks:" in text or "roles:" in text:
                             # Ansible playbook/task list
-                            import yaml as pyyaml
 
                             try:
-                                docs = list(pyyaml.safe_load_all(text))
+                                docs = yaml_documents(text)
                                 for doc in docs:
                                     if isinstance(doc, list):
                                         for item in doc:
@@ -424,36 +454,31 @@ class CodeMapper:
         self.catalogs = module.render_catalog(graph)
         if persist_graph or graph_output:
             target = Path(graph_output) if graph_output else (self.root_dir / "relationship_graph.json")
-            tmp = target.with_suffix(".json.tmp")
             try:
-                with open(tmp, "w", encoding="utf-8") as f:
-                    json.dump(graph, f, indent=2)
-                os.replace(tmp, target)
-            except IOError as e:
+                write_atomic(target, json.JSONEncoder(indent=2).iterencode(graph))
+            except OSError as e:
                 logger.error(f"Failed to persist relationship graph to {target}: {e}")
 
     def serialize_markdown(self, output_file: str = "code_map.md") -> None:
         target = Path(output_file)
-        tmp = target.with_suffix(".md.tmp")
+        out = ["# Repository Code Map\n\n"]
+        for path, data in self.os_cache.items():
+            out.append(f"### {clean_text(path)}\n")
+            for label, key in (
+                ("Public Types", "public_types"),
+                ("Public Functions", "public_functions"),
+                ("Declarations", "declarations"),
+            ):
+                if data.get(key):
+                    out.append(f"- **{label}**: {', '.join(clean_text(v, 300) for v in data[key])}\n")
+            if self.catalogs.get(path):
+                out.append("- **Catalog**:\n")
+                out.extend(f"    {clean_text(line)}\n" for line in self.catalogs[path].splitlines())
+            out.append("\n")
         try:
-            with open(tmp, "w", encoding="utf-8") as f:
-                f.write("# Repository Code Map\n\n")
-                for path, data in self.os_cache.items():
-                    f.write(f"### {path}\n")
-                    if data.get("public_types"):
-                        f.write(f"- **Public Types**: {', '.join(data['public_types'])}\n")
-                    if data.get("public_functions"):
-                        f.write(f"- **Public Functions**: {', '.join(data['public_functions'])}\n")
-                    if data.get("declarations"):
-                        f.write(f"- **Declarations**: {', '.join(data['declarations'])}\n")
-                    if self.catalogs.get(path):
-                        f.write("- **Catalog**:\n")
-                        for line in self.catalogs[path].splitlines():
-                            f.write(f"    {line}\n")
-                    f.write("\n")
-            os.replace(tmp, target)
+            write_atomic(target, "".join(out))
             logger.info(f"Serialized markdown map to {output_file}")
-        except IOError as e:
+        except OSError as e:
             logger.error(f"Failed to serialize markdown map: {e}")
 
 
