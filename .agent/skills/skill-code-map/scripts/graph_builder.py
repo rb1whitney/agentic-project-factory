@@ -1,4 +1,5 @@
 import argparse
+import collections
 import json
 import logging
 import os
@@ -36,9 +37,16 @@ class GraphBuilder:
         self.symbol_table: Dict[str, Dict[str, Any]] = {}  # name -> {file, line, type}
         self.edges: List[Dict[str, str]] = []  # list of {from, to, type, file}
         self._queries: Dict[Tuple[str, str], Any] = {}
-        self.java_classes: Dict[str, Dict[str, Any]] = {}  # simple class name -> parse info
+        self.java_classes: Dict[str, Dict[str, Any]] = {}  # class node id -> parse info
+        self._java_by_name: Dict[str, List[str]] = {}  # name within its file (`Outer.Inner`) -> node ids
+        self._java_by_fqn: Dict[str, List[str]] = {}  # `pkg.Outer.Inner` -> node ids
+        self._java_ambiguous: Set[Tuple[str, str]] = set()  # (file, reference) left unlinked, not guessed
+        self._java_resolved: Dict[Tuple[str, str], Optional[str]] = {}  # (class, reference) -> node id
         self._edge_keys: Set[Tuple[str, str, str]] = set()
         self.stats: Dict[str, int] = {"calls_resolved": 0, "calls_unresolved": 0}
+        self.skipped_files: List[str] = []  # unreadable inputs, so an answer can say what is missing
+        self._java_trees: Dict[str, Any] = {}
+        self._keep_trees = True
         self.parsers: Dict[str, Optional[Parser]] = {
             "java": self._setup_parser("java"),
             "hcl": self._setup_parser("hcl"),
@@ -81,7 +89,9 @@ class GraphBuilder:
 
         # Pass 1: index all definitions (Java needs the full class set before linking).
         # Each file is parsed exactly once; the trees are reused by pass 2.
+        self._keep_trees = len(java_files) <= self.KEEP_TREES_MAX_FILES
         java_units = [u for u in (self._parse_java(p) for p in java_files) if u]
+        self._java_trees = {u["rel"]: u.pop("tree") for u in java_units if u["tree"] is not None}
         self._index_java_units(java_units)
         self._record_java_gaps(java_units)
         hcl_units = [u for u in (self._parse_hcl(p) for p in hcl_files) if u]
@@ -92,6 +102,7 @@ class GraphBuilder:
 
         # Pass 2: link usages
         self._link_java_units(java_units)
+        self._java_trees = {}
         for unit in hcl_units:
             self._link_hcl(unit)
         for p in tfvars_files:
@@ -101,7 +112,12 @@ class GraphBuilder:
         thrown = {(e["from"], e["to"]) for e in self.edges if e["type"] == "throws"}
         self.edges = [e for e in self.edges if not (e["type"] == "uses-type" and (e["from"], e["to"]) in thrown)]
 
-        return {"nodes": self.symbol_table, "edges": self.edges, "stats": self.stats}
+        return {
+            "nodes": self.symbol_table,
+            "edges": self.edges,
+            "stats": self.stats,
+            "skipped_files": self.skipped_files,
+        }
 
     # --- Go: package-level graph (nodes = directories, edges = in-repo imports) ----
     # Import paths resolve through every go.mod found (root + staging modules), longest
@@ -431,6 +447,7 @@ class GraphBuilder:
         try:
             src = path.read_bytes()
         except IOError:
+            self.skipped_files.append(str(path.relative_to(self.root_dir)))
             return None
         root = parser.parse(src).root_node
         pkg = ""
@@ -449,13 +466,21 @@ class GraphBuilder:
         return {
             "rel": str(path.relative_to(self.root_dir)),
             "src": src,
-            "root": root,
+            "decls": [(cls.start_byte, qname) for cls, qname in self._iter_classes(root, src)],
+            "tree": root if self._keep_trees else None,
             "package": pkg,
             "imports": imports,
             "static_imports": static_imports,
             "has_error": bool(root.has_error),
             "dynamic_sites": len(self._DYNAMIC.findall(src.decode("utf-8", errors="ignore"))),
         }
+
+    # A tree costs a few hundred KB, so keeping all of them is fine for a service and not for a monolith.
+    KEEP_TREES_MAX_FILES = int(os.environ.get("CODEMAP_KEEP_TREES_MAX", "2000"))
+
+    def _java_tree(self, rel: str, src: bytes) -> Any:
+        """The kept tree for a small repository; otherwise parse again and let the caller drop it."""
+        return self._java_trees.get(rel) or self.parsers["java"].parse(src).root_node
 
     def _iter_classes(self, root: Any, src: bytes):
         """Pre-order DFS yielding (class_node, qualified_name) so outer class context flows down to inner classes."""
@@ -537,10 +562,118 @@ class GraphBuilder:
         self._bump("java_dynamic_call_sites", sum(u.get("dynamic_sites", 0) for u in units))
         self._bump("java_files_with_dynamic_sites", sum(1 for u in units if u.get("dynamic_sites")))
 
+    @staticmethod
+    def _source_root(rel: str, package: str) -> str:
+        """Directory that holds the package tree: `android/guava/src/com/google/x/A.java` -> `android/guava/src`."""
+        parent = rel.replace(os.sep, "/").rpartition("/")[0]
+        tail = package.replace(".", "/")
+        if tail and (parent == tail or parent.endswith("/" + tail)):
+            return parent[: -len(tail)].rstrip("/")
+        return parent
+
+    def _java_ids(self, units: List[Dict[str, Any]]) -> Dict[Tuple[str, int], str]:
+        """Node id per declaration: the plain name when unique, else package-qualified, else source-root-qualified.
+
+        Two source trees can declare the same package (guava ships `guava/` and `android/guava/`), so a package alone
+        does not always separate two classes."""
+        decls = []
+        for unit in units:
+            for start, qname in unit["decls"]:
+                fqn = f"{unit['package']}.{qname}" if unit["package"] else qname
+                decls.append(((unit["rel"], start), unit, qname, fqn))
+        names = collections.Counter(d[2] for d in decls)
+        fqns = collections.Counter(d[3] for d in decls)
+        ids: Dict[Tuple[str, int], str] = {}
+        for key, unit, qname, fqn in decls:
+            if names[qname] == 1:
+                cid = qname
+            elif fqns[fqn] == 1 and fqn != qname:
+                cid = fqn
+            else:
+                cid = f"{self._source_root(unit['rel'], unit['package'])}::{fqn}"
+            ids[key] = cid
+            self._java_by_name.setdefault(qname, []).append(cid)
+            self._java_by_fqn.setdefault(fqn, []).append(cid)
+        self._bump("java_duplicate_names", sum(1 for n in names.values() if n > 1))
+        return ids
+
+    def _pick(self, cands: List[str], info: Dict[str, Any], ref: str) -> Optional[str]:
+        """Choose among same-named candidates by source tree: longest shared path, then most similar depth."""
+        if len(cands) == 1:
+            return cands[0]
+        mine = self._source_root(info["file"], info["package"]).split("/")
+
+        def score(cid: str) -> Tuple[int, int]:
+            other = self.java_classes[cid]
+            theirs = self._source_root(other["file"], other["package"]).split("/")
+            shared = 0
+            for a, b in zip(mine, theirs):
+                if a != b:
+                    break
+                shared += 1
+            return shared, -abs(len(mine) - len(theirs))
+
+        ranked = sorted(cands, key=score, reverse=True)
+        if score(ranked[0]) != score(ranked[1]):
+            return ranked[0]
+        self._mark_ambiguous(info, ref)
+        return None
+
+    def _mark_ambiguous(self, info: Dict[str, Any], ref: str) -> None:
+        self._java_ambiguous.add((info["file"], ref))
+        node = self.symbol_table.get(info["name"])
+        if node is not None:
+            refs = node.setdefault("gaps", {}).setdefault("ambiguous_refs", [])
+            if ref not in refs:
+                refs.append(ref)
+
+    def _resolve(self, info: Dict[str, Any], ref: Optional[str]) -> Optional[str]:
+        """The class `ref` means inside `info`, in Java's lookup order; None for library or undecidable names."""
+        if not ref:
+            return None
+        key = (info["name"], ref)
+        if key not in self._java_resolved:
+            self._java_resolved[key] = self._lookup(info, ref)
+        return self._java_resolved[key]
+
+    def _lookup(self, info: Dict[str, Any], ref: str) -> Optional[str]:
+        # 1. A member of this class or an enclosing one, or another class in the same file.
+        parts = info["qname"].split(".")
+        scopes = [".".join(parts[:i] + [ref]) for i in range(len(parts), 0, -1)] + [ref]
+        for qname in scopes:
+            local = [c for c in self._java_by_name.get(qname, ()) if self.java_classes[c]["file"] == info["file"]]
+            if local:
+                return local[0]
+        # 2. A single-type import decides the name, even when it points outside the project.
+        static = {f"{cls}.{member}" for cls, member in info.get("static_imports", ())}
+        for imp in info["imports"]:
+            if imp.endswith("." + ref) and imp not in static:
+                cands = self._java_by_fqn.get(imp)
+                return self._pick(cands, info, ref) if cands else None
+        # 3. The same package, then wildcard imports.
+        same = self._java_by_fqn.get(f"{info['package']}.{ref}" if info["package"] else ref)
+        if same:
+            return self._pick(same, info, ref)
+        wild = [c for imp in info["imports"] if imp.endswith(".*") for c in self._java_by_fqn.get(imp[:-1] + ref, ())]
+        if wild:
+            return self._pick(wild, info, ref)
+        # 4. Otherwise only a name that is unique in the project (e.g. an inherited member type).
+        named = self._java_by_name.get(ref, [])
+        if len(named) > 1:
+            self._mark_ambiguous(info, ref)
+        return named[0] if len(named) == 1 else None
+
+    def _type_edge(self, frm: str, info: Dict[str, Any], ref: str, typ: str) -> None:
+        target = self._resolve(info, ref)
+        if target:
+            self._add_edge(frm, target, typ, info["file"])
+
     def _index_java_units(self, units: List[Dict[str, Any]]) -> None:
+        ids = self._java_ids(units)
         for unit in units:
             src, rel = unit["src"], unit["rel"]
-            for cls, name in self._iter_classes(unit["root"], src):
+            for cls, qname in self._iter_classes(self._java_tree(rel, src), src):
+                name = ids[(rel, cls.start_byte)]
                 body = cls.child_by_field_name("body")
                 if cls.type == "annotation_type_declaration":
                     self._bump("java_annotation_types")
@@ -548,8 +681,9 @@ class GraphBuilder:
                 base = next((self._annotation_path(n, src) for a, n in anns if a == "RequestMapping"), "")
                 info: Dict[str, Any] = {
                     "name": name,
+                    "qname": qname,
                     "file": rel,
-                    "node": cls,
+                    "start": cls.start_byte,
                     "src": src,
                     "package": unit.get("package", ""),
                     "imports": unit.get("imports", []),
@@ -560,8 +694,6 @@ class GraphBuilder:
                     "methods": set(),
                     "supers": [],
                 }
-                if name in self.java_classes:
-                    logger.debug(f"Duplicate simple class name {name}: {rel} shadows {self.java_classes[name]['file']}")
                 self.java_classes[name] = info
                 self.symbol_table[name] = {
                     "file": rel,
@@ -662,8 +794,18 @@ class GraphBuilder:
         self.edges.append({"from": frm, "to": to, "type": typ, "file": rel})
 
     def _link_java_units(self, units: List[Dict[str, Any]]) -> None:
-        for info in list(self.java_classes.values()):
-            self._link_class(info)
+        by_file: Dict[str, List[Dict[str, Any]]] = collections.defaultdict(list)
+        for info in self.java_classes.values():
+            by_file[info["file"]].append(info)
+        for infos in by_file.values():
+            src = infos[0]["src"]
+            tree = self._java_tree(infos[0]["file"], src)
+            decls = {cls.start_byte: cls for cls, _ in self._iter_classes(tree, src)}
+            for info in infos:
+                info["node"] = decls[info["start"]]
+                self._link_class(info)
+                del info["node"]
+        self._bump("java_ambiguous_references", len(self._java_ambiguous))
 
     def _link_class(self, info: Dict[str, Any]) -> None:
         cls, src, rel, name = info["node"], info["src"], info["file"], info["name"]
@@ -673,11 +815,11 @@ class GraphBuilder:
                 for t in self._direct_types(header):
                     names = self._type_names(t, src)
                     if names:
-                        self._add_edge(name, names[0], "inherits", rel)
+                        self._type_edge(name, info, names[0], "inherits")
                     for extra in names[1:]:
-                        self._add_edge(name, extra, "uses-type", rel)
+                        self._type_edge(name, info, extra, "uses-type")
         for ann_name, _ in self._annotations(cls, src):
-            self._add_edge(name, ann_name, "annotated-by", rel)
+            self._type_edge(name, info, ann_name, "annotated-by")
         body = cls.child_by_field_name("body")
         if body is None:
             return
@@ -688,10 +830,10 @@ class GraphBuilder:
                 names = self._type_names(type_node, src) if type_node is not None else []
                 injected = any(a in self._INJECT_ANNOTATIONS for a, _ in self._annotations(member, src))
                 for ann_name, _ in self._annotations(member, src):
-                    self._add_edge(name, ann_name, "annotated-by", rel)
+                    self._type_edge(name, info, ann_name, "annotated-by")
                 for i, tname in enumerate(names):
                     kind = "injects" if (i == 0 and injected) else "uses-type"
-                    self._add_edge(name, tname, kind, rel)
+                    self._type_edge(name, info, tname, kind)
             elif member.type == "constructor_declaration":
                 self._link_method(info, member, f"{name}.<init>", ctor_injects=stereotype)
             elif member.type == "method_declaration":
@@ -704,32 +846,32 @@ class GraphBuilder:
         param_locals: Dict[str, str] = {}
 
         for ann_name, _ in self._annotations(member, src):
-            self._add_edge(mid, ann_name, "annotated-by", rel)
+            self._type_edge(mid, info, ann_name, "annotated-by")
         ret = member.child_by_field_name("type")
         if ret is not None:
             for t in self._type_names(ret, src):
-                self._add_edge(mid, t, "uses-type", rel)
+                self._type_edge(mid, info, t, "uses-type")
 
         params = member.child_by_field_name("parameters")
         for p in params.children if params is not None else []:
             if p.type not in ("formal_parameter", "spread_parameter"):
                 continue
             for ann_name, _ in self._annotations(p, src):
-                self._add_edge(mid, ann_name, "annotated-by", rel)
+                self._type_edge(mid, info, ann_name, "annotated-by")
             ptype, pname = p.child_by_field_name("type"), p.child_by_field_name("name")
             names = self._type_names(ptype, src) if ptype is not None else []
             if pname is not None and names:
                 param_locals[self._txt(pname, src)] = names[0]
             for i, t in enumerate(names):
                 if ctor_injects and i == 0:
-                    self._add_edge(cname, t, "injects", rel)
+                    self._type_edge(cname, info, t, "injects")
                 else:
-                    self._add_edge(mid, t, "uses-type", rel)
+                    self._type_edge(mid, info, t, "uses-type")
 
         for c in member.children:
             if c.type == "throws":
                 for t in self._type_names(c, src):
-                    self._add_edge(mid, t, "throws", rel)
+                    self._type_edge(mid, info, t, "throws")
 
         body = member.child_by_field_name("body")
         if body is None:
@@ -752,17 +894,17 @@ class GraphBuilder:
                     if names:
                         scope_locals[self._txt(dname, src)] = names[0]
                 for t in names:
-                    self._add_edge(mid, t, "uses-type", rel)
+                    self._type_edge(mid, info, t, "uses-type")
             elif node.type == "object_creation_expression":
                 ctype = node.child_by_field_name("type")
                 for t in self._type_names(ctype, src) if ctype is not None else []:
-                    self._add_edge(mid, t, "uses-type", rel)
+                    self._type_edge(mid, info, t, "uses-type")
             elif node.type == "throw_statement":
                 for c in node.children:
                     if c.type == "object_creation_expression":
                         ctype = c.child_by_field_name("type")
                         for t in self._type_names(ctype, src)[:1] if ctype is not None else []:
-                            self._add_edge(mid, t, "throws", rel)
+                            self._type_edge(mid, info, t, "throws")
             elif node.type == "method_invocation":
                 self._link_call(info, node, mid, scope_locals)
             elif node.type == "method_reference":
@@ -785,26 +927,26 @@ class GraphBuilder:
         if obj is None or obj.type == "this":
             return info["name"]
         if obj.type == "super":
-            return info["supers"][0] if info["supers"] else None
+            return self._resolve(info, info["supers"][0]) if info["supers"] else None
         if obj.type == "identifier":
             ident = self._txt(obj, src)
             if ident in locals_:
-                return locals_[ident]
+                return self._resolve(info, locals_[ident])
             if ident in info["fields"]:
-                return info["fields"][ident]
-            return ident if ident in self.java_classes else None  # static call on a project class
+                return self._resolve(info, info["fields"][ident])
+            return self._resolve(info, ident)  # static call on a project class
         if obj.type == "field_access":
             inner, field = obj.child_by_field_name("object"), obj.child_by_field_name("field")
             if inner is not None and inner.type == "this" and field is not None:
-                return info["fields"].get(self._txt(field, src))
+                return self._resolve(info, info["fields"].get(self._txt(field, src)))
             return None
         if obj.type == "object_creation_expression":
             ctype = obj.child_by_field_name("type")
             names = self._type_names(ctype, src) if ctype is not None else []
-            return names[0] if names else None
+            return self._resolve(info, names[0]) if names else None
         return None
 
-    def _find_method(self, cls_name: str, mname: str, seen: Optional[Set[str]] = None) -> Optional[str]:
+    def _find_method(self, cls_name: Optional[str], mname: str, seen: Optional[Set[str]] = None) -> Optional[str]:
         seen = seen if seen is not None else set()
         if cls_name in seen or cls_name not in self.java_classes:
             return None
@@ -813,7 +955,7 @@ class GraphBuilder:
         if mname in info["methods"]:
             return f"{cls_name}.{mname}"
         for sup in info["supers"]:
-            found = self._find_method(sup, mname, seen)
+            found = self._find_method(self._resolve(info, sup), mname, seen)
             if found:
                 return found
         return None
@@ -825,12 +967,10 @@ class GraphBuilder:
         for cls_path, member in info.get("static_imports", ()):
             if member not in (mname, "*"):
                 continue
-            parts = cls_path.split(".")
-            for candidate in (".".join(parts[-2:]), parts[-1]):  # nested class first, then the simple name
-                if candidate in self.java_classes:
-                    found = self._find_method(candidate, mname)
-                    if found:
-                        return found
+            cands = self._java_by_fqn.get(cls_path)
+            found = self._find_method(self._pick(cands, info, cls_path), mname) if cands else None
+            if found:
+                return found
         return None
 
     def _link_call(self, info: Dict[str, Any], node: Any, mid: str, locals_: Dict[str, str]) -> None:

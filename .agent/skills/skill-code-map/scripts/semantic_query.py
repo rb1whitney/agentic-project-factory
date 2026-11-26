@@ -175,12 +175,19 @@ class SemanticQuery:
             frontier = nxt
         ranked = sorted((f for f in hop if f != root_file), key=lambda f: (hop[f], -strength[f], f))
         lines = [f"Closure of '{root}' to {depth} hops: {len(ranked)} files (nearest and most-linked first)"]
+        # A bare name can mean several classes; never pick one silently.
+        owners = sorted({self._owner(m) for m in starts})
+        if len(owners) > 1:
+            others = ", ".join(o for o in owners if o != root)
+            lines.append(f"{len(owners)} classes are named '{name}': this is {root}. Rerun with one of: {others}")
         for f in ranked[:limit]:
             parent, kinds, classes = via[f]
-            more = f" +{len(classes) - 1}" if len(classes) > 1 else ""
-            lines.append(
-                f"- hop {hop[f]}  {f}  [{classes[0]}{more}]  <- {parent.rsplit('/', 1)[-1]} ({', '.join(kinds[:3])})"
-            )
+            # Every line stays in the agent's context, so say nothing the path or the header already says.
+            short = sorted({c.rsplit("::", 1)[-1].rsplit(".", 1)[-1] for c in classes})
+            stem = f.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+            label = "" if short == [stem] else f"  [{short[0]}" + (f" +{len(short) - 1}" if len(short) > 1 else "") + "]"
+            via_file = "" if parent == root_file else f"<- {parent.rsplit('/', 1)[-1]} "
+            lines.append(f"- hop {hop[f]}  {f}{label}  {via_file}({', '.join(kinds[:3])})")
         extra = ""
         if len(ranked) > limit:
             extra = (
@@ -209,7 +216,10 @@ class SemanticQuery:
         dyn = [o for o in owners if (nodes[o].get("gaps") or {}).get("dynamic_sites")]
         err = [o for o in owners if (nodes[o].get("gaps") or {}).get("parse_error")]
         wired = [o for o in owners if DI_ANNOTATIONS & set(nodes[o].get("annotations") or [])]
+        amb = [o for o in owners if (nodes[o].get("gaps") or {}).get("ambiguous_refs")]
         flags = []
+        if amb:
+            flags.append(f"same-named classes that could not be told apart, in {len(amb)} ({names(amb)})")
         if dyn:
             flags.append(f"reflection call sites in {len(dyn)} ({names(dyn)})")
         if wired:
