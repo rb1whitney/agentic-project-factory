@@ -20,6 +20,9 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import git_argv, readable  # noqa: E402
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
@@ -212,7 +215,7 @@ def import_semgrep_dir(semgrep_dir: str) -> List[Dict[str, Any]]:
         return []
     transpiled: List[Dict[str, Any]] = []
     seen_ids: set = set()
-    for yml_path in sorted(list(root.rglob("*.yml")) + list(root.rglob("*.yaml"))):
+    for yml_path in sorted(f for pat in ("*.yml", "*.yaml") for f in root.rglob(pat) if readable(f, root)):
         if yml_path.name.endswith(".test.yml") or yml_path.name.endswith(".test.yaml"):
             continue
         try:
@@ -240,7 +243,7 @@ def import_astgrep_dir(astgrep_dir: str) -> List[Dict[str, Any]]:
         return []
     imported: List[Dict[str, Any]] = []
     seen_ids: set = set()
-    for yml_path in sorted(list(root.rglob("*.yml")) + list(root.rglob("*.yaml"))):
+    for yml_path in sorted(f for pat in ("*.yml", "*.yaml") for f in root.rglob(pat) if readable(f, root)):
         if yml_path.name == "sgconfig.yml":
             continue
         try:
@@ -1915,39 +1918,40 @@ DEFAULT_RULE_CACHE = str(
 )
 
 
-def fetch_upstream_repos(cache_dir: Path) -> Tuple[Optional[Path], Optional[Path]]:
-    """Shallow sparse-checkout `semgrep/semgrep-rules` and `joshuadavidthomas/ast-grep-rules` into `cache_dir`."""
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    sg_dir = cache_dir / "semgrep-rules"
-    ag_dir = cache_dir / "ast-grep-rules"
+UPSTREAM_RULES = (
+    (
+        "semgrep-rules",
+        "https://github.com/semgrep/semgrep-rules.git",
+        "a5ad1714f00c9f7fde980cab0ea1d6dc6d414fd2",
+        ("python/lang", "java/lang", "java/spring", "go/lang"),
+    ),
+    (
+        "ast-grep-rules",
+        "https://github.com/joshuadavidthomas/ast-grep-rules.git",
+        "e8107ab7e9cd423742e03a3d29fe5ec2e022c041",
+        (),
+    ),
+)
 
-    if not sg_dir.exists():
-        subprocess.run(
-            [
-                "git",
-                "clone",
-                "--depth",
-                "1",
-                "--filter=blob:none",
-                "--sparse",
-                "https://github.com/semgrep/semgrep-rules.git",
-                str(sg_dir),
-            ],
-            check=False,
-            capture_output=True,
-        )
-        subprocess.run(
-            ["git", "-C", str(sg_dir), "sparse-checkout", "set", "python/lang", "java/lang", "java/spring", "go/lang"],
-            check=False,
-            capture_output=True,
-        )
-    if not ag_dir.exists():
-        subprocess.run(
-            ["git", "clone", "--depth", "1", "https://github.com/joshuadavidthomas/ast-grep-rules.git", str(ag_dir)],
-            check=False,
-            capture_output=True,
-        )
-    return (sg_dir if sg_dir.is_dir() else None), (ag_dir if ag_dir.is_dir() else None)
+
+def fetch_upstream_repos(cache_dir: Path) -> Tuple[Optional[Path], Optional[Path]]:
+    """Check out `semgrep/semgrep-rules` and `joshuadavidthomas/ast-grep-rules` at pinned commits into `cache_dir`.
+
+    Rule text ends up in reports an agent reads, so a new upstream commit is adopted only by changing the pin."""
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    out: List[Optional[Path]] = []
+    for name, url, commit, sparse in UPSTREAM_RULES:
+        target = cache_dir / name
+        if not target.exists():
+            subprocess.run(["git", "init", "-q", str(target)], check=False, capture_output=True)
+            git = ["git", "-C", str(target)]
+            if sparse:
+                subprocess.run([*git, "sparse-checkout", "set", *sparse], check=False, capture_output=True)
+            subprocess.run([*git, "fetch", "-q", "--depth", "1", url, commit], check=False, capture_output=True)
+            subprocess.run([*git, "checkout", "-q", commit], check=False, capture_output=True)
+        head = subprocess.run([*git_argv(target), "rev-parse", "HEAD"], capture_output=True, text=True)
+        out.append(target if head.stdout.strip() == commit else None)
+    return out[0], out[1]
 
 
 def hydrate(

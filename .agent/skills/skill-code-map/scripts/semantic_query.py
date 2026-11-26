@@ -5,7 +5,11 @@ import logging
 import os
 import re
 import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import clean_tree, git_argv, has_local_filters  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("semantic_query")
@@ -29,6 +33,16 @@ DI_ANNOTATIONS = {
     "Configuration",
     "Resource",
 }
+
+
+# Starts with a literal backslash so the scan of a large graph file stays fast.
+_ESCAPE_RUN = re.compile(r"\\+(?=[nrtbf]|u00[0189]|u007[fF]|u202[89])")
+_RAW_BREAKS = re.compile("[\x7f-\x9f\u2028\u2029]")  # legal unescaped inside a JSON string
+
+
+def _has_escaped_control(text: str) -> bool:
+    """True when a JSON text encodes a control character: an odd run of backslashes (`\\n` is a literal backslash)."""
+    return "\\" in text and any(len(m.group()) % 2 for m in _ESCAPE_RUN.finditer(text))
 
 
 def _normalize_graph_schema(raw: Dict[str, Any]) -> Dict[str, Any]:
@@ -69,6 +83,15 @@ def _normalize_graph_schema(raw: Dict[str, Any]) -> Dict[str, Any]:
     return {"nodes": nodes, "edges": edges, "stats": raw.get("graph", {}).get("stats", {})}
 
 
+def diff_command(ref: str, repo: str = ".") -> List[str]:
+    """`git diff <ref>` where the ref can never be read as an option and repository drivers do not run."""
+    if ref.startswith("-"):
+        raise ValueError(f"not a git ref: {ref}")
+    if has_local_filters(repo):
+        raise ValueError("refusing git diff: this checkout configures filter programs; use --diff-file")
+    return [*git_argv(repo), "diff", "--no-ext-diff", "--no-textconv", "--end-of-options", ref]
+
+
 class SemanticQuery:
     def __init__(self, graph_file: str) -> None:
         if not os.path.exists(graph_file):
@@ -77,7 +100,11 @@ class SemanticQuery:
 
         try:
             with open(graph_file, "r", encoding="utf-8") as f:
-                self.graph: Dict[str, Any] = _normalize_graph_schema(json.load(f))
+                text = f.read()
+            self.graph: Dict[str, Any] = _normalize_graph_schema(json.loads(text))
+            # Walking a large graph costs time, so only do it when the file holds an escaped control character.
+            if _has_escaped_control(text) or (not text.isascii() and _RAW_BREAKS.search(text)) or "\x7f" in text:
+                self.graph = clean_tree(self.graph)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse graph file: {e}")
             sys.exit(1)
@@ -89,7 +116,7 @@ class SemanticQuery:
     def from_dict(cls, graph: Dict[str, Any]) -> "SemanticQuery":
         """Wrap an in-memory graph (CodeMap or Graphify schema) without a file round trip."""
         self = cls.__new__(cls)
-        self.graph = _normalize_graph_schema(graph)
+        self.graph = clean_tree(_normalize_graph_schema(graph))
         return self
 
     def owner(self, node_id: str) -> str:
@@ -682,7 +709,7 @@ def main() -> None:
     elif args.command == "diff-impact":
         import subprocess
 
-        res = subprocess.run(["git", "diff", args.git_ref], capture_output=True, text=True)
+        res = subprocess.run(diff_command(args.git_ref), capture_output=True, text=True)
         print(json.dumps(query.diff_impact(res.stdout), indent=2))
     else:
         parser.print_help()

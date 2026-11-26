@@ -11,6 +11,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import clean_text, clean_tree, git_argv, is_secret, readable, write_atomic  # noqa: E402
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("graph_builder")
 
@@ -29,6 +32,9 @@ SKIP_DIRS = {
     "skills",
     "vendor",
 }
+
+
+SOURCE_SUFFIXES = {".java", ".go", ".py", ".tf", ".hcl", ".tfvars", ".yaml", ".yml"}
 
 
 class GraphBuilder:
@@ -79,11 +85,19 @@ class GraphBuilder:
             for dirpath, dirs, names in os.walk(self.root_dir):
                 dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith("temp_")]
                 files.extend(Path(dirpath) / n for n in names)
+        allowed = []
+        for f in files:
+            if SKIP_DIRS.intersection(f.relative_to(self.root_dir).parts[:-1]):
+                continue
+            if readable(f, self.root_dir):
+                allowed.append(f)
+            elif f.suffix.lower() in SOURCE_SUFFIXES:
+                self.skipped_files.append(clean_text(f.relative_to(self.root_dir)))
+        files = allowed
         java_files = [p for p in files if p.suffix.lower() == ".java"]
         hcl_files = [p for p in files if p.suffix.lower() in (".tf", ".hcl")]
         tfvars_files = [p for p in files if p.suffix.lower() == ".tfvars"]
 
-        files = [f for f in files if not SKIP_DIRS.intersection(f.relative_to(self.root_dir).parts[:-1])]
         self._build_go(files)
         self._build_python(files)
 
@@ -752,7 +766,7 @@ class GraphBuilder:
 
         # Extract return type
         ret_node = member.child_by_field_name("type")
-        ret_type = self._txt(ret_node, src).strip() if ret_node is not None else "void"
+        ret_type = " ".join(self._txt(ret_node, src).split()) if ret_node is not None else "void"
 
         # Extract parameters: ["Long id", "DataDTO data", ...]
         params_node = member.child_by_field_name("parameters")
@@ -763,7 +777,7 @@ class GraphBuilder:
                     ptype = p.child_by_field_name("type")
                     pname = p.child_by_field_name("name")
                     if ptype is not None:
-                        t_str = self._txt(ptype, src).strip()
+                        t_str = " ".join(self._txt(ptype, src).split())
                         n_str = self._txt(pname, src).strip() if pname is not None else ""
                         params_list.append(f"{t_str} {n_str}".strip())
 
@@ -803,7 +817,10 @@ class GraphBuilder:
             decls = {cls.start_byte: cls for cls, _ in self._iter_classes(tree, src)}
             for info in infos:
                 info["node"] = decls[info["start"]]
-                self._link_class(info)
+                try:
+                    self._link_class(info)
+                except RecursionError:  # one pathological expression must not lose the whole repository
+                    self.skipped_files.append(info["file"])
                 del info["node"]
         self._bump("java_ambiguous_references", len(self._java_ambiguous))
 
@@ -1025,8 +1042,7 @@ class GraphBuilder:
 
     # --- Terraform: typed resource/module/provider/variable nodes -------------------------------
     # Literal attribute values only; interpolations (var.x, local.y) are left unresolved on purpose.
-    _TF_ATTR = r'(?m)^\s*{key}\s*=\s*"([^"$]*)"\s*$'
-    _SECRET_KEY = re.compile(r"(?i)(secret|password|passwd|token|api_?key|private_?key|credential)")
+    _TF_ATTR = r'(?m)^[ \t]*{key}[ \t]*=[ \t]*"([^"$]*)"[ \t\r]*$'
 
     @staticmethod
     def _iter_hcl_blocks(root: Any):
@@ -1067,7 +1083,7 @@ class GraphBuilder:
                     "tf_type": rtype,
                     "tf_name": rname,
                 }
-                meta = re.search(r"metadata\s*\{(.*?)\n\s*\}", text, re.DOTALL)
+                meta = re.search(r"metadata[ \t]*\{(.*?)\n[ \t]*\}", text, re.DOTALL)
                 scope = meta.group(1) if meta else text
                 for key in ("name", "namespace", "chart", "repository", "version"):
                     val = self._tf_attr(scope if key in ("name", "namespace") and meta else text, key)
@@ -1088,7 +1104,7 @@ class GraphBuilder:
             elif kname == "variable" and labels:
                 node = {"file": rel, "line": line, "type": "tf_variable"}
                 default = self._tf_attr(text, "default")
-                if default is not None and not self._SECRET_KEY.search(labels[0]):
+                if default is not None and not is_secret(labels[0], default):
                     node["default"] = default
                 self.symbol_table[f"variable:{labels[0]}"] = node
 
@@ -1097,7 +1113,7 @@ class GraphBuilder:
         seen = set()
         for d in {p.parent for p in hcl_files} | {self.root_dir}:
             mj = d / ".terraform" / "modules" / "modules.json"
-            if mj in seen or not mj.is_file():
+            if mj in seen or not readable(mj, self.root_dir):
                 continue
             seen.add(mj)
             try:
@@ -1127,7 +1143,7 @@ class GraphBuilder:
             if not m:
                 continue
             key, val = m.group(1), m.group(2)
-            if self._SECRET_KEY.search(key):
+            if is_secret(key, val):
                 val = "[REDACTED]"
             nid = f"tfvar:{rel}:{key}"
             self.symbol_table[nid] = {"file": rel, "line": i, "type": "tf_var_binding", "value": val[:200]}
@@ -1296,7 +1312,8 @@ def mine_git_cochanges(
     import subprocess
 
     res = subprocess.run(
-        ["git", "-C", str(repo_dir), "log", f"-n{max_commits}", "--name-only", "--pretty=format:COMMIT:%H"],
+        [*git_argv(repo_dir), "log", "--no-show-signature", f"-n{max_commits}", "--name-only",
+         "--pretty=format:COMMIT:%H"],
         capture_output=True,
         text=True,
     )
@@ -1321,32 +1338,41 @@ def find_cycles_postorder(nodes: Dict[str, Any], edges: List[Dict[str, Any]]) ->
     on_stack: Set[str] = set()
     sccs: List[List[str]] = []
 
-    def strongconnect(u: str) -> None:
+    def strongconnect(root: str) -> None:
+        """Tarjan with an explicit stack: a long import chain must not overflow Python's recursion limit."""
         nonlocal index
-        indices[u] = index
-        lowlink[u] = index
+        work = [(root, iter(sorted(adj.get(root, []))))]
+        indices[root] = lowlink[root] = index
         index += 1
-        stack.append(u)
-        on_stack.add(u)
-
-        for v in sorted(adj.get(u, [])):
-            if v not in indices:
-                strongconnect(v)
-                # Post-order aggregation: child v is finished, propagate lowlink[v] up to u
-                lowlink[u] = min(lowlink[u], lowlink[v])
-            elif v in on_stack:
-                lowlink[u] = min(lowlink[u], indices[v])
-
-        if lowlink[u] == indices[u]:
-            comp: List[str] = []
-            while True:
-                w = stack.pop()
-                on_stack.remove(w)
-                comp.append(w)
-                if w == u:
+        stack.append(root)
+        on_stack.add(root)
+        while work:
+            u, children = work[-1]
+            for v in children:
+                if v not in indices:
+                    indices[v] = lowlink[v] = index
+                    index += 1
+                    stack.append(v)
+                    on_stack.add(v)
+                    work.append((v, iter(sorted(adj.get(v, [])))))
                     break
-            if len(comp) > 1:
-                sccs.append(list(reversed(comp)))
+                if v in on_stack:
+                    lowlink[u] = min(lowlink[u], indices[v])
+            else:
+                work.pop()
+                if work:
+                    parent = work[-1][0]
+                    lowlink[parent] = min(lowlink[parent], lowlink[u])
+                if lowlink[u] == indices[u]:
+                    comp: List[str] = []
+                    while True:
+                        w = stack.pop()
+                        on_stack.remove(w)
+                        comp.append(w)
+                        if w == u:
+                            break
+                    if len(comp) > 1:
+                        sccs.append(list(reversed(comp)))
 
     for n in sorted(adj):
         if n not in indices:
@@ -1389,6 +1415,7 @@ def detect_communities(nodes: Dict[str, Any], edges: List[Dict[str, Any]], max_i
 
 def generate_graph_report(graph: Dict[str, Any]) -> str:
     """Emit a Graphify-style GRAPH_REPORT.md summarizing God nodes, communities, and Tarjan SCC cycles."""
+    graph = clean_tree(graph)
     norm = from_graphify(graph)
     nodes, edges = norm.get("nodes", {}), norm.get("edges", [])
     degree: Dict[str, int] = {n: 0 for n in nodes}
@@ -1571,10 +1598,9 @@ def main() -> None:
     out_data = to_graphify(graph) if args.format == "graphify" else graph
 
     try:
-        with open(args.output, "w", encoding="utf-8") as f:
-            json.dump(out_data, f, indent=2)
+        write_atomic(args.output, json.JSONEncoder(indent=2).iterencode(out_data))
         if args.report:
-            Path(args.report).write_text(generate_graph_report(graph), encoding="utf-8")
+            write_atomic(args.report, generate_graph_report(graph))
         logger.info(f"Graph built ({args.format}) with {len(graph['nodes'])} nodes and {len(graph['edges'])} edges.")
     except IOError as e:
         logger.error(f"Failed to write graph to {args.output}: {e}")
