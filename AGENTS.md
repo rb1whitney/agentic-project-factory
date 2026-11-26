@@ -71,7 +71,7 @@ Target: **60-98% token reduction**. All five frameworks MANDATORY. No exceptions
 
 ### 3. Tree-sitter Call-Dependency Gating (Blast Radius)
 *   **BANNED**: Loading entire directories without AST gating or running root-wide `code_mapper.py .` on startup.
-*   **REQUIRED (AUTO-ROUTE)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Auto-Routing + Map-First Protocol). Engine is chosen from the request; ask the USER only when target `<dir>` or scope is ambiguous. State the Evidence Boundary in every readout.
+*   **REQUIRED (AUTO-ROUTE)**: Before any multi-file coding, refactor, or investigation task, engage [**.agent/skills/skill-code-map/SKILL.md**](file://./.agent/skills/skill-code-map/SKILL.md) (§0 Auto-Routing + Search-First Protocol): grep first; use the map when the search is noisy (the noise gate hook enforces about 100 files) or the question is a relation search cannot show; then search inside the files the map names. Engine is chosen from the request; ask the USER only when target `<dir>` or scope is ambiguous. State the Evidence Boundary in every readout.
 *   **REQUIRED**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/auto_context.py "<task>" --src <dir> --max-tokens 8000` (or selected engine) and restrict context window strictly to calculated blast radius.
 
 *   **REQUIRED**: Graph output is a list of candidates, not an answer. Read the files it names before concluding; for a named symbol, run `git grep -w` first (measured in [**skill-code-map/references/graph-vs-search.md**](file://./.agent/skills/skill-code-map/references/graph-vs-search.md)).

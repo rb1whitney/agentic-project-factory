@@ -1,7 +1,9 @@
 import argparse
+import collections
 import json
 import logging
 import os
+import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -10,6 +12,23 @@ logger = logging.getLogger("semantic_query")
 
 # Id namespaces that are path-style (k8s:<group>/<Kind>/<ns>/<name>), never dotted Class.method.
 INFRA_PREFIXES = ("k8s:", "py:", "go:", "vault:")
+
+# Annotations that mean "wired by a framework": the binding is not a call the graph can follow.
+DI_ANNOTATIONS = {
+    "Inject",
+    "AssistedInject",
+    "Provides",
+    "Binds",
+    "BindsInstance",
+    "Module",
+    "Component",
+    "Subcomponent",
+    "Produces",
+    "Autowired",
+    "Bean",
+    "Configuration",
+    "Resource",
+}
 
 
 def _normalize_graph_schema(raw: Dict[str, Any]) -> Dict[str, Any]:
@@ -119,6 +138,91 @@ class SemanticQuery:
                 return prefix
         return node_id
 
+    def usage_owners(self, name: str) -> set:
+        targets = set(self._matches(name)) or {name}
+        return {self._owner(e["from"]) for e in self.graph.get("edges", []) if e.get("to") in targets}
+
+    def closure(self, name: str, depth: int = 2, limit: int = 30) -> str:
+        """Files the class's file depends on within `depth` hops, nearest and most-linked first.
+
+        The walk is over files, so nested classes and every other class in a file are followed together."""
+        nodes = self.graph.get("nodes", {})
+        starts = self._matches(name)
+        root = self._owner(starts[0]) if starts else None
+        root_file = nodes.get(root, {}).get("file") if root else None
+        if not root_file:
+            return f"No definition found for '{name}'.\n" + self.coverage_footer(set(), name)
+        out: Dict[str, Dict[str, List[Tuple[str, str]]]] = collections.defaultdict(
+            lambda: collections.defaultdict(list)
+        )
+        for e in self.graph.get("edges", []):
+            dst = self._owner(e["to"])
+            dst_file = nodes.get(dst, {}).get("file")
+            src_file = e.get("file") or nodes.get(self._owner(e["from"]), {}).get("file")
+            if src_file and dst_file and src_file != dst_file:
+                out[src_file][dst_file].append((dst, e["type"]))
+        hop, via, strength = {root_file: 0}, {}, collections.Counter()
+        frontier = [root_file]
+        for d in range(1, depth + 1):
+            nxt = []
+            for src in frontier:
+                for dst, items in out.get(src, {}).items():
+                    strength[dst] += len(items)
+                    if dst not in hop:
+                        hop[dst] = d
+                        via[dst] = (src, sorted({t for _, t in items}), sorted({c for c, _ in items}))
+                        nxt.append(dst)
+            frontier = nxt
+        ranked = sorted((f for f in hop if f != root_file), key=lambda f: (hop[f], -strength[f], f))
+        lines = [f"Closure of '{root}' to {depth} hops: {len(ranked)} files (nearest and most-linked first)"]
+        for f in ranked[:limit]:
+            parent, kinds, classes = via[f]
+            more = f" +{len(classes) - 1}" if len(classes) > 1 else ""
+            lines.append(
+                f"- hop {hop[f]}  {f}  [{classes[0]}{more}]  <- {parent.rsplit('/', 1)[-1]} ({', '.join(kinds[:3])})"
+            )
+        extra = ""
+        if len(ranked) > limit:
+            extra = (
+                f"{len(ranked) - limit} more files within {depth} hops are not shown: rerun with --limit {len(ranked)}."
+            )
+        covered = {k for k, v in nodes.items() if v.get("file") in hop}
+        lines.append(self.coverage_footer(covered, root, extra, files=len(ranked)))
+        return "\n".join(lines)
+
+    def coverage_footer(self, owners: Any, name: str, extra: str = "", files: Optional[int] = None) -> str:
+        """What the graph could not see in this answer, so a short answer is not read as a complete one."""
+        nodes = self.graph.get("nodes", {})
+        owners = {o for o in owners if o in nodes}
+
+        def names(items: List[str]) -> str:
+            ordered = sorted(items)
+            return ", ".join(ordered[:3]) + (", ..." if len(ordered) > 3 else "")
+
+        dyn = [o for o in owners if (nodes[o].get("gaps") or {}).get("dynamic_sites")]
+        err = [o for o in owners if (nodes[o].get("gaps") or {}).get("parse_error")]
+        wired = [o for o in owners if DI_ANNOTATIONS & set(nodes[o].get("annotations") or [])]
+        flags = []
+        if dyn:
+            flags.append(f"reflection call sites in {len(dyn)} ({names(dyn)})")
+        if wired:
+            flags.append(f"framework-wired, bindings not followed, in {len(wired)} ({names(wired)})")
+        if err:
+            flags.append(f"parse errors in {len(err)} ({names(err)})")
+        counted = f"{files} files" if files is not None else f"{len(owners)} classes"
+        short = name.split(".")[-1]
+        lines = [
+            "",
+            "-- coverage --",
+            f"This answer covers {counted}. The graph is syntactic: it does not follow reflection,"
+            " string-built names, generated code or framework wiring.",
+            "Blind spots on these classes: " + ("; ".join(flags) if flags else "none recorded"),
+        ]
+        if extra:
+            lines.append(extra)
+        lines.append(f"Verify before changing shared code: git grep -lw {short}")
+        return "\n".join(lines)
+
     def find_definition(self, name: str) -> str:
         found = self._matches(name)
         if not found:
@@ -141,6 +245,23 @@ class SemanticQuery:
         if not res:
             return f"No usages found for '{name}'."
         return "\n".join([f"Usages of '{name}':"] + res)
+
+    def exact_usage_footer(self, name: str) -> Optional[str]:
+        """A trust line for lists that are complete by construction (Go package imports); None for everything else.
+
+        The generic footer tells the agent to re-search. On a Go import list that is wrong and costly: measured in
+        Finding 20, agents followed it and re-searched the whole repository after receiving the full answer.
+        """
+        nodes = self.graph.get("nodes", {})
+        found = [t for t in (set(self._matches(name)) or {name}) if t in nodes]
+        if found and all(nodes[t].get("type") == "go-package" for t in found):
+            return (
+                "-- coverage --\n"
+                "Each line is a directory with a non-test, non-vendor .go file that imports this package directly. Go requires "
+                "an explicit import for every cross-package use, so this list is complete for those files: searching the whole "
+                "repository again will not add to it. Not covered: test files, vendor/, other modules, build-generated code."
+            )
+        return None
 
     def trace_dependencies(self, target: str) -> str:
         """Outbound edges of a file path, a class (including its methods), or a single method."""
@@ -238,9 +359,14 @@ class SemanticQuery:
         edges = [
             e
             for e in self.graph.get("edges", [])
-            if str(e.get("from")) in keep and str(e.get("to")) in keep
-            and (str(e.get("from")) in up and str(e.get("to")) in up
-                 or str(e.get("from")) in down and str(e.get("to")) in down)
+            if str(e.get("from")) in keep
+            and str(e.get("to")) in keep
+            and (
+                str(e.get("from")) in up
+                and str(e.get("to")) in up
+                or str(e.get("from")) in down
+                and str(e.get("to")) in down
+            )
         ]
         return {
             "targets": starts,
@@ -464,6 +590,11 @@ def main() -> None:
     p_usage.add_argument("name")
 
     # trace
+    p_closure = subparsers.add_parser("closure", help="files a class depends on within N hops, with a coverage footer")
+    p_closure.add_argument("name", help="Class or Class.method")
+    p_closure.add_argument("--depth", type=int, default=2)
+    p_closure.add_argument("--limit", type=int, default=30, help="files to show before the 'more' line")
+
     p_trace = subparsers.add_parser("trace-dependencies")
     p_trace.add_argument("file", help="File path, class name, or Class.method")
 
@@ -500,12 +631,18 @@ def main() -> None:
     query = SemanticQuery(args.graph)
     if args.command == "find-definition":
         print(query.find_definition(args.name))
+    elif args.command == "closure":
+        print(query.closure(args.name, args.depth, args.limit))
     elif args.command == "find-usages":
         print(query.find_usages(args.name))
+        print("\n" + (query.exact_usage_footer(args.name) or query.coverage_footer(query.usage_owners(args.name), args.name).lstrip("\n")))
     elif args.command == "trace-dependencies":
         print(query.trace_dependencies(args.file))
     elif args.command == "impact":
-        print(query.impact(args.name))
+        text = query.impact(args.name)
+        print(text)
+        owners = {m.group(1) for m in re.finditer(r"^- (\S+) \(depth", text, re.M)}
+        print(query.coverage_footer(owners, args.name))
     elif args.command == "query":
         print(query.query(args.keyword))
     elif args.command == "lineage":

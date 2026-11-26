@@ -34,7 +34,7 @@ PROCEDURE run_skill_code_map_workflow(target_dir, task_query):
   - `side_effects`: filesystem=writes cache to ~/.cache/skill-code-map/, network=none
 <!-- SAP_BUNDLE_END -->
 
-## 0. Auto-Routing + Map-First Protocol (MANDATORY)
+## 0. Auto-Routing + Search-First Protocol (MANDATORY)
 
 Extract AST symbol map, call/import graph (`relationship_graph`), git forensics hotspots, and PPR blast-radius context (`ranked_context`, `evidence_boundary`) for source code directory `target_dir` and `task_query` (`max_tokens`, `format`). Pick the engine from the request; ask only when `target_dir` or scope is ambiguous:
 
@@ -46,7 +46,9 @@ Extract AST symbol map, call/import graph (`relationship_graph`), git forensics 
 | **Graphify bridge** (`skill-graphify`) | Interactive D3/Mermaid callflow HTML, community/God-node topology, unified code+K8s+Vault graph | `--format graphify` on `graph_builder.py` / `k8s_catalog.py` / `state_graph.py`, plus `k8s_graphify_extract.py` |
 
 ### Routing & Runtime Rules
-- **Map First, then verify**: Build or reuse the graph (`~/.cache/skill-code-map/<repo-hash>/`) and query it for candidates, then read the files it names before answering a dependency or blast-radius question. For a named-symbol lookup, search first (`git grep -w`). Measured: agents that answered from graph output alone and read no source found 0.46 of the right files against 0.75 for search (`references/graph-vs-search.md`).
+- **Search first, map for noise and relations, then search inside what the map names**: Run the search (`git grep -l`, Grep). Quiet result (about 100 files or fewer): answer from it. Noisy result, or a relation search cannot show (inherits, injects, call chain, multi-hop flow): build or reuse the graph (`~/.cache/skill-code-map/<repo-hash>/`), query it for candidates, then read or search only the files it names. Never stop at the map unless its footer says the list is complete. Measured: plain search matched an exact graph on Go import questions even at 587 matching files; the map cut Claude's cost by 28 percent when named and raised Antigravity's token use; agents that answered from graph output alone found 0.46 of the right files against 0.75 for search (`references/graph-vs-search.md`).
+- **Noise gate (wired)**: `scripts/noise_gate.py` runs as a PreToolUse hook for Claude (`.agent/adapters/settings/claude.json`) and Antigravity (`.agent/hooks/hooks.json`). A search matching more than 100 files is denied once per session with the map commands named; after one map command, or one denial, searches proceed. Quiet searches are untouched. It fails open, so a broken hook never blocks a tool call. Tune with `NOISE_MIN_HITS`; remove the two hook entries to disable.
+- **Trust the footer**: every `semantic_query.py find-usages` answer ends with a coverage footer. For Go package imports it says the list is complete (do not re-search the repository); for everything else it says the list is candidates (confirm inside the files listed).
 - **Interpreter**: Always run Python AST scripts with `/usr/bin/python3` (system Python with `tree_sitter` bindings) and pipe shell output through `bin/rtk`.
 - **Evidence Boundary**: Every readout MUST end with an **Evidence Boundary** line stating static AST vs manifests only vs live cluster state.
 - **Language & Grammar Caveats**: Go graph tracks package-level imports, exported funcs/methods, and Cobra `AddCommand` edges (use `ast-grep` for general call sites); YAML Helm templates must be rendered before `state_graph.py`; `state_graph.py` refuses `*prod*` kubectl contexts unless `--allow-prod-read` is passed and strips all Secret/ConfigMap payloads.

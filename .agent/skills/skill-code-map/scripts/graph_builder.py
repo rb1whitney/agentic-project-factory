@@ -83,6 +83,7 @@ class GraphBuilder:
         # Each file is parsed exactly once; the trees are reused by pass 2.
         java_units = [u for u in (self._parse_java(p) for p in java_files) if u]
         self._index_java_units(java_units)
+        self._record_java_gaps(java_units)
         hcl_units = [u for u in (self._parse_hcl(p) for p in hcl_files) if u]
         for unit in hcl_units:
             self._index_hcl(unit)
@@ -394,7 +395,19 @@ class GraphBuilder:
     # types and static class names; anything else (JDK, logger, chained calls) emits no
     # edge, so every edge present is a verified syntactic fact, never a name-match guess.
 
-    _CLASS_NODES = ("class_declaration", "interface_declaration", "enum_declaration", "record_declaration")
+    _CLASS_NODES = (
+        "class_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "record_declaration",
+        "annotation_type_declaration",
+    )
+    # Reflection and dynamic-dispatch call sites a syntax graph cannot follow (textual count, reported as a gap).
+    # `import static a.b.C.member;` or `import static a.b.C.*;` -> (class path, member or *)
+    _STATIC_IMPORT = re.compile(r"\s*import\s+static\s+([\w.]+)\.(\w+|\*)\s*;")
+    _DYNAMIC = re.compile(
+        r"\bClass\s*\.\s*forName\s*\(|\.\s*(?:newInstance|getDeclaredMethod|getMethod|getDeclaredConstructor|invoke)\s*\("
+    )
     _TYPE_NODES = ("type_identifier", "generic_type", "scoped_type_identifier")
     _STEREOTYPES = {"Service", "Component", "Controller", "RestController", "Repository", "Configuration"}
     _INJECT_ANNOTATIONS = {"Autowired", "Inject", "Resource"}
@@ -422,10 +435,14 @@ class GraphBuilder:
         root = parser.parse(src).root_node
         pkg = ""
         imports = []
+        static_imports: List[Tuple[str, str]] = []
         for c in root.children:
             if c.type == "package_declaration":
                 pkg = self._txt(c, src).replace("package", "").replace(";", "").strip()
             elif c.type == "import_declaration":
+                m = self._STATIC_IMPORT.match(self._txt(c, src))
+                if m:
+                    static_imports.append((m.group(1), m.group(2)))
                 imp = self._txt(c, src).replace("import", "").replace("static", "").replace(";", "").strip()
                 if imp:
                     imports.append(imp)
@@ -435,6 +452,9 @@ class GraphBuilder:
             "root": root,
             "package": pkg,
             "imports": imports,
+            "static_imports": static_imports,
+            "has_error": bool(root.has_error),
+            "dynamic_sites": len(self._DYNAMIC.findall(src.decode("utf-8", errors="ignore"))),
         }
 
     def _iter_classes(self, root: Any, src: bytes):
@@ -507,11 +527,23 @@ class GraphBuilder:
                 out.extend(self._direct_types(c))
         return out
 
+    def _bump(self, key: str, n: int = 1) -> None:
+        self.stats[key] = self.stats.get(key, 0) + n
+
+    def _record_java_gaps(self, units: List[Dict[str, Any]]) -> None:
+        """Count what a syntax graph cannot see, so answers can say where the map is blind."""
+        self._bump("java_files", len(units))
+        self._bump("java_parse_error_files", sum(1 for u in units if u.get("has_error")))
+        self._bump("java_dynamic_call_sites", sum(u.get("dynamic_sites", 0) for u in units))
+        self._bump("java_files_with_dynamic_sites", sum(1 for u in units if u.get("dynamic_sites")))
+
     def _index_java_units(self, units: List[Dict[str, Any]]) -> None:
         for unit in units:
             src, rel = unit["src"], unit["rel"]
             for cls, name in self._iter_classes(unit["root"], src):
                 body = cls.child_by_field_name("body")
+                if cls.type == "annotation_type_declaration":
+                    self._bump("java_annotation_types")
                 anns = self._annotations(cls, src)
                 base = next((self._annotation_path(n, src) for a, n in anns if a == "RequestMapping"), "")
                 info: Dict[str, Any] = {
@@ -521,6 +553,7 @@ class GraphBuilder:
                     "src": src,
                     "package": unit.get("package", ""),
                     "imports": unit.get("imports", []),
+                    "static_imports": unit.get("static_imports", []),
                     "annotations": [a for a, _ in anns],
                     "fields": {},
                     "field_injected": set(),
@@ -538,6 +571,13 @@ class GraphBuilder:
                     "imports": unit.get("imports", []),
                     "annotations": info["annotations"],
                 }
+                gaps: Dict[str, Any] = {}
+                if unit.get("dynamic_sites"):
+                    gaps["dynamic_sites"] = unit["dynamic_sites"]
+                if unit.get("has_error"):
+                    gaps["parse_error"] = True
+                if gaps:
+                    self.symbol_table[name]["gaps"] = gaps
                 for header in cls.children:
                     if header.type in ("superclass", "super_interfaces", "extends_interfaces"):
                         for t in self._direct_types(header):
@@ -636,6 +676,8 @@ class GraphBuilder:
                         self._add_edge(name, names[0], "inherits", rel)
                     for extra in names[1:]:
                         self._add_edge(name, extra, "uses-type", rel)
+        for ann_name, _ in self._annotations(cls, src):
+            self._add_edge(name, ann_name, "annotated-by", rel)
         body = cls.child_by_field_name("body")
         if body is None:
             return
@@ -645,6 +687,8 @@ class GraphBuilder:
                 type_node = member.child_by_field_name("type")
                 names = self._type_names(type_node, src) if type_node is not None else []
                 injected = any(a in self._INJECT_ANNOTATIONS for a, _ in self._annotations(member, src))
+                for ann_name, _ in self._annotations(member, src):
+                    self._add_edge(name, ann_name, "annotated-by", rel)
                 for i, tname in enumerate(names):
                     kind = "injects" if (i == 0 and injected) else "uses-type"
                     self._add_edge(name, tname, kind, rel)
@@ -659,6 +703,8 @@ class GraphBuilder:
         src, rel, cname = info["src"], info["file"], info["name"]
         param_locals: Dict[str, str] = {}
 
+        for ann_name, _ in self._annotations(member, src):
+            self._add_edge(mid, ann_name, "annotated-by", rel)
         ret = member.child_by_field_name("type")
         if ret is not None:
             for t in self._type_names(ret, src):
@@ -668,6 +714,8 @@ class GraphBuilder:
         for p in params.children if params is not None else []:
             if p.type not in ("formal_parameter", "spread_parameter"):
                 continue
+            for ann_name, _ in self._annotations(p, src):
+                self._add_edge(mid, ann_name, "annotated-by", rel)
             ptype, pname = p.child_by_field_name("type"), p.child_by_field_name("name")
             names = self._type_names(ptype, src) if ptype is not None else []
             if pname is not None and names:
@@ -770,13 +818,35 @@ class GraphBuilder:
                 return found
         return None
 
+    def _static_import_target(self, info: Dict[str, Any], mname: str) -> Optional[str]:
+        """Resolve `mname()` through `import static ...Class.mname;` or a wildcard `Class.*` import.
+
+        Only classes declared in the repository resolve."""
+        for cls_path, member in info.get("static_imports", ()):
+            if member not in (mname, "*"):
+                continue
+            parts = cls_path.split(".")
+            for candidate in (".".join(parts[-2:]), parts[-1]):  # nested class first, then the simple name
+                if candidate in self.java_classes:
+                    found = self._find_method(candidate, mname)
+                    if found:
+                        return found
+        return None
+
     def _link_call(self, info: Dict[str, Any], node: Any, mid: str, locals_: Dict[str, str]) -> None:
         src = info["src"]
         name_node = node.child_by_field_name("name")
         if name_node is None:
             return
-        target_cls = self._receiver_class(node.child_by_field_name("object"), info, locals_)
-        target = self._find_method(target_cls, self._txt(name_node, src)) if target_cls else None
+        obj = node.child_by_field_name("object")
+        mname = self._txt(name_node, src)
+        target_cls = self._receiver_class(obj, info, locals_)
+        target = self._find_method(target_cls, mname) if target_cls else None
+        if target is None and obj is None:
+            # A receiver-less call that is not a method of this class or its supertypes may come from a static import.
+            target = self._static_import_target(info, mname)
+            if target:
+                self._bump("java_static_import_calls")
         if target:
             self.stats["calls_resolved"] += 1
             self._add_edge(mid, target, "calls", info["file"])
