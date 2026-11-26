@@ -187,10 +187,17 @@ class SemanticQuery:
                 f"{len(ranked) - limit} more files within {depth} hops are not shown: rerun with --limit {len(ranked)}."
             )
         covered = {k for k, v in nodes.items() if v.get("file") in hop}
-        lines.append(self.coverage_footer(covered, root, extra, files=len(ranked)))
+        lines.append(
+            self.coverage_footer(
+                covered, root, extra, files=len(ranked),
+                verify=f"Verify by reading what {root_file} imports and calls: the list above is what it depends on, not what depends on it.",
+            )
+        )
         return "\n".join(lines)
 
-    def coverage_footer(self, owners: Any, name: str, extra: str = "", files: Optional[int] = None) -> str:
+    def coverage_footer(
+        self, owners: Any, name: str, extra: str = "", files: Optional[int] = None, verify: Optional[str] = None
+    ) -> str:
         """What the graph could not see in this answer, so a short answer is not read as a complete one."""
         nodes = self.graph.get("nodes", {})
         owners = {o for o in owners if o in nodes}
@@ -210,7 +217,7 @@ class SemanticQuery:
         if err:
             flags.append(f"parse errors in {len(err)} ({names(err)})")
         counted = f"{files} files" if files is not None else f"{len(owners)} classes"
-        short = name.split(".")[-1]
+        short = re.split(r"[./:]", name)[-1]  # a bare name a grep can match, not the graph's internal id such as `go:pkg/x`
         lines = [
             "",
             "-- coverage --",
@@ -220,7 +227,9 @@ class SemanticQuery:
         ]
         if extra:
             lines.append(extra)
-        lines.append(f"Verify before changing shared code: git grep -lw {short}")
+        # `git grep -lw X` finds files that USE X, which is the right check for usages and impact but the wrong direction for
+        # closure, which lists what X uses; closure passes its own `verify` line.
+        lines.append(verify or f"Verify before changing shared code: git grep -lw {short}")
         return "\n".join(lines)
 
     def find_definition(self, name: str) -> str:
