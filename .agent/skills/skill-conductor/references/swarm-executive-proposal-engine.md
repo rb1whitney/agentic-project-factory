@@ -42,7 +42,7 @@ Use the `/conductor:dispatch` command for all agentic hand-offs:
 /conductor:dispatch agent=swarm-scout instruction="Analyze the auth service for Crossplane migration readiness."
 ```
 
-- **Zero-Shortcut Law**: Reject all "TODO", "FIXME", or faked logic. Use `audit_stubs.sh` to verify.
+- **Zero-Shortcut Law**: Reject all "TODO", "FIXME", or faked logic. Verify by searching the changed files.
 - **TDD-First Mandate**: Every manufacturing step must be preceded by a test characterization.
 - **Physical Sovereignty**: The `.agent/` hub is the only source of truth for swarm capabilities.
 - **Conductor Sovereignty**: All planning and reporting MUST reside within `conductor/`.

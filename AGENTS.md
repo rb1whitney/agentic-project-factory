@@ -167,7 +167,6 @@ Programming-Work/
     (see .agent/skills/skill-code-map/scripts/)  code_mapper.py, auto_context.py
  bin/
     nexus.py      Swarm Nexus synchronization engine.
-    audit_stubs.sh Quality gate verification script.
  code_map.md      Auto-generated repository symbol map
  docs/            Detailed architecture and standards documentation
 ```

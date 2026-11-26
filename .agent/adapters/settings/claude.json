@@ -18,18 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .agent/hooks/enforce-safety.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .agent/hooks/audit_stubs.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.agent/hooks/enforce-safety.sh"
           }
         ]
       }

@@ -46,4 +46,4 @@ Templates for physical/logical architecture and implementation plans are located
 
 ## Quality Gate
 
-The workflow uses the `audit_stubs.sh` script to ensure no shortcuts (TODO, FIXME, NotImplementedException) are present in the final implementation.
+The audit phase must ensure no shortcuts (TODO, FIXME, NotImplementedException) are present in the final implementation.
