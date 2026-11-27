@@ -14,7 +14,6 @@ sys.path.insert(0, str(SCRIPTS))
 
 import gcp_catalog as gc  # noqa: E402
 
-
 SAMPLE_ASSETS = [
     {
         "name": "//compute.googleapis.com/projects/p1/global/networks/vpc1",

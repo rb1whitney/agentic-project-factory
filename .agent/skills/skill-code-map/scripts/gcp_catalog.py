@@ -182,10 +182,18 @@ def build_graphify(
             or (res_data.get("name") if isinstance(res_data, dict) else "")
             or _short_name(full_name)
         )
-        location = asset.get("location") or (res_block.get("location") if isinstance(res_block, dict) else "") or "global"
+        location = (
+            asset.get("location")
+            or (res_block.get("location") if isinstance(res_block, dict) else "")
+            or "global"
+        )
         nid = canonical_gcp_id(asset_type, full_name, display_name)
         extra: Dict[str, Any] = {}
-        if isinstance(res_data, dict) and isinstance(res_data.get("description"), str) and "kubernetes.io/service-name" in res_data["description"]:
+        if (
+            isinstance(res_data, dict)
+            and isinstance(res_data.get("description"), str)
+            and "kubernetes.io/service-name" in res_data["description"]
+        ):
             extra["k8s_service_hint"] = res_data["description"]
         ensure_node(nid, display_name, asset_type, location=location, full_name=full_name, extra=extra)
         if full_name:
@@ -209,7 +217,11 @@ def build_graphify(
         )
         nid = canonical_gcp_id(asset_type, full_name, display_name)
 
-        parent = asset.get("parentFullResourceName") or (res_block.get("parent") if isinstance(res_block, dict) else "") or ""
+        parent = (
+            asset.get("parentFullResourceName")
+            or (res_block.get("parent") if isinstance(res_block, dict) else "")
+            or ""
+        )
         if parent:
             ptgt = ref_to_id.get(parent) or ref_to_id.get(_suffix_key(parent))
             if ptgt:
@@ -217,7 +229,11 @@ def build_graphify(
 
         kms_key = asset.get("kmsKey", "") or asset.get("kmsKeyName", "")
         if kms_key:
-            tgt = ref_to_id.get(kms_key) or ref_to_id.get(_suffix_key(kms_key)) or canonical_gcp_id("cloudkms.googleapis.com/CryptoKey", kms_key)
+            tgt = (
+                ref_to_id.get(kms_key)
+                or ref_to_id.get(_suffix_key(kms_key))
+                or canonical_gcp_id("cloudkms.googleapis.com/CryptoKey", kms_key)
+            )
             if tgt not in nodes_by_id:
                 ensure_node(tgt, _short_name(kms_key), "cloudkms.googleapis.com/CryptoKey", full_name=kms_key)
             add_edge(nid, "encrypted-by-kms", tgt)
@@ -288,7 +304,14 @@ def merge_with_graphify(gcp_graph: Dict[str, Any], base_path: Path) -> Dict[str,
                         k = (gn["id"], "routes-to-k8s-service", k8s_id)
                         if k not in seen:
                             seen.add(k)
-                            links.append({"source": gn["id"], "relation": "routes-to-k8s-service", "target": k8s_id, "confidence": "EXTRACTED"})
+                            links.append(
+                                {
+                                    "source": gn["id"],
+                                    "relation": "routes-to-k8s-service",
+                                    "target": k8s_id,
+                                    "confidence": "EXTRACTED",
+                                }
+                            )
             except json.JSONDecodeError:
                 pass
         if atype == "iam.googleapis.com/ServiceAccount" and "eso-wi" in gn.get("label", ""):
@@ -297,7 +320,14 @@ def merge_with_graphify(gcp_graph: Dict[str, Any], base_path: Path) -> Dict[str,
                     k = (kn["id"], "workload-identity-bound", gn["id"])
                     if k not in seen:
                         seen.add(k)
-                        links.append({"source": kn["id"], "relation": "workload-identity-bound", "target": gn["id"], "confidence": "INFERRED"})
+                        links.append(
+                            {
+                                "source": kn["id"],
+                                "relation": "workload-identity-bound",
+                                "target": gn["id"],
+                                "confidence": "INFERRED",
+                            }
+                        )
 
     return {
         "directed": True,
@@ -335,7 +365,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--out", type=Path, default=None, help="Output file path (0600 atomic write)")
     args = parser.parse_args(argv)
 
-    assets = json.loads(args.input.read_text(encoding="utf-8")) if args.input else fetch_cai_resources(args.project, args.asset_types)
+    assets = (
+        json.loads(args.input.read_text(encoding="utf-8"))
+        if args.input
+        else fetch_cai_resources(args.project, args.asset_types)
+    )
     iam_policies = (
         json.loads(args.iam_input.read_text(encoding="utf-8"))
         if args.iam_input
@@ -347,7 +381,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         graph = merge_with_graphify(graph, args.merge_with)
 
     if args.format == "markdown":
-        lines = [f"# GCP Asset Catalog ({args.project})", f"- Nodes: {len(graph['nodes'])}", f"- Edges: {len(graph['links'])}", ""]
+        lines = [
+            f"# GCP Asset Catalog ({args.project})",
+            f"- Nodes: {len(graph['nodes'])}",
+            f"- Edges: {len(graph['links'])}",
+            "",
+        ]
         for n in sorted(graph["nodes"], key=lambda x: x["id"])[:60]:
             lines.append(f"- `{n['id']}` ({n.get('properties', {}).get('location', 'global')})")
         output_text = "\n".join(lines)
