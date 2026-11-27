@@ -9,6 +9,9 @@ from pathlib import Path
 
 import read_code_map as repo_mapper
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import readable  # noqa: E402
+
 logger = logging.getLogger('skeleton-generator')
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s', stream=sys.stderr)
 
@@ -39,11 +42,13 @@ def main():
 
     for d in search_dirs:
         for ext in target_extensions:
-            files_to_index.extend(d.rglob(f"*{ext}"))
+            files_to_index.extend(f for f in d.rglob(f"*{ext}") if readable(f, d))
 
     logger.info(f"Indexing {len(files_to_index)} files across {len(search_dirs)} directories.")
 
     output_path = root / 'repository_skeleton.txt'
+    if os.path.islink(output_path):
+        os.unlink(output_path)  # replace a planted link; never write through it
     with open(output_path, 'w', encoding='utf-8') as f:
         # Processes, not threads: a tree-sitter C-level crash (exit 139) kills only the worker.
         # On a broken pool, redo the remaining files one-by-one in fresh single-use pools.

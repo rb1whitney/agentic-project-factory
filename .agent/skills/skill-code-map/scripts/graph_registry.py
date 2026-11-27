@@ -26,6 +26,9 @@ import time
 from collections import Counter
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import readable  # noqa: E402
+
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 STOP = set(
     (
@@ -152,7 +155,7 @@ def entry_points(root):
     root = Path(root)
     found = []
     pp = root / "pyproject.toml"
-    if pp.is_file():
+    if readable(pp, root):
         m = re.search(r"\[project\.scripts\]\n((?:.+\n)+?)(?:\n|\[|\Z)", pp.read_text(errors="ignore"))
         found += ["script " + ln.strip() for ln in (m.group(1).splitlines() if m else [])][:3]
         # Dotted form under [project]: scripts.name = "pkg.mod:func"
@@ -161,7 +164,7 @@ def entry_points(root):
             for k, v in re.findall(r'^scripts\.([\w-]+)\s*=\s*"([^"]+)"', pp.read_text(errors="ignore"), re.M)
         ][:3]
     pj = root / "package.json"
-    if pj.is_file():
+    if readable(pj, root):
         try:
             j = json.loads(pj.read_text(errors="ignore"))
             if j.get("bin"):
@@ -204,7 +207,7 @@ def arch_docs(root):
 def readme_text(root):
     for name in ("README.md", "README.rst", "README", "readme.md"):
         p = Path(root) / name
-        if p.is_file():
+        if readable(p, root):
             return p.read_text(errors="ignore")[:6000]
     return ""
 

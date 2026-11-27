@@ -5,7 +5,11 @@ import logging
 import os
 import re
 import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import clean_tree, git_argv, has_local_filters  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("semantic_query")
@@ -29,6 +33,16 @@ DI_ANNOTATIONS = {
     "Configuration",
     "Resource",
 }
+
+
+# Starts with a literal backslash so the scan of a large graph file stays fast.
+_ESCAPE_RUN = re.compile(r"\\+(?=[nrtbf]|u00[0189]|u007[fF]|u202[89])")
+_RAW_BREAKS = re.compile("[\x7f-\x9f\u2028\u2029]")  # legal unescaped inside a JSON string
+
+
+def _has_escaped_control(text: str) -> bool:
+    """True when a JSON text encodes a control character: an odd run of backslashes (`\\n` is a literal backslash)."""
+    return "\\" in text and any(len(m.group()) % 2 for m in _ESCAPE_RUN.finditer(text))
 
 
 def _normalize_graph_schema(raw: Dict[str, Any]) -> Dict[str, Any]:
@@ -69,6 +83,15 @@ def _normalize_graph_schema(raw: Dict[str, Any]) -> Dict[str, Any]:
     return {"nodes": nodes, "edges": edges, "stats": raw.get("graph", {}).get("stats", {})}
 
 
+def diff_command(ref: str, repo: str = ".") -> List[str]:
+    """`git diff <ref>` where the ref can never be read as an option and repository drivers do not run."""
+    if ref.startswith("-"):
+        raise ValueError(f"not a git ref: {ref}")
+    if has_local_filters(repo):
+        raise ValueError("refusing git diff: this checkout configures filter programs; use --diff-file")
+    return [*git_argv(repo), "diff", "--no-ext-diff", "--no-textconv", "--end-of-options", ref]
+
+
 class SemanticQuery:
     def __init__(self, graph_file: str) -> None:
         if not os.path.exists(graph_file):
@@ -77,7 +100,11 @@ class SemanticQuery:
 
         try:
             with open(graph_file, "r", encoding="utf-8") as f:
-                self.graph: Dict[str, Any] = _normalize_graph_schema(json.load(f))
+                text = f.read()
+            self.graph: Dict[str, Any] = _normalize_graph_schema(json.loads(text))
+            # Walking a large graph costs time, so only do it when the file holds an escaped control character.
+            if _has_escaped_control(text) or (not text.isascii() and _RAW_BREAKS.search(text)) or "\x7f" in text:
+                self.graph = clean_tree(self.graph)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse graph file: {e}")
             sys.exit(1)
@@ -89,7 +116,7 @@ class SemanticQuery:
     def from_dict(cls, graph: Dict[str, Any]) -> "SemanticQuery":
         """Wrap an in-memory graph (CodeMap or Graphify schema) without a file round trip."""
         self = cls.__new__(cls)
-        self.graph = _normalize_graph_schema(graph)
+        self.graph = clean_tree(_normalize_graph_schema(graph))
         return self
 
     def owner(self, node_id: str) -> str:
@@ -175,12 +202,20 @@ class SemanticQuery:
             frontier = nxt
         ranked = sorted((f for f in hop if f != root_file), key=lambda f: (hop[f], -strength[f], f))
         lines = [f"Closure of '{root}' to {depth} hops: {len(ranked)} files (nearest and most-linked first)"]
+        # A bare name can mean several classes; never pick one silently.
+        owners = sorted({self._owner(m) for m in starts})
+        if len(owners) > 1:
+            others = ", ".join(o for o in owners if o != root)
+            lines.append(f"{len(owners)} classes are named '{name}': this is {root}. Rerun with one of: {others}")
         for f in ranked[:limit]:
             parent, kinds, classes = via[f]
-            more = f" +{len(classes) - 1}" if len(classes) > 1 else ""
-            lines.append(
-                f"- hop {hop[f]}  {f}  [{classes[0]}{more}]  <- {parent.rsplit('/', 1)[-1]} ({', '.join(kinds[:3])})"
-            )
+            # Every line stays in the agent's context, so say nothing the path or the header already says.
+            short = sorted({c.rsplit("::", 1)[-1].rsplit(".", 1)[-1] for c in classes})
+            stem = f.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+            more = f" +{len(short) - 1}" if len(short) > 1 else ""
+            label = "" if short == [stem] else f"  [{short[0]}{more}]"
+            via_file = "" if parent == root_file else f"<- {parent.rsplit('/', 1)[-1]} "
+            lines.append(f"- hop {hop[f]}  {f}{label}  {via_file}({', '.join(kinds[:3])})")
         extra = ""
         if len(ranked) > limit:
             extra = (
@@ -190,7 +225,8 @@ class SemanticQuery:
         lines.append(
             self.coverage_footer(
                 covered, root, extra, files=len(ranked),
-                verify=f"Verify by reading what {root_file} imports and calls: the list above is what it depends on, not what depends on it.",
+                verify=f"Verify by reading what {root_file} imports and calls: "
+                "the list above is what it depends on, not what depends on it.",
             )
         )
         return "\n".join(lines)
@@ -209,7 +245,10 @@ class SemanticQuery:
         dyn = [o for o in owners if (nodes[o].get("gaps") or {}).get("dynamic_sites")]
         err = [o for o in owners if (nodes[o].get("gaps") or {}).get("parse_error")]
         wired = [o for o in owners if DI_ANNOTATIONS & set(nodes[o].get("annotations") or [])]
+        amb = [o for o in owners if (nodes[o].get("gaps") or {}).get("ambiguous_refs")]
         flags = []
+        if amb:
+            flags.append(f"same-named classes that could not be told apart, in {len(amb)} ({names(amb)})")
         if dyn:
             flags.append(f"reflection call sites in {len(dyn)} ({names(dyn)})")
         if wired:
@@ -217,7 +256,8 @@ class SemanticQuery:
         if err:
             flags.append(f"parse errors in {len(err)} ({names(err)})")
         counted = f"{files} files" if files is not None else f"{len(owners)} classes"
-        short = re.split(r"[./:]", name)[-1]  # a bare name a grep can match, not the graph's internal id such as `go:pkg/x`
+        # A bare name a grep can match, not the graph's internal id such as `go:pkg/x`.
+        short = re.split(r"[./:]", name)[-1]
         lines = [
             "",
             "-- coverage --",
@@ -227,7 +267,7 @@ class SemanticQuery:
         ]
         if extra:
             lines.append(extra)
-        # `git grep -lw X` finds files that USE X, which is the right check for usages and impact but the wrong direction for
+        # `git grep -lw X` finds files that USE X: the right check for usages and impact, the wrong direction for
         # closure, which lists what X uses; closure passes its own `verify` line.
         lines.append(verify or f"Verify before changing shared code: git grep -lw {short}")
         return "\n".join(lines)
@@ -266,9 +306,10 @@ class SemanticQuery:
         if found and all(nodes[t].get("type") == "go-package" for t in found):
             return (
                 "-- coverage --\n"
-                "Each line is a directory with a non-test, non-vendor .go file that imports this package directly. Go requires "
-                "an explicit import for every cross-package use, so this list is complete for those files: searching the whole "
-                "repository again will not add to it. Not covered: test files, vendor/, other modules, build-generated code."
+                "Each line is a directory with a non-test, non-vendor .go file that imports this package directly. "
+                "Go requires an explicit import for every cross-package use, so this list is complete for those files: "
+                "searching the whole repository again will not add to it. "
+                "Not covered: test files, vendor/, other modules, build-generated code."
             )
         return None
 
@@ -644,7 +685,10 @@ def main() -> None:
         print(query.closure(args.name, args.depth, args.limit))
     elif args.command == "find-usages":
         print(query.find_usages(args.name))
-        print("\n" + (query.exact_usage_footer(args.name) or query.coverage_footer(query.usage_owners(args.name), args.name).lstrip("\n")))
+        footer = query.exact_usage_footer(args.name) or query.coverage_footer(
+            query.usage_owners(args.name), args.name
+        ).lstrip("\n")
+        print("\n" + footer)
     elif args.command == "trace-dependencies":
         print(query.trace_dependencies(args.file))
     elif args.command == "impact":
@@ -665,7 +709,7 @@ def main() -> None:
     elif args.command == "diff-impact":
         import subprocess
 
-        res = subprocess.run(["git", "diff", args.git_ref], capture_output=True, text=True)
+        res = subprocess.run(diff_command(args.git_ref), capture_output=True, text=True)
         print(json.dumps(query.diff_impact(res.stdout), indent=2))
     else:
         parser.print_help()

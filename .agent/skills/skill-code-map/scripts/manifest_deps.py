@@ -18,6 +18,9 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import git_argv, readable  # noqa: E402
+
 ALL_REPOS = [
     "adk-python",
     "ax",
@@ -63,9 +66,9 @@ MAX_FILES = 3000
 def manifests(root: Path, repo: str) -> list[str]:
     spec = [f"*{m}" for m in MANIFESTS]
     out = subprocess.run(
-        ["git", "-C", str(root / repo), "ls-files", "--", *spec], capture_output=True, text=True, check=True
+        [*git_argv(root / repo), "ls-files", "--", *spec], capture_output=True, text=True, check=True
     ).stdout.split()
-    return [p for p in out if not SKIP.search(p)][:MAX_FILES]
+    return [p for p in out if not SKIP.search(p) and readable(root / repo / p, root / repo)][:MAX_FILES]
 
 
 def norm(name: str) -> str:
@@ -74,10 +77,12 @@ def norm(name: str) -> str:
 
 def parse_pom(text: str):
     own, deps = set(), set()
+    if "<!DOCTYPE" in text or "<!ENTITY" in text:  # a pom needs neither, and both enable entity expansion
+        return own, deps
     try:
         text = re.sub(r"<\?xml[^>]*\?>", "", text)
         text = re.sub(r"\s(xmlns(:\w+)?|xsi:\w+)=\"[^\"]*\"", "", text)
-        root = ET.fromstring(text)
+        root = ET.fromstring(text)  # nosec B314 - DOCTYPE and ENTITY are refused above
     except ET.ParseError:
         return own, deps
     gid = root.findtext("groupId") or root.findtext("parent/groupId")

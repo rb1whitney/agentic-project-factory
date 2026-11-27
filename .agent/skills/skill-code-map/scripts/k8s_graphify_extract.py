@@ -21,6 +21,9 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import readable, write_atomic  # noqa: E402
+
 REDACTED = "[REDACTED]"
 
 SENSITIVE_KEY_PATTERN = re.compile(r"(?i)(password|passwd|token|apikey|api_key|secret|credential|private_?key|auth)")
@@ -199,12 +202,7 @@ def write_graph_atomic(path: Path, data: Dict[str, Any]) -> None:
     if leaks:
         raise SecretLeakError(f"refusing to write graph; secret-shaped values at: {leaks[:5]}")
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, indent=2)
-    os.replace(tmp, path)
+    write_atomic(path, json.dumps(data, indent=2), mode=0o600)
 
 
 def _walk_spec(obj: Any):
@@ -801,7 +799,7 @@ def build_domain_hyperedges(graph: Dict[str, Any], doc_dirs: Optional[List[str]]
     doc_texts: List[Tuple[str, str]] = []
     for d in doc_dirs or []:
         dp = Path(d)
-        files = [dp] if dp.is_file() else list(dp.rglob("*"))
+        files = [dp] if dp.is_file() else [f for f in dp.rglob("*") if readable(f, dp)]
         for f in sorted(files):
             if not f.is_file():
                 continue
@@ -1083,7 +1081,7 @@ def merge_graphify_graphs(
     manifest_map: Dict[str, List[str]] = {}
     for d in manifest_dirs or []:
         dp = Path(d)
-        files = [dp] if dp.is_file() else list(dp.rglob("*.y*ml"))
+        files = [dp] if dp.is_file() else [f for f in dp.rglob("*.y*ml") if readable(f, dp)]
         for f in files:
             tids = _parse_manifest_targets(f)
             if tids:

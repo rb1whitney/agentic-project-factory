@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .agent/hooks/enforce-safety.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.agent/hooks/enforce-safety.sh"
           }
         ]
       },
@@ -28,17 +28,6 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.agent/skills/skill-code-map/scripts/noise_gate.py || true"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .agent/hooks/audit_stubs.sh"
           }
         ]
       }

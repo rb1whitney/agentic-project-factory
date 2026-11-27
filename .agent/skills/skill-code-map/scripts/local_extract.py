@@ -11,6 +11,9 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import AST_GREP_SCAN_ALL, REDACTED, is_secret  # noqa: E402
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = SCRIPT_DIR / "sgconfig.yml"
 
@@ -42,18 +45,15 @@ def load_rule_metadata(config_path: Path) -> Dict[str, Dict[str, Any]]:
 
 
 def run_ast_grep_scan(config_path: Path, targets: List[str]) -> List[Dict[str, Any]]:
-    cmd = ["ast-grep", "scan", "--json", "-c", str(config_path)] + targets
+    cmd = ["ast-grep", "scan", "--json", *AST_GREP_SCAN_ALL, "-c", str(config_path), *targets]
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    # A scanner that failed must never look like a clean scan.
+    if proc.returncode != 0 and not proc.stdout.strip():
+        raise RuntimeError(f"ast-grep scan failed (needs ast-grep with --no-ignore and --globs): {proc.stderr.strip()}")
     try:
-        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-        if not proc.stdout.strip():
-            return []
-        return json.loads(proc.stdout)
-    except subprocess.CalledProcessError as e:
-        sys.stderr.write(f"ast-grep scan failed: {e.stderr}\n")
-        return []
+        return json.loads(proc.stdout) if proc.stdout.strip() else []
     except json.JSONDecodeError as e:
-        sys.stderr.write(f"Failed to parse ast-grep output: {e}\n")
-        return []
+        raise RuntimeError(f"could not parse ast-grep output: {e}") from e
 
 
 _RULE_META: Optional[Dict[str, Dict[str, Any]]] = None
@@ -96,6 +96,11 @@ def normalize_record(
         record_type, source_scope = meta["record_type"], meta["source_scope"]
     else:
         record_type, source_scope = scope_map.get(rule_id, (rule_id, "general"))
+    name, val = extracted_data.get("name", ""), extracted_data.get("val", "")
+    # `value =` in a set block, and maps or lists, can carry a secret this attribute's name does not reveal.
+    opaque = name in ("value", "values", "data") or val.lstrip().startswith(("{", "["))
+    if "val" in extracted_data and (opaque or is_secret(name, val.strip('"'))):
+        extracted_data["val"] = REDACTED
     source_name = (
         extracted_data.get("path")
         or extracted_data.get("class")

@@ -8,6 +8,7 @@ structural tools over stdio JSON-RPC 2.0 (Model Context Protocol) and direct Pyt
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -22,6 +23,9 @@ if str(SCRIPT_DIR) not in sys.path:
 import auto_context as ac  # noqa: E402
 import graph_builder as gb  # noqa: E402
 import semantic_query as sq  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import clean_text, clean_tree, inside  # noqa: E402
 
 
 def _sexp(node: Any) -> str:
@@ -38,7 +42,12 @@ class CodeMapGraphifyMCP:
         graph: Optional[Dict[str, Any]] = None,
         graph_path: Optional[str] = None,
         src_dir: Optional[str] = None,
+        roots: Optional[List[str]] = None,
     ) -> None:
+        # Tool arguments come from a model, which may be repeating instructions it read in a repository.
+        self.roots = [os.path.realpath(r) for r in roots or [src_dir or os.getcwd()]]
+        if not roots and set(self.roots) & {os.path.realpath(Path.home()), os.path.realpath(os.sep)}:
+            self.roots = []  # a default this wide confines nothing; pass --root to allow paths
         if graph is not None:
             self.graph = graph
         elif graph_path and Path(graph_path).is_file():
@@ -47,6 +56,13 @@ class CodeMapGraphifyMCP:
             self.graph = gb.GraphBuilder(src_dir).build_graph()
         else:
             self.graph = {"nodes": {}, "edges": []}
+        self.graph = clean_tree(self.graph)
+
+    def _confine(self, value: str) -> str:
+        """A path argument must lie inside an allowed root and must not look like an option."""
+        if str(value).startswith("-") or not inside(value, self.roots):
+            raise ValueError(f"path is outside the allowed roots: {clean_text(value, 200)}")
+        return str(value)
 
     def list_tools(self) -> List[Dict[str, Any]]:
         return [
@@ -251,10 +267,11 @@ class CodeMapGraphifyMCP:
         if name == "graph_env_diff":
             import state_graph as sgm
 
-            return sgm.env_diff(Path(arguments["root"]), arguments["env_a"], arguments["env_b"])
+            return sgm.env_diff(Path(self._confine(arguments["root"])), arguments["env_a"], arguments["env_b"])
         if name == "graph_state_drift":
             cmd = [sys.executable, str(SCRIPT_DIR / "state_graph.py"), "drift", "--no-live-vault"]
-            cmd += ["--k8s", *arguments["k8s_dirs"], "--live-k8s", arguments["live_k8s"]]
+            cmd += ["--k8s", *[self._confine(d) for d in arguments["k8s_dirs"]]]
+            cmd += ["--live-k8s", self._confine(arguments["live_k8s"])]
             cmd += ["--format", arguments.get("format", "json")]
             res = subprocess.run(cmd, capture_output=True, text=True)
             if res.returncode != 0:
@@ -266,13 +283,13 @@ class CodeMapGraphifyMCP:
                 out = Path(d) / "graph.json"
                 cmd = [sys.executable, str(script), "--out", str(out)]
                 if arguments.get("live_k8s"):
-                    cmd += ["--live-k8s", arguments["live_k8s"]]
+                    cmd += ["--live-k8s", self._confine(arguments["live_k8s"])]
                 elif arguments.get("cache_dir"):
-                    cmd += ["--no-live", "--cache-dir", arguments["cache_dir"]]
+                    cmd += ["--no-live", "--cache-dir", self._confine(arguments["cache_dir"])]
                 else:
                     raise ValueError("graph_k8s_extract needs live_k8s or cache_dir (MCP never queries a cluster)")
                 if arguments.get("catalog"):
-                    cmd += ["--catalog", arguments["catalog"]]
+                    cmd += ["--catalog", self._confine(arguments["catalog"])]
                 res = subprocess.run(cmd, capture_output=True, text=True)
                 if res.returncode != 0:
                     return {"error": (res.stderr or res.stdout).strip()[-2000:]}
@@ -326,9 +343,9 @@ class CodeMapGraphifyMCP:
             import well_architected_audit as waa
 
             report = waa.audit_directory(
-                arguments["target_dir"],
+                self._confine(arguments["target_dir"]),
                 diff_text=arguments.get("diff_text"),
-                policies_dir=arguments.get("policies_dir"),
+                policies_dir=self._confine(arguments["policies_dir"]) if arguments.get("policies_dir") else None,
             )
             report["markdown"] = waa.render_well_architected_markdown(report)
             return report
@@ -373,8 +390,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Run unified CodeMap + Graphify + ast-grep stdio MCP server.")
     ap.add_argument("--graph", default=None, help="Path to relationship_graph.json or Graphify graph.json")
     ap.add_argument("--src", default=None, help="Source directory to index on startup")
+    ap.add_argument("--root", action="append", help="Directory tools may read; repeatable (default: --src or cwd)")
     args = ap.parse_args()
-    srv = CodeMapGraphifyMCP(graph_path=args.graph, src_dir=args.src)
+    srv = CodeMapGraphifyMCP(graph_path=args.graph, src_dir=args.src, roots=args.root)
     for line in sys.stdin:
         line = line.strip()
         if not line:

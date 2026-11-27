@@ -8,11 +8,14 @@ projection (`redact`) before they are cached or linked.
 import argparse
 import json
 import logging
-import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safe_io import write_atomic  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("k8s_catalog")
@@ -313,12 +316,7 @@ def write_cache(path: Path, data: Dict[str, Any]) -> None:
     if leaks:
         raise SecretLeakError(f"refusing to write cache; secret-shaped values at: {leaks[:5]}")
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w") as fh:
-        json.dump(data, fh, indent=1, sort_keys=True)
-    os.replace(tmp, path)
+    write_atomic(path, json.dumps(data, indent=1, sort_keys=True), mode=0o600)
 
 
 # ---------------------------------------------------------- cluster I/O
