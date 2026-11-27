@@ -45,6 +45,20 @@ Extract AST symbol map, call/import graph (`relationship_graph`), git forensics 
 | **State graph** (IaC vs live) | Desired-vs-live drift, Vault posture lint, cluster health, GCP CAI inventory, environment diffs | `state_graph.py`, `k8s_catalog.py`, `gcp_catalog.py` |
 | **Graphify bridge** (`skill-graphify`) | Interactive D3/Mermaid callflow HTML, community/God-node topology, unified code+K8s+Vault+GCP graph | `--format graphify` on `graph_builder.py` / `k8s_catalog.py` / `state_graph.py` / `gcp_catalog.py`, plus `k8s_graphify_extract.py` |
 
+### Numbered Instructions & Decision Forks
+1. **Search first**: Run `git grep -l` or targeted grep for named symbols.
+   - **Fork 1A (`<= 100` matching files AND no multi-hop relation needed)**: Read matched files directly and answer; skip graph build.
+   - **Fork 1B (`> 100` files OR question needs multi-hop relations: callers, inheritance, K8s/GCP lineage)**: Proceed to Step 2.
+2. **Select graph/catalog fork**:
+   - **Fork 2A (Code / Terraform AST)**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/graph_builder.py <target_dir> --format graphify --output graph.json` (or `auto_context.py "<task_query>" --src <target_dir> --max-tokens 8000`).
+   - **Fork 2B (Kubernetes live API + manifests)**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/k8s_graphify_extract.py --kubeconfig <kubeconfig> -n <ns> --manifests <dir> --merge-with graph.json --out unified-graph.json`.
+   - **Fork 2C (GCP Cloud Asset Inventory + IAM)**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/gcp_catalog.py --project <gcp_project_id> --include-iam --merge-with unified-graph.json --out gcp-unified-graph.json` (uses `--content-type=resource`; never requires SCC Premium).
+   - **Fork 2D (Structural rules / 6-Pillar audit)**: Run `well_architected_audit.py <target_dir> --pillar ALL` or `ast-grep run`.
+3. **Query candidates**: Run `/usr/bin/python3 .agent/skills/skill-code-map/scripts/semantic_query.py --graph <graph.json> query|lineage|find-usages <symbol>`.
+   - **Fork 3A (Footer states list is complete, e.g. Go package imports)**: Answer directly from the returned list without re-searching.
+   - **Fork 3B (Generic syntactic footer)**: Read or grep ONLY inside the candidate files named by the graph before concluding.
+4. **State Evidence Boundary**: End every readout with `Evidence Boundary: <static AST | manifests only | live cluster | live GCP CAI>`.
+
 ### Routing & Runtime Rules
 - **Search first, map for noise and relations, then search inside what the map names**: Run the search (`git grep -l`, Grep). Quiet result (about 100 files or fewer): answer from it. Noisy result, or a relation search cannot show (inherits, injects, call chain, multi-hop flow): build or reuse the graph (`~/.cache/skill-code-map/<repo-hash>/`), query it for candidates, then read or search only the files it names. Never stop at the map unless its footer says the list is complete. Measured: plain search matched an exact graph on Go import questions even at 587 matching files; the map cut Claude's cost by 28 percent when named and raised Antigravity's token use; agents that answered from graph output alone found 0.46 of the right files against 0.75 for search (`references/graph-vs-search.md`).
 - **Noise gate (wired)**: `scripts/noise_gate.py` runs as a PreToolUse hook for Claude (`.agent/adapters/settings/claude.json`) and Antigravity (`.agent/hooks/hooks.json`). A search matching more than 100 files is denied once per session with the map commands named; after one map command, or one denial, searches proceed. Quiet searches are untouched. It fails open, so a broken hook never blocks a tool call. Tune with `NOISE_MIN_HITS`; remove the two hook entries to disable.
