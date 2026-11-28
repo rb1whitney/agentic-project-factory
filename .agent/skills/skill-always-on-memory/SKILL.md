@@ -64,3 +64,11 @@ python3 bin/memory_agent.py complete <session_id> | bin/rtk
 | **SQLite Recall & Insight Engine** | Session init, keyword query, insight scoring, lifecycle hook integration (`session_start.json`, `post_task.json`) | `bin/memory_agent.py` |
 | **Episodic Context Paging** | Context window budgeting, paging out stale turns, summarizing long trajectories | `.agent/skills/skill-always-on-memory/references/episodic-memory.md` |
 | **Relational Graph Memory** | Entity/relationship triple extraction, conflict detection, cross-session lineage | `.agent/skills/skill-always-on-memory/references/graph-memory.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `sqlite3.OperationalError: database is locked` | Concurrent write to `memory.db` | Wait for active `memory_agent.py` PID to exit (`ps aux \| grep memory_agent`), then re-run query |
+| `0` insights returned on known topic | Query terms too narrow or un-consolidated | Run `python3 bin/memory_agent.py consolidate` and query with broader stem |
+| Unexpected flag/script failure | Stale skill instructions or broken CLI flag | File papercut: `python3 bin/log_papercut.py --skill skill-always-on-memory --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

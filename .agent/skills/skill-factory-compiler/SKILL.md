@@ -62,3 +62,11 @@ Hydrate canonical multi-adapter YAML agents in `.agent/agents/*.yaml`, sync Nexu
 | **Model Tier Drift & Validation** | Audit or update Claude (`sonnet`/`opus`), Antigravity (`flash`/`pro`), and Codex model tiers | `references/harness-models.md` |
 | **PreInvocation Autoload Webhook** | Dynamic context and skill injection via `bin/autoload_webhook.py` | `references/webhook-autoload.md`, `scripts/tool.json` |
 | **Agentic Initializer & AGENTS.md** | Bootstrapping canonical hub directories and `AGENTS.md` routing indexes | `references/agentic-initializer.md`, `references/vercel-agents-md.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `hydrate.sh` exits `1` (missing adapter key) | Canonical YAML in `.agent/agents/` lacks vendor block or `stem != name` | Fix `.agent/agents/<name>.yaml` against `.agent/adapters/schemas/agent.schema.json` and re-run `./scripts/hydrate.sh all` |
+| `verify_runtime_discovery.py` reports drift | `.agent/metadata.json` stale after skill/agent edit | Run `python3 bin/compile_metadata.py` then re-run `python3 bin/verify_runtime_discovery.py` |
+| Unexpected flag/script failure | Schema or projection mismatch | File papercut: `python3 bin/log_papercut.py --skill skill-factory-compiler --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

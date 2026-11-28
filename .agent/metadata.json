@@ -1,5 +1,5 @@
 {
-  "compiled_at": "2026-11-15T04:54:55.552582+00:00",
+  "compiled_at": "2026-11-28T00:31:56.871758+00:00",
   "standard_locations": {
     "agents": ".agent/agents",
     "skills": ".agent/skills",
@@ -98,6 +98,13 @@
     }
   ],
   "skills": [
+    {
+      "name": "presentation-architect",
+      "description": "Build management-consulting-grade presentations from raw technical, strategic, architecture, incident, or operational material. Narrative first, visuals second, editable PowerPoint last. Use when the user asks to create, redesign, improve, storyboard, or audit a presentation.",
+      "path": ".agent/skills/presentation-architect",
+      "references_count": 6,
+      "invoked_contracts": []
+    },
     {
       "name": "skill-always-on-memory",
       "description": "Persistent SQLite-based cognitive layer for cross-session interaction logging and insight distillation.",

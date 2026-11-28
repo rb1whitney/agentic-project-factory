@@ -67,3 +67,11 @@ Every runbook in `.agent/skills/skill-aws/references/` is reachable in **1 hop**
 | **SageMaker, Fine-Tuning & HyperPod** | Dataset eval/transform, SFT/DPO/RLVR fine-tuning, model eval/deploy, HyperPod (`11` leaf guides) | `references/sagemaker-index.md` |
 | **GCP-to-AWS 5-Phase Migration** | Discover, clarify, cluster Terraform, design, estimate, execute (`22` leaf guides) | `references/aws-migration.md` |
 | **Amplify Gen 2, Aurora DSQL & Location Service** | Full-stack Amplify (`3` leaf guides), Aurora DSQL (`24` leaf guides), Location Service (`6` leaf guides) | `references/amplify-workflow/guide.md`, `scripts/amplify-prereq-check.sh`, `references/dsql/guide.md`, `references/location-service/guide.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `ExpiredToken` / `InvalidClientTokenId` | AWS SSO or STS session expired | Run `aws sso login --profile <profile>` and verify with `aws sts get-caller-identity` |
+| `AccessDenied` on read-only describe | Missing IAM permission in assumed role | Check `aws sts get-caller-identity` ARN; switch to read-only audit role or report blocked action |
+| Unexpected flag/script failure | Stale CLI flag or API change | File papercut: `python3 bin/log_papercut.py --skill skill-aws --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

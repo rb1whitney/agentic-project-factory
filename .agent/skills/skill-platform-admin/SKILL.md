@@ -58,3 +58,11 @@ Execute expert skill name and description capability workflows for `expert_name`
 | **Cloud SDK & CLI Discovery** | Managing `gcloud`, `aws`, `kubectl`, `helm`, `gh`, and dynamic CLI schema discovery | `references/sdk-manager.md`, `references/cli-discovery.md`, `references/gemini-cli-abilities-summary.md` |
 | **MCP Server Lifecycle** | Configuring, testing, and troubleshooting Model Context Protocol servers | `references/mcp-manager.md` |
 | **AI Harnesses (OpenCode & Gemini CLI)** | Local model orchestration, provider routing, Gemini CLI & Antigravity setup | `references/opencode-manager.md`, `references/gemini-cli-expert.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `Permission denied (publickey)` on GitHub SSH/PAT | `ssh-agent` missing key or expired PAT | Verify `ssh-add -l` and `gh auth status`; refresh token via `gopass`/`rbw` |
+| Python script fails `ModuleNotFoundError` | Wrong Python interpreter (`.venv` vs `/usr/bin/python3`) | Check `which python3` and run `.venv/bin/python3` for `jsonschema`/`yaml` or `/usr/bin/python3` for `tree_sitter` |
+| Unexpected flag/script failure | Broken workspace env or path | File papercut: `python3 bin/log_papercut.py --skill skill-platform-admin --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

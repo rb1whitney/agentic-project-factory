@@ -84,3 +84,11 @@ Chat to USER: caveman-prose, `Location | Problem | Fix`, no emoji. Skill files: 
 | Fowler/Moghe narrative method applied to skill design | `references/narrative-for-skills.md` |
 | Bind agents, update catalog, run gates | `references/registration-checklist.md` |
 | Write or audit a Tier 3 reference (template, naming, eval, sources) | `references/reference-authoring.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `lint_skills.py` fails on new `SKILL.md` | Missing `## Error Recovery` table, >500 lines, or vague placeholder fix | Add concrete failure-to-fix table, move deep docs to `references/`, and re-run `python3 scripts/sap/lint_skills.py` |
+| Child contract surfaced as top-level skill | Added standalone folder under `.agent/skills/` instead of `.agent/contracts/` | Move contract to `.agent/contracts/<name>.yaml` and inline into parent skill |
+| Unexpected flag/script failure | Broken verifier or schema check | File papercut: `python3 bin/log_papercut.py --skill skill-factory-creator --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

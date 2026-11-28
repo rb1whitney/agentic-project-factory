@@ -110,3 +110,12 @@ GC=.agent/skills/skill-code-map/scripts/gcp_catalog.py
 | **6-Pillar Well-Architected & Policy Engine** | Static `SEC`/`REL`/`OPS`/`PERF`/`COST`/`SUS` audit & Kodus policy hydration | `scripts/well_architected_audit.py`, `scripts/local_extract.py`, `scripts/hydrate_policies.py`, `scripts/sgconfig.yml`, `scripts/rules/`, `resources/RULE_AUTHORING_GUIDE.md` |
 | **IaC Drift, Vault Lint & Cloud/K8s Catalog** | Desired-vs-live K8s/Vault drift, OpenAPI/CRD catalog, GCP CAI inventory, env-diff | `scripts/state_graph.py`, `scripts/k8s_catalog.py`, `scripts/gcp_catalog.py`, `scripts/k8s_graphify_extract.py` |
 | **Graph vs Search, Multi-Repo Index & Scoring** | Choosing graph or search, indexing many repositories, cross-repo dependencies, scoring file-list answers | `references/graph-vs-search.md`, `scripts/graph_of_graphs.py`, `scripts/manifest_deps.py`, `scripts/eval_score.py` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `ModuleNotFoundError: tree_sitter` | Invoked `.venv` python instead of system python | Re-run using `/usr/bin/python3` as specified in `## 0` |
+| `UNAUTHENTICATED: SCC premium` (`gcp_catalog.py`) | Used `--content-type=relationship` on standard project | `gcp_catalog.py` uses `--content-type=resource` + URI walker; never pass `--content-type=relationship` |
+| Search denied by `noise_gate.py` (>100 files) | Broad search triggered noise gate once per session | Run `auto_context.py` or `semantic_query.py` on candidate files, then search inside named files |
+| Unexpected flag/script failure | Broken flag or grammar limit | File papercut: `python3 bin/log_papercut.py --skill skill-code-map --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

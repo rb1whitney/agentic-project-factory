@@ -60,3 +60,12 @@ Execute infrastructure capability implementation and specific skill description 
 | **Packer & Machine Image Builders** | Golden AMI, Azure Image Builder, Windows images, container registry push | `references/aws-ami-builder.md`, `references/azure-image-builder.md`, `references/windows-builder.md`, `references/push-module-to-registry.md` |
 | **PKI & Certificate Lifecycle** | Public TLS validity limits (200/100/47 days), ACME, cert-manager, rotation automation | `references/tls-certificate-lifecycle.md` |
 | **On-Prem Provisioning** | On-prem VMs: Terraform creates, Ansible configures (Proxmox example) | `references/on-prem-provisioning.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `terraform plan` hangs in non-interactive shell | Missing required variable without default | Always pass `-input=false` and explicit `-var` / `-var-file` |
+| `403 SERVICE_DISABLED` / `400 Identity Pool does not exist` | Missing `depends_on` on API enablement or GKE cluster | Add `depends_on = [google_project_service.required]` or `[google_container_cluster.<name>]` |
+| `terraform destroy` blocked on VPC / NLB / GCS bucket | Orphaned `gke-csm-*` firewalls, NLB ENIs, or versioned state objects | Run pre-destroy LB/STS/PVC cleanup, delete orphaned firewall rules, or purge versioned objects first |
+| Unexpected flag/script failure | Provider version mismatch or stale `.terraform.lock.hcl` | File papercut: `python3 bin/log_papercut.py --skill skill-terraform --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

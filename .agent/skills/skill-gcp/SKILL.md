@@ -62,3 +62,12 @@ Verify GCP ADC identity (`identity_state`), configure OneMCP servers, and execut
 | **Cloud Run, Build & Resource Manager** | Serverless revisions, error reporting by revision, org/folder hierarchy | `references/googleapis.com/run.md`, `references/googleapis.com/cloudbuild.md`, `references/googleapis.com/cloudresourcemanager.md`, `scripts/report_errors_by_revision.py` |
 | **Security & IAM Hardening** | IAM least privilege, Cloud Armor, VPC Service Controls, zero-trust | `references/security-foundations.md` |
 | **System Design & Ops Playbooks** | Architecture patterns, operational excellence, triage | `references/architecture-docs.md`, `references/system-design.md`, `references/operational-excellence.md`, `references/sre-playbooks.md`, `references/gke-cloudrun-cloudsql-troubleshooting.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `403 SERVICE_DISABLED` (`billingbudgets.googleapis.com`) | ADC lacks quota project override | Run `gcloud auth application-default set-quota-project <id>` and pass `USER_PROJECT_OVERRIDE=true GOOGLE_BILLING_PROJECT=<id>` |
+| `GKE Warden` blocks `istio-cni` (`NET_ADMIN` / `hostPath`) | OSS `istio-cni` disallowed on GKE Autopilot | Enable managed Cloud Service Mesh (`mesh.googleapis.com` + `asm-managed`) and disable self-hosted `istio-base`/`istio-cni`/`istiod` |
+| `503` on ASM Gateway under `STRICT` mTLS | `AuthorizationPolicy` uses `cluster.local` principals | Patch principals to `<project_id>.svc.id.goog/ns/<ns>/sa/<sa>` |
+| Unexpected flag/script failure | Stale gcloud flag or API permission gap | File papercut: `python3 bin/log_papercut.py --skill skill-gcp --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |
