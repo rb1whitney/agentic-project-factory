@@ -60,3 +60,11 @@ Execute read-only SRE monitoring queries and time series description analysis ac
 | **Cloud Monitoring & Time Series** | Metric queries, CSV export/merge, sparklines, dual-metric & archetype plots | `references/cloud-monitoring-metrics.md`, `references/monitoring-incident-graphs.md`, `references/monitoring-archetypes.md`, `scripts/export_timeseries_to_csv.py`, `scripts/merge_timeseries.py`, `scripts/preprocess_data.py`, `scripts/csv_to_sparkline.py`, `scripts/plot_archetype.py`, `scripts/reference_dual_plot.py` |
 | **Statistical Anomaly Detection** | Z-score, Isolation Forest, and k-NN anomaly detection & plotting | `references/anomaly-detection.md`, `scripts/detect_zscore.py`, `scripts/detect_isolation_forest.py`, `scripts/detect_knn.py`, `scripts/plot_anomalies.py` |
 | **SLO Management & Postmortems** | GCP SLO burn analysis, PagerDuty workflows, postmortems | `references/gcp-slo-management.md`, `references/postmortem-generator.md`, `references/postmortem-aggregator.md`, `references/pagerduty.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| Cloud Logging query returns empty / `PERMISSION_DENIED` | Wrong `--project` or missing `roles/logging.viewer` | Confirm `gcloud config get-value project` and verify IAM bindings with `gcloud projects get-iam-policy` |
+| Metric query exceeds token budget | Broad un-aggregated log query | Add `severity>=ERROR` + time window (`--freshness=1h`) and pipe through `bin/rtk` |
+| Unexpected flag/script failure | Stale `gcloud` monitoring filter syntax | File papercut: `python3 bin/log_papercut.py --skill skill-sre-investigation --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

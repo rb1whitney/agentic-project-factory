@@ -54,3 +54,11 @@ Execute 6-Pillar Well-Architected AST rules, compliance security checks, and beh
 | **Behavioral Evaluations** | Creating, running, fixing, and promoting behavioral eval suites | `references/behavioral-evals.md`, `references/behavioral-evals-creating.md`, `references/behavioral-evals-running.md`, `references/behavioral-evals-fixing.md`, `references/behavioral-evals-promoting.md`, `scripts/assets/standard_eval.ts.txt`, `scripts/assets/interactive_eval.ts.txt` |
 | **Regulatory & Hub Governance** | Policy enforcement, branch/PR governance, audit trails | `references/compliance-analysis.md` |
 | **Production Readiness** | Pre-release certification gate (`CERTIFICATION_REPORT.md`) | `conductor/templates/CERTIFICATION_REPORT.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `SecretLeakError` / hardcoded secret hit | Credential literal staged or in config | Remove literal, route via `gopass`/`rbw` or Secret Manager, and re-run audit |
+| Unmanaged non-symlink policy file | Raw file in `.agent/policies/` conflicts with `nexus.py` | Warn user before modifying; reconcile via `python3 bin/nexus.py` |
+| Unexpected flag/script failure | Stale rule pack or CLI mismatch | File papercut: `python3 bin/log_papercut.py --skill skill-compliance-auditor --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

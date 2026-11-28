@@ -66,3 +66,11 @@ All project and manufacturing tracks in `conductor/tracks/<track-id>/` follow th
 | **Product Factory Blueprint** | 6-phase standalone product manufacturing & Zero-Zero decoupling | `references/product-blueprint.md` |
 | **Architecture & LADR Generation** | Lightweight Architecture Decision Records (LADRs) & system design | `references/ladr-generator.md`, `references/ladr-template.md`, `scripts/templates/LADR.md` |
 | **AWS Architecture Diagrams** | Draw.io / XML architecture diagram generation & layout standards | `references/aws-diagrams/drawing-guide.md`, `references/aws-diagrams/layout-guidelines.md`, `references/aws-diagrams/style-guide.md`, `references/aws-diagrams/cli-export.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| Missing track in `conductor/tracks/` | Implementation started before Spec/Plan | Initialize track from `conductor/templates/{STRATEGIC_RECON,EXECUTIVE_PLAN}.md` before coding |
+| Phase gate blocked on unverified tests | `CERTIFICATION_REPORT.md` lacks post-edit test output | Re-run full unit/integration suite after last edit and record exact pass counts |
+| Unexpected flag/script failure | Stale conductor template or hook error | File papercut: `python3 bin/log_papercut.py --skill skill-conductor --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

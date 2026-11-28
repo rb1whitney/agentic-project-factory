@@ -62,3 +62,12 @@ Diagnose Kubernetes pod status, container logs, events, local k3s cluster state,
 | **Service Mesh & Networking** | Istio mTLS, Gateway API, VirtualService, CoreDNS & service routing | `references/istio-service-mesh.md` |
 | **Interactive Cluster Triage (k9s)** | k9s navigation, resource inspection, log/shell shortcuts | `references/k9s-cli.md` |
 | **Cluster Provisioning & Local k3s** | k3s installation, homelab GitOps (ArgoCD, GitLab, OpenBao/ESO, Kargo) | `references/operations-manual.md`, `references/cluster-provisioning.md`, `scripts/install_k3s.sh`, `scripts/k3s-orchestrator.sh`, `scripts/maintenance-cleanup.sh`, `scripts/projects/devops-homelab/README.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `Operation not permitted: /etc/rancher/k3s/k3s.yaml` | `KUBECONFIG` points to root-owned local k3s file | Export isolated kubeconfig (`export KUBECONFIG=~/.kube/gke-dev.yaml`) before running `get-credentials` |
+| Pod stuck in `Init:CrashLoopBackOff` (`127.0.0.6:15002`) | `istio-cni` missing or blocked by Autopilot Warden | Switch to managed Cloud Service Mesh (`istio.io/rev=asm-managed`) or verify `istio-cni-node` DaemonSet |
+| `pvc-protection` hangs `kubectl delete pvc --wait=true` | StatefulSet pod still mounts PVC | Delete StatefulSet (`kubectl delete sts --all -n <ns>`) before deleting PVCs |
+| Unexpected flag/script failure | Stale `kubectl`/`helm` flag or CRD version | File papercut: `python3 bin/log_papercut.py --skill skill-kubernetes --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

@@ -66,3 +66,11 @@ INPUT -> DISCOVER -> NARRATIVE BRIEF -> HOSTILE EVIDENCE REVIEW -> STORYLINE -> 
 | **Stage 5: Storyboard & Patterns** | Pattern catalog (comparison, pipeline, 2x2, callout, chart, table) & anti-patterns | `references/slide-patterns.md`, `schemas/storyboard.md` |
 | **Stage 6-7: Visual Grammar & Tokens** | Reading gravity, contrast, 16:9 spatial grid, typography & 60-30-10 color palette | `references/visual-grammar.md`, `references/design-tokens.md`, `schemas/slide-spec.md` |
 | **Stage 8: Quality Assurance** | Pre-render storyboard gate and post-render visual inspection checklist | `references/quality-assurance.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `python-pptx` / renderer missing | PPTX dependencies not installed in `.venv` | Activate `.venv` or run `.venv/bin/pip install python-pptx` before rendering |
+| Slide text overflow or missing evidence citation | Storyboard skipped evidence ledger check | Audit every slide claim against evidence ledger and split dense slides into 2-column or carousel layouts |
+| Unexpected flag/script failure | Broken renderer template or schema | File papercut: `python3 bin/log_papercut.py --skill skill-presentation-architect --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

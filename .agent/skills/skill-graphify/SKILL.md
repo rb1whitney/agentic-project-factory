@@ -80,3 +80,11 @@ graphify export callflow-html --graph <target_dir>/graphify-out/graph.json | bin
 | **Crossplane v2 & GitOps Control Planes** | XRD (`CompositeResourceDefinition`), Composition, ProviderConfig, and ArgoCD topology patterns | `references/crossplane.md`, `.agent/skills/skill-code-map/scripts/rules/crossplane/crossplane-xrd.yml`, `.agent/skills/skill-code-map/scripts/rules/crossplane/crossplane-composition.yml` |
 | **Shared Per-Repo Graph Registry** | Publish a graph per commit, route a question to the right repo, query it without a checkout | `references/graph-registry.md`, `.agent/skills/skill-code-map/scripts/graph_registry.py` |
 | **AST Graph Builder & Context Lensing** | Multi-language NetworkX `node_link_data` graph generation & PPR context ranking | `.agent/skills/skill-code-map/scripts/graph_builder.py`, `.agent/skills/skill-code-map/scripts/auto_context.py`, `.agent/skills/skill-code-map/scripts/local_extract.py`, `.agent/skills/skill-code-map/scripts/codemap_graphify_mcp.py`, `.agent/skills/skill-code-map/scripts/rules/` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `SecretLeakError` during `k8s_graphify_extract.py` | High-entropy token survived redaction filter | Inspect flagged object path, add key to `DROP_KEYS`/`NEVER_LIST`, and re-run extraction |
+| Graphify query skips `*prod*` context | Safety guard blocks production kubeconfig reads | Switch to dev/staging kubeconfig or pass `--allow-prod-read` only for approved read-only audits |
+| Unexpected flag/script failure | Broken flag or Graphify schema mismatch | File papercut: `python3 bin/log_papercut.py --skill skill-graphify --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |

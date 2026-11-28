@@ -62,3 +62,11 @@ Execute specific skill description workflow on `current_branch` and `specific_sc
 | **CI Failure Replication** | Inspecting GitHub Actions logs (`workflow_run_id`) and reproducing CI locally | `references/ci-failure-replication.md`, `scripts/ci.mjs` |
 | **Issue Triage & Authoring** | Structured bug reports, feature requests, issue labeling | `references/issue-creation-guide.md` |
 | **Technical Documentation** | Architecture docs, READMEs, markdownlint compliance | `references/docs-writing-guide.md` |
+
+## Error Recovery
+
+| Failure / Symptom | Cause | Concrete Fix |
+| :--- | :--- | :--- |
+| `gh pr create` / `push` rejected on `main`/`master` | Direct commit attempted on protected base branch | Create feature branch (`git checkout -b feat/<topic>`), cherry-pick/commit there, and open PR |
+| `mergeable: CONFLICTING` on PR | Base branch (`master`/`main`) moved ahead | Run `git fetch origin && git merge origin/<base>`, resolve conflicts, re-run tests, and push |
+| Unexpected flag/script failure | Stale `gh` CLI flag or permission scope | File papercut: `python3 bin/log_papercut.py --skill skill-github --tried "<cmd>" --expected "<ok>" --actual "<err>" --fix "<fix>"` |
